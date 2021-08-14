@@ -1,6 +1,7 @@
 package com.rainyseason.cj
 
 import android.app.Application
+import com.airbnb.mvrx.Mavericks
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
@@ -23,6 +24,8 @@ class CJApplication : Application(), HasAndroidInjector {
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
+
+        Mavericks.initialize(this)
     }
 
 
