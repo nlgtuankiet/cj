@@ -56,14 +56,14 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
 
         launchAndRepeatWithLifecycle {
             viewModel.saveEvent.collect {
-                save(widgetId = widgetId, config = it)
+                save(widgetId = widgetId, data = it)
             }
         }
     }
 
-    private fun save(widgetId: Int, config: TickerWidgetDisplayConfig) {
+    private fun save(widgetId: Int, data: TickerWidgetDisplayData) {
         val remoteView = RemoteViews(packageName, R.layout.widget_coin_ticker)
-        config.render(remoteView)
+        data.bindTo(remoteView)
         appWidgetManager.updateAppWidget(widgetId, remoteView)
         val resultValue = Intent().apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)

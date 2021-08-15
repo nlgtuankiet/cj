@@ -42,8 +42,8 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
     }
 
     private fun updateRemoteView(view: RemoteViews, state: CoinTickerSettingState) {
-        val savedDisplayConfig = state.savedWidgetConfig.invoke() ?: return
-        savedDisplayConfig.render(view)
+        val savedDisplayConfig = state.savedWidgetData.invoke() ?: return
+        savedDisplayConfig.bindTo(view)
     }
 
     override fun invalidate() {

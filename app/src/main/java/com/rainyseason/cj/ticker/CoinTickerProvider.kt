@@ -20,7 +20,7 @@ class CoinTickerProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
     ) {
-        Timber.d("onUpdate")
+        Timber.d("thread: ${Thread.currentThread().name} onUpdate")
         appWidgetIds.forEach { widgetId ->
             val view = RemoteViews(context.packageName, R.layout.widget_coin_ticker)
             appWidgetManager.updateAppWidget(widgetId, view)

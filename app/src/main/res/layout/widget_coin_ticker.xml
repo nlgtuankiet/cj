@@ -6,8 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:layout_height="150dp"
-    tools:layout_width="300dp"
-    tools:padding="8dp">
+    tools:layout_width="300dp">
 
 
     <LinearLayout
@@ -66,5 +65,16 @@
         android:layout_alignParentBottom="true"
         tools:src="@drawable/dogecoin_icon" />
 
+    <View
+        android:id="@+id/loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:background="#80000000"
+        android:clickable="false"
+        android:visibility="gone" />
 
 </RelativeLayout>

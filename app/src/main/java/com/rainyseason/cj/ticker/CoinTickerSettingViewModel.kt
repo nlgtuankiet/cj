@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 
 data class CoinTickerSettingState(
     val coinId: String? = null,
-    val savedWidgetConfig: Async<TickerWidgetDisplayConfig> = Uninitialized,
+    val savedWidgetData: Async<TickerWidgetDisplayData> = Uninitialized,
     val userCurrency: Async<UserCurrency> = Uninitialized,
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
 ) : MavericksState
@@ -39,13 +39,13 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
         }
     }
 
-    private val _saveEvent = Channel<TickerWidgetDisplayConfig>(capacity = Channel.CONFLATED)
+    private val _saveEvent = Channel<TickerWidgetDisplayData>(capacity = Channel.CONFLATED)
     val saveEvent = _saveEvent.receiveAsFlow()
 
     fun save() {
         // improvement: wait for config complete
         withState { state ->
-            val config = state.savedWidgetConfig.invoke() ?: return@withState
+            val config = state.savedWidgetData.invoke() ?: return@withState
             _saveEvent.trySend(config)
         }
     }
@@ -83,8 +83,8 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
                 userCurrency = userCurrency,
                 coinDetail = coinDetail
             )
-        }.execute(retainValue = CoinTickerSettingState::savedWidgetConfig) { async ->
-            copy(savedWidgetConfig = async)
+        }.execute(retainValue = CoinTickerSettingState::savedWidgetData) { async ->
+            copy(savedWidgetData = async)
         }
     }
 
@@ -93,9 +93,9 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
         coinId: String,
         userCurrency: UserCurrency,
         coinDetail: CoinDetailResponse
-    ): TickerWidgetDisplayConfig {
-        val tickerWidgetDisplayConfig = TickerWidgetDisplayConfig(
-            id = coinId,
+    ): TickerWidgetDisplayData {
+        val tickerWidgetDisplayConfig = TickerWidgetDisplayData(
+            coinId = coinId,
             iconUrl = coinDetail.image.large,
             symbol = coinDetail.symbol,
             currentPrice = coinDetail.marketData.currentPrice[userCurrency.id]!!,
@@ -105,7 +105,7 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
             priceChangePercentage24h = coinDetail.marketData.priceChangePercentage24h,
             priceChangePercentage7d = coinDetail.marketData.priceChangePercentage7d,
         )
-        coinTickerRepository.setConfig(widgetId = widgetId, config = tickerWidgetDisplayConfig)
+        coinTickerRepository.setDisplayConfig(widgetId = widgetId, data = tickerWidgetDisplayConfig)
         return tickerWidgetDisplayConfig
     }
 

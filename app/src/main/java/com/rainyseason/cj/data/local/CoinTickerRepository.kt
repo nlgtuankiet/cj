@@ -4,8 +4,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.rainyseason.cj.ticker.TickerWidgetDisplayConfig
+import com.rainyseason.cj.ticker.TickerWidgetConfig
+import com.rainyseason.cj.ticker.TickerWidgetConfigJsonAdapter
 import com.rainyseason.cj.ticker.TickerWidgetDisplayConfigJsonAdapter
+import com.rainyseason.cj.ticker.TickerWidgetDisplayData
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
@@ -16,20 +18,39 @@ class CoinTickerRepository @Inject constructor(
     private val moshi: Moshi,
 ) {
     private val adapter = TickerWidgetDisplayConfigJsonAdapter(moshi = moshi)
+    private val configAdapter = TickerWidgetConfigJsonAdapter(moshi = moshi)
 
-    suspend fun getConfig(widgetId: Int): TickerWidgetDisplayConfig? {
-        val key = tickerKey(widgetId)
+    suspend fun getDisplayData(widgetId: Int): TickerWidgetDisplayData? {
+        val key = tickerDisplayConfigKey(widgetId)
         val data = dataStore.data.first()[key] ?: return null
-        return adapter.fromJson(data)
+        return adapter.fromJson(data)!!
     }
 
-    private fun tickerKey(widgetId: Int): Preferences.Key<String> {
+    suspend fun setDisplayConfig(widgetId: Int, data: TickerWidgetDisplayData) {
+        val key = tickerDisplayConfigKey(widgetId)
+        val data = adapter.toJson(data)
+        dataStore.edit { it[key] = data }
+    }
+
+    private fun tickerDisplayConfigKey(widgetId: Int): Preferences.Key<String> {
         return stringPreferencesKey("ticker_widget_display_config_${widgetId}")
     }
 
-    suspend fun setConfig(widgetId: Int, config: TickerWidgetDisplayConfig) {
-        val key = tickerKey(widgetId)
-        val data = adapter.toJson(config)
+
+    private fun configKey(widgetId: Int): Preferences.Key<String> {
+        return stringPreferencesKey("ticker_widget_config_${widgetId}")
+    }
+
+    suspend fun setConfig(widgetId: Int, widgetConfig: TickerWidgetConfig) {
+        val key = configKey(widgetId)
+        val data = configAdapter.toJson(widgetConfig)
         dataStore.edit { it[key] = data }
     }
+
+    suspend fun getConfig(widgetId: Int): TickerWidgetConfig? {
+        val key = configKey(widgetId)
+        val data = dataStore.data.first()[key] ?: return null
+        return configAdapter.fromJson(data)!!
+    }
+
 }

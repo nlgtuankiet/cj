@@ -1,10 +1,13 @@
 package com.rainyseason.cj
 
 import android.app.Application
+import android.appwidget.AppWidgetManager
 import com.airbnb.mvrx.Mavericks
+import com.airbnb.mvrx.MavericksViewModelConfigFactory
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
+import kotlinx.coroutines.Dispatchers
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -14,6 +17,9 @@ class CJApplication : Application(), HasAndroidInjector {
     @Volatile
     @JvmField
     var androidInjector: DispatchingAndroidInjector<Any>? = null
+
+    @Inject
+    lateinit var appWidgetManager: AppWidgetManager
 
     private lateinit var appComponent: AppComponent
 
@@ -25,7 +31,13 @@ class CJApplication : Application(), HasAndroidInjector {
             Timber.plant(Timber.DebugTree())
         }
 
-        Mavericks.initialize(this)
+        Mavericks.initialize(
+            context = this,
+            viewModelConfigFactory = MavericksViewModelConfigFactory(
+                debugMode = BuildConfig.DEBUG,
+                contextOverride = Dispatchers.IO
+            )
+        )
     }
 
 

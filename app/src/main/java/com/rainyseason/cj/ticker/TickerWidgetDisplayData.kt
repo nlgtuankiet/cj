@@ -3,11 +3,11 @@ package com.rainyseason.cj.ticker
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
+/**
+ * Represent what is showed on the UI
+ */
 @JsonClass(generateAdapter = true)
-data class TickerWidgetDisplayConfig(
-    @Json(name = "id")
-    val id: String,
-
+data class TickerWidgetDisplayData(
     @Json(name = "icon_url")
     val iconUrl: String,
 

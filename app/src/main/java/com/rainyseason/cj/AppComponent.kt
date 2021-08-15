@@ -8,6 +8,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.squareup.moshi.Moshi
@@ -113,6 +115,17 @@ object AppModule {
                 context.preferencesDataStoreFile("settings")
             }
         )
+    }
+
+    @Provides
+    @Singleton
+    fun workManager(
+        context: Context,
+        factory: AppWorkerFactory,
+    ): WorkManager {
+        val config = Configuration.Builder().setWorkerFactory(factory).build()
+        WorkManager.initialize(context, config)
+        return WorkManager.getInstance(context)
     }
 }
 
