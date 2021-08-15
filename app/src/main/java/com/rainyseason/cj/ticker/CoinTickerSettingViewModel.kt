@@ -14,6 +14,8 @@ import com.rainyseason.cj.data.local.CoinTickerRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 
 data class CoinTickerSettingState(
     val coinId: String? = null,
@@ -34,6 +36,17 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
         setCoinId("dogecoin")
         onEach { state ->
             maybeSaveWidgetConfig(state)
+        }
+    }
+
+    private val _saveEvent = Channel<TickerWidgetDisplayConfig>(capacity = Channel.CONFLATED)
+    val saveEvent = _saveEvent.receiveAsFlow()
+
+    fun save() {
+        // improvement: wait for config complete
+        withState { state ->
+            val config = state.savedWidgetConfig.invoke() ?: return@withState
+            _saveEvent.trySend(config)
         }
     }
 
@@ -111,7 +124,7 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
             return activity.viewModelFactory.create(activity.getWidgetId() ?: 0)
         }
 
-        override fun initialState(viewModelContext: ViewModelContext): CoinTickerSettingState? {
+        override fun initialState(viewModelContext: ViewModelContext): CoinTickerSettingState {
             return CoinTickerSettingState()
         }
     }

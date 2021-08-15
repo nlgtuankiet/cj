@@ -1,6 +1,8 @@
 package com.rainyseason.cj
 
 import android.app.Application
+import android.appwidget.AppWidgetManager
+import android.content.Context
 import android.os.Looper
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
@@ -90,14 +92,25 @@ object AppModule {
     }
 
     @Provides
+    fun context(application: Application): Context {
+        return application
+    }
+
+    @Provides
     @Singleton
-    fun providePrefs(application: Application): DataStore<Preferences> {
+    fun widgetManager(context: Context): AppWidgetManager {
+        return AppWidgetManager.getInstance(context)
+    }
+
+    @Provides
+    @Singleton
+    fun providePrefs(context: Context): DataStore<Preferences> {
         return PreferenceDataStoreFactory.create(
             corruptionHandler = null,
             migrations = emptyList(),
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = {
-                application.preferencesDataStoreFile("settings")
+                context.preferencesDataStoreFile("settings")
             }
         )
     }

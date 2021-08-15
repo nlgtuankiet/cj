@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.RemoteViews
 import androidx.fragment.app.Fragment
 import com.airbnb.mvrx.MavericksView
@@ -34,16 +35,15 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
         viewModel.onEach {
             updateRemoteView(remoteView, it)
         }
+
+        view.findViewById<Button>(R.id.save_button).setOnClickListener {
+            viewModel.save()
+        }
     }
 
     private fun updateRemoteView(view: RemoteViews, state: CoinTickerSettingState) {
         val savedDisplayConfig = state.savedWidgetConfig.invoke() ?: return
-        renderTickerView(view, savedDisplayConfig)
-    }
-
-    private fun renderTickerView(view: RemoteViews, config: TickerWidgetDisplayConfig) {
-        view.setTextViewText(R.id.symbol, config.symbol)
-        view.setTextViewText(R.id.price, config.currentPrice.toString())
+        savedDisplayConfig.render(view)
     }
 
     override fun invalidate() {
