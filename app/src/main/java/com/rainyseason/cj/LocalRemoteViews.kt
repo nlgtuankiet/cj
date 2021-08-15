@@ -1,6 +1,6 @@
 package com.rainyseason.cj
 
-import android.app.Activity
+import android.content.Context
 import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
@@ -12,16 +12,15 @@ import androidx.annotation.LayoutRes
 import java.lang.ref.WeakReference
 
 class LocalRemoteViews(
-    activity: Activity,
-    @IdRes containerId: Int,
+    context: Context,
+    container: ViewGroup,
     @LayoutRes layoutId: Int,
-) : RemoteViews(activity.packageName, layoutId) {
+) : RemoteViews(context.packageName, layoutId) {
 
     private val containerRef: WeakReference<ViewGroup>
 
     init {
-        val container = activity.findViewById<ViewGroup>(containerId)
-        View.inflate(activity, layoutId, container)
+        View.inflate(context, layoutId, container)
         containerRef = WeakReference(container)
     }
 

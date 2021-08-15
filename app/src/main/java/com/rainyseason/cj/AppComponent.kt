@@ -3,9 +3,9 @@ package com.rainyseason.cj
 import android.app.Application
 import android.os.Looper
 import androidx.datastore.core.DataStore
-import androidx.datastore.dataStoreFile
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStoreFile
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.squareup.moshi.Moshi
@@ -97,7 +97,7 @@ object AppModule {
             migrations = emptyList(),
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = {
-                application.dataStoreFile("settings")
+                application.preferencesDataStoreFile("settings")
             }
         )
     }

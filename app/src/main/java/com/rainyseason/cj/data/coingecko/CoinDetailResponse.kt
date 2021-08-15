@@ -31,5 +31,14 @@ data class CoinDetailResponse(
     data class MarketData(
         @Json(name = "current_price")
         val currentPrice: Map<String, Double>,
+
+        @Json(name = "price_change_percentage_24h")
+        val priceChangePercentage24h: Double,
+
+        @Json(name = "price_change_percentage_7d")
+        val priceChangePercentage7d: Double,
+
+        @Json(name = "price_change_percentage_14d")
+        val priceChangePercentage14d: Double,
     )
 }

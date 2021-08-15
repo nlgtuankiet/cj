@@ -22,8 +22,11 @@ data class TickerWidgetDisplayConfig(
 
     // ex: left $1.0
     // ex: right 16500vnd
-    @Json(name = "currency_on_the_left")
-    val currencyOnTheLeft: Boolean = true,
+    @Json(name = "currency_symbol_on_the_left")
+    val currencySymbolOnTheLeft: Boolean = true,
+
+    @Json(name = "separator")
+    val separator: String,
 
     @Json(name = "price_change_percentage_24h")
     val priceChangePercentage24h: Double,

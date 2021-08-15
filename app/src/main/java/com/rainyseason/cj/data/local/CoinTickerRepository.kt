@@ -15,19 +15,19 @@ class CoinTickerRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
     private val moshi: Moshi,
 ) {
-    val adapter = TickerWidgetDisplayConfigJsonAdapter(moshi = moshi)
+    private val adapter = TickerWidgetDisplayConfigJsonAdapter(moshi = moshi)
 
-    suspend fun getConfig(widgetId: String): TickerWidgetDisplayConfig? {
+    suspend fun getConfig(widgetId: Int): TickerWidgetDisplayConfig? {
         val key = tickerKey(widgetId)
         val data = dataStore.data.first()[key] ?: return null
         return adapter.fromJson(data)
     }
 
-    private fun tickerKey(widgetId: String): Preferences.Key<String> {
+    private fun tickerKey(widgetId: Int): Preferences.Key<String> {
         return stringPreferencesKey("ticker_widget_display_config_${widgetId}")
     }
 
-    suspend fun setConfig(widgetId: String, config: TickerWidgetDisplayConfig) {
+    suspend fun setConfig(widgetId: Int, config: TickerWidgetDisplayConfig) {
         val key = tickerKey(widgetId)
         val data = adapter.toJson(config)
         dataStore.edit { it[key] = data }
