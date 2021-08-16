@@ -2,6 +2,7 @@ package com.rainyseason.cj.ticker
 
 import android.appwidget.AppWidgetManager
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import androidx.work.Data
@@ -25,6 +26,9 @@ class CoinTickerHandler : BroadcastReceiver() {
     @Inject
     lateinit var workManager: WorkManager
 
+    @Inject
+    lateinit var appWidgetManager: AppWidgetManager
+
     override fun onReceive(context: Context, intent: Intent) {
         AndroidInjection.inject(this, context)
         val action = intent.action
@@ -34,6 +38,15 @@ class CoinTickerHandler : BroadcastReceiver() {
                 ids?.forEach {
                     forceUpdateWidget(it)
                 }
+            }
+            Intent.ACTION_BOOT_COMPLETED -> {
+                val ids = appWidgetManager.getAppWidgetIds(
+                    ComponentName(
+                        context,
+                        CoinTickerProvider::class.java
+                    )
+                )
+                ids.forEach { forceUpdateWidget(widgetId = it) }
             }
         }
     }
