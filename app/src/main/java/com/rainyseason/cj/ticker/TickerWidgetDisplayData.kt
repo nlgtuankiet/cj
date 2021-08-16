@@ -4,7 +4,8 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Represent what is showed on the UI
+ * Combine data with config to render UI
+ *
  */
 @JsonClass(generateAdapter = true)
 data class TickerWidgetDisplayData(
@@ -14,23 +15,15 @@ data class TickerWidgetDisplayData(
     @Json(name = "symbol")
     val symbol: String,
 
-    @Json(name = "current_price")
-    val currentPrice: Double,
+    @Json(name = "price")
+    val price: Double,
 
-    @Json(name = "currency_symbol")
-    val currencySymbol: String,
+    @Json(name = "change_24h_percent")
+    val change24hPercent: Double,
 
-    // ex: left $1.0
-    // ex: right 16500vnd
-    @Json(name = "currency_symbol_on_the_left")
-    val currencySymbolOnTheLeft: Boolean = true,
+    @Json(name = "change_7d_percent")
+    val change7dPercent: Double,
 
-    @Json(name = "separator")
-    val separator: String,
-
-    @Json(name = "price_change_percentage_24h")
-    val priceChangePercentage24h: Double,
-
-    @Json(name = "price_change_percentage_7d")
-    val priceChangePercentage7d: Double
+    @Json(name = "change_14d_percent")
+    val change14dPercent: Double,
 )

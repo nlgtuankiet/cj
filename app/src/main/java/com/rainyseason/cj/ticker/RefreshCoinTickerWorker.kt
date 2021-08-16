@@ -2,7 +2,6 @@ package com.rainyseason.cj.ticker
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
-import android.view.View
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -25,6 +24,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     private val userSettingRepository: UserSettingRepository,
     private val coinTickerRepository: CoinTickerRepository,
     private val appWidgetManager: AppWidgetManager,
+    private val render: TickerWidgerRender,
 ) : CoroutineWorker(appContext = appContext, params = params) {
 
     override suspend fun doWork(): Result {
@@ -49,8 +49,14 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             ?: throw IllegalStateException("Missing data")
 
         val loadingView = RemoteViews(appContext.packageName, R.layout.widget_coin_ticker)
-        oldDisplayData.bindTo(loadingView)
-        loadingView.setViewVisibility(R.id.loading, View.VISIBLE)
+        render.render(
+            view = loadingView,
+            userCurrency = userCurrency,
+            config = config,
+            data = oldDisplayData,
+            showLoading = true,
+            clickToUpdate = false,
+        )
         appWidgetManager.updateAppWidget(widgetId, loadingView)
 
         val coinDetail: CoinDetailResponse
@@ -59,7 +65,14 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         } catch (ex: Exception) {
             // show error ui? toast?
             val oldView = RemoteViews(appContext.packageName, R.layout.widget_coin_ticker)
-            oldDisplayData.bindTo(loadingView)
+            render.render(
+                view = loadingView,
+                userCurrency = userCurrency,
+                config = config,
+                data = oldDisplayData,
+                showLoading = true,
+                clickToUpdate = true,
+            )
             appWidgetManager.updateAppWidget(widgetId, oldView)
             return
         }
@@ -67,16 +80,21 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         val newDisplayData = TickerWidgetDisplayData(
             iconUrl = coinDetail.image.large,
             symbol = coinDetail.symbol,
-            currentPrice = coinDetail.marketData.currentPrice[userCurrency.id]!!,
-            currencySymbol = userCurrency.symbol,
-            currencySymbolOnTheLeft = userCurrency.placeOnTheLeft,
-            separator = userCurrency.separator,
-            priceChangePercentage24h = coinDetail.marketData.priceChangePercentage24h,
-            priceChangePercentage7d = coinDetail.marketData.priceChangePercentage7d,
+            price = coinDetail.marketData.currentPrice[userCurrency.id]!!,
+            change24hPercent = coinDetail.marketData.priceChangePercentage24h,
+            change7dPercent = coinDetail.marketData.priceChangePercentage24h,
+            change14dPercent = coinDetail.marketData.priceChangePercentage14d,
         )
-        coinTickerRepository.setDisplayConfig(widgetId = widgetId, data = newDisplayData)
+        coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)
         val newView = RemoteViews(appContext.packageName, R.layout.widget_coin_ticker)
-        newDisplayData.bindTo(newView)
+        render.render(
+            view = newView,
+            userCurrency = userCurrency,
+            config = config,
+            data = newDisplayData,
+            showLoading = false,
+            clickToUpdate = true,
+        )
         appWidgetManager.updateAppWidget(widgetId, newView)
     }
 

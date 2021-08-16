@@ -1,5 +1,6 @@
 package com.rainyseason.cj.ticker
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,11 +12,29 @@ import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.activityViewModel
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
+import dagger.Module
+import dagger.android.ContributesAndroidInjector
+import dagger.android.support.AndroidSupportInjection
+import javax.inject.Inject
+
+@Module
+interface CoinTickerPreviewFragmentModule {
+    @ContributesAndroidInjector
+    fun fragment(): CoinTickerPreviewFragment
+}
 
 class CoinTickerPreviewFragment : Fragment(), MavericksView {
 
     private val viewModel: CoinTickerSettingViewModel by activityViewModel()
     private lateinit var remoteView: RemoteViews
+
+    @Inject
+    lateinit var render: TickerWidgerRender
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        AndroidSupportInjection.inject(this)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -42,8 +61,10 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
     }
 
     private fun updateRemoteView(view: RemoteViews, state: CoinTickerSettingState) {
-        val savedDisplayConfig = state.savedWidgetData.invoke() ?: return
-        savedDisplayConfig.bindTo(view)
+        val savedConfig = state.savedConfig.invoke() ?: return
+        val savedDisplayData = state.savedDisplayData.invoke() ?: return
+        val userCurrency = state.userCurrency.invoke() ?: return
+        render.render(view, userCurrency, savedConfig, savedDisplayData)
     }
 
     override fun invalidate() {

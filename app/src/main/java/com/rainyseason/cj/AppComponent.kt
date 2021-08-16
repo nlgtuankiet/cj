@@ -11,6 +11,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
+import com.rainyseason.cj.ticker.CoinTickerProviderModule
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.squareup.moshi.Moshi
 import dagger.BindsInstance
@@ -34,6 +35,7 @@ import javax.inject.Singleton
         AndroidSupportInjectionModule::class,
         MainActivityModule::class,
         CoinTickerSettingActivityModule::class,
+        CoinTickerProviderModule::class,
         AppModule::class
     ]
 )

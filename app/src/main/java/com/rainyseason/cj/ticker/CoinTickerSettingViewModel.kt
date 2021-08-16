@@ -14,13 +14,18 @@ import com.rainyseason.cj.data.local.CoinTickerRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.launch
 
 data class CoinTickerSettingState(
     val coinId: String? = null,
-    val savedWidgetData: Async<TickerWidgetDisplayData> = Uninitialized,
+    val savedDisplayData: Async<TickerWidgetDisplayData> = Uninitialized,
+    val config: TickerWidgetConfig? = null,
+    val savedConfig: Async<TickerWidgetConfig> = Uninitialized,
     val userCurrency: Async<UserCurrency> = Uninitialized,
+
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
 ) : MavericksState
 
@@ -33,25 +38,54 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
 
     init {
         loadUserCurrency()
+        loadConfig()
+        loadDisplayData()
         setCoinId("dogecoin")
         onEach { state ->
-            maybeSaveWidgetConfig(state)
+            maybeSaveDisplayData(state)
+        }
+        onEach(CoinTickerSettingState::config) { config ->
+            config?.let { maybeSaveConfig(config) }
         }
     }
 
-    private val _saveEvent = Channel<TickerWidgetDisplayData>(capacity = Channel.CONFLATED)
+    private fun loadDisplayData() {
+        coinTickerRepository.getDisplayDataStream(widgetId)
+            .execute { copy(savedDisplayData = it) }
+    }
+
+    private fun maybeSaveConfig(config: TickerWidgetConfig) {
+        viewModelScope.launch {
+            coinTickerRepository.setConfig(widgetId, config)
+        }
+    }
+
+    private fun loadConfig() {
+        coinTickerRepository.getConfigStream(widgetId)
+            .execute { copy(savedConfig = it) }
+    }
+
+    private val _saveEvent = Channel<Unit>(capacity = Channel.CONFLATED)
     val saveEvent = _saveEvent.receiveAsFlow()
 
     fun save() {
         // improvement: wait for config complete
-        withState { state ->
-            val config = state.savedWidgetData.invoke() ?: return@withState
-            _saveEvent.trySend(config)
-        }
+        _saveEvent.trySend(Unit)
     }
 
     fun setCoinId(id: String) {
-        setState { copy(coinId = id) }
+        setState {
+            copy(
+                coinId = id,
+                config = TickerWidgetConfig(
+                    widgetId = widgetId,
+                    coinId = id,
+                    showChange24h = config?.showChange24h ?: true,
+                    showChange7d = config?.showChange7d ?: true,
+                    showChange14d = config?.showChange14d ?: false,
+                )
+            )
+        }
         loadCoinDetail(coinId = id)
     }
 
@@ -63,49 +97,48 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
         }
     }
 
-
+    private var loadCoinDetailJob: Job? = null
     private fun loadCoinDetail(coinId: String) {
-        suspend {
+        loadCoinDetailJob?.cancel()
+        loadCoinDetailJob = suspend {
             coinGeckoService.getCoinDetail(coinId)
         }.execute {
             copy(coinDetailResponse = it)
         }
     }
 
-    private fun maybeSaveWidgetConfig(state: CoinTickerSettingState) {
-        val coinId = state.coinId ?: return
+    private fun maybeSaveDisplayData(state: CoinTickerSettingState) {
         val userCurrency = state.userCurrency.invoke() ?: return
         val coinDetail = state.coinDetailResponse.invoke() ?: return
-        suspend {
-            setWidgetConfig(
+        val config = state.savedConfig.invoke() ?: return
+
+        if (!config.isComplete) {
+            return
+        }
+
+        viewModelScope.launch {
+            setWidgetData(
                 widgetId = widgetId,
-                coinId = coinId,
                 userCurrency = userCurrency,
-                coinDetail = coinDetail
+                coinDetail = coinDetail,
             )
-        }.execute(retainValue = CoinTickerSettingState::savedWidgetData) { async ->
-            copy(savedWidgetData = async)
         }
     }
 
-    private suspend fun setWidgetConfig(
+    private suspend fun setWidgetData(
         widgetId: Int,
-        coinId: String,
         userCurrency: UserCurrency,
-        coinDetail: CoinDetailResponse
+        coinDetail: CoinDetailResponse,
     ): TickerWidgetDisplayData {
         val tickerWidgetDisplayConfig = TickerWidgetDisplayData(
-            coinId = coinId,
             iconUrl = coinDetail.image.large,
             symbol = coinDetail.symbol,
-            currentPrice = coinDetail.marketData.currentPrice[userCurrency.id]!!,
-            currencySymbol = userCurrency.symbol,
-            currencySymbolOnTheLeft = userCurrency.placeOnTheLeft,
-            separator = userCurrency.separator,
-            priceChangePercentage24h = coinDetail.marketData.priceChangePercentage24h,
-            priceChangePercentage7d = coinDetail.marketData.priceChangePercentage7d,
+            price = coinDetail.marketData.currentPrice[userCurrency.id]!!,
+            change24hPercent = coinDetail.marketData.priceChangePercentage24h,
+            change7dPercent = coinDetail.marketData.priceChangePercentage24h,
+            change14dPercent = coinDetail.marketData.priceChangePercentage14d,
         )
-        coinTickerRepository.setDisplayConfig(widgetId = widgetId, data = tickerWidgetDisplayConfig)
+        coinTickerRepository.setDisplayData(widgetId = widgetId, data = tickerWidgetDisplayConfig)
         return tickerWidgetDisplayConfig
     }
 

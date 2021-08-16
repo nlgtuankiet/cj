@@ -8,6 +8,7 @@ import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.viewModel
+import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.launchAndRepeatWithLifecycle
 import dagger.Module
@@ -21,7 +22,7 @@ import javax.inject.Inject
 
 @Module
 interface CoinTickerSettingActivityModule {
-    @ContributesAndroidInjector
+    @ContributesAndroidInjector(modules = [CoinTickerPreviewFragmentModule::class])
     fun activity(): CoinTickerSettingActivity
 }
 
@@ -34,6 +35,9 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
 
     @Inject
     lateinit var appWidgetManager: AppWidgetManager
+
+    @Inject
+    lateinit var render: TickerWidgerRender
 
     private val viewModel: CoinTickerSettingViewModel by viewModel()
 
@@ -56,14 +60,24 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
 
         launchAndRepeatWithLifecycle {
             viewModel.saveEvent.collect {
-                save(widgetId = widgetId, data = it)
+                save(widgetId = widgetId)
             }
         }
     }
 
-    private fun save(widgetId: Int, data: TickerWidgetDisplayData) {
+    private fun save(widgetId: Int) {
         val remoteView = RemoteViews(packageName, R.layout.widget_coin_ticker)
-        data.bindTo(remoteView)
+        val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
+        val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
+        val userCurrency = withState(viewModel) { it.userCurrency.invoke() } ?: return
+        render.render(
+            view = remoteView,
+            userCurrency = userCurrency,
+            config = config,
+            data = displayData,
+            showLoading = false,
+            clickToUpdate = true,
+        )
         appWidgetManager.updateAppWidget(widgetId, remoteView)
         val resultValue = Intent().apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)

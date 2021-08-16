@@ -44,6 +44,8 @@
 
 
     <TextView
+        android:ellipsize="end"
+        android:maxLines="1"
         android:id="@+id/change_percent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -54,7 +56,7 @@
         android:layout_toStartOf="@id/source_icon"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        tools:text="6.6% ^"/>
+        tools:text="6.6% ^" />
 
 
     <ImageView
@@ -65,7 +67,7 @@
         android:layout_alignParentBottom="true"
         tools:src="@drawable/dogecoin_icon" />
 
-    <View
+    <ImageView
         android:id="@+id/loading"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

@@ -22,4 +22,7 @@ data class TickerWidgetConfig(
 
     @Json(name = "show_change_14d")
     val showChange14d: Boolean,
-)
+) {
+    val isComplete: Boolean
+        get() = coinId.isNotEmpty()
+}
