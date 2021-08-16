@@ -38,7 +38,7 @@ class TickerWidgerRender @Inject constructor(
         view.setTextViewText(R.id.change_percent, changes)
         view.setViewVisibility(R.id.loading, if (showLoading) View.VISIBLE else View.GONE)
         if (clickToUpdate) {
-            val intent = Intent(context, CoinTickerProvider::class.java)
+            val intent = Intent(context, CoinTickerHandler::class.java)
             intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(config.widgetId))
             val pendingIntent = PendingIntent.getBroadcast(

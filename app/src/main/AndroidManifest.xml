@@ -32,6 +32,10 @@
                 android:resource="@xml/ticker_widget_info" />
         </receiver>
 
+        <receiver android:name=".ticker.CoinTickerHandler">
+
+        </receiver>
+
         <activity android:name=".ticker.CoinTickerSettingActivity">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
