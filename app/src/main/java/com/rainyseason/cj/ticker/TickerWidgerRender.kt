@@ -43,7 +43,7 @@ class TickerWidgerRender @Inject constructor(
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(config.widgetId))
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                0,
+                config.widgetId,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
