@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.rainyseason.cj.R
 import com.rainyseason.cj.data.UserSettingRepository
@@ -13,6 +14,7 @@ import com.rainyseason.cj.data.local.CoinTickerRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import timber.log.Timber
 
 /**
  * Refresh
@@ -25,6 +27,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     private val coinTickerRepository: CoinTickerRepository,
     private val appWidgetManager: AppWidgetManager,
     private val render: TickerWidgerRender,
+    private val workManager: WorkManager,
 ) : CoroutineWorker(appContext = appContext, params = params) {
 
     override suspend fun doWork(): Result {
@@ -35,18 +38,27 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             throw IllegalArgumentException("invalid id")
         }
+
         updateWidget(widgetId)
 
         return Result.success()
     }
 
 
+    /**
+     * TODO when user clear app data, the config is missing, so we just return?
+     */
     private suspend fun updateWidget(widgetId: Int) {
         val userCurrency = userSettingRepository.getCurrency()
         val config = coinTickerRepository.getConfig(widgetId)
-            ?: throw IllegalStateException("Missing config")
+        if (config == null) {
+            Timber.d("missing widget config for id $widgetId")
+            // TODO remove this work?
+            // TODO launch intent to config the widget?
+            return
+        }
         val oldDisplayData: TickerWidgetDisplayData = coinTickerRepository.getDisplayData(widgetId)
-            ?: throw IllegalStateException("Missing data")
+            ?: throw IllegalStateException("missing display data")
 
         val loadingView = RemoteViews(appContext.packageName, R.layout.widget_coin_ticker)
         render.render(
