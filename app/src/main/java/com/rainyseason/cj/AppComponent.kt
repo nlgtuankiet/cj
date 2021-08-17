@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.ticker.CoinTickerHandlerModule
 import com.rainyseason.cj.ticker.CoinTickerProviderModule
@@ -42,7 +43,7 @@ import javax.inject.Singleton
     ]
 )
 @Singleton
-interface AppComponent : AndroidInjector<CJApplication> {
+interface AppComponent : AndroidInjector<CJApplication>, CoreComponent {
 
     @Component.Factory
     interface Factory {

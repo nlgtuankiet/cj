@@ -29,14 +29,16 @@ class TickerWidgerRender @Inject constructor(
         data: TickerWidgetDisplayData,
         showLoading: Boolean = false,
         clickToUpdate: Boolean = false,
-
-        ) {
-        view.setTextViewText(R.id.symbol, data.symbol)
-        val priceContent = formatPrice(userCurrency, data.price)
+    ) {
+        val renderData = data.addBitmap(context)
+        view.setTextViewText(R.id.symbol, renderData.symbol)
+        val priceContent = formatPrice(userCurrency, renderData.price)
         view.setTextViewText(R.id.price, priceContent)
-        val changes = formatChange(config, data)
+        val changes = formatChange(config, renderData)
         view.setTextViewText(R.id.change_percent, changes)
         view.setViewVisibility(R.id.loading, if (showLoading) View.VISIBLE else View.GONE)
+        view.setImageViewBitmap(R.id.icon, renderData.iconBitmap)
+
         if (clickToUpdate) {
             val intent = Intent(context, CoinTickerHandler::class.java)
             intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE

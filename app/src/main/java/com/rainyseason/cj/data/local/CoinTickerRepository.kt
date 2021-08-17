@@ -1,5 +1,6 @@
 package com.rainyseason.cj.data.local
 
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -8,6 +9,7 @@ import com.rainyseason.cj.ticker.TickerWidgetConfig
 import com.rainyseason.cj.ticker.TickerWidgetConfigJsonAdapter
 import com.rainyseason.cj.ticker.TickerWidgetDisplayData
 import com.rainyseason.cj.ticker.TickerWidgetDisplayDataJsonAdapter
+import com.rainyseason.cj.ticker.addBitmap
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -18,6 +20,7 @@ import javax.inject.Inject
 @Suppress("BlockingMethodInNonBlockingContext")
 class CoinTickerRepository @Inject constructor(
     private val dataStore: DataStore<Preferences>,
+    private val context: Context,
     private val moshi: Moshi,
 ) {
     private val displayAdapter = TickerWidgetDisplayDataJsonAdapter(moshi = moshi)
@@ -33,7 +36,8 @@ class CoinTickerRepository @Inject constructor(
     suspend fun getDisplayData(widgetId: Int): TickerWidgetDisplayData? {
         val key = displayDataKey(widgetId)
         val data = dataStore.data.first()[key] ?: return null
-        return displayAdapter.fromJson(data)!!
+        val entity = displayAdapter.fromJson(data)!!
+        return entity.addBitmap(context)
     }
 
     suspend fun setDisplayData(widgetId: Int, data: TickerWidgetDisplayData) {
@@ -48,7 +52,9 @@ class CoinTickerRepository @Inject constructor(
             .mapNotNull { prefs: Preferences ->
                 prefs[key]
             }
-            .map { displayAdapter.fromJson(it)!! }
+            .map {
+                displayAdapter.fromJson(it)!!.addBitmap(context)
+            }
     }
 
     private fun displayDataKey(widgetId: Int): Preferences.Key<String> {

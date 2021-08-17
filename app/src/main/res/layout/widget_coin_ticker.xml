@@ -19,8 +19,8 @@
 
         <ImageView
             android:id="@+id/icon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="@dimen/widget_coin_ticker_icon_size"
+            android:layout_height="@dimen/widget_coin_ticker_icon_size"
             android:layout_gravity="center_vertical"
             tools:src="@drawable/dogecoin_icon" />
 

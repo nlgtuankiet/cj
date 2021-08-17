@@ -1,5 +1,6 @@
 package com.rainyseason.cj.ticker
 
+import android.graphics.Bitmap
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -11,6 +12,9 @@ import com.squareup.moshi.JsonClass
 data class TickerWidgetDisplayData(
     @Json(name = "icon_url")
     val iconUrl: String,
+
+    @Transient
+    val iconBitmap: Bitmap? = null,
 
     @Json(name = "symbol")
     val symbol: String,

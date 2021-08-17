@@ -7,6 +7,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.airbnb.mvrx.Mavericks
 import com.airbnb.mvrx.MavericksViewModelConfigFactory
+import com.rainyseason.cj.common.CoreComponent
+import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -16,7 +18,7 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class CJApplication : Application(), HasAndroidInjector {
+class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
 
     @Inject
     @Volatile
@@ -77,4 +79,7 @@ class CJApplication : Application(), HasAndroidInjector {
         injectIfNecessary()
         return androidInjector
     }
+
+    override val coreComponent: CoreComponent
+        get() = appComponent
 }
