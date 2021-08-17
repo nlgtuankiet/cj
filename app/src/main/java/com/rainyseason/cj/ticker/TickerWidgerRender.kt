@@ -40,7 +40,7 @@ class TickerWidgerRender @Inject constructor(
         view.setImageViewBitmap(R.id.icon, renderData.iconBitmap)
 
         if (clickToUpdate) {
-            val intent = Intent(context, CoinTickerHandler::class.java)
+            val intent = Intent(context, CoinTickerReceiver::class.java)
             intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
             intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(config.widgetId))
             val pendingIntent = PendingIntent.getBroadcast(

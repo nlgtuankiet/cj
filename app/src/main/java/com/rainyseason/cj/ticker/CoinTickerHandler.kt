@@ -1,57 +1,23 @@
 package com.rainyseason.cj.ticker
 
 import android.appwidget.AppWidgetManager
-import android.content.BroadcastReceiver
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import dagger.Module
-import dagger.android.AndroidInjection
-import dagger.android.ContributesAndroidInjector
+import com.rainyseason.cj.data.local.CoinTickerRepository
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@Module
-interface CoinTickerHandlerModule {
-    @ContributesAndroidInjector
-    fun provider(): CoinTickerHandler
-}
-
-class CoinTickerHandler : BroadcastReceiver() {
-
-    @Inject
-    lateinit var workManager: WorkManager
-
-    @Inject
-    lateinit var appWidgetManager: AppWidgetManager
-
-    override fun onReceive(context: Context, intent: Intent) {
-        AndroidInjection.inject(this, context)
-        val action = intent.action
-        when (action) {
-            AppWidgetManager.ACTION_APPWIDGET_UPDATE -> {
-                val ids = intent.extras?.getIntArray(AppWidgetManager.EXTRA_APPWIDGET_IDS)
-                ids?.forEach {
-                    forceUpdateWidget(it)
-                }
-            }
-            Intent.ACTION_BOOT_COMPLETED -> {
-                val ids = appWidgetManager.getAppWidgetIds(
-                    ComponentName(
-                        context,
-                        CoinTickerProvider::class.java
-                    )
-                )
-                ids.forEach { forceUpdateWidget(widgetId = it) }
-            }
-        }
-    }
-
-    private fun forceUpdateWidget(widgetId: Int) {
+@Singleton
+class CoinTickerHandler @Inject constructor(
+    private val workManager: WorkManager,
+    private val coinTickerRepository: CoinTickerRepository,
+) {
+    suspend fun enqueueRefreshWidget(widgetId: Int, config: TickerWidgetConfig? = null) {
+        val latestConfig = config ?: coinTickerRepository.getConfig(widgetId = widgetId)
+        latestConfig.hashCode() // read refresh internal milis
         val request = PeriodicWorkRequestBuilder<RefreshCoinTickerWorker>(15, TimeUnit.MINUTES)
             .setInputData(
                 Data.Builder().putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId).build()

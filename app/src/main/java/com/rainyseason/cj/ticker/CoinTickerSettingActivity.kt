@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.viewModel
 import com.airbnb.mvrx.withState
@@ -17,7 +18,10 @@ import dagger.android.AndroidInjector
 import dagger.android.ContributesAndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Module
@@ -38,6 +42,9 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
 
     @Inject
     lateinit var render: TickerWidgerRender
+
+    @Inject
+    lateinit var coinTickerHandler: CoinTickerHandler
 
     private val viewModel: CoinTickerSettingViewModel by viewModel()
 
@@ -82,8 +89,13 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
         val resultValue = Intent().apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
         }
-        setResult(Activity.RESULT_OK, resultValue)
-        finish()
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                coinTickerHandler.enqueueRefreshWidget(widgetId = widgetId, config = config)
+            }
+            setResult(Activity.RESULT_OK, resultValue)
+            finish()
+        }
     }
 
 

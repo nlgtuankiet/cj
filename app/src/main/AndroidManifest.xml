@@ -32,7 +32,7 @@
                 android:resource="@xml/ticker_widget_info" />
         </receiver>
 
-        <receiver android:name=".ticker.CoinTickerHandler">
+        <receiver android:name=".ticker.CoinTickerReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
