@@ -5,10 +5,10 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.RemoteViews
+import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import com.rainyseason.cj.R
@@ -38,7 +38,7 @@ class TickerWidgerRender @Inject constructor(
         view.setTextViewText(R.id.change_percent, changes)
         view.setViewVisibility(R.id.loading, if (showLoading) View.VISIBLE else View.GONE)
         view.setImageViewBitmap(R.id.icon, renderData.iconBitmap)
-
+        view.setTextViewText(R.id.name, renderData.name)
         if (clickToUpdate) {
             val intent = Intent(context, CoinTickerReceiver::class.java)
             intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
@@ -55,17 +55,17 @@ class TickerWidgerRender @Inject constructor(
 
     private fun SpannableStringBuilder.appendChange(amount: Double) {
         val color = if (amount > 0) {
-            Color.GREEN
+            ContextCompat.getColor(context, R.color.green_600)
         } else {
-            Color.RED
+            ContextCompat.getColor(context, R.color.red_600)
         }
         color(color) {
             val symbol = if (amount > 0) {
-                "▴"
+                "+"
             } else {
-                "▾"
+                "-"
             }
-            append("${symbol}${amount}% ")
+            append("${symbol}${amount}%")
         }
     }
 
@@ -77,12 +77,6 @@ class TickerWidgerRender @Inject constructor(
         val content = buildSpannedString {
             if (config.showChange24h) {
                 appendChange(data.change24hPercent)
-            }
-            if (config.showChange7d) {
-                appendChange(data.change7dPercent)
-            }
-            if (config.showChange14d) {
-                appendChange(data.change14dPercent)
             }
         }
         return content

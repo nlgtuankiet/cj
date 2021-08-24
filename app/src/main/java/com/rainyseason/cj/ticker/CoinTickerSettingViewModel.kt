@@ -133,6 +133,7 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
         val tickerWidgetDisplayConfig = TickerWidgetDisplayData(
             iconUrl = coinDetail.image.large,
             symbol = coinDetail.symbol,
+            name = coinDetail.name,
             price = coinDetail.marketData.currentPrice[userCurrency.id]!!,
             change24hPercent = coinDetail.marketData.priceChangePercentage24h,
             change7dPercent = coinDetail.marketData.priceChangePercentage24h,

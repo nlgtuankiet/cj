@@ -2,70 +2,74 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
-    android:background="@drawable/coin_ticker_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/coin_ticker_background"
     tools:layout_height="150dp"
     tools:layout_width="300dp">
 
-
-    <LinearLayout
-        android:id="@+id/icon_symbol_container"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:id="@+id/icon"
-            android:layout_width="@dimen/widget_coin_ticker_icon_size"
-            android:layout_height="@dimen/widget_coin_ticker_icon_size"
-            android:layout_gravity="center_vertical"
-            tools:src="@drawable/dogecoin_icon" />
-
-        <TextView
-            android:id="@+id/symbol"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="8dp"
-            tools:text="DOGE" />
-    </LinearLayout>
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="@dimen/widget_coin_ticker_icon_size"
+        android:layout_height="@dimen/widget_coin_ticker_icon_size"
+        android:layout_gravity="center_vertical"
+        android:visibility="gone"
+        tools:src="@drawable/dogecoin_icon" />
 
     <TextView
+        android:id="@+id/symbol"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:textAllCaps="true"
+        android:textColor="@color/gray_500"
+        tools:text="DOGE" />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/symbol"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="2dp"
+        android:textColor="@color/gray_900"
+        android:textSize="20sp"
+        tools:text="Dogecoin" />
+
+    <TextView
+        android:layout_alignParentEnd="true"
         android:id="@+id/price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/icon_symbol_container"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="4dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        android:textColor="@color/gray_900"
+        android:textSize="20sp"
         tools:text="$0.287661" />
 
 
     <TextView
+        android:layout_above="@id/price"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="2dp"
         android:ellipsize="end"
-        android:maxLines="1"
         android:id="@+id/change_percent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="4dp"
-        android:layout_toStartOf="@id/source_icon"
+        android:maxLines="1"
         android:gravity="center_vertical"
+        android:textColor="@color/green_600"
         android:orientation="horizontal"
-        tools:text="6.6% ^" />
+        tools:text="+6.6%" />
 
-
-    <ImageView
-        android:id="@+id/source_icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        tools:src="@drawable/dogecoin_icon" />
 
     <ImageView
         android:id="@+id/loading"
