@@ -1,5 +1,6 @@
 package com.rainyseason.cj.common
 
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -33,4 +34,22 @@ inline fun ComponentActivity.launchAndRepeatWithLifecycle(
             block()
         }
     }
+}
+
+
+fun Intent.logString(): String {
+    val intent = this
+    val string = buildString {
+        append("Intent { ")
+        append("action = ${intent.action} ")
+        val map = mutableMapOf<String, Any?>()
+        extras?.let { e ->
+            e.keySet().forEach { k ->
+                map[k] = e.get(k)
+            }
+        }
+        append("extra = $map ")
+        append("}")
+    }
+    return string
 }
