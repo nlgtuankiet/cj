@@ -12,6 +12,7 @@ import com.airbnb.mvrx.viewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.launchAndRepeatWithLifecycle
+import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -26,7 +27,12 @@ import javax.inject.Inject
 
 @Module
 interface CoinTickerSettingActivityModule {
-    @ContributesAndroidInjector(modules = [CoinTickerPreviewFragmentModule::class])
+    @ContributesAndroidInjector(
+        modules = [
+            CoinTickerPreviewFragmentModule::class,
+            CoinTickerListFragmentModule::class,
+        ]
+    )
     fun activity(): CoinTickerSettingActivity
 }
 
@@ -46,6 +52,7 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
     @Inject
     lateinit var coinTickerHandler: CoinTickerHandler
 
+    @Suppress("EXPERIMENTAL_API_USAGE_FUTURE_ERROR")
     private val viewModel: CoinTickerSettingViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,7 +68,7 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, CoinTickerPreviewFragment())
+                .replace(R.id.fragment_container, CoinTickerListFragment())
                 .commit()
         }
 

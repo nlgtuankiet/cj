@@ -2,4 +2,6 @@
     <string name="app_name">Crypto Jet</string>
     <string name="number_of_price_decimal">Number of price decimal</string>
     <string name="number_of_change_percent_decimal">Number of change percent decimal</string>
+
+    <string name="coin_ticker_list_market_header">Popular</string>
 </resources>

@@ -1,9 +1,11 @@
-package com.rainyseason.cj.ticker
+package com.rainyseason.cj.ticker.preview
 
 import android.content.Context
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.ticker.CoinTickerSettingViewModel
+import com.rainyseason.cj.ticker.TickerWidgetRenderParams
 import com.rainyseason.cj.ticker.view.coinTickerPreviewView
 import com.rainyseason.cj.ticker.view.settingNumberView
 

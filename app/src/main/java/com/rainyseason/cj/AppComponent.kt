@@ -26,10 +26,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import okhttp3.Call
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import timber.log.Timber
 import javax.inject.Provider
 import javax.inject.Singleton
+
 
 @Component(
     modules = [
@@ -59,7 +62,13 @@ object AppModule {
     @Singleton
     fun provideBaseClientBuilder(): OkHttpClient.Builder {
         checkNotMainThread()
-        return OkHttpClient.Builder()
+        val builder = OkHttpClient.Builder()
+        if (BuildConfig.DEBUG) {
+            val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
+            logging.level = HttpLoggingInterceptor.Level.BODY
+            builder.addInterceptor(logging)
+        }
+        return builder
     }
 
     @Provides

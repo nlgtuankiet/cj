@@ -1,4 +1,4 @@
-package com.rainyseason.cj.ticker
+package com.rainyseason.cj.ticker.preview
 
 import android.content.Context
 import android.os.Bundle
@@ -11,6 +11,8 @@ import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.activityViewModel
 import com.rainyseason.cj.R
+import com.rainyseason.cj.ticker.CoinTickerSettingViewModel
+import com.rainyseason.cj.ticker.TickerWidgerRender
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
