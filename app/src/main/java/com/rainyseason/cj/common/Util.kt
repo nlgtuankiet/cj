@@ -1,6 +1,8 @@
 package com.rainyseason.cj.common
 
+import android.content.Context
 import android.content.Intent
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
@@ -60,4 +62,13 @@ fun Intent.logString(): String {
 
 fun ViewGroup.inflateAndAdd(@LayoutRes layoutRes: Int) {
     LayoutInflater.from(context).inflate(layoutRes, this, true)
+}
+
+
+fun Context.dpToPx(value: Int): Int {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        value.toFloat(),
+        resources.displayMetrics
+    ).toInt()
 }
