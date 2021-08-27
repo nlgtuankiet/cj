@@ -30,7 +30,7 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
     lateinit var render: TickerWidgerRender
 
     private val controller: CoinTickerPreviewController by lazy {
-        CoinTickerPreviewController(viewModel)
+        CoinTickerPreviewController(viewModel, requireContext())
     }
 
     override fun onAttach(context: Context) {

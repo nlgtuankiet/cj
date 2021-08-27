@@ -53,8 +53,14 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
 
     fun setNumberOfDecimal(value: String) {
         Timber.d("setNumberOfDecimal $value")
-        val number = value.toIntOrNull()
-        setState { copy(config = config?.copy(numberOfDecimal = number)) }
+        val number = value.toIntOrNull()?.coerceAtLeast(0)
+        setState { copy(config = config?.copy(numberOfPriceDecimal = number)) }
+    }
+
+    fun setNumberOfChangePercentDecimal(value: String) {
+        Timber.d("setNumberOfChangePercentDecimal $value")
+        val number = value.toIntOrNull()?.coerceAtLeast(0)
+        setState { copy(config = config?.copy(numberOfChangePercentDecimal = number)) }
     }
 
     private fun loadDisplayData() {
@@ -91,6 +97,7 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
                     showChange24h = config?.showChange24h ?: true,
                     showChange7d = config?.showChange7d ?: true,
                     showChange14d = config?.showChange14d ?: false,
+                    numberOfChangePercentDecimal = 1,
                 )
             )
         }

@@ -60,19 +60,25 @@ class TickerWidgerRender @Inject constructor(
         }
     }
 
-    private fun SpannableStringBuilder.appendChange(amount: Double) {
+    private fun SpannableStringBuilder.appendChange(amount: Double, numberOfDecimal: Int?) {
         val color = if (amount > 0) {
             ContextCompat.getColor(context, R.color.green_600)
         } else {
             ContextCompat.getColor(context, R.color.red_600)
         }
+
+        val amountText = if (numberOfDecimal != null) {
+            "%.${numberOfDecimal}f".format(amount)
+        } else {
+            amount.toString()
+        }
         color(color) {
             val symbol = if (amount > 0) {
                 "+"
             } else {
-                "-"
+                ""
             }
-            append("${symbol}${amount}%")
+            append("${symbol}${amountText}%")
         }
     }
 
@@ -83,7 +89,7 @@ class TickerWidgerRender @Inject constructor(
         @Suppress("UnnecessaryVariable")
         val content = buildSpannedString {
             if (config.showChange24h) {
-                appendChange(data.change24hPercent)
+                appendChange(data.change24hPercent, config.numberOfChangePercentDecimal)
             }
         }
         return content
@@ -94,7 +100,7 @@ class TickerWidgerRender @Inject constructor(
     ): String {
         val userCurrency = params.userCurrency
         val price = params.data.price
-        val numberOfDecimal = params.config.numberOfDecimal
+        val numberOfDecimal = params.config.numberOfPriceDecimal
         val priceString = if (numberOfDecimal == null) {
             price.toString()
         } else {

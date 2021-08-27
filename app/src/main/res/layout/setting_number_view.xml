@@ -12,7 +12,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="8dp"
-        android:hint="@string/number_of_decimal"
+        android:hint="@string/number_of_price_decimal"
         app:endIconMode="clear_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
+import com.airbnb.epoxy.TextProp
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.rainyseason.cj.R
@@ -26,8 +27,8 @@ class SettingNumberView @JvmOverloads constructor(
     private val editText: TextInputEditText = findViewById<TextInputEditText>(R.id.edit_text)
 
 
-    @ModelProp
-    fun setHint(value: String) {
+    @TextProp
+    fun setHint(value: CharSequence) {
         textInputLayout.hint = value
     }
 

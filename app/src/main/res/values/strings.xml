@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Crypto Jet</string>
-    <string name="number_of_decimal">Number of decimal</string>
+    <string name="number_of_price_decimal">Number of price decimal</string>
+    <string name="number_of_change_percent_decimal">Number of change percent decimal</string>
 </resources>
