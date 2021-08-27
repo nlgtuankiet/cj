@@ -69,7 +69,14 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha03'
 
+    //noinspection GradleDependency
     implementation "androidx.work:work-runtime-ktx:2.6.0-rc01"
+
+    def epoxyVersion = "4.6.2"
+    implementation "com.airbnb.android:epoxy:$epoxyVersion"
+    kapt "com.airbnb.android:epoxy-processor:$epoxyVersion"
+
+    implementation 'com.google.android.material:material:1.5.0-alpha02'
 
     implementation 'com.github.bumptech.glide:glide:4.12.0'
     implementation "com.github.bumptech.glide:okhttp3-integration:4.12.0"

@@ -1,7 +1,10 @@
 package com.rainyseason.cj.common
 
 import android.content.Intent
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.activity.ComponentActivity
+import androidx.annotation.LayoutRes
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -52,4 +55,9 @@ fun Intent.logString(): String {
         append("}")
     }
     return string
+}
+
+
+fun ViewGroup.inflateAndAdd(@LayoutRes layoutRes: Int) {
+    LayoutInflater.from(context).inflate(layoutRes, this, true)
 }

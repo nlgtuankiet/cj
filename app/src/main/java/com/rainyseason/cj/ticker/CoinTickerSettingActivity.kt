@@ -77,13 +77,16 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
         val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
         val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
         val userCurrency = withState(viewModel) { it.userCurrency.invoke() } ?: return
-        render.render(
-            view = remoteView,
+        val param = TickerWidgetRenderParams(
             userCurrency = userCurrency,
             config = config,
             data = displayData,
             showLoading = false,
             clickToUpdate = true,
+        )
+        render.render(
+            view = remoteView,
+            params = param,
         )
         appWidgetManager.updateAppWidget(widgetId, remoteView)
         val resultValue = Intent().apply {

@@ -1,10 +1,13 @@
 package com.rainyseason.cj.common
 
 import android.content.Context
+import android.view.View
+import com.rainyseason.cj.ticker.TickerWidgerRender
 import okhttp3.Call
 
 interface CoreComponent {
     val callFactory: Call.Factory
+    val tickerWidgetRender: TickerWidgerRender
 }
 
 interface HasCoreComponent {
@@ -12,4 +15,7 @@ interface HasCoreComponent {
 }
 
 val Context.coreComponent: CoreComponent
-    get() = (this as HasCoreComponent).coreComponent
+    get() = (applicationContext as HasCoreComponent).coreComponent
+
+val View.coreComponent: CoreComponent
+    get() = context.coreComponent

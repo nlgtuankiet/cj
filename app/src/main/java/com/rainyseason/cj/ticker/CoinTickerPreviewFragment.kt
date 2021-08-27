@@ -6,11 +6,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.RemoteViews
 import androidx.fragment.app.Fragment
+import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.activityViewModel
-import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -26,10 +25,13 @@ interface CoinTickerPreviewFragmentModule {
 class CoinTickerPreviewFragment : Fragment(), MavericksView {
 
     private val viewModel: CoinTickerSettingViewModel by activityViewModel()
-    private lateinit var remoteView: RemoteViews
 
     @Inject
     lateinit var render: TickerWidgerRender
+
+    private val controller: CoinTickerPreviewController by lazy {
+        CoinTickerPreviewController(viewModel)
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -46,28 +48,16 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        remoteView = LocalRemoteViews(
-            requireContext(),
-            view.findViewById(R.id.preview_container),
-            R.layout.widget_coin_ticker
-        )
-        viewModel.onEach {
-            updateRemoteView(remoteView, it)
-        }
+
+        val recyclerView = view.findViewById<EpoxyRecyclerView>(R.id.setting_content)
+        recyclerView.setController(controller)
 
         view.findViewById<Button>(R.id.save_button).setOnClickListener {
             viewModel.save()
         }
     }
 
-    private fun updateRemoteView(view: RemoteViews, state: CoinTickerSettingState) {
-        val savedConfig = state.savedConfig.invoke() ?: return
-        val savedDisplayData = state.savedDisplayData.invoke() ?: return
-        val userCurrency = state.userCurrency.invoke() ?: return
-        render.render(view, userCurrency, savedConfig, savedDisplayData)
-    }
-
     override fun invalidate() {
-
+        controller.requestModelBuild()
     }
 }

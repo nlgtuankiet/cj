@@ -61,13 +61,16 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             ?: throw IllegalStateException("missing display data")
 
         val loadingView = RemoteViews(appContext.packageName, R.layout.widget_coin_ticker)
-        render.render(
-            view = loadingView,
+        val loadingParams = TickerWidgetRenderParams(
             userCurrency = userCurrency,
             config = config,
             data = oldDisplayData,
             showLoading = true,
             clickToUpdate = false,
+        )
+        render.render(
+            view = loadingView,
+            params = loadingParams,
         )
         appWidgetManager.updateAppWidget(widgetId, loadingView)
 
@@ -77,13 +80,16 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         } catch (ex: Exception) {
             // show error ui? toast?
             val oldView = RemoteViews(appContext.packageName, R.layout.widget_coin_ticker)
-            render.render(
-                view = loadingView,
+            val oldParams = TickerWidgetRenderParams(
                 userCurrency = userCurrency,
                 config = config,
                 data = oldDisplayData,
                 showLoading = true,
                 clickToUpdate = true,
+            )
+            render.render(
+                view = loadingView,
+                params = oldParams,
             )
             appWidgetManager.updateAppWidget(widgetId, oldView)
             return
@@ -100,13 +106,16 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         )
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)
         val newView = RemoteViews(appContext.packageName, R.layout.widget_coin_ticker)
-        render.render(
-            view = newView,
+        val newParams = TickerWidgetRenderParams(
             userCurrency = userCurrency,
             config = config,
             data = newDisplayData,
             showLoading = false,
             clickToUpdate = true,
+        )
+        render.render(
+            view = newView,
+            params = newParams,
         )
         appWidgetManager.updateAppWidget(widgetId, newView)
     }

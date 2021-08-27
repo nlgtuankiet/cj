@@ -16,6 +16,14 @@ import com.rainyseason.cj.data.UserCurrency
 import javax.inject.Inject
 import javax.inject.Singleton
 
+data class TickerWidgetRenderParams(
+    val userCurrency: UserCurrency,
+    val config: TickerWidgetConfig,
+    val data: TickerWidgetDisplayData,
+    val showLoading: Boolean = false,
+    val clickToUpdate: Boolean = false,
+)
+
 @Singleton
 class TickerWidgerRender @Inject constructor(
     private val context: Context
@@ -24,28 +32,27 @@ class TickerWidgerRender @Inject constructor(
     @SuppressLint("UnspecifiedImmutableFlag")
     fun render(
         view: RemoteViews,
-        userCurrency: UserCurrency,
-        config: TickerWidgetConfig,
-        data: TickerWidgetDisplayData,
-        showLoading: Boolean = false,
-        clickToUpdate: Boolean = false,
+        params: TickerWidgetRenderParams,
     ) {
-        val renderData = data.addBitmap(context)
+        val renderData = params.data.addBitmap(context)
         view.setTextViewText(R.id.symbol, renderData.symbol)
-        val priceContent = formatPrice(userCurrency, renderData.price)
+        val priceContent = formatPrice(params)
         view.setTextViewText(R.id.price, priceContent)
-        val changes = formatChange(config, renderData)
+        val changes = formatChange(params.config, renderData)
         view.setTextViewText(R.id.change_percent, changes)
-        view.setViewVisibility(R.id.loading, if (showLoading) View.VISIBLE else View.GONE)
+        view.setViewVisibility(R.id.loading, if (params.showLoading) View.VISIBLE else View.GONE)
         view.setImageViewBitmap(R.id.icon, renderData.iconBitmap)
         view.setTextViewText(R.id.name, renderData.name)
-        if (clickToUpdate) {
+        if (params.clickToUpdate) {
             val intent = Intent(context, CoinTickerProvider::class.java)
             intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, intArrayOf(config.widgetId))
+            intent.putExtra(
+                AppWidgetManager.EXTRA_APPWIDGET_IDS,
+                intArrayOf(params.config.widgetId)
+            )
             val pendingIntent = PendingIntent.getBroadcast(
                 context,
-                config.widgetId,
+                params.config.widgetId,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT
             )
@@ -82,12 +89,23 @@ class TickerWidgerRender @Inject constructor(
         return content
     }
 
-    private fun formatPrice(userCurrency: UserCurrency, amount: Double): String {
+    private fun formatPrice(
+        params: TickerWidgetRenderParams,
+    ): String {
+        val userCurrency = params.userCurrency
+        val price = params.data.price
+        val numberOfDecimal = params.config.numberOfDecimal
+        val priceString = if (numberOfDecimal == null) {
+            price.toString()
+        } else {
+            "%.${numberOfDecimal}f".format(price)
+        }
+
         @Suppress("UnnecessaryVariable")
         val formatted = if (userCurrency.placeOnTheLeft) {
-            "%s%s${amount}".format(userCurrency.symbol, userCurrency.separator)
+            "%s%s${priceString}".format(userCurrency.symbol, userCurrency.separator)
         } else {
-            "${amount}%s%s".format(userCurrency.separator, userCurrency.symbol)
+            "${priceString}%s%s".format(userCurrency.separator, userCurrency.symbol)
         }
         return formatted
     }

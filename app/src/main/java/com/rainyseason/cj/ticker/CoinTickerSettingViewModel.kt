@@ -18,6 +18,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 data class CoinTickerSettingState(
     val coinId: String? = null,
@@ -27,6 +28,7 @@ data class CoinTickerSettingState(
     val userCurrency: Async<UserCurrency> = Uninitialized,
 
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
+    val numberOfDecimal: Int? = null,
 ) : MavericksState
 
 class CoinTickerSettingViewModel @AssistedInject constructor(
@@ -47,6 +49,12 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
         onEach(CoinTickerSettingState::config) { config ->
             config?.let { maybeSaveConfig(config) }
         }
+    }
+
+    fun setNumberOfDecimal(value: String) {
+        Timber.d("setNumberOfDecimal $value")
+        val number = value.toIntOrNull()
+        setState { copy(config = config?.copy(numberOfDecimal = number)) }
     }
 
     private fun loadDisplayData() {
