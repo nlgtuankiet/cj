@@ -8,7 +8,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.mvrx.MavericksView
-import com.airbnb.mvrx.activityViewModel
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
 import com.rainyseason.cj.ticker.list.CoinTickerListController
@@ -33,8 +32,6 @@ class CoinTickerListFragment : Fragment(), MavericksView {
     lateinit var navigator: CoinTickerNavigator
 
     private val viewModel: CoinTickerListViewModel by fragmentViewModel()
-
-    private val settingViewModel: CoinTickerSettingViewModel by activityViewModel()
 
     private val controller: CoinTickerListController by lazy {
         CoinTickerListController(

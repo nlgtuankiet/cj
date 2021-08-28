@@ -4,13 +4,12 @@ import android.content.Context
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
-import com.rainyseason.cj.ticker.CoinTickerSettingViewModel
 import com.rainyseason.cj.ticker.TickerWidgetRenderParams
 import com.rainyseason.cj.ticker.view.coinTickerPreviewView
 import com.rainyseason.cj.ticker.view.settingNumberView
 
 class CoinTickerPreviewController(
-    private val viewModel: CoinTickerSettingViewModel,
+    private val viewModel: CoinTickerPreviewViewModel,
     private val context: Context
 ) : AsyncEpoxyController() {
     override fun buildModels() {

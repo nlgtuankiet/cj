@@ -69,6 +69,9 @@ class CoinTickerListController constructor(
                 name(entry.name)
                 symbol(entry.symbol)
                 iconUrl(entry.image)
+                onClickListener { _ ->
+                    navigator.moveToPreview(coinId = entry.id)
+                }
             }
         }
 
@@ -111,6 +114,9 @@ class CoinTickerListController constructor(
                 id(entry.id)
                 name(entry.name)
                 symbol(entry.symbol)
+                onClickListener { _ ->
+                    navigator.moveToPreview(coinId = entry.id)
+                }
             }
         }
 

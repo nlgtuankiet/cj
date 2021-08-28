@@ -35,8 +35,8 @@ class CoinTickerListSearchView @JvmOverloads constructor(
 
     @ModelProp
     fun setValue(value: String) {
-        Timber.tag("CoinTickerListSearchView").d("old ${editText.text?.toString()} new: $value")
         if (editText.text?.toString() != value) {
+            Timber.tag("CoinTickerListSearchView").d("old ${editText.text?.toString()} new: $value")
             editText.setText(value)
         }
     }

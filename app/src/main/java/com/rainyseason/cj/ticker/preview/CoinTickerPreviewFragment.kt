@@ -9,9 +9,10 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.mvrx.MavericksView
-import com.airbnb.mvrx.activityViewModel
+import com.airbnb.mvrx.fragmentViewModel
+import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
-import com.rainyseason.cj.ticker.CoinTickerSettingViewModel
+import com.rainyseason.cj.ticker.CoinTickerWidgetSaver
 import com.rainyseason.cj.ticker.TickerWidgerRender
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -26,10 +27,13 @@ interface CoinTickerPreviewFragmentModule {
 
 class CoinTickerPreviewFragment : Fragment(), MavericksView {
 
-    private val viewModel: CoinTickerSettingViewModel by activityViewModel()
+    private val viewModel: CoinTickerPreviewViewModel by fragmentViewModel()
 
     @Inject
     lateinit var render: TickerWidgerRender
+
+    @Inject
+    lateinit var viewModelFactory: CoinTickerPreviewViewModel.Factory
 
     private val controller: CoinTickerPreviewController by lazy {
         CoinTickerPreviewController(viewModel, requireContext())
@@ -55,8 +59,15 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
         recyclerView.setController(controller)
 
         view.findViewById<Button>(R.id.save_button).setOnClickListener {
-            viewModel.save()
+            save()
         }
+    }
+
+    private fun save() {
+        val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
+        val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
+        val userCurrency = withState(viewModel) { it.userCurrency.invoke() } ?: return
+        (requireActivity() as CoinTickerWidgetSaver).saveWidget(userCurrency, config, displayData)
     }
 
     override fun invalidate() {

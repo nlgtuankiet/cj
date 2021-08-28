@@ -1,54 +1,75 @@
-package com.rainyseason.cj.ticker
+package com.rainyseason.cj.ticker.preview
 
 import com.airbnb.mvrx.Async
+import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.data.UserCurrency
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.local.CoinTickerRepository
+import com.rainyseason.cj.ticker.TickerWidgetConfig
+import com.rainyseason.cj.ticker.TickerWidgetDisplayData
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-data class CoinTickerSettingState(
-    val coinId: String? = null,
+data class CoinTickerPreviewState(
     val savedDisplayData: Async<TickerWidgetDisplayData> = Uninitialized,
     val config: TickerWidgetConfig? = null,
     val savedConfig: Async<TickerWidgetConfig> = Uninitialized,
     val userCurrency: Async<UserCurrency> = Uninitialized,
-
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
     val numberOfDecimal: Int? = null,
 ) : MavericksState
 
-class CoinTickerSettingViewModel @AssistedInject constructor(
-    @Assisted private val widgetId: Int,
+class CoinTickerPreviewViewModel @AssistedInject constructor(
+    @Assisted private val args: CoinTickerPreviewArgs,
     private val coinTickerRepository: CoinTickerRepository,
     private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
-) : MavericksViewModel<CoinTickerSettingState>(CoinTickerSettingState()) {
+) : MavericksViewModel<CoinTickerPreviewState>(CoinTickerPreviewState()) {
+
+    private val widgetId = args.widgetId
 
     init {
         loadUserCurrency()
         loadConfig()
         loadDisplayData()
-        setCoinId("dogecoin")
+        loadCoinDetail()
         onEach { state ->
             maybeSaveDisplayData(state)
         }
-        onEach(CoinTickerSettingState::config) { config ->
+        onEach(CoinTickerPreviewState::config) { config ->
             config?.let { maybeSaveConfig(config) }
         }
+        viewModelScope.launch {
+            saveInitialConfig()
+        }
+    }
+
+
+    private suspend fun saveInitialConfig() {
+        // load last config
+        val config = TickerWidgetConfig(
+            widgetId = widgetId,
+            coinId = args.coinId,
+            showChange24h = true,
+            showChange7d = true,
+            showChange14d = true,
+            numberOfPriceDecimal = 1,
+            numberOfChangePercentDecimal = 1
+        )
+
+        coinTickerRepository.setConfig(widgetId, config)
     }
 
     fun setNumberOfDecimal(value: String) {
@@ -69,6 +90,9 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
     }
 
     private fun maybeSaveConfig(config: TickerWidgetConfig) {
+        if (config.widgetId <= 0 || config.coinId.isBlank()) {
+            return
+        }
         viewModelScope.launch {
             coinTickerRepository.setConfig(widgetId, config)
         }
@@ -77,31 +101,6 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
     private fun loadConfig() {
         coinTickerRepository.getConfigStream(widgetId)
             .execute { copy(savedConfig = it) }
-    }
-
-    private val _saveEvent = Channel<Unit>(capacity = Channel.CONFLATED)
-    val saveEvent = _saveEvent.receiveAsFlow()
-
-    fun save() {
-        // improvement: wait for config complete
-        _saveEvent.trySend(Unit)
-    }
-
-    fun setCoinId(id: String) {
-        setState {
-            copy(
-                coinId = id,
-                config = TickerWidgetConfig(
-                    widgetId = widgetId,
-                    coinId = id,
-                    showChange24h = config?.showChange24h ?: true,
-                    showChange7d = config?.showChange7d ?: true,
-                    showChange14d = config?.showChange14d ?: false,
-                    numberOfChangePercentDecimal = 1,
-                )
-            )
-        }
-        loadCoinDetail(coinId = id)
     }
 
     private fun loadUserCurrency() {
@@ -113,16 +112,16 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
     }
 
     private var loadCoinDetailJob: Job? = null
-    private fun loadCoinDetail(coinId: String) {
+    private fun loadCoinDetail() {
         loadCoinDetailJob?.cancel()
         loadCoinDetailJob = suspend {
-            coinGeckoService.getCoinDetail(coinId)
+            coinGeckoService.getCoinDetail(args.coinId)
         }.execute {
             copy(coinDetailResponse = it)
         }
     }
 
-    private fun maybeSaveDisplayData(state: CoinTickerSettingState) {
+    private fun maybeSaveDisplayData(state: CoinTickerPreviewState) {
         val userCurrency = state.userCurrency.invoke() ?: return
         val coinDetail = state.coinDetailResponse.invoke() ?: return
         val config = state.savedConfig.invoke() ?: return
@@ -158,23 +157,26 @@ class CoinTickerSettingViewModel @AssistedInject constructor(
         return tickerWidgetDisplayConfig
     }
 
+
     @AssistedFactory
     interface Factory {
-        fun create(widgetId: Int): CoinTickerSettingViewModel
+        fun create(args: CoinTickerPreviewArgs): CoinTickerPreviewViewModel
     }
 
     companion object :
-        MavericksViewModelFactory<CoinTickerSettingViewModel, CoinTickerSettingState> {
-        override fun create(
-            viewModelContext: ViewModelContext,
-            state: CoinTickerSettingState
-        ): CoinTickerSettingViewModel {
-            val activity = viewModelContext.activity as CoinTickerSettingActivity
-            return activity.viewModelFactory.create(activity.getWidgetId() ?: 0)
+        MavericksViewModelFactory<CoinTickerPreviewViewModel, CoinTickerPreviewState> {
+        override fun initialState(viewModelContext: ViewModelContext): CoinTickerPreviewState {
+            return CoinTickerPreviewState()
         }
 
-        override fun initialState(viewModelContext: ViewModelContext): CoinTickerSettingState {
-            return CoinTickerSettingState()
+        override fun create(
+            viewModelContext: ViewModelContext,
+            state: CoinTickerPreviewState
+        ): CoinTickerPreviewViewModel {
+            val fragment =
+                (viewModelContext as FragmentViewModelContext).fragment<CoinTickerPreviewFragment>()
+            val args = fragment.requireArgs<CoinTickerPreviewArgs>()
+            return fragment.viewModelFactory.create(args)
         }
     }
 }

@@ -2,6 +2,8 @@ package com.rainyseason.cj.common
 
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
+import android.os.Parcelable
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -71,4 +73,16 @@ fun Context.dpToPx(value: Int): Int {
         value.toFloat(),
         resources.displayMetrics
     ).toInt()
+}
+
+
+fun <T : Parcelable> Fragment.requireArgs(): T {
+    return arguments!!.getParcelable<T>("args")!!
+}
+
+fun <T : Parcelable, F : Fragment> F.putArgs(args: T): F {
+    arguments = Bundle().apply {
+        putParcelable("args", args)
+    }
+    return this
 }

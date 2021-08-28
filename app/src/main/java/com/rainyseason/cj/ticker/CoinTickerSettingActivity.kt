@@ -8,11 +8,9 @@ import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.airbnb.mvrx.MavericksView
-import com.airbnb.mvrx.viewModel
-import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.ActivityScope
-import com.rainyseason.cj.common.launchAndRepeatWithLifecycle
+import com.rainyseason.cj.data.UserCurrency
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
 import dagger.Module
 import dagger.android.AndroidInjection
@@ -21,7 +19,6 @@ import dagger.android.ContributesAndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -38,12 +35,18 @@ interface CoinTickerSettingActivityModule {
     fun activity(): CoinTickerSettingActivity
 }
 
-class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, MavericksView {
+interface CoinTickerWidgetSaver {
+    fun saveWidget(
+        userCurrency: UserCurrency,
+        config: TickerWidgetConfig,
+        data: TickerWidgetDisplayData
+    )
+}
+
+class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, MavericksView,
+    CoinTickerWidgetSaver {
     @Inject
     lateinit var androidInjector: DispatchingAndroidInjector<Any>
-
-    @Inject
-    lateinit var viewModelFactory: CoinTickerSettingViewModel.Factory
 
     @Inject
     lateinit var appWidgetManager: AppWidgetManager
@@ -53,9 +56,6 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
 
     @Inject
     lateinit var coinTickerHandler: CoinTickerHandler
-
-    @Suppress("EXPERIMENTAL_API_USAGE_FUTURE_ERROR")
-    private val viewModel: CoinTickerSettingViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,23 +73,18 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
                 .replace(R.id.fragment_container, CoinTickerListFragment())
                 .commit()
         }
-
-        launchAndRepeatWithLifecycle {
-            viewModel.saveEvent.collect {
-                save(widgetId = widgetId)
-            }
-        }
     }
 
-    private fun save(widgetId: Int) {
+    override fun saveWidget(
+        userCurrency: UserCurrency,
+        config: TickerWidgetConfig,
+        data: TickerWidgetDisplayData
+    ) {
         val remoteView = RemoteViews(packageName, R.layout.widget_coin_ticker)
-        val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
-        val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
-        val userCurrency = withState(viewModel) { it.userCurrency.invoke() } ?: return
         val param = TickerWidgetRenderParams(
             userCurrency = userCurrency,
             config = config,
-            data = displayData,
+            data = data,
             showLoading = false,
             clickToUpdate = true,
         )
@@ -97,13 +92,13 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
             view = remoteView,
             params = param,
         )
-        appWidgetManager.updateAppWidget(widgetId, remoteView)
+        appWidgetManager.updateAppWidget(config.widgetId, remoteView)
         val resultValue = Intent().apply {
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, config.widgetId)
         }
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                coinTickerHandler.enqueueRefreshWidget(widgetId = widgetId, config = config)
+                coinTickerHandler.enqueueRefreshWidget(widgetId = config.widgetId, config = config)
             }
             setResult(Activity.RESULT_OK, resultValue)
             finish()
@@ -129,4 +124,6 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
     override fun invalidate() {
 
     }
+
+
 }
