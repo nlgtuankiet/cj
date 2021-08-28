@@ -12,6 +12,7 @@ import com.rainyseason.cj.ticker.list.view.coinTickerListCoinView
 import com.rainyseason.cj.ticker.list.view.coinTickerListHeaderView
 import com.rainyseason.cj.ticker.list.view.coinTickerListMarketView
 import com.rainyseason.cj.ticker.list.view.coinTickerListSearchView
+import kotlin.math.max
 
 class CoinTickerListController constructor(
     private val viewModel: CoinTickerListViewModel,
@@ -19,7 +20,7 @@ class CoinTickerListController constructor(
     private val navigator: CoinTickerNavigator,
 ) : AsyncEpoxyController() {
 
-    fun buildSearchBox(state: CoinTickerListState): BuildState {
+    private fun buildSearchBox(state: CoinTickerListState): BuildState {
         val keyword = state.keyword
         coinTickerListSearchView {
             id("search-box")
@@ -33,7 +34,7 @@ class CoinTickerListController constructor(
         return BuildState.Next
     }
 
-    fun buildMarket(state: CoinTickerListState): BuildState {
+    private fun buildMarket(state: CoinTickerListState): BuildState {
         val keyword = state.keyword
         if (keyword.isNotEmpty()) {
             // hide market when user search
@@ -78,7 +79,14 @@ class CoinTickerListController constructor(
         return BuildState.Next
     }
 
-    fun buildSearchResult(state: CoinTickerListState): BuildState {
+    private fun calculateRatio(keyword: String, value: String): Double {
+        if (value.contains(keyword, true)) {
+            return keyword.length.toDouble() / value.length
+        }
+        return 0.0
+    }
+
+    private fun buildSearchResult(state: CoinTickerListState): BuildState {
         val keyword = state.keyword
         if (keyword.isEmpty()) {
             // hide search result when keyword is empty
@@ -109,7 +117,12 @@ class CoinTickerListController constructor(
             return BuildState.Stop
         }
 
-        list.forEach { entry ->
+        // TODO sort by market cap
+        val orderedList = list.sortedByDescending {
+            max(calculateRatio(keyword, it.name), calculateRatio(keyword, it.symbol))
+        }
+
+        orderedList.forEach { entry ->
             coinTickerListCoinView {
                 id(entry.id)
                 name(entry.name)
