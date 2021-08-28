@@ -35,7 +35,9 @@ class CoinTickerPreviewController(
             renderParams(params)
         }
 
-        val numberOfPriceDecimal = state.config?.numberOfPriceDecimal
+        val config = state.savedConfig.invoke()
+
+        val numberOfPriceDecimal = config?.numberOfPriceDecimal
         settingNumberView {
             id("number-of-price-decimal")
             hint(R.string.number_of_price_decimal)
@@ -45,7 +47,7 @@ class CoinTickerPreviewController(
             }
         }
 
-        val numberOfChangePercentDecimal = state.config?.numberOfChangePercentDecimal
+        val numberOfChangePercentDecimal = config?.numberOfChangePercentDecimal
         settingNumberView {
             id("number-of-change-percent-decimal")
             hint(R.string.number_of_change_percent_decimal)

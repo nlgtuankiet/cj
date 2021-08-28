@@ -8,7 +8,8 @@
     <ImageView
         android:id="@+id/preview_background"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="134dp"
+        android:layout_marginBottom="-12dp"
         android:scaleType="centerCrop"
         android:src="@drawable/preview_background"
         app:layout_constraintEnd_toEndOf="parent"
