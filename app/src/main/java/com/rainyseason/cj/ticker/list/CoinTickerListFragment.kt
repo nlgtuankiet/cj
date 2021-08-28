@@ -29,6 +29,9 @@ class CoinTickerListFragment : Fragment(), MavericksView {
     @Inject
     lateinit var viewModelProvider: Provider<CoinTickerListViewModel>
 
+    @Inject
+    lateinit var navigator: CoinTickerNavigator
+
     private val viewModel: CoinTickerListViewModel by fragmentViewModel()
 
     private val settingViewModel: CoinTickerSettingViewModel by activityViewModel()
@@ -36,7 +39,8 @@ class CoinTickerListFragment : Fragment(), MavericksView {
     private val controller: CoinTickerListController by lazy {
         CoinTickerListController(
             viewModel = viewModel,
-            context = requireContext()
+            context = requireContext(),
+            navigator = navigator,
         )
     }
 

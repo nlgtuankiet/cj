@@ -4,4 +4,6 @@
     <string name="number_of_change_percent_decimal">Number of change percent decimal</string>
 
     <string name="coin_ticker_list_market_header">Popular</string>
+    <string name="coin_ticker_list_all_header">All</string>
+    <string name="coin_ticker_list_search">Search</string>
 </resources>

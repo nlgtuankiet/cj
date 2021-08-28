@@ -33,6 +33,10 @@ class CoinTickerListViewModel @Inject constructor(
         reload()
     }
 
+    fun submitNewKeyword(newKeyword: String) {
+        setState { copy(keyword = newKeyword.trim()) }
+    }
+
     private var listJob: Job? = null
     private var marketJob: Job? = null
 

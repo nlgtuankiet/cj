@@ -11,6 +11,7 @@ import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.viewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.ActivityScope
 import com.rainyseason.cj.common.launchAndRepeatWithLifecycle
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
 import dagger.Module
@@ -33,6 +34,7 @@ interface CoinTickerSettingActivityModule {
             CoinTickerListFragmentModule::class,
         ]
     )
+    @ActivityScope
     fun activity(): CoinTickerSettingActivity
 }
 
