@@ -6,7 +6,6 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.rainyseason.cj.data.local.CoinTickerRepository
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,9 +15,11 @@ class CoinTickerHandler @Inject constructor(
     private val coinTickerRepository: CoinTickerRepository,
 ) {
     suspend fun enqueueRefreshWidget(widgetId: Int, config: TickerWidgetConfig? = null) {
-        val latestConfig = config ?: coinTickerRepository.getConfig(widgetId = widgetId)
-        latestConfig.hashCode() // read refresh internal milis
-        val request = PeriodicWorkRequestBuilder<RefreshCoinTickerWorker>(15, TimeUnit.MINUTES)
+        val latestConfig = config ?: coinTickerRepository.getConfig(widgetId = widgetId) ?: return
+        val request = PeriodicWorkRequestBuilder<RefreshCoinTickerWorker>(
+            repeatInterval = latestConfig.refreshInterval,
+            repeatIntervalTimeUnit = latestConfig.refreshIntervalUnit
+        )
             .setInputData(
                 Data.Builder().putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId).build()
             )

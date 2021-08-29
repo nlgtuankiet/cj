@@ -2,8 +2,13 @@
     <string name="app_name">Crypto Jet</string>
     <string name="number_of_price_decimal">Number of price decimal</string>
     <string name="number_of_change_percent_decimal">Number of change percent decimal</string>
+    <string name="coin_ticker_preview_refresh_internal">Refresh internal</string>
+
 
     <string name="coin_ticker_list_market_header">Popular</string>
     <string name="coin_ticker_list_all_header">All</string>
     <string name="coin_ticker_list_search">Search</string>
+
+    <string name="setting_value_default">Default</string>
+    <string name="setting_keep_original_price">Keep original</string>
 </resources>

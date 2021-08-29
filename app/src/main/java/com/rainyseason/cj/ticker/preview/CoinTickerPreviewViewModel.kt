@@ -21,15 +21,18 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 data class CoinTickerPreviewState(
     val savedDisplayData: Async<TickerWidgetDisplayData> = Uninitialized,
-    val config: TickerWidgetConfig? = null,
     val savedConfig: Async<TickerWidgetConfig> = Uninitialized,
     val userCurrency: Async<UserCurrency> = Uninitialized,
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
     val numberOfDecimal: Int? = null,
-) : MavericksState
+) : MavericksState {
+    val config: TickerWidgetConfig?
+        get() = savedConfig.invoke()
+}
 
 class CoinTickerPreviewViewModel @AssistedInject constructor(
     @Assisted private val args: CoinTickerPreviewArgs,
@@ -72,16 +75,36 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         coinTickerRepository.setConfig(widgetId, config)
     }
 
+    private fun updateConfig(block: TickerWidgetConfig.() -> TickerWidgetConfig) {
+        withState { state ->
+            val config = state.savedConfig.invoke()
+            if (config != null) {
+                val newConfig = block.invoke(config)
+                maybeSaveConfig(newConfig)
+            }
+        }
+    }
+
+    fun setRefreshInternal(interval: Long, unit: TimeUnit) {
+        updateConfig {
+            copy(refreshInterval = interval, refreshIntervalUnit = unit)
+        }
+    }
+
     fun setNumberOfDecimal(value: String) {
         Timber.d("setNumberOfDecimal $value")
         val number = value.toIntOrNull()?.coerceAtLeast(0)
-        setState { copy(config = config?.copy(numberOfPriceDecimal = number)) }
+        updateConfig {
+            copy(numberOfPriceDecimal = number)
+        }
     }
 
     fun setNumberOfChangePercentDecimal(value: String) {
         Timber.d("setNumberOfChangePercentDecimal $value")
         val number = value.toIntOrNull()?.coerceAtLeast(0)
-        setState { copy(config = config?.copy(numberOfChangePercentDecimal = number)) }
+        updateConfig {
+            copy(numberOfChangePercentDecimal = number)
+        }
     }
 
     private fun loadDisplayData() {

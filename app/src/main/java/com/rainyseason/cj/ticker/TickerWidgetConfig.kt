@@ -2,6 +2,7 @@ package com.rainyseason.cj.ticker
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.util.concurrent.TimeUnit
 
 /**
  * Map 1-1 between widget_id -> configs for that widget in order to generate display config
@@ -27,7 +28,13 @@ data class TickerWidgetConfig(
     val numberOfPriceDecimal: Int? = null,
 
     @Json(name = "number_of_change_percent_decimal")
-    val numberOfChangePercentDecimal: Int? = null
+    val numberOfChangePercentDecimal: Int? = null,
+
+    @Json(name = "refresh_interval")
+    val refreshInterval: Long = 15,
+
+    @Json(name = "refresh_interval_unit")
+    val refreshIntervalUnit: TimeUnit = TimeUnit.MINUTES,
 ) {
     val isComplete: Boolean
         get() = coinId.isNotEmpty()
