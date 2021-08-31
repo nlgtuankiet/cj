@@ -8,7 +8,7 @@
     <ImageView
         android:id="@+id/preview_background"
         android:layout_width="0dp"
-        android:layout_height="134dp"
+        android:layout_height="150dp"
         android:layout_marginBottom="-12dp"
         android:scaleType="centerCrop"
         android:src="@drawable/preview_background"
@@ -19,8 +19,8 @@
 
     <FrameLayout
         android:id="@+id/preview_container"
-        android:layout_width="110dp"
-        android:layout_height="110dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="@id/preview_background"
         app:layout_constraintEnd_toEndOf="@id/preview_background"
         app:layout_constraintStart_toStartOf="@id/preview_background"

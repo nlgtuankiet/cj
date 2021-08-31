@@ -58,8 +58,8 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
     lateinit var coinTickerHandler: CoinTickerHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         AndroidInjection.inject(this)
+        super.onCreate(savedInstanceState)
         setResult(RESULT_CANCELED)
         setContentView(R.layout.activity_coin_ticker_setting)
         val widgetId = getWidgetId()
@@ -80,7 +80,6 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
         config: TickerWidgetConfig,
         data: TickerWidgetDisplayData
     ) {
-        val remoteView = RemoteViews(packageName, R.layout.widget_coin_ticker)
         val param = TickerWidgetRenderParams(
             userCurrency = userCurrency,
             config = config,
@@ -88,6 +87,7 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
             showLoading = false,
             clickToUpdate = true,
         )
+        val remoteView = RemoteViews(packageName, render.selectLayout(config))
         render.render(
             view = remoteView,
             params = param,

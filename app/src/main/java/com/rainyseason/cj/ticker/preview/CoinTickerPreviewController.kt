@@ -17,6 +17,41 @@ class CoinTickerPreviewController(
 ) : AsyncEpoxyController() {
 
 
+    private fun buildExtraSize(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        val extra = config.extraSize
+        val values = listOf(0, 10, 20, 30)
+        val valueToSummary = values.associateWith {
+            if (it == 0) {
+                context.getString(R.string.coin_ticker_preview_setting_extra_size_none)
+            } else {
+                "+$it"
+            }
+        }
+
+        settingTitleSummaryView {
+            id("setting-extra-size")
+            title(R.string.coin_ticker_preview_setting_extra_size)
+            summary(valueToSummary.values.toList()[values.indexOf(extra)])
+            onClickListener { _ ->
+                val currentConfig = withState(viewModel) { it.config } ?: return@onClickListener
+                val selectedExtra = currentConfig.extraSize
+
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_refresh_internal)
+                    .setSingleChoiceItems(
+                        valueToSummary.values.toTypedArray(),
+                        valueToSummary.keys.indexOfFirst { selectedExtra == it },
+                    ) { dialog, which ->
+                        val select = values[which]
+                        viewModel.setExtraSize(select)
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
+    }
+
     private fun createInterval(interval: Long, unit: TimeUnit): String {
         val res = when (unit) {
             TimeUnit.MINUTES -> R.plurals.coin_ticker_preview_internal_minute_template
@@ -186,5 +221,6 @@ class CoinTickerPreviewController(
 
         buildRefreshInternal(state)
         buildTheme(state)
+        buildExtraSize(state)
     }
 }

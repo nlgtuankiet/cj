@@ -6,7 +6,6 @@ import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.rainyseason.cj.R
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
@@ -60,7 +59,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         val oldDisplayData: TickerWidgetDisplayData = coinTickerRepository.getDisplayData(widgetId)
             ?: throw IllegalStateException("missing display data")
 
-        val loadingView = RemoteViews(appContext.packageName, R.layout.widget_coin_ticker)
+        val loadingView = RemoteViews(appContext.packageName, render.selectLayout(config))
         val loadingParams = TickerWidgetRenderParams(
             userCurrency = userCurrency,
             config = config,
@@ -79,7 +78,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             coinDetail = coinGeckoService.getCoinDetail(config.coinId)
         } catch (ex: Exception) {
             // show error ui? toast?
-            val oldView = RemoteViews(appContext.packageName, R.layout.widget_coin_ticker)
+            val oldView = RemoteViews(appContext.packageName, render.selectLayout(config))
             val oldParams = TickerWidgetRenderParams(
                 userCurrency = userCurrency,
                 config = config,
@@ -105,7 +104,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             change14dPercent = coinDetail.marketData.priceChangePercentage14d,
         )
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)
-        val newView = RemoteViews(appContext.packageName, R.layout.widget_coin_ticker)
+        val newView = RemoteViews(appContext.packageName, render.selectLayout(config))
         val newParams = TickerWidgetRenderParams(
             userCurrency = userCurrency,
             config = config,

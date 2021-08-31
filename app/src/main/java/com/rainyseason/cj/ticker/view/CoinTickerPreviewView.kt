@@ -17,22 +17,31 @@ class CoinTickerPreviewView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
 ) : FrameLayout(context, attributeSet) {
-    private val remoteView: RemoteViews
-    private val renderer = coreComponent.tickerWidgetRender
-
     init {
         inflateAndAdd(R.layout.coin_ticker_preview_view)
-        remoteView = LocalRemoteViews(
-            context,
-            findViewById(R.id.preview_container),
-            R.layout.widget_coin_ticker
-        )
     }
+
+    private var remoteView: RemoteViews? = null
+    private val renderer = coreComponent.tickerWidgetRender
+    private val container = findViewById<FrameLayout>(R.id.preview_container)
+    private var currentLayout: Int? = null
 
     @ModelProp
     fun setRenderParams(params: TickerWidgetRenderParams?) {
         params?.let {
-            renderer.render(remoteView, it)
+            val layout = renderer.selectLayout(params.config)
+            if (currentLayout != layout) {
+                currentLayout = layout
+                container.removeAllViews()
+                remoteView = LocalRemoteViews(
+                    context,
+                    container,
+                    layout
+                )
+            }
+            remoteView?.let { view ->
+                renderer.render(view, params)
+            }
         }
     }
 }

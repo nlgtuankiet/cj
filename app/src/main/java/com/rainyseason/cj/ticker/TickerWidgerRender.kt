@@ -9,6 +9,7 @@ import android.content.res.Configuration
 import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.RemoteViews
+import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
@@ -31,6 +32,17 @@ data class TickerWidgetRenderParams(
 class TickerWidgerRender @Inject constructor(
     private val context: Context
 ) {
+
+    @LayoutRes
+    fun selectLayout(config: TickerWidgetConfig): Int {
+        return when (config.extraSize) {
+            0 -> R.layout.widget_coin_ticker
+            10 -> R.layout.widget_coin_ticker_e10
+            20 -> R.layout.widget_coin_ticker_e20
+            30 -> R.layout.widget_coin_ticker_e30
+            else -> error("not support")
+        }
+    }
 
     fun <T> select(theme: String, light: T, dark: T): T {
         if (theme == Theme.LIGHT) {

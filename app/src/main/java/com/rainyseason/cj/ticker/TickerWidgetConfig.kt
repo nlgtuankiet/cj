@@ -38,7 +38,10 @@ data class TickerWidgetConfig(
     val refreshIntervalUnit: TimeUnit = TimeUnit.MINUTES,
 
     @Json(name = "theme")
-    val theme: String = Theme.AUTO
+    val theme: String = Theme.AUTO,
+
+    @Json(name = "extra_size")
+    val extraSize: Int = 0,
 ) {
     val isComplete: Boolean
         get() = coinId.isNotEmpty()

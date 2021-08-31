@@ -85,6 +85,12 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
+    fun setExtraSize(extra: Int) {
+        updateConfig {
+            copy(extraSize = extra)
+        }
+    }
+
     fun setTheme(theme: String) {
         updateConfig {
             copy(theme = theme)
