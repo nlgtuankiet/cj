@@ -8,7 +8,9 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
+import androidx.annotation.ColorRes
 import androidx.annotation.LayoutRes
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -85,4 +87,8 @@ fun <T : Parcelable, F : Fragment> F.putArgs(args: T): F {
         putParcelable("args", args)
     }
     return this
+}
+
+fun Context.getColorCompat(@ColorRes color: Int): Int {
+    return ContextCompat.getColor(this, color)
 }

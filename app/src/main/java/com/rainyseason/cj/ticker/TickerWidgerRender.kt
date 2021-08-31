@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.RemoteViews
@@ -12,6 +13,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.Theme
+import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.data.UserCurrency
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,20 +32,65 @@ class TickerWidgerRender @Inject constructor(
     private val context: Context
 ) {
 
+    fun <T> select(theme: String, light: T, dark: T): T {
+        if (theme == Theme.LIGHT) {
+            return light
+        }
+        if (theme == Theme.DARK) {
+            return dark
+        }
+        val mode = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        if (mode == Configuration.UI_MODE_NIGHT_YES) {
+            return dark
+        }
+        return light
+    }
+
     @SuppressLint("UnspecifiedImmutableFlag")
     fun render(
         view: RemoteViews,
         params: TickerWidgetRenderParams,
     ) {
+        val theme = params.config.theme
+        view.setInt(
+            R.id.container,
+            "setBackgroundResource",
+            select(
+                theme,
+                R.drawable.coin_ticker_background,
+                R.drawable.coin_ticker_background_dark
+            )
+        )
         val renderData = params.data.addBitmap(context)
+
         view.setTextViewText(R.id.symbol, renderData.symbol)
+
         val priceContent = formatPrice(params)
         view.setTextViewText(R.id.price, priceContent)
+        view.setTextColor(
+            R.id.price,
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+
         val changes = formatChange(params.config, renderData)
         view.setTextViewText(R.id.change_percent, changes)
         view.setViewVisibility(R.id.loading, if (params.showLoading) View.VISIBLE else View.GONE)
         view.setImageViewBitmap(R.id.icon, renderData.iconBitmap)
+
         view.setTextViewText(R.id.name, renderData.name)
+        view.setTextColor(
+            R.id.name,
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+
         if (params.clickToUpdate) {
             val intent = Intent(context, CoinTickerProvider::class.java)
             intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE

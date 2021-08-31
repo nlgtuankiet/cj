@@ -31,7 +31,7 @@ class CoinTickerPreviewController(
         val config = state.config ?: return
         val theme = config.theme
         val themeToSummary = mapOf(
-            Theme.DEFAULT to R.string.coin_ticker_preview_setting_theme_default,
+            Theme.AUTO to R.string.coin_ticker_preview_setting_theme_default,
             Theme.LIGHT to R.string.coin_ticker_preview_setting_theme_light,
             Theme.DARK to R.string.coin_ticker_preview_setting_theme_dark,
         )
