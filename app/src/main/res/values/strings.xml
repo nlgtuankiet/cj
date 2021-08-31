@@ -3,6 +3,10 @@
     <string name="number_of_price_decimal">Number of price decimal</string>
     <string name="number_of_change_percent_decimal">Number of change percent decimal</string>
     <string name="coin_ticker_preview_refresh_internal">Refresh internal</string>
+    <string name="coin_ticker_preview_setting_theme">Theme</string>
+    <string name="coin_ticker_preview_setting_theme_default">System default</string>
+    <string name="coin_ticker_preview_setting_theme_light">Light</string>
+    <string name="coin_ticker_preview_setting_theme_dark">Dark</string>
 
 
     <string name="coin_ticker_list_market_header">Popular</string>

@@ -1,5 +1,6 @@
 package com.rainyseason.cj.ticker
 
+import com.rainyseason.cj.common.Theme
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.util.concurrent.TimeUnit
@@ -35,6 +36,9 @@ data class TickerWidgetConfig(
 
     @Json(name = "refresh_interval_unit")
     val refreshIntervalUnit: TimeUnit = TimeUnit.MINUTES,
+
+    @Json(name = "theme")
+    val theme: String = Theme.DEFAULT
 ) {
     val isComplete: Boolean
         get() = coinId.isNotEmpty()

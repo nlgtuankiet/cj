@@ -85,6 +85,12 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
+    fun setTheme(theme: String) {
+        updateConfig {
+            copy(theme = theme)
+        }
+    }
+
     fun setRefreshInternal(interval: Long, unit: TimeUnit) {
         updateConfig {
             copy(refreshInterval = interval, refreshIntervalUnit = unit)

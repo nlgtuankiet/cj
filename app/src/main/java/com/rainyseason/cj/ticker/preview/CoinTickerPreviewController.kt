@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.ticker.TickerWidgetRenderParams
 import com.rainyseason.cj.ticker.view.coinTickerPreviewView
 import com.rainyseason.cj.ticker.view.settingTitleSummaryView
@@ -24,6 +25,38 @@ class CoinTickerPreviewController(
             else -> error("not support")
         }
         return context.resources.getQuantityString(res, interval.toInt(), interval)
+    }
+
+    private fun buildTheme(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        val theme = config.theme
+        val themeToSummary = mapOf(
+            Theme.DEFAULT to R.string.coin_ticker_preview_setting_theme_default,
+            Theme.LIGHT to R.string.coin_ticker_preview_setting_theme_light,
+            Theme.DARK to R.string.coin_ticker_preview_setting_theme_dark,
+        )
+
+        settingTitleSummaryView {
+            id("setting-theme")
+            title(R.string.coin_ticker_preview_setting_theme)
+            summary(context.getString(themeToSummary[theme]!!))
+            onClickListener { _ ->
+                val currentConfig = withState(viewModel) { it.config } ?: return@onClickListener
+                val themeToSummaryString = themeToSummary.mapValues { context.getString(it.value) }
+                val selectedTheme = currentConfig.theme
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_refresh_internal)
+                    .setSingleChoiceItems(
+                        themeToSummaryString.values.toTypedArray(),
+                        themeToSummaryString.keys.indexOfFirst { selectedTheme == it },
+                    ) { dialog, which ->
+                        val select = themeToSummaryString.keys.toList()[which]
+                        viewModel.setTheme(select)
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
     }
 
     private fun buildRefreshInternal(state: CoinTickerPreviewState) {
@@ -152,5 +185,6 @@ class CoinTickerPreviewController(
         }
 
         buildRefreshInternal(state)
+        buildTheme(state)
     }
 }
