@@ -12,6 +12,10 @@ import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.data.coingecko.MarketsResponseEntry
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -27,13 +31,18 @@ class CoinTickerListViewModel @Inject constructor(
     private val coinGeckoService: CoinGeckoService,
 ) : MavericksViewModel<CoinTickerListState>(CoinTickerListState()) {
 
+    private val keywordBuffer = MutableStateFlow("")
 
     init {
         reload()
+        keywordBuffer.debounce(300L).onEach {
+            setState { copy(keyword = it) }
+        }.launchIn(viewModelScope)
     }
 
+
     fun submitNewKeyword(newKeyword: String) {
-        setState { copy(keyword = newKeyword.trim()) }
+        keywordBuffer.value = newKeyword.trim()
     }
 
     private var listJob: Job? = null
@@ -52,7 +61,7 @@ class CoinTickerListViewModel @Inject constructor(
         marketJob = viewModelScope.launch {
             val userCurrency = userCuRepository.getCurrency()
             suspend {
-                coinGeckoService.getCoinMarkets(vsCurrency = userCurrency.id, perPage = 10)
+                coinGeckoService.getCoinMarkets(vsCurrency = userCurrency.id, perPage = 100)
             }.execute { copy(markets = it) }
         }
     }

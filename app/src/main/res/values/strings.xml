@@ -13,7 +13,7 @@
     <string name="coin_ticker_preview_setting_extra_size_none">None</string>
 
 
-    <string name="coin_ticker_list_market_header">Popular</string>
+    <string name="coin_ticker_list_market_header">Top 100</string>
     <string name="coin_ticker_list_all_header">All</string>
     <string name="coin_ticker_list_search">Search</string>
 
