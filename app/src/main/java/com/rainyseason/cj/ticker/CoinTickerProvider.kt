@@ -5,10 +5,9 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
-import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.goBackground
 import com.rainyseason.cj.common.logString
+import com.rainyseason.cj.data.local.CoinTickerRepository
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.ContributesAndroidInjector
@@ -26,6 +25,9 @@ class CoinTickerProvider : AppWidgetProvider() {
 
     @Inject
     lateinit var coinTickerHandler: CoinTickerHandler
+
+    @Inject
+    lateinit var coinTickerRepository: CoinTickerRepository
 
     @Inject
     lateinit var appWidgetManager: AppWidgetManager
@@ -62,18 +64,12 @@ class CoinTickerProvider : AppWidgetProvider() {
         }
     }
 
-    override fun onAppWidgetOptionsChanged(
-        context: Context,
-        appWidgetManager: AppWidgetManager,
-        appWidgetId: Int,
-        newOptions: Bundle
-    ) {
-        val values = listOf(
-            AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH,
-            AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT,
-            AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH,
-            AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT,
-        ).map { newOptions.getInt(it).let { dp -> context.dpToPx(dp) } }
-        Timber.d("onAppWidgetOptionsChanged values: $values")
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        super.onDeleted(context, appWidgetIds)
+        goBackground {
+            appWidgetIds.forEach {
+                coinTickerRepository.clearAllData(widgetId = it)
+            }
+        }
     }
 }
