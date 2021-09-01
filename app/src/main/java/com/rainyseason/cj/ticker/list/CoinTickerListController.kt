@@ -7,6 +7,7 @@ import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
+import com.rainyseason.cj.common.loadingView
 import com.rainyseason.cj.ticker.CoinTickerNavigator
 import com.rainyseason.cj.ticker.list.view.coinTickerListCoinView
 import com.rainyseason.cj.ticker.list.view.coinTickerListHeaderView
@@ -43,8 +44,7 @@ class CoinTickerListController constructor(
 
         val async = state.markets
         if (async is Loading) {
-            // build loading
-            return BuildState.Stop
+            return BuildState.StopWithLoading
         }
 
         if (async is Error) {
@@ -147,6 +147,11 @@ class CoinTickerListController constructor(
             val buildResult = builder.invoke(state)
             if (buildResult == BuildState.Stop) {
                 return
+            }
+            if (buildResult == BuildState.StopWithLoading) {
+                loadingView {
+                    id("loading")
+                }
             }
         }
     }

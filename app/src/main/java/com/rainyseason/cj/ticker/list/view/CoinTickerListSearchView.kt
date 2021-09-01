@@ -13,6 +13,8 @@ import com.airbnb.epoxy.TextProp
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.debounced
+import com.rainyseason.cj.common.setTextIfDifferent
 import timber.log.Timber
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
@@ -25,7 +27,12 @@ class CoinTickerListSearchView @JvmOverloads constructor(
     }
 
     private val textInputLayout: TextInputLayout = findViewById(R.id.text_input_layout)
-    private val editText: TextInputEditText = findViewById(R.id.edit_text)
+    private val editText: TextInputEditText =
+        findViewById<TextInputEditText>(R.id.edit_text).apply {
+            post {
+                addTextChangedListener(intervalWatcher)
+            }
+        }
 
 
     @TextProp
@@ -35,37 +42,34 @@ class CoinTickerListSearchView @JvmOverloads constructor(
 
     @ModelProp
     fun setValue(value: String) {
-        if (editText.text?.toString() != value) {
-            Timber.tag("CoinTickerListSearchView").d("old ${editText.text?.toString()} new: $value")
-            editText.setText(value)
+        editText.debounced { editText.setTextIfDifferent(value) }
+    }
+
+    private var textChangeListener: ((String) -> Unit)? = null
+
+
+    private var intervalWatcher: TextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(
+            s: CharSequence?,
+            start: Int,
+            count: Int,
+            after: Int
+        ) {
+        }
+
+        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+
+        }
+
+        override fun afterTextChanged(s: Editable) {
+            Timber.d("afterTextChanged: $s")
+            textChangeListener?.invoke(s.toString())
         }
     }
 
-    private var watcher: TextWatcher? = null
 
     @CallbackProp
     fun setTextChangeListener(block: ((String) -> Unit)?) {
-        if (block == null) {
-            watcher?.let { editText.removeTextChangedListener(block) }
-        } else {
-            val newWatcher = object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                }
-
-                override fun afterTextChanged(s: Editable?) {
-                    s?.let { block.invoke(it.toString()) }
-                }
-            }
-            watcher = newWatcher
-            editText.addTextChangedListener(newWatcher)
-        }
+        textChangeListener = block
     }
 }
