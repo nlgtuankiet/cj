@@ -19,6 +19,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -192,6 +193,12 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         return tickerWidgetDisplayConfig
     }
 
+    override fun onCleared() {
+        viewModelScope.launch(NonCancellable) {
+            coinTickerRepository.clearAllData(args.widgetId)
+        }
+        super.onCleared()
+    }
 
     @AssistedFactory
     interface Factory {

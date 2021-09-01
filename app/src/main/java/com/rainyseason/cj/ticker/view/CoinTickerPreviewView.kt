@@ -11,6 +11,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.inflateAndAdd
 import com.rainyseason.cj.ticker.TickerWidgetRenderParams
+import timber.log.Timber
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
 class CoinTickerPreviewView @JvmOverloads constructor(
@@ -28,20 +29,23 @@ class CoinTickerPreviewView @JvmOverloads constructor(
 
     @ModelProp
     fun setRenderParams(params: TickerWidgetRenderParams?) {
-        params?.let {
-            val layout = renderer.selectLayout(params.config)
-            if (currentLayout != layout) {
-                currentLayout = layout
-                container.removeAllViews()
-                remoteView = LocalRemoteViews(
-                    context,
-                    container,
-                    layout
-                )
-            }
-            remoteView?.let { view ->
-                renderer.render(view, params)
-            }
+        if (params == null) {
+            remoteView = null
+            container.removeAllViews()
+            return
+        }
+        val layout = renderer.selectLayout(params.config)
+        if (currentLayout != layout) {
+            currentLayout = layout
+            container.removeAllViews()
+            remoteView = LocalRemoteViews(
+                context,
+                container,
+                layout
+            )
+        }
+        remoteView?.let { view ->
+            renderer.render(view, params)
         }
     }
 }

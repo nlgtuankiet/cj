@@ -26,11 +26,11 @@ class CoinTickerRepository @Inject constructor(
     private val displayAdapter = TickerWidgetDisplayDataJsonAdapter(moshi = moshi)
     private val configAdapter = TickerWidgetConfigJsonAdapter(moshi = moshi)
 
-    suspend fun allKey(): Set<String> {
-        return dataStore.data.first().asMap().keys
-            .filterIsInstance<Preferences.Key<String>>()
-            .map { it.name }
-            .toSet()
+    suspend fun clearAllData(widgetId: Int) {
+        dataStore.edit {
+            it.remove(displayDataKey(widgetId))
+            it.remove(configKey(widgetId))
+        }
     }
 
     suspend fun getDisplayData(widgetId: Int): TickerWidgetDisplayData? {
