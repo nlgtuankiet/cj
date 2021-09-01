@@ -11,6 +11,8 @@ import com.airbnb.mvrx.MavericksView
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.ActivityScope
 import com.rainyseason.cj.data.UserCurrency
+import com.rainyseason.cj.ticker.list.CoinTickerListFragment
+import com.rainyseason.cj.ticker.list.CoinTickerListFragmentModule
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
 import dagger.Module
 import dagger.android.AndroidInjection

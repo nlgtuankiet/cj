@@ -1,4 +1,4 @@
-package com.rainyseason.cj.ticker
+package com.rainyseason.cj.ticker.list
 
 import android.content.Context
 import android.os.Bundle
@@ -10,8 +10,7 @@ import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
-import com.rainyseason.cj.ticker.list.CoinTickerListController
-import com.rainyseason.cj.ticker.list.CoinTickerListViewModel
+import com.rainyseason.cj.ticker.CoinTickerNavigator
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection

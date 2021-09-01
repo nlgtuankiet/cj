@@ -11,7 +11,6 @@ import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.data.coingecko.MarketsResponseEntry
-import com.rainyseason.cj.ticker.CoinTickerListFragment
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import timber.log.Timber
