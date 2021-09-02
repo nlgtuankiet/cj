@@ -6,7 +6,10 @@ import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.Theme
+import com.rainyseason.cj.ticker.BottomContentType
+import com.rainyseason.cj.ticker.ChangeInterval
 import com.rainyseason.cj.ticker.TickerWidgetRenderParams
+import com.rainyseason.cj.ticker.list.view.coinTickerListHeaderView
 import com.rainyseason.cj.ticker.view.coinTickerPreviewView
 import com.rainyseason.cj.ticker.view.settingSwitchView
 import com.rainyseason.cj.ticker.view.settingTitleSummaryView
@@ -16,6 +19,77 @@ class CoinTickerPreviewController(
     private val viewModel: CoinTickerPreviewViewModel,
     private val context: Context
 ) : AsyncEpoxyController() {
+
+    override fun buildModels() {
+        val state = withState(viewModel) { it }
+        val config = state.savedConfig.invoke() ?: return
+
+
+        buildPreview(state)
+        buildCommonSetting(state)
+        buildBottomSetting(state)
+
+        val priceDecimal = config.numberOfPriceDecimal
+        settingTitleSummaryView {
+            id("price-decimal")
+            title(R.string.number_of_price_decimal)
+            if (priceDecimal == null) {
+                summary(R.string.setting_keep_original_price)
+            } else {
+                summary("$priceDecimal")
+            }
+            onClickListener { _ ->
+                val options = listOf<Int?>(null) + (0..100)
+                val optionsString = options.map {
+                    it?.toString() ?: context.getString(R.string.setting_keep_original_price)
+                }
+                val currentState = withState(viewModel) { it }
+                val currentPriceDecimal = currentState.config?.numberOfPriceDecimal
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.number_of_price_decimal)
+                    .setSingleChoiceItems(
+                        optionsString.toTypedArray(),
+                        options.indexOf(currentPriceDecimal)
+                    ) { dialog, which ->
+                        viewModel.setNumberOfDecimal(options[which].toString())
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
+
+        val percentDecimal = config.numberOfChangePercentDecimal
+        settingTitleSummaryView {
+            id("percent-decimal")
+            title(R.string.number_of_change_percent_decimal)
+            if (percentDecimal == null) {
+                summary(R.string.setting_keep_original_price)
+            } else {
+                summary("$percentDecimal")
+            }
+            onClickListener { _ ->
+                val options = listOf<Int?>(null) + (0..3)
+                val optionsString = options.map {
+                    it?.toString() ?: context.getString(R.string.setting_keep_original_price)
+                }
+                val currentState = withState(viewModel) { it }
+                val currentPercentDecimal = currentState.config?.numberOfChangePercentDecimal
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.number_of_price_decimal)
+                    .setSingleChoiceItems(
+                        optionsString.toTypedArray(),
+                        options.indexOf(currentPercentDecimal)
+                    ) { dialog, which ->
+                        viewModel.setNumberOfChangePercentDecimal(options[which].toString())
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
+
+
+        buildShowThousandSeparator(state)
+    }
 
     private fun buildShowThousandSeparator(state: CoinTickerPreviewState) {
         val config = state.config ?: return
@@ -149,9 +223,8 @@ class CoinTickerPreviewController(
         }
     }
 
-    override fun buildModels() {
-        val state = withState(viewModel) { it }
 
+    private fun buildPreview(state: CoinTickerPreviewState) {
         val savedConfig = state.savedConfig.invoke()
         val savedDisplayData = state.savedDisplayData.invoke()
         val userCurrency = state.userCurrency.invoke()
@@ -171,71 +244,109 @@ class CoinTickerPreviewController(
             id("preview")
             renderParams(params)
         }
+    }
 
-        val config = state.savedConfig.invoke() ?: return
 
-
-        val priceDecimal = config.numberOfPriceDecimal
-        settingTitleSummaryView {
-            id("price-decimal")
-            title(R.string.number_of_price_decimal)
-            if (priceDecimal == null) {
-                summary(R.string.setting_keep_original_price)
-            } else {
-                summary("$priceDecimal")
-            }
-            onClickListener { _ ->
-                val options = listOf<Int?>(null) + (0..100)
-                val optionsString = options.map {
-                    it?.toString() ?: context.getString(R.string.setting_keep_original_price)
-                }
-                val currentState = withState(viewModel) { it }
-                val currentPriceDecimal = currentState.config?.numberOfPriceDecimal
-                AlertDialog.Builder(context)
-                    .setTitle(R.string.number_of_price_decimal)
-                    .setSingleChoiceItems(
-                        optionsString.toTypedArray(),
-                        options.indexOf(currentPriceDecimal)
-                    ) { dialog, which ->
-                        viewModel.setNumberOfDecimal(options[which].toString())
-                        dialog.dismiss()
-                    }
-                    .show()
-            }
+    private fun buildCommonSetting(state: CoinTickerPreviewState) {
+        coinTickerListHeaderView {
+            id("common-header")
+            content(R.string.coin_ticker_preview_setting_header_common)
         }
-
-        val percentDecimal = config.numberOfChangePercentDecimal
-        settingTitleSummaryView {
-            id("percent-decimal")
-            title(R.string.number_of_change_percent_decimal)
-            if (percentDecimal == null) {
-                summary(R.string.setting_keep_original_price)
-            } else {
-                summary("$percentDecimal")
-            }
-            onClickListener { _ ->
-                val options = listOf<Int?>(null) + (0..3)
-                val optionsString = options.map {
-                    it?.toString() ?: context.getString(R.string.setting_keep_original_price)
-                }
-                val currentState = withState(viewModel) { it }
-                val currentPercentDecimal = currentState.config?.numberOfChangePercentDecimal
-                AlertDialog.Builder(context)
-                    .setTitle(R.string.number_of_price_decimal)
-                    .setSingleChoiceItems(
-                        optionsString.toTypedArray(),
-                        options.indexOf(currentPercentDecimal)
-                    ) { dialog, which ->
-                        viewModel.setNumberOfChangePercentDecimal(options[which].toString())
-                        dialog.dismiss()
-                    }
-                    .show()
-            }
-        }
-
         buildRefreshInternal(state)
         buildTheme(state)
         buildExtraSize(state)
-        buildShowThousandSeparator(state)
+    }
+
+    private fun buildBottomContentType(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        val contentType = config.bottomContentType
+        val summary = when (contentType) {
+            BottomContentType.PRICE -> R.string.coin_ticker_preview_setting_bottom_content_price
+            BottomContentType.MARKET_CAP -> R.string.coin_ticker_preview_setting_bottom_content_market_cap
+            else -> error("contentType: $contentType")
+        }
+        settingTitleSummaryView {
+            id("bottom-content-type")
+            title(R.string.coin_ticker_preview_setting_bottom_content_type)
+            summary(summary)
+            onClickListener { _ ->
+                val options = listOf(
+                    BottomContentType.PRICE to R.string.coin_ticker_preview_setting_bottom_content_price,
+                    BottomContentType.MARKET_CAP to R.string.coin_ticker_preview_setting_bottom_content_market_cap,
+                )
+                val currentState = withState(viewModel) { it }
+                val currentContentType = currentState.config!!.bottomContentType
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_setting_bottom_content_type)
+                    .setSingleChoiceItems(
+                        options.map { context.getString(it.second) }.toTypedArray(),
+                        options.indexOfFirst { it.first == currentContentType }
+                    ) { dialog, which ->
+                        viewModel.setBottomContentType(options[which].first)
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
+
+    }
+
+    private fun buildChangePercentInternal(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        val mapping = listOf(
+            ChangeInterval._24H to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
+            ChangeInterval._7D to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
+            ChangeInterval._14D to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_14d,
+            ChangeInterval._30D to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
+            ChangeInterval._60D to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_60d,
+            ChangeInterval._1Y to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_1y,
+        ).toMap()
+
+        val interval = config.bottomInterval
+
+        settingTitleSummaryView {
+            id("bottom-change-interval")
+            title(R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header)
+            summary(context.getString(mapping[interval]!!))
+            onClickListener { _ ->
+                val currentState = withState(viewModel) { it }
+                val currentConfig = currentState.config!!
+                val options = when (currentConfig.bottomContentType) {
+                    BottomContentType.PRICE -> ChangeInterval.ALL_PRICE_INTERVAL
+                    BottomContentType.MARKET_CAP -> ChangeInterval.ALL_MARKET_CAP_INTERVAL
+                    else -> error("unknown ${config.bottomContentType}")
+                }
+
+
+                val currentInterval = currentConfig.bottomInterval
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_setting_bottom_content_type)
+                    .setSingleChoiceItems(
+                        options.map { context.getString(mapping[it]!!) }.toTypedArray(),
+                        options.indexOfFirst { it == currentInterval }
+                    ) { dialog, which ->
+                        val selectedInterval = options[which]
+                        when (currentConfig.bottomContentType) {
+                            BottomContentType.PRICE -> viewModel.setPriceChangeInterval(
+                                selectedInterval
+                            )
+                            BottomContentType.MARKET_CAP -> viewModel.setMarketCapChangeInterval(
+                                selectedInterval
+                            )
+                        }
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
+    }
+
+    private fun buildBottomSetting(state: CoinTickerPreviewState) {
+        coinTickerListHeaderView {
+            id("bottom-header")
+            content(R.string.coin_ticker_preview_setting_header_bottom)
+        }
+        buildBottomContentType(state)
+        buildChangePercentInternal(state)
     }
 }

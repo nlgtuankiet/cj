@@ -86,6 +86,18 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
+    fun setMarketCapChangeInterval(value: String) {
+        updateConfig { copy(marketCapChangeInterval = value) }
+    }
+
+    fun setPriceChangeInterval(value: String) {
+        updateConfig { copy(priceChangeInterval = value) }
+    }
+
+    fun setBottomContentType(type: String) {
+        updateConfig { copy(bottomContentType = type) }
+    }
+
     fun setExtraSize(extra: Int) {
         updateConfig {
             copy(extraSize = extra)

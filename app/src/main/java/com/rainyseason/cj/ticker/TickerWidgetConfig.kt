@@ -45,7 +45,23 @@ data class TickerWidgetConfig(
 
     @Json(name = "show_thousands_separator")
     val showThousandsSeparator: Boolean = true,
+
+    @Json(name = "bottom_content_type")
+    val bottomContentType: String = BottomContentType.PRICE,
+
+    @Json(name = "price_change_interval")
+    val priceChangeInterval: String = ChangeInterval._24H,
+
+    @Json(name = "market_cap_change_interval")
+    val marketCapChangeInterval: String = ChangeInterval._24H
 ) {
     val isComplete: Boolean
         get() = coinId.isNotEmpty()
+
+    val bottomInterval: String
+        get() = when (bottomContentType) {
+            BottomContentType.PRICE -> priceChangeInterval
+            BottomContentType.MARKET_CAP -> marketCapChangeInterval
+            else -> error("unknown $bottomContentType")
+        }
 }
