@@ -3,7 +3,9 @@ package com.rainyseason.cj.ticker.view
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
+import android.widget.ProgressBar
 import android.widget.RemoteViews
+import androidx.core.view.isGone
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.rainyseason.cj.LocalRemoteViews
@@ -26,9 +28,12 @@ class CoinTickerPreviewView @JvmOverloads constructor(
     private val renderer = coreComponent.tickerWidgetRender
     private val container = findViewById<FrameLayout>(R.id.preview_container)
     private var currentLayout: Int? = null
+    private val progressBar: ProgressBar by lazy { findViewById(R.id.progress_bar) }
 
     @ModelProp
     fun setRenderParams(params: TickerWidgetRenderParams?) {
+        Timber.d("setRenderParams: $params")
+        progressBar.isGone = params != null
         if (params == null) {
             remoteView = null
             container.removeAllViews()
@@ -37,7 +42,11 @@ class CoinTickerPreviewView @JvmOverloads constructor(
         val layout = renderer.selectLayout(params.config)
         if (currentLayout != layout) {
             currentLayout = layout
+            remoteView = null
             container.removeAllViews()
+
+        }
+        if (remoteView == null) {
             remoteView = LocalRemoteViews(
                 context,
                 container,

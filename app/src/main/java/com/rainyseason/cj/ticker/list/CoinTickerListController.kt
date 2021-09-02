@@ -8,6 +8,7 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.loadingView
+import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.ticker.CoinTickerNavigator
 import com.rainyseason.cj.ticker.list.view.coinTickerListCoinView
 import com.rainyseason.cj.ticker.list.view.coinTickerListHeaderView
@@ -107,6 +108,8 @@ class CoinTickerListController constructor(
             it.name.contains(keyword, true) || it.symbol.contains(keyword, true)
         }
 
+        val topList = state.markets.invoke().orEmpty().map { it.id }.toSet()
+
         coinTickerListHeaderView {
             id("list-header")
             content(R.string.coin_ticker_list_all_header)
@@ -118,9 +121,13 @@ class CoinTickerListController constructor(
         }
 
         // TODO sort by market cap
-        val orderedList = list.sortedByDescending {
-            max(calculateRatio(keyword, it.name), calculateRatio(keyword, it.symbol))
-        }
+        val orderedList = list.sortedWith(
+            compareByDescending<CoinListEntry> {
+                max(calculateRatio(keyword, it.name), calculateRatio(keyword, it.symbol))
+            }.thenByDescending {
+                topList.contains(it.id)
+            }
+        )
 
         orderedList.forEach { entry ->
             coinTickerListCoinView {

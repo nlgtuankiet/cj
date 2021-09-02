@@ -12,8 +12,7 @@
         android:layout_width="@dimen/widget_coin_ticker_icon_size"
         android:layout_height="@dimen/widget_coin_ticker_icon_size"
         android:layout_gravity="center_vertical"
-        android:visibility="gone"
-        tools:src="@drawable/dogecoin_icon" />
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/symbol"
@@ -31,13 +30,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/symbol"
+        android:autoSizeMaxTextSize="18sp"
+        android:autoSizeMinTextSize="1sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:maxLines="1"
         android:layout_alignParentStart="true"
         android:layout_marginStart="12dp"
         android:textColor="@color/gray_900"
         android:textSize="18sp"
+        tools:ignore="UnusedAttribute"
         tools:text="Dogecoin" />
 
     <TextView
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="1sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:maxLines="1"
         android:id="@+id/price"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,6 +59,7 @@
         android:layout_marginBottom="12dp"
         android:textColor="@color/gray_900"
         android:textSize="16sp"
+        tools:ignore="UnusedAttribute"
         tools:text="$0.287661" />
 
 

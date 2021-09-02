@@ -69,7 +69,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             showChange24h = true,
             showChange7d = true,
             showChange14d = true,
-            numberOfPriceDecimal = 1,
+            numberOfPriceDecimal = null,
             numberOfChangePercentDecimal = 1
         )
 
