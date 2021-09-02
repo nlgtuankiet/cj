@@ -8,6 +8,7 @@
     <string name="coin_ticker_preview_setting_theme_default">Automatic (based on system)</string>
     <string name="coin_ticker_preview_setting_theme_light">Light</string>
     <string name="coin_ticker_preview_setting_theme_dark">Dark</string>
+    <string name="coin_ticker_preview_setting_show_thousands_separator">Show thousands separator</string>
 
     <string name="coin_ticker_preview_setting_extra_size">Extra size</string>
     <string name="coin_ticker_preview_setting_extra_size_none">None</string>

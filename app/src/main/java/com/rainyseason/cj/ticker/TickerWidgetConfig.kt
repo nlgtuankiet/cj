@@ -42,6 +42,9 @@ data class TickerWidgetConfig(
 
     @Json(name = "extra_size")
     val extraSize: Int = 0,
+
+    @Json(name = "show_thousands_separator")
+    val showThousandsSeparator: Boolean = true,
 ) {
     val isComplete: Boolean
         get() = coinId.isNotEmpty()

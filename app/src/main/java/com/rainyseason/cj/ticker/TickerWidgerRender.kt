@@ -17,6 +17,9 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.data.UserCurrency
+import java.text.DecimalFormat
+import java.text.NumberFormat
+import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -158,21 +161,11 @@ class TickerWidgerRender @Inject constructor(
     private fun formatPrice(
         params: TickerWidgetRenderParams,
     ): String {
-        val userCurrency = params.userCurrency
-        val price = params.data.price
-        val numberOfDecimal = params.config.numberOfPriceDecimal
-        val priceString = if (numberOfDecimal == null) {
-            price.toString()
-        } else {
-            "%.${numberOfDecimal}f".format(price)
-        }
-
-        @Suppress("UnnecessaryVariable")
-        val formatted = if (userCurrency.placeOnTheLeft) {
-            "%s%s${priceString}".format(userCurrency.symbol, userCurrency.separator)
-        } else {
-            "${priceString}%s%s".format(userCurrency.separator, userCurrency.symbol)
-        }
-        return formatted
+        val formatter: DecimalFormat = NumberFormat.getCurrencyInstance(Locale.US) as DecimalFormat
+        formatter.currency = Currency.getInstance(Locale.US)
+        formatter.maximumFractionDigits = params.config.numberOfPriceDecimal ?: Int.MAX_VALUE
+        formatter.minimumFractionDigits = 0
+        formatter.isGroupingUsed = params.config.showThousandsSeparator
+        return formatter.format(params.data.price)
     }
 }

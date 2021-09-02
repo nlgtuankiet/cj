@@ -157,6 +157,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
+    fun switchThousandsSeparator() {
+        updateConfig { copy(showThousandsSeparator = !showThousandsSeparator) }
+    }
+
     private fun maybeSaveDisplayData(state: CoinTickerPreviewState) {
         val userCurrency = state.userCurrency.invoke() ?: return
         val coinDetail = state.coinDetailResponse.invoke() ?: return

@@ -8,6 +8,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.ticker.TickerWidgetRenderParams
 import com.rainyseason.cj.ticker.view.coinTickerPreviewView
+import com.rainyseason.cj.ticker.view.settingSwitchView
 import com.rainyseason.cj.ticker.view.settingTitleSummaryView
 import java.util.concurrent.TimeUnit
 
@@ -15,6 +16,19 @@ class CoinTickerPreviewController(
     private val viewModel: CoinTickerPreviewViewModel,
     private val context: Context
 ) : AsyncEpoxyController() {
+
+    private fun buildShowThousandSeparator(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+
+        settingSwitchView {
+            id("show-thousand_separator")
+            title(R.string.coin_ticker_preview_setting_show_thousands_separator)
+            checked(config.showThousandsSeparator)
+            onClickListener { v ->
+                viewModel.switchThousandsSeparator()
+            }
+        }
+    }
 
 
     private fun buildExtraSize(state: CoinTickerPreviewState) {
@@ -222,5 +236,6 @@ class CoinTickerPreviewController(
         buildRefreshInternal(state)
         buildTheme(state)
         buildExtraSize(state)
+        buildShowThousandSeparator(state)
     }
 }
