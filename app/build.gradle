@@ -20,15 +20,29 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        release {
+            keyAlias "default"
+            keyPassword System.getenv('ANDROID_KEY_PASS')
+            storeFile file(System.getenv('ANDROID_KEY_FILE'))
+            storePassword System.getenv('ANDROID_KEY_PASS')
+        }
+    }
+
     buildTypes {
         debug {
+            debuggable true
             minifyEnabled true
         }
         release {
             minifyEnabled true
+            debuggable false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
+
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8

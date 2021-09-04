@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Crypto Jet</string>
+    <string name="app_name">Bitcoin Widget Pro</string>
 
     <string name="welcome_message">Hi!\nThis is Bitcoin Widget Pro\nTo add widget, go to home screen, long press and select widget\n\n\nThis app is in early development, you can report bugs and request features at:\nt.me/bwpapp</string>
 
