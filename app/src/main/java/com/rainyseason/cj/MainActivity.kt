@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
             .setSingleChoiceItems(
                 arrayOf("1", "2"), 1
             ) { dialog, which ->
+                throw IllegalStateException("test")
                 dialog.dismiss()
             }
         dialog.show()
