@@ -95,6 +95,10 @@ class TickerWidgerRender @Inject constructor(
         val changes = formatChange(params)
         view.setTextViewText(R.id.change_percent, changes)
         view.setViewVisibility(R.id.loading, if (params.showLoading) View.VISIBLE else View.GONE)
+        view.setViewVisibility(
+            R.id.progress_bar,
+            if (params.showLoading) View.VISIBLE else View.GONE
+        )
         view.setImageViewBitmap(R.id.icon, renderData.iconBitmap)
 
         view.setTextViewText(R.id.name, renderData.name)
