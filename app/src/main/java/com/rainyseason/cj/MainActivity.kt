@@ -1,7 +1,6 @@
 package com.rainyseason.cj
 
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import dagger.Module
@@ -24,17 +23,5 @@ class MainActivity : AppCompatActivity() {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        val dialog = AlertDialog.Builder(this)
-            .setNegativeButton("ca234ncel") { dialog, which ->
-                dialog.dismiss()
-            }
-            .setSingleChoiceItems(
-                arrayOf("1", "2"), 1
-            ) { dialog, which ->
-                throw IllegalStateException("test")
-                dialog.dismiss()
-            }
-        dialog.show()
     }
 }
