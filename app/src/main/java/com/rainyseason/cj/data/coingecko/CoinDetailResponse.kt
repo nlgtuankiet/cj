@@ -32,13 +32,28 @@ data class CoinDetailResponse(
         @Json(name = "current_price")
         val currentPrice: Map<String, Double>,
 
-        @Json(name = "price_change_percentage_24h")
-        val priceChangePercentage24h: Double,
+        @Json(name = "price_change_percentage_24h_in_currency")
+        val priceChangePercentage24hInCurrency: Map<String, Double>,
 
-        @Json(name = "price_change_percentage_7d")
-        val priceChangePercentage7d: Double,
+        @Json(name = "price_change_percentage_7d_in_currency")
+        val priceChangePercentage7dInCurrency: Map<String, Double>,
 
-        @Json(name = "price_change_percentage_14d")
-        val priceChangePercentage14d: Double,
+        @Json(name = "price_change_percentage_14d_in_currency")
+        val priceChangePercentage14dInCurrency: Map<String, Double>,
+
+        @Json(name = "price_change_percentage_30d_in_currency")
+        val priceChangePercentage30dInCurrency: Map<String, Double>,
+
+        @Json(name = "price_change_percentage_60d_in_currency")
+        val priceChangePercentage60dInCurrency: Map<String, Double>,
+
+        @Json(name = "price_change_percentage_1y_in_currency")
+        val priceChangePercentage1yInCurrency: Map<String, Double>,
+
+        @Json(name = "market_cap")
+        val marketCap: Map<String, Double>,
+
+        @Json(name = "market_cap_change_percentage_24h_in_currency")
+        val marketCapChangePercentage24hInCurrency: Map<String, Double>,
     )
 }

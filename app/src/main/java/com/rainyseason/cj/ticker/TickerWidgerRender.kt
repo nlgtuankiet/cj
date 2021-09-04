@@ -22,6 +22,7 @@ import java.text.NumberFormat
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.roundToInt
 
 data class TickerWidgetRenderParams(
     val userCurrency: UserCurrency,
@@ -91,7 +92,7 @@ class TickerWidgerRender @Inject constructor(
             )
         )
 
-        val changes = formatChange(params.config, renderData)
+        val changes = formatChange(params)
         view.setTextViewText(R.id.change_percent, changes)
         view.setViewVisibility(R.id.loading, if (params.showLoading) View.VISIBLE else View.GONE)
         view.setImageViewBitmap(R.id.icon, renderData.iconBitmap)
@@ -146,14 +147,30 @@ class TickerWidgerRender @Inject constructor(
     }
 
     private fun formatChange(
-        config: TickerWidgetConfig,
-        data: TickerWidgetDisplayData
+        params: TickerWidgetRenderParams,
     ): CharSequence {
+        val config = params.config
+        val data = params.data
+
         @Suppress("UnnecessaryVariable")
         val content = buildSpannedString {
-            if (config.showChange24h) {
-                appendChange(data.change24hPercent, config.numberOfChangePercentDecimal)
+            val amount = when (config.bottomContentType) {
+                BottomContentType.PRICE -> when (config.priceChangeInterval) {
+                    ChangeInterval._24H -> data.priceChangePercent24h
+                    ChangeInterval._7D -> data.priceChangePercent7d
+                    ChangeInterval._14D -> data.priceChangePercent14d
+                    ChangeInterval._30D -> data.priceChangePercent30d
+                    ChangeInterval._60D -> data.priceChangePercent60d
+                    ChangeInterval._1Y -> data.priceChangePercent1y
+                    else -> error("unknown ${config.bottomContentType}")
+                }
+                BottomContentType.MARKET_CAP -> when (config.marketCapChangeInterval) {
+                    ChangeInterval._24H -> data.marketCapChangePercent24h
+                    else -> error("unknown ${config.marketCapChangeInterval}")
+                }
+                else -> error("unknown ${config.bottomContentType}")
             }
+            appendChange(amount, config.numberOfChangePercentDecimal)
         }
         return content
     }
@@ -161,11 +178,29 @@ class TickerWidgerRender @Inject constructor(
     private fun formatPrice(
         params: TickerWidgetRenderParams,
     ): String {
+        val config = params.config
+        val data = params.data
+        var amount = when (config.bottomContentType) {
+            BottomContentType.PRICE -> data.price
+            BottomContentType.MARKET_CAP -> data.marketCap
+            else -> error("unknown ${config.bottomContentType}")
+        }
+        var roundToM = amount >= 1_000_000
+        roundToM = false
+        if (roundToM) {
+            amount = (amount / 1_000_000.0).roundToInt().toDouble()
+        }
+
         val formatter: DecimalFormat = NumberFormat.getCurrencyInstance(Locale.US) as DecimalFormat
         formatter.currency = Currency.getInstance(Locale.US)
-        formatter.maximumFractionDigits = params.config.numberOfPriceDecimal ?: Int.MAX_VALUE
+        formatter.maximumFractionDigits = config.numberOfPriceDecimal ?: Int.MAX_VALUE
         formatter.minimumFractionDigits = 0
-        formatter.isGroupingUsed = params.config.showThousandsSeparator
-        return formatter.format(params.data.price)
+        formatter.isGroupingUsed = config.showThousandsSeparator
+
+        var formattedPrice = formatter.format(amount)
+        if (roundToM) {
+            formattedPrice += "M"
+        }
+        return formattedPrice
     }
 }

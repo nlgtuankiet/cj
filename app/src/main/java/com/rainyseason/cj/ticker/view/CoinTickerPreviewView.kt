@@ -30,8 +30,24 @@ class CoinTickerPreviewView @JvmOverloads constructor(
     private var currentLayout: Int? = null
     private val progressBar: ProgressBar by lazy { findViewById(R.id.progress_bar) }
 
+    // work around auto text size problem
     @ModelProp
     fun setRenderParams(params: TickerWidgetRenderParams?) {
+        container.removeAllViews()
+        progressBar.isGone = params != null
+        if (params == null) {
+            return
+        }
+        val layout = renderer.selectLayout(params.config)
+        remoteView = LocalRemoteViews(
+            context,
+            container,
+            layout
+        )
+        renderer.render(remoteView!!, params)
+    }
+
+    fun setRenderParamsOld(params: TickerWidgetRenderParams?) {
         Timber.d("setRenderParams: $params")
         progressBar.isGone = params != null
         if (params == null) {

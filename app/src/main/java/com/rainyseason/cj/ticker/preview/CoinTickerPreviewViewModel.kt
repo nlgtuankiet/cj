@@ -66,9 +66,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         val config = TickerWidgetConfig(
             widgetId = widgetId,
             coinId = args.coinId,
-            showChange24h = true,
-            showChange7d = true,
-            showChange14d = true,
             numberOfPriceDecimal = null,
             numberOfChangePercentDecimal = 1
         )
@@ -178,13 +175,8 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         val coinDetail = state.coinDetailResponse.invoke() ?: return
         val config = state.savedConfig.invoke() ?: return
 
-        if (!config.isComplete) {
-            return
-        }
-
         viewModelScope.launch {
             setWidgetData(
-                widgetId = widgetId,
                 userCurrency = userCurrency,
                 coinDetail = coinDetail,
             )
@@ -192,21 +184,15 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     }
 
     private suspend fun setWidgetData(
-        widgetId: Int,
         userCurrency: UserCurrency,
         coinDetail: CoinDetailResponse,
     ): TickerWidgetDisplayData {
-        val tickerWidgetDisplayConfig = TickerWidgetDisplayData(
-            iconUrl = coinDetail.image.large,
-            symbol = coinDetail.symbol,
-            name = coinDetail.name,
-            price = coinDetail.marketData.currentPrice[userCurrency.id]!!,
-            change24hPercent = coinDetail.marketData.priceChangePercentage24h,
-            change7dPercent = coinDetail.marketData.priceChangePercentage24h,
-            change14dPercent = coinDetail.marketData.priceChangePercentage14d,
+        val data = TickerWidgetDisplayData.create(
+            userCurrency = userCurrency,
+            coinDetail = coinDetail
         )
-        coinTickerRepository.setDisplayData(widgetId = widgetId, data = tickerWidgetDisplayConfig)
-        return tickerWidgetDisplayConfig
+        coinTickerRepository.setDisplayData(widgetId = widgetId, data = data)
+        return data
     }
 
     override fun onCleared() {

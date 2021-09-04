@@ -349,4 +349,5 @@ class CoinTickerPreviewController(
         buildBottomContentType(state)
         buildChangePercentInternal(state)
     }
+
 }

@@ -94,14 +94,9 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             return
         }
 
-        val newDisplayData = TickerWidgetDisplayData(
-            iconUrl = coinDetail.image.large,
-            symbol = coinDetail.symbol,
-            name = coinDetail.name,
-            price = coinDetail.marketData.currentPrice[userCurrency.id]!!,
-            change24hPercent = coinDetail.marketData.priceChangePercentage24h,
-            change7dPercent = coinDetail.marketData.priceChangePercentage24h,
-            change14dPercent = coinDetail.marketData.priceChangePercentage14d,
+        val newDisplayData = TickerWidgetDisplayData.create(
+            userCurrency = userCurrency,
+            coinDetail = coinDetail
         )
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)
         val newView = RemoteViews(appContext.packageName, render.selectLayout(config))

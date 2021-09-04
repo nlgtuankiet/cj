@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import com.airbnb.epoxy.EpoxyRecyclerView
+import com.airbnb.epoxy.stickyheader.StickyHeaderLinearLayoutManager
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
@@ -57,7 +58,7 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
 
         val recyclerView = view.findViewById<EpoxyRecyclerView>(R.id.setting_content)
         recyclerView.setController(controller)
-
+        recyclerView.layoutManager = StickyHeaderLinearLayoutManager(requireContext())
         view.findViewById<Button>(R.id.save_button).setOnClickListener {
             save()
         }

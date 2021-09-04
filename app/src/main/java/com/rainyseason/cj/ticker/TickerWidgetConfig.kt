@@ -16,15 +16,6 @@ data class TickerWidgetConfig(
     @Json(name = "coin_id")
     val coinId: String,
 
-    @Json(name = "show_change_24h")
-    val showChange24h: Boolean,
-
-    @Json(name = "show_change_7d")
-    val showChange7d: Boolean,
-
-    @Json(name = "show_change_14d")
-    val showChange14d: Boolean,
-
     @Json(name = "number_of_price_decimal")
     val numberOfPriceDecimal: Int? = null,
 
@@ -55,8 +46,6 @@ data class TickerWidgetConfig(
     @Json(name = "market_cap_change_interval")
     val marketCapChangeInterval: String = ChangeInterval._24H
 ) {
-    val isComplete: Boolean
-        get() = coinId.isNotEmpty()
 
     val bottomInterval: String
         get() = when (bottomContentType) {
