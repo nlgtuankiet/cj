@@ -19,7 +19,6 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -173,7 +172,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private fun maybeSaveDisplayData(state: CoinTickerPreviewState) {
         val userCurrency = state.userCurrency.invoke() ?: return
         val coinDetail = state.coinDetailResponse.invoke() ?: return
-        val config = state.savedConfig.invoke() ?: return
 
         viewModelScope.launch {
             setWidgetData(
@@ -193,13 +191,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         )
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = data)
         return data
-    }
-
-    override fun onCleared() {
-        viewModelScope.launch(NonCancellable) {
-            coinTickerRepository.clearAllData(args.widgetId)
-        }
-        super.onCleared()
     }
 
     @AssistedFactory
