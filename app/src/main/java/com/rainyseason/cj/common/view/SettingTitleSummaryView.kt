@@ -1,4 +1,4 @@
-package com.rainyseason.cj.ticker.view
+package com.rainyseason.cj.common.view
 
 import android.content.Context
 import android.util.AttributeSet

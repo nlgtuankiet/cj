@@ -8,12 +8,12 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.setCancelButton
 import com.rainyseason.cj.common.view.settingHeaderView
+import com.rainyseason.cj.common.view.settingSwitchView
+import com.rainyseason.cj.common.view.settingTitleSummaryView
 import com.rainyseason.cj.ticker.BottomContentType
 import com.rainyseason.cj.ticker.ChangeInterval
 import com.rainyseason.cj.ticker.TickerWidgetRenderParams
 import com.rainyseason.cj.ticker.view.coinTickerPreviewView
-import com.rainyseason.cj.ticker.view.settingSwitchView
-import com.rainyseason.cj.ticker.view.settingTitleSummaryView
 import java.util.concurrent.TimeUnit
 
 class CoinTickerPreviewController(
