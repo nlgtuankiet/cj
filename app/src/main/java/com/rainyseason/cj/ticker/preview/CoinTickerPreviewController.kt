@@ -7,12 +7,14 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.setCancelButton
+import com.rainyseason.cj.common.view.horizontalSeparatorView
 import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.common.view.settingSwitchView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
 import com.rainyseason.cj.ticker.BottomContentType
 import com.rainyseason.cj.ticker.ChangeInterval
 import com.rainyseason.cj.ticker.TickerWidgetRenderParams
+import com.rainyseason.cj.ticker.view.CoinTickerPreviewViewModel_
 import com.rainyseason.cj.ticker.view.coinTickerPreviewView
 import java.util.concurrent.TimeUnit
 
@@ -21,82 +23,32 @@ class CoinTickerPreviewController(
     private val context: Context
 ) : AsyncEpoxyController() {
 
+    private var addSeparator = true
+
+    private fun maybeBuildHorizontalSeparator(id: String) {
+        if (!addSeparator) {
+            addSeparator = true
+            return
+        }
+        horizontalSeparatorView {
+            id(id)
+        }
+    }
+
     override fun buildModels() {
         val state = withState(viewModel) { it }
-        val config = state.savedConfig.invoke() ?: return
-
-
         buildPreview(state)
         buildCommonSetting(state)
         buildBottomSetting(state)
-
-        val priceDecimal = config.numberOfPriceDecimal
-        settingTitleSummaryView {
-            id("price-decimal")
-            title(R.string.number_of_price_decimal)
-            if (priceDecimal == null) {
-                summary(R.string.setting_keep_original_price)
-            } else {
-                summary("$priceDecimal")
-            }
-            onClickListener { _ ->
-                val options = listOf<Int?>(null) + (0..100)
-                val optionsString = options.map {
-                    it?.toString() ?: context.getString(R.string.setting_keep_original_price)
-                }
-                val currentState = withState(viewModel) { it }
-                val currentPriceDecimal = currentState.config?.numberOfPriceDecimal
-                AlertDialog.Builder(context)
-                    .setTitle(R.string.number_of_price_decimal)
-                    .setSingleChoiceItems(
-                        optionsString.toTypedArray(),
-                        options.indexOf(currentPriceDecimal)
-                    ) { dialog, which ->
-                        viewModel.setNumberOfDecimal(options[which].toString())
-                        dialog.dismiss()
-                    }
-                    .show()
-            }
-        }
-
-        val percentDecimal = config.numberOfChangePercentDecimal
-        settingTitleSummaryView {
-            id("percent-decimal")
-            title(R.string.number_of_change_percent_decimal)
-            if (percentDecimal == null) {
-                summary(R.string.setting_keep_original_price)
-            } else {
-                summary("$percentDecimal")
-            }
-            onClickListener { _ ->
-                val options = listOf<Int?>(null) + (0..3)
-                val optionsString = options.map {
-                    it?.toString() ?: context.getString(R.string.setting_keep_original_price)
-                }
-                val currentState = withState(viewModel) { it }
-                val currentPercentDecimal = currentState.config?.numberOfChangePercentDecimal
-                AlertDialog.Builder(context)
-                    .setTitle(R.string.number_of_price_decimal)
-                    .setSingleChoiceItems(
-                        optionsString.toTypedArray(),
-                        options.indexOf(currentPercentDecimal)
-                    ) { dialog, which ->
-                        viewModel.setNumberOfChangePercentDecimal(options[which].toString())
-                        dialog.dismiss()
-                    }
-                    .show()
-            }
-        }
-
-
-        buildShowThousandSeparator(state)
     }
 
     private fun buildShowThousandSeparator(state: CoinTickerPreviewState) {
         val config = state.config ?: return
 
+        maybeBuildHorizontalSeparator(id = "show_thousand_separator_separator")
+
         settingSwitchView {
-            id("show-thousand_separator")
+            id("show_thousand_separator")
             title(R.string.coin_ticker_preview_setting_show_thousands_separator)
             checked(config.showThousandsSeparator)
             onClickListener { v ->
@@ -117,9 +69,9 @@ class CoinTickerPreviewController(
                 "+$it"
             }
         }
-
+        maybeBuildHorizontalSeparator(id = "setting_extra_size_separator")
         settingTitleSummaryView {
-            id("setting-extra-size")
+            id("setting_extra_size")
             title(R.string.coin_ticker_preview_setting_extra_size)
             summary(valueToSummary.values.toList()[values.indexOf(extra)])
             onClickListener { _ ->
@@ -159,7 +111,7 @@ class CoinTickerPreviewController(
             Theme.LIGHT to R.string.coin_ticker_preview_setting_theme_light,
             Theme.DARK to R.string.coin_ticker_preview_setting_theme_dark,
         )
-
+        maybeBuildHorizontalSeparator(id = "setting_theme_separator")
         settingTitleSummaryView {
             id("setting-theme")
             title(R.string.coin_ticker_preview_setting_theme)
@@ -187,6 +139,7 @@ class CoinTickerPreviewController(
         val config = state.config ?: return
         val refreshInterval = config.refreshInterval
         val refreshInternalUnit = config.refreshIntervalUnit
+        maybeBuildHorizontalSeparator(id = "refresh_internal_separator")
         settingTitleSummaryView {
             id("refresh_internal")
             title(R.string.coin_ticker_preview_refresh_internal)
@@ -254,6 +207,7 @@ class CoinTickerPreviewController(
             id("common-header")
             content(R.string.coin_ticker_preview_setting_header_common)
         }
+        addSeparator = false
         buildRefreshInternal(state)
         buildTheme(state)
         buildExtraSize(state)
@@ -267,6 +221,7 @@ class CoinTickerPreviewController(
             BottomContentType.MARKET_CAP -> R.string.coin_ticker_preview_setting_bottom_content_market_cap
             else -> error("contentType: $contentType")
         }
+        maybeBuildHorizontalSeparator(id = "bottom_content_type_separator")
         settingTitleSummaryView {
             id("bottom-content-type")
             title(R.string.coin_ticker_preview_setting_bottom_content_type)
@@ -305,6 +260,8 @@ class CoinTickerPreviewController(
         ).toMap()
 
         val interval = config.bottomInterval
+
+        maybeBuildHorizontalSeparator(id = "bottom_change_interval_separator")
 
         settingTitleSummaryView {
             id("bottom-change-interval")
@@ -348,8 +305,83 @@ class CoinTickerPreviewController(
             id("bottom-header")
             content(R.string.coin_ticker_preview_setting_header_bottom)
         }
+        addSeparator = false
         buildBottomContentType(state)
         buildChangePercentInternal(state)
+        buildPriceDecimal(state)
+        buildPercentDecimal(state)
+        buildShowThousandSeparator(state)
+    }
+
+    private fun buildPercentDecimal(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        val percentDecimal = config.numberOfChangePercentDecimal
+        maybeBuildHorizontalSeparator(id = "percent_decimal_separator")
+        settingTitleSummaryView {
+            id("percent_decimal")
+            title(R.string.number_of_change_percent_decimal)
+            if (percentDecimal == null) {
+                summary(R.string.setting_keep_original_price)
+            } else {
+                summary("$percentDecimal")
+            }
+            onClickListener { _ ->
+                val options = listOf<Int?>(null) + (0..3)
+                val optionsString = options.map {
+                    it?.toString() ?: context.getString(R.string.setting_keep_original_price)
+                }
+                val currentState = withState(viewModel) { it }
+                val currentPercentDecimal = currentState.config?.numberOfChangePercentDecimal
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.number_of_price_decimal)
+                    .setSingleChoiceItems(
+                        optionsString.toTypedArray(),
+                        options.indexOf(currentPercentDecimal)
+                    ) { dialog, which ->
+                        viewModel.setNumberOfChangePercentDecimal(options[which].toString())
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
+    }
+
+    private fun buildPriceDecimal(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        val priceDecimal = config.numberOfPriceDecimal
+
+        maybeBuildHorizontalSeparator(id = "price_decimal_separator")
+        settingTitleSummaryView {
+            id("price_decimal")
+            title(R.string.number_of_price_decimal)
+            if (priceDecimal == null) {
+                summary(R.string.setting_keep_original_price)
+            } else {
+                summary("$priceDecimal")
+            }
+            onClickListener { _ ->
+                val options = listOf<Int?>(null) + (0..100)
+                val optionsString = options.map {
+                    it?.toString() ?: context.getString(R.string.setting_keep_original_price)
+                }
+                val currentState = withState(viewModel) { it }
+                val currentPriceDecimal = currentState.config?.numberOfPriceDecimal
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.number_of_price_decimal)
+                    .setSingleChoiceItems(
+                        optionsString.toTypedArray(),
+                        options.indexOf(currentPriceDecimal)
+                    ) { dialog, which ->
+                        viewModel.setNumberOfDecimal(options[which].toString())
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
+    }
+
+    override fun isStickyHeader(position: Int): Boolean {
+        return adapter.getModelAtPosition(position) is CoinTickerPreviewViewModel_
     }
 
 }
