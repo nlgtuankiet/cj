@@ -189,8 +189,7 @@ class TickerWidgerRender @Inject constructor(
             BottomContentType.MARKET_CAP -> data.marketCap
             else -> error("unknown ${config.bottomContentType}")
         }
-        var roundToM = amount >= 1_000_000
-        roundToM = false
+        val roundToM = amount >= 1_000_000
         if (roundToM) {
             amount = (amount / 1_000_000.0).roundToInt().toDouble()
         }

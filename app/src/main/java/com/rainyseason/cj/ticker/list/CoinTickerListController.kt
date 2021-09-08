@@ -8,10 +8,10 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.loadingView
+import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.ticker.CoinTickerNavigator
 import com.rainyseason.cj.ticker.list.view.coinTickerListCoinView
-import com.rainyseason.cj.ticker.list.view.coinTickerListHeaderView
 import com.rainyseason.cj.ticker.list.view.coinTickerListMarketView
 import emptyView
 import kotlin.math.max
@@ -44,10 +44,6 @@ class CoinTickerListController constructor(
 
     private fun buildMarket(state: CoinTickerListState): BuildState {
         val keyword = state.keyword
-        if (keyword.isNotEmpty()) {
-            // hide market when user search
-            return BuildState.Next
-        }
 
         val async = state.markets
         if (async is Loading) {
@@ -60,18 +56,16 @@ class CoinTickerListController constructor(
         }
 
         val marketEntries = async.invoke().orEmpty()
+        val marketSearchResult = marketEntries.filter {
+            it.name.contains(keyword, true)
+                    || it.symbol.contains(keyword, true)
+        }
 
-        if (marketEntries.isEmpty()) {
+        if (marketSearchResult.isEmpty()) {
             return BuildState.Next
         }
 
-
-        coinTickerListHeaderView {
-            id("market-header")
-            content(R.string.coin_ticker_list_market_header)
-        }
-
-        marketEntries.forEach { entry ->
+        marketSearchResult.forEach { entry ->
             coinTickerListMarketView {
                 id(entry.id)
                 name(entry.name)
@@ -114,12 +108,15 @@ class CoinTickerListController constructor(
             it.name.contains(keyword, true) || it.symbol.contains(keyword, true)
         }
 
-        val topList = state.markets.invoke().orEmpty().map { it.id }.toSet()
+        val showInMarket = state.markets.invoke().orEmpty()
+            .filter {
+                it.name.contains(keyword, true)
+                        || it.symbol.contains(keyword, true)
+            }
+            .map { it.id }
+            .toSet()
 
-        coinTickerListHeaderView {
-            id("list-header")
-            content(R.string.coin_ticker_list_all_header)
-        }
+        val topList = state.markets.invoke().orEmpty().map { it.id }.toSet()
 
         if (list.isEmpty()) {
             // build no match view
@@ -133,7 +130,16 @@ class CoinTickerListController constructor(
             }.thenByDescending {
                 topList.contains(it.id)
             }
-        )
+        ).filter { !showInMarket.contains(it.id) }
+
+        if (orderedList.isEmpty()) {
+            return BuildState.Next
+        }
+
+        settingHeaderView {
+            id("other_result")
+            content(R.string.search_result_other_coin_header)
+        }
 
         orderedList.forEach { entry ->
             coinTickerListCoinView {

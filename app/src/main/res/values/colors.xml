@@ -13,6 +13,7 @@
 
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="white_a50">#80FFFFFF</color>
 
     <color name="gray_50">#FAFAFAFA</color>
     <color name="gray_300">#E0E0E0</color>

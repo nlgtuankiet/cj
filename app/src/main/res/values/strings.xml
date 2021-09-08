@@ -40,5 +40,6 @@
     <string name="coin_ticker_preview_setting_bottom_change_percent_interval_60d">60 days</string>
     <string name="coin_ticker_preview_setting_bottom_change_percent_interval_1y">1 year</string>
     <string name="search_hint">Search…</string>
+    <string name="search_result_other_coin_header">Other result</string>
 
 </resources>

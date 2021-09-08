@@ -52,7 +52,7 @@ class CoinTickerListViewModel @Inject constructor(
         marketJob = viewModelScope.launch {
             val userCurrency = userCuRepository.getCurrency()
             suspend {
-                coinGeckoService.getCoinMarkets(vsCurrency = userCurrency.id, perPage = 100)
+                coinGeckoService.getCoinMarkets(vsCurrency = userCurrency.id, perPage = 1000)
             }.execute { copy(markets = it) }
         }
     }

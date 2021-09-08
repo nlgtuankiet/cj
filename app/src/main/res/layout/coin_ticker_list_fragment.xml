@@ -28,6 +28,7 @@
         tools:ignore="ContentDescription" />
 
     <EditText
+        android:textColorHint="@color/white_a50"
         android:id="@+id/search_box"
         android:layout_width="0dp"
         android:layout_height="0dp"
