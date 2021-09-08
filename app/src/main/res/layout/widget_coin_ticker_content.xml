@@ -77,7 +77,7 @@
         android:gravity="center_vertical"
         android:maxLines="1"
         android:orientation="horizontal"
-        android:textColor="@color/green_600"
+        android:textColor="@color/green_700"
         android:textSize="12sp"
         tools:text="+6.6%" />
 

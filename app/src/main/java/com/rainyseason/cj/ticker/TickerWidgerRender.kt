@@ -130,7 +130,7 @@ class TickerWidgerRender @Inject constructor(
 
     private fun SpannableStringBuilder.appendChange(amount: Double, numberOfDecimal: Int?) {
         val color = if (amount > 0) {
-            ContextCompat.getColor(context, R.color.green_600)
+            ContextCompat.getColor(context, R.color.green_700)
         } else {
             ContextCompat.getColor(context, R.color.red_600)
         }
