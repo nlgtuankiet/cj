@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
 import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.epoxy.stickyheader.StickyHeaderLinearLayoutManager
@@ -61,6 +62,10 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
         recyclerView.layoutManager = StickyHeaderLinearLayoutManager(requireContext())
         view.findViewById<Button>(R.id.save_button).setOnClickListener {
             save()
+        }
+
+        view.findViewById<ImageView>(R.id.back_button).setOnClickListener {
+            requireActivity().onBackPressed()
         }
     }
 
