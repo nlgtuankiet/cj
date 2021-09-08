@@ -13,7 +13,7 @@ import com.rainyseason.cj.ticker.CoinTickerNavigator
 import com.rainyseason.cj.ticker.list.view.coinTickerListCoinView
 import com.rainyseason.cj.ticker.list.view.coinTickerListHeaderView
 import com.rainyseason.cj.ticker.list.view.coinTickerListMarketView
-import com.rainyseason.cj.ticker.list.view.coinTickerListSearchView
+import emptyView
 import kotlin.math.max
 
 class CoinTickerListController constructor(
@@ -21,19 +21,25 @@ class CoinTickerListController constructor(
     private val context: Context,
     private val navigator: CoinTickerNavigator,
 ) : AsyncEpoxyController() {
-
-    private fun buildSearchBox(state: CoinTickerListState): BuildState {
-        val keyword = state.keyword
-        coinTickerListSearchView {
-            id("search-box")
-            hint(R.string.coin_ticker_list_search)
-            value(keyword)
-            textChangeListener { newKeyword ->
-                viewModel.submitNewKeyword(newKeyword)
+    override fun buildModels() {
+        val state = withState(viewModel) { it }
+        emptyView {
+            id("holder")
+        }
+        listOf(
+            ::buildMarket,
+            ::buildSearchResult,
+        ).forEach { builder ->
+            val buildResult = builder.invoke(state)
+            if (buildResult == BuildState.Stop) {
+                return
+            }
+            if (buildResult == BuildState.StopWithLoading) {
+                loadingView {
+                    id("loading")
+                }
             }
         }
-
-        return BuildState.Next
     }
 
     private fun buildMarket(state: CoinTickerListState): BuildState {
@@ -143,23 +149,4 @@ class CoinTickerListController constructor(
         return BuildState.Next
     }
 
-    override fun buildModels() {
-        val state = withState(viewModel) { it }
-
-        listOf(
-            ::buildSearchBox,
-            ::buildMarket,
-            ::buildSearchResult,
-        ).forEach { builder ->
-            val buildResult = builder.invoke(state)
-            if (buildResult == BuildState.Stop) {
-                return
-            }
-            if (buildResult == BuildState.StopWithLoading) {
-                loadingView {
-                    id("loading")
-                }
-            }
-        }
-    }
 }
