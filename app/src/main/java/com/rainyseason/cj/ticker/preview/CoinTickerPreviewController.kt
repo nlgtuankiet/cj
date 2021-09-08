@@ -6,10 +6,11 @@ import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.Theme
+import com.rainyseason.cj.common.setCancelButton
+import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.ticker.BottomContentType
 import com.rainyseason.cj.ticker.ChangeInterval
 import com.rainyseason.cj.ticker.TickerWidgetRenderParams
-import com.rainyseason.cj.ticker.list.view.coinTickerListHeaderView
 import com.rainyseason.cj.ticker.view.coinTickerPreviewView
 import com.rainyseason.cj.ticker.view.settingSwitchView
 import com.rainyseason.cj.ticker.view.settingTitleSummaryView
@@ -208,6 +209,7 @@ class CoinTickerPreviewController(
 
                 AlertDialog.Builder(context)
                     .setTitle(R.string.coin_ticker_preview_refresh_internal)
+                    .setCancelButton()
                     .setSingleChoiceItems(
                         optionsString.toTypedArray(),
                         options.indexOfFirst {
@@ -248,7 +250,7 @@ class CoinTickerPreviewController(
 
 
     private fun buildCommonSetting(state: CoinTickerPreviewState) {
-        coinTickerListHeaderView {
+        settingHeaderView {
             id("common-header")
             content(R.string.coin_ticker_preview_setting_header_common)
         }
@@ -342,7 +344,7 @@ class CoinTickerPreviewController(
     }
 
     private fun buildBottomSetting(state: CoinTickerPreviewState) {
-        coinTickerListHeaderView {
+        settingHeaderView {
             id("bottom-header")
             content(R.string.coin_ticker_preview_setting_header_bottom)
         }

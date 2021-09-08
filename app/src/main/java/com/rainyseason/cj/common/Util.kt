@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.activity.ComponentActivity
 import androidx.annotation.ColorRes
 import androidx.annotation.LayoutRes
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -91,4 +92,12 @@ fun <T : Parcelable, F : Fragment> F.putArgs(args: T): F {
 
 fun Context.getColorCompat(@ColorRes color: Int): Int {
     return ContextCompat.getColor(this, color)
+}
+
+
+fun AlertDialog.Builder.setCancelButton(): AlertDialog.Builder {
+    setNegativeButton(android.R.string.cancel) { dialog, _ ->
+        dialog.dismiss()
+    }
+    return this
 }
