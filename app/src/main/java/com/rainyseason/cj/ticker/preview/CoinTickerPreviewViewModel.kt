@@ -8,13 +8,16 @@ import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.requireArgs
+import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserCurrency
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
+import com.rainyseason.cj.data.coingecko.MarketChartResponse
 import com.rainyseason.cj.data.local.CoinTickerRepository
-import com.rainyseason.cj.ticker.TickerWidgetConfig
-import com.rainyseason.cj.ticker.TickerWidgetDisplayData
+import com.rainyseason.cj.ticker.ChangeInterval
+import com.rainyseason.cj.ticker.CoinTickerConfig
+import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -24,13 +27,14 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 data class CoinTickerPreviewState(
-    val savedDisplayData: Async<TickerWidgetDisplayData> = Uninitialized,
-    val savedConfig: Async<TickerWidgetConfig> = Uninitialized,
+    val savedDisplayData: Async<CoinTickerDisplayData> = Uninitialized,
+    val savedConfig: Async<CoinTickerConfig> = Uninitialized,
     val userCurrency: Async<UserCurrency> = Uninitialized,
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
+    val marketChartResponse: Map<String, Async<MarketChartResponse>> = emptyMap(),
     val numberOfDecimal: Int? = null,
 ) : MavericksState {
-    val config: TickerWidgetConfig?
+    val config: CoinTickerConfig?
         get() = savedConfig.invoke()
 }
 
@@ -42,18 +46,26 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 ) : MavericksViewModel<CoinTickerPreviewState>(CoinTickerPreviewState()) {
 
     private val widgetId = args.widgetId
+    private val loadGraphJobs = mutableMapOf<String, Job>()
 
     init {
         loadUserCurrency()
         loadConfig()
         loadDisplayData()
+        ChangeInterval.ALL_PRICE_INTERVAL.forEach {
+            loadGraph(it)
+        }
         loadCoinDetail()
+
         onEach { state ->
             maybeSaveDisplayData(state)
         }
+
         onEach(CoinTickerPreviewState::config) { config ->
             config?.let { maybeSaveConfig(config) }
+            Timber.d("config: $config")
         }
+
         viewModelScope.launch {
             saveInitialConfig()
         }
@@ -62,7 +74,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     private suspend fun saveInitialConfig() {
         // load last config
-        val config = TickerWidgetConfig(
+        val config = CoinTickerConfig(
             widgetId = widgetId,
             coinId = args.coinId,
             numberOfPriceDecimal = null,
@@ -72,7 +84,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         coinTickerRepository.setConfig(widgetId, config)
     }
 
-    private fun updateConfig(block: TickerWidgetConfig.() -> TickerWidgetConfig) {
+    private fun updateConfig(block: CoinTickerConfig.() -> CoinTickerConfig) {
         withState { state ->
             val config = state.savedConfig.invoke()
             if (config != null) {
@@ -82,16 +94,16 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
-    fun setMarketCapChangeInterval(value: String) {
-        updateConfig { copy(marketCapChangeInterval = value) }
-    }
-
     fun setPriceChangeInterval(value: String) {
-        updateConfig { copy(priceChangeInterval = value) }
+        updateConfig { copy(changeInterval = value) }
     }
 
     fun setBottomContentType(type: String) {
         updateConfig { copy(bottomContentType = type) }
+    }
+
+    fun setLayout(value: String) {
+        updateConfig { copy(layout = value) }
     }
 
     fun setExtraSize(extra: Int) {
@@ -133,7 +145,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             .execute { copy(savedDisplayData = it) }
     }
 
-    private fun maybeSaveConfig(config: TickerWidgetConfig) {
+    private fun maybeSaveConfig(config: CoinTickerConfig) {
         if (config.widgetId <= 0 || config.coinId.isBlank()) {
             return
         }
@@ -155,6 +167,22 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
+    private fun loadGraph(interval: String) {
+        val day = when (interval) {
+            ChangeInterval._7D -> 7
+            ChangeInterval._14D -> 14
+            ChangeInterval._30D -> 30
+            ChangeInterval._1Y -> 365
+            else -> 1
+        }
+        loadGraphJobs[interval]?.cancel()
+        loadGraphJobs[interval] = suspend {
+            coinGeckoService.getMarketChart(id = args.coinId, vsCurrency = "usd", day)
+        }.execute {
+            copy(marketChartResponse = marketChartResponse.update { set(interval, it) })
+        }
+    }
+
     private var loadCoinDetailJob: Job? = null
     private fun loadCoinDetail() {
         loadCoinDetailJob?.cancel()
@@ -172,22 +200,29 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private fun maybeSaveDisplayData(state: CoinTickerPreviewState) {
         val userCurrency = state.userCurrency.invoke() ?: return
         val coinDetail = state.coinDetailResponse.invoke() ?: return
+        val config = state.config ?: return
 
         viewModelScope.launch {
             setWidgetData(
+                config = config,
                 userCurrency = userCurrency,
                 coinDetail = coinDetail,
+                marketChartResponse = state.marketChartResponse.mapValues { it.value.invoke() },
             )
         }
     }
 
     private suspend fun setWidgetData(
+        config: CoinTickerConfig,
         userCurrency: UserCurrency,
         coinDetail: CoinDetailResponse,
-    ): TickerWidgetDisplayData {
-        val data = TickerWidgetDisplayData.create(
+        marketChartResponse: Map<String, MarketChartResponse?>,
+    ): CoinTickerDisplayData {
+        val data = CoinTickerDisplayData.create(
+            config = config,
             userCurrency = userCurrency,
-            coinDetail = coinDetail
+            coinDetail = coinDetail,
+            marketChartResponse = marketChartResponse
         )
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = data)
         return data

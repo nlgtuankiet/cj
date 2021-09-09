@@ -13,6 +13,7 @@ import com.rainyseason.cj.common.view.settingSwitchView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
 import com.rainyseason.cj.ticker.BottomContentType
 import com.rainyseason.cj.ticker.ChangeInterval
+import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.TickerWidgetRenderParams
 import com.rainyseason.cj.ticker.view.CoinTickerPreviewViewModel_
 import com.rainyseason.cj.ticker.view.coinTickerPreviewView
@@ -38,8 +39,48 @@ class CoinTickerPreviewController(
     override fun buildModels() {
         val state = withState(viewModel) { it }
         buildPreview(state)
+        buildLayout(state)
         buildCommonSetting(state)
         buildBottomSetting(state)
+    }
+
+    private fun buildLayout(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+
+        val layoutToString = listOf(
+            CoinTickerConfig.Layout.DEFAULT to R.string.coin_ticket_style_default,
+            CoinTickerConfig.Layout.GRAPH to R.string.coin_ticket_style_graph,
+        ).map { it.first to context.getString(it.second) }
+
+        settingHeaderView {
+            id("header_layout")
+            content(R.string.coin_ticker_preview_setting_header_layout)
+        }
+
+        addSeparator = false
+        maybeBuildHorizontalSeparator(id = "header_layout_separator")
+
+        settingTitleSummaryView {
+            id("setting_style")
+            title(R.string.coin_ticker_preview_setting_style)
+            summary(layoutToString.first { it.first == config.layout }.second)
+            onClickListener { _ ->
+                val currentLayout =
+                    withState(viewModel) { it.config?.layout } ?: return@onClickListener
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_setting_style)
+                    .setCancelButton()
+                    .setSingleChoiceItems(
+                        layoutToString.map { it.second }.toTypedArray(),
+                        layoutToString.indexOfFirst { currentLayout == it.first },
+                    ) { dialog, which ->
+                        val select = layoutToString[which].first
+                        viewModel.setLayout(select)
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
     }
 
     private fun buildShowThousandSeparator(state: CoinTickerPreviewState) {
@@ -255,44 +296,31 @@ class CoinTickerPreviewController(
             ChangeInterval._7D to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
             ChangeInterval._14D to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_14d,
             ChangeInterval._30D to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
-            ChangeInterval._60D to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_60d,
             ChangeInterval._1Y to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_1y,
         ).toMap()
 
-        val interval = config.bottomInterval
+        val interval = config.changeInterval
 
         maybeBuildHorizontalSeparator(id = "bottom_change_interval_separator")
 
         settingTitleSummaryView {
-            id("bottom-change-interval")
+            id("bottom_change_interval")
             title(R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header)
             summary(context.getString(mapping[interval]!!))
             onClickListener { _ ->
                 val currentState = withState(viewModel) { it }
                 val currentConfig = currentState.config!!
-                val options = when (currentConfig.bottomContentType) {
-                    BottomContentType.PRICE -> ChangeInterval.ALL_PRICE_INTERVAL
-                    BottomContentType.MARKET_CAP -> ChangeInterval.ALL_MARKET_CAP_INTERVAL
-                    else -> error("unknown ${config.bottomContentType}")
-                }
-
-
-                val currentInterval = currentConfig.bottomInterval
+                val options = ChangeInterval.ALL_PRICE_INTERVAL
+                val currentInterval = currentConfig.changeInterval
                 AlertDialog.Builder(context)
                     .setTitle(R.string.coin_ticker_preview_setting_bottom_content_type)
+                    .setCancelButton()
                     .setSingleChoiceItems(
                         options.map { context.getString(mapping[it]!!) }.toTypedArray(),
                         options.indexOfFirst { it == currentInterval }
                     ) { dialog, which ->
                         val selectedInterval = options[which]
-                        when (currentConfig.bottomContentType) {
-                            BottomContentType.PRICE -> viewModel.setPriceChangeInterval(
-                                selectedInterval
-                            )
-                            BottomContentType.MARKET_CAP -> viewModel.setMarketCapChangeInterval(
-                                selectedInterval
-                            )
-                        }
+                        viewModel.setPriceChangeInterval(selectedInterval)
                         dialog.dismiss()
                     }
                     .show()

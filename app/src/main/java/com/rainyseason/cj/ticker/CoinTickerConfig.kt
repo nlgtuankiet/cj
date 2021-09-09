@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
  * Map 1-1 between widget_id -> configs for that widget in order to generate display config
  */
 @JsonClass(generateAdapter = true)
-data class TickerWidgetConfig(
+data class CoinTickerConfig(
     @Json(name = "widget_id")
     val widgetId: Int,
 
@@ -40,17 +40,15 @@ data class TickerWidgetConfig(
     @Json(name = "bottom_content_type")
     val bottomContentType: String = BottomContentType.PRICE,
 
-    @Json(name = "price_change_interval")
-    val priceChangeInterval: String = ChangeInterval._24H,
+    @Json(name = "change_interval")
+    val changeInterval: String = ChangeInterval._24H,
 
-    @Json(name = "market_cap_change_interval")
-    val marketCapChangeInterval: String = ChangeInterval._24H
+    @Json(name = "layout")
+    val layout: String = Layout.DEFAULT
 ) {
 
-    val bottomInterval: String
-        get() = when (bottomContentType) {
-            BottomContentType.PRICE -> priceChangeInterval
-            BottomContentType.MARKET_CAP -> marketCapChangeInterval
-            else -> error("unknown $bottomContentType")
-        }
+    object Layout {
+        const val DEFAULT = "default"
+        const val GRAPH = "graph"
+    }
 }

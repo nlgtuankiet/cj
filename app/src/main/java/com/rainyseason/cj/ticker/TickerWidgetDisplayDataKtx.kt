@@ -5,7 +5,7 @@ import com.bumptech.glide.Glide
 import com.rainyseason.cj.R
 import timber.log.Timber
 
-fun TickerWidgetDisplayData.addBitmap(context: Context): TickerWidgetDisplayData {
+fun CoinTickerDisplayData.addBitmap(context: Context): CoinTickerDisplayData {
     if (iconBitmap != null) {
         return this
     }

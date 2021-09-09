@@ -40,8 +40,8 @@ interface CoinTickerSettingActivityModule {
 interface CoinTickerWidgetSaver {
     fun saveWidget(
         userCurrency: UserCurrency,
-        config: TickerWidgetConfig,
-        data: TickerWidgetDisplayData
+        config: CoinTickerConfig,
+        data: CoinTickerDisplayData
     )
 }
 
@@ -79,8 +79,8 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
 
     override fun saveWidget(
         userCurrency: UserCurrency,
-        config: TickerWidgetConfig,
-        data: TickerWidgetDisplayData
+        config: CoinTickerConfig,
+        data: CoinTickerDisplayData
     ) {
         val param = TickerWidgetRenderParams(
             userCurrency = userCurrency,

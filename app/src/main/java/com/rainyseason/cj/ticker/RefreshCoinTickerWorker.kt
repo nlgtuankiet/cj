@@ -56,7 +56,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             // TODO launch intent to config the widget?
             return
         }
-        val oldDisplayData: TickerWidgetDisplayData = coinTickerRepository.getDisplayData(widgetId)
+        val oldDisplayData: CoinTickerDisplayData = coinTickerRepository.getDisplayData(widgetId)
             ?: throw IllegalStateException("missing display data")
 
         val loadingView = RemoteViews(appContext.packageName, render.selectLayout(config))
@@ -94,10 +94,26 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             return
         }
 
-        val newDisplayData = TickerWidgetDisplayData.create(
-            userCurrency = userCurrency,
-            coinDetail = coinDetail
+        val graphResponse = coinGeckoService.getMarketChart(
+            id = config.coinId,
+            vsCurrency = userCurrency.id,
+            day = when (config.changeInterval) {
+                ChangeInterval._24H -> 1
+                ChangeInterval._7D -> 7
+                ChangeInterval._14D -> 14
+                ChangeInterval._30D -> 30
+                ChangeInterval._1Y -> 365
+                else -> error("Unknown ${config.changeInterval}")
+            }
         )
+
+        val newDisplayData = CoinTickerDisplayData.create(
+            config = config,
+            userCurrency = userCurrency,
+            coinDetail = coinDetail,
+            marketChartResponse = mapOf(config.changeInterval to graphResponse),
+        )
+
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)
         val newView = RemoteViews(appContext.packageName, render.selectLayout(config))
         val newParams = TickerWidgetRenderParams(

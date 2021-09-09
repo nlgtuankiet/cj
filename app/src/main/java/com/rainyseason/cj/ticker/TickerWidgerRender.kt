@@ -6,28 +6,38 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.LinearGradient
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.Shader
 import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.withClip
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.Theme
+import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.data.UserCurrency
+import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.min
 import kotlin.math.roundToInt
 
 data class TickerWidgetRenderParams(
     val userCurrency: UserCurrency,
-    val config: TickerWidgetConfig,
-    val data: TickerWidgetDisplayData,
+    val config: CoinTickerConfig,
+    val data: CoinTickerDisplayData,
     val showLoading: Boolean = false,
     val clickToUpdate: Boolean = false,
 )
@@ -38,9 +48,11 @@ class TickerWidgerRender @Inject constructor(
 ) {
 
     @LayoutRes
-    fun selectLayout(config: TickerWidgetConfig): Int {
-        // TODO support multiple layout
-        return R.layout.widget_coin_ticker_multiple
+    fun selectLayout(config: CoinTickerConfig): Int {
+        return when (config.layout) {
+            CoinTickerConfig.Layout.GRAPH -> R.layout.widget_coin_ticker_2x2_graph
+            else -> R.layout.widget_coin_ticker_2x2_default
+        }
     }
 
     fun <T> select(theme: String, light: T, dark: T): T {
@@ -96,10 +108,10 @@ class TickerWidgerRender @Inject constructor(
 
         view.setTextViewText(R.id.symbol, renderData.symbol)
 
-        val priceContent = formatPrice(params)
-        view.setTextViewText(R.id.price, priceContent)
+        val amountContent = formatAmount(params)
+        view.setTextViewText(R.id.amount, amountContent)
         view.setTextColor(
-            R.id.price,
+            R.id.amount,
             select(
                 theme,
                 context.getColorCompat(R.color.gray_900),
@@ -107,6 +119,7 @@ class TickerWidgerRender @Inject constructor(
             )
         )
 
+        val changePercent = renderData.changePercent
         val changes = formatChange(params)
         view.setTextViewText(R.id.change_percent, changes)
         view.setViewVisibility(
@@ -140,6 +153,24 @@ class TickerWidgerRender @Inject constructor(
             )
             view.setOnClickPendingIntent(R.id.container, pendingIntent)
         }
+
+        if (config.layout == CoinTickerConfig.Layout.GRAPH) {
+            val data = renderData.graphData
+            if (data != null && changePercent != null) {
+                val extraSize = config.extraSize
+                val width = context.dpToPxF(110 + extraSize - 12 * 2f)
+                val height = width / 2
+                val bitmap = createGraphBitmap(
+                    context = context,
+                    width = width,
+                    height = height,
+                    isPositive = changePercent > 0,
+                    data = data
+                )
+                view.setImageViewBitmap(R.id.graph, bitmap)
+            }
+        }
+
     }
 
     private fun SpannableStringBuilder.appendChange(amount: Double, numberOfDecimal: Int?) {
@@ -172,37 +203,22 @@ class TickerWidgerRender @Inject constructor(
 
         @Suppress("UnnecessaryVariable")
         val content = buildSpannedString {
-            val amount = when (config.bottomContentType) {
-                BottomContentType.PRICE -> when (config.priceChangeInterval) {
-                    ChangeInterval._24H -> data.priceChangePercent24h
-                    ChangeInterval._7D -> data.priceChangePercent7d
-                    ChangeInterval._14D -> data.priceChangePercent14d
-                    ChangeInterval._30D -> data.priceChangePercent30d
-                    ChangeInterval._60D -> data.priceChangePercent60d
-                    ChangeInterval._1Y -> data.priceChangePercent1y
-                    else -> error("unknown ${config.bottomContentType}")
-                }
-                BottomContentType.MARKET_CAP -> when (config.marketCapChangeInterval) {
-                    ChangeInterval._24H -> data.marketCapChangePercent24h
-                    else -> error("unknown ${config.marketCapChangeInterval}")
-                }
-                else -> error("unknown ${config.bottomContentType}")
+            val amount = data.changePercent
+            if (amount != null) {
+                appendChange(amount, config.numberOfChangePercentDecimal)
+            } else {
+                append(context.getString(R.string.loading))
             }
-            appendChange(amount, config.numberOfChangePercentDecimal)
         }
         return content
     }
 
-    private fun formatPrice(
+    private fun formatAmount(
         params: TickerWidgetRenderParams,
     ): String {
         val config = params.config
         val data = params.data
-        var amount = when (config.bottomContentType) {
-            BottomContentType.PRICE -> data.price
-            BottomContentType.MARKET_CAP -> data.marketCap
-            else -> error("unknown ${config.bottomContentType}")
-        }
+        var amount = data.amount
         val roundToM = amount >= 1_000_000
         if (roundToM) {
             amount = (amount / 1_000_000.0).roundToInt().toDouble()
@@ -219,5 +235,77 @@ class TickerWidgerRender @Inject constructor(
             formattedPrice += "M"
         }
         return formattedPrice
+    }
+
+    private fun createGraphBitmap(
+        context: Context,
+        width: Float,
+        height: Float,
+        isPositive: Boolean,
+        data: List<List<Double>>,
+    ): Bitmap {
+        Timber.d("createGraphBitmap $width $height ${data.size}")
+        // [0] timestamp
+        // [1] price
+        val bitmap = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val paint = Paint()
+        paint.strokeWidth = context.dpToPxF(1.5f)
+        paint.style = Paint.Style.STROKE
+        paint.strokeCap = Paint.Cap.ROUND
+        paint.color = if (isPositive) {
+            context.getColorCompat(R.color.ticket_line_green)
+        } else {
+            context.getColorCompat(R.color.ticket_line_red)
+        }
+        val minTime = data.minOf { it[0] }
+        val maxTime = data.maxOf { it[0] }
+        val timeInterval = maxTime - minTime
+        val minPrice = data.minOf { it[1] }
+        val maxPrice = data.maxOf { it[1] }
+        val priceInterval = maxPrice - minPrice
+        val path = Path()
+
+        var minY = height
+
+        var started = false
+        data.forEach { point ->
+            val currentPointX = ((point[0] - minTime) / timeInterval * width).toFloat()
+            val currentPointY = (height - (point[1] - minPrice) / priceInterval * height).toFloat()
+            minY = min(minY, currentPointY)
+            if (started) {
+                path.lineTo(currentPointX, currentPointY)
+            } else {
+                started = true
+                path.moveTo(currentPointX, currentPointY)
+            }
+        }
+        canvas.drawPath(path, paint)
+
+        // clip
+        path.lineTo(width, height)
+        path.lineTo(0f, height)
+        path.close()
+
+        val gradientColor = if (isPositive) {
+            context.getColorCompat(R.color.ticket_line_green_background)
+        } else {
+            context.getColorCompat(R.color.ticket_line_red_background)
+        }
+
+        canvas.withClip(path) {
+            val gradient = LinearGradient(
+                width / 2f, minY, width / 2f, height,
+                gradientColor,
+                context.getColorCompat(android.R.color.transparent),
+                Shader.TileMode.CLAMP
+            )
+            val gPaint = Paint()
+            gPaint.isDither = true
+            gPaint.shader = gradient
+            drawRect(0f, 0f, width, height, gPaint)
+        }
+
+        return bitmap
     }
 }

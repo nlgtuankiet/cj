@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/coin_ticker_background">
+
+    <include layout="@layout/widget_size_constraint" />
+
+    <ImageView
+        android:id="@+id/icon"
+        android:layout_width="@dimen/widget_coin_ticker_icon_size"
+        android:layout_height="@dimen/widget_coin_ticker_icon_size"
+        android:layout_gravity="center_vertical"
+        android:visibility="gone"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/symbol"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="sans-serif-medium"
+        android:textAllCaps="true"
+        android:textColor="@color/gray_900"
+        android:textSize="12sp"
+        tools:text="DOGE" />
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/symbol"
+        android:layout_alignEnd="@id/right_edge"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:autoSizeMaxTextSize="18sp"
+        android:autoSizeMinTextSize="1sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:maxLines="1"
+        android:textColor="@color/gray_500"
+        android:textSize="10sp"
+        tools:ignore="SmallSp,UnusedAttribute"
+        tools:text="Dogecoin" />
+
+
+    <ImageView
+        android:id="@+id/graph"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_above="@id/amount"
+        android:layout_below="@id/name"
+        android:layout_alignEnd="@id/right_edge"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="4dp"
+        android:scaleType="fitXY" />
+
+    <TextView
+        android:id="@+id/amount"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/right_edge"
+        android:layout_alignBottom="@id/bottom_edge"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        android:autoSizeMaxTextSize="16sp"
+        android:autoSizeMinTextSize="1sp"
+        android:autoSizeStepGranularity="1sp"
+        android:autoSizeTextType="uniform"
+        android:maxLines="1"
+        android:textAlignment="textEnd"
+        android:textColor="@color/gray_900"
+        android:textSize="16sp"
+        tools:ignore="UnusedAttribute"
+        tools:text="$0.287661" />
+
+
+    <TextView
+        android:id="@+id/change_percent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/right_edge"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:orientation="horizontal"
+        android:textColor="@color/green_700"
+        android:textSize="12sp"
+        tools:text="+6.6%" />
+
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:clickable="false"
+        android:visibility="invisible" />
+
+</RelativeLayout>

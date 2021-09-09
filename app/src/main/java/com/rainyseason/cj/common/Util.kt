@@ -106,8 +106,23 @@ fun Context.getColorCompat(@ColorRes id: Int): Int {
 
 
 fun AlertDialog.Builder.setCancelButton(): AlertDialog.Builder {
+    setCancelable(true)
     setNegativeButton(android.R.string.cancel) { dialog, _ ->
         dialog.dismiss()
     }
     return this
+}
+
+fun <K, V> Map<K, V>.update(block: MutableMap<K, V>.() -> Unit): Map<K, V> {
+    val new = toMutableMap()
+    block.invoke(new)
+    return new.toMap()
+}
+
+
+fun List<List<Double>>.changePercent(): Double {
+    val open = first()[1]
+    val last = last()[1]
+    val diff = last - open
+    return 1.0 * diff / open
 }

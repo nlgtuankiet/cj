@@ -33,6 +33,7 @@ class CoinTickerPreviewView @JvmOverloads constructor(
     // work around auto text size problem
     @ModelProp
     fun setRenderParams(params: TickerWidgetRenderParams?) {
+        Timber.d("render config ${params?.config}")
         container.removeAllViews()
         progressBar.isGone = params != null
         if (params == null) {

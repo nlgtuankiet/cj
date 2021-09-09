@@ -5,10 +5,10 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
-import com.rainyseason.cj.ticker.TickerWidgetConfig
-import com.rainyseason.cj.ticker.TickerWidgetConfigJsonAdapter
-import com.rainyseason.cj.ticker.TickerWidgetDisplayData
-import com.rainyseason.cj.ticker.TickerWidgetDisplayDataJsonAdapter
+import com.rainyseason.cj.ticker.CoinTickerConfig
+import com.rainyseason.cj.ticker.CoinTickerConfigJsonAdapter
+import com.rainyseason.cj.ticker.CoinTickerDisplayData
+import com.rainyseason.cj.ticker.CoinTickerDisplayDataJsonAdapter
 import com.rainyseason.cj.ticker.addBitmap
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
@@ -23,8 +23,8 @@ class CoinTickerRepository @Inject constructor(
     private val context: Context,
     private val moshi: Moshi,
 ) {
-    private val displayAdapter = TickerWidgetDisplayDataJsonAdapter(moshi = moshi)
-    private val configAdapter = TickerWidgetConfigJsonAdapter(moshi = moshi)
+    private val displayAdapter = CoinTickerDisplayDataJsonAdapter(moshi = moshi)
+    private val configAdapter = CoinTickerConfigJsonAdapter(moshi = moshi)
 
     suspend fun clearAllData(widgetId: Int) {
         dataStore.edit {
@@ -33,20 +33,20 @@ class CoinTickerRepository @Inject constructor(
         }
     }
 
-    suspend fun getDisplayData(widgetId: Int): TickerWidgetDisplayData? {
+    suspend fun getDisplayData(widgetId: Int): CoinTickerDisplayData? {
         val key = displayDataKey(widgetId)
         val data = dataStore.data.first()[key] ?: return null
         val entity = displayAdapter.fromJson(data)!!
         return entity.addBitmap(context)
     }
 
-    suspend fun setDisplayData(widgetId: Int, data: TickerWidgetDisplayData) {
+    suspend fun setDisplayData(widgetId: Int, data: CoinTickerDisplayData) {
         val key = displayDataKey(widgetId)
         val data = displayAdapter.toJson(data)
         dataStore.edit { it[key] = data }
     }
 
-    fun getDisplayDataStream(widgetId: Int): Flow<TickerWidgetDisplayData> {
+    fun getDisplayDataStream(widgetId: Int): Flow<CoinTickerDisplayData> {
         val key = displayDataKey(widgetId)
         return dataStore.data
             .mapNotNull { prefs: Preferences ->
@@ -66,19 +66,19 @@ class CoinTickerRepository @Inject constructor(
         return stringPreferencesKey("ticker_widget_config_${widgetId}")
     }
 
-    suspend fun setConfig(widgetId: Int, widgetConfig: TickerWidgetConfig) {
+    suspend fun setConfig(widgetId: Int, widgetConfig: CoinTickerConfig) {
         val key = configKey(widgetId)
         val data = configAdapter.toJson(widgetConfig)
         dataStore.edit { it[key] = data }
     }
 
-    suspend fun getConfig(widgetId: Int): TickerWidgetConfig? {
+    suspend fun getConfig(widgetId: Int): CoinTickerConfig? {
         val key = configKey(widgetId)
         val data = dataStore.data.first()[key] ?: return null
         return configAdapter.fromJson(data)!!
     }
 
-    fun getConfigStream(widgetId: Int): Flow<TickerWidgetConfig> {
+    fun getConfigStream(widgetId: Int): Flow<CoinTickerConfig> {
         val key = configKey(widgetId)
         return dataStore.data
             .mapNotNull { prefs: Preferences ->

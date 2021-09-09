@@ -126,6 +126,5 @@ class DrawSampleActivity : AppCompatActivity() {
         }
 
         return bitmap
-
     }
 }

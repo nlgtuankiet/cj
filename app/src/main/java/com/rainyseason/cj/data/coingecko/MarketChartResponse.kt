@@ -7,5 +7,8 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class MarketChartResponse(
     @Json(name = "prices")
-    val prices: List<List<Double>>
+    val prices: List<List<Double>>,
+
+    @Json(name = "market_caps")
+    val marketCaps: List<List<Double>>,
 )

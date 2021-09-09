@@ -22,6 +22,6 @@ interface CoinGeckoService {
     suspend fun getMarketChart(
         @Path("id") id: String,
         @Query(value = "vs_currency") vsCurrency: String,
-        @Query(value = "day") day: Long,
+        @Query(value = "days") day: Int,
     ): MarketChartResponse
 }

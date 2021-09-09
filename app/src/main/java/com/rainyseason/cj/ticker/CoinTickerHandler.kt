@@ -14,7 +14,7 @@ class CoinTickerHandler @Inject constructor(
     private val workManager: WorkManager,
     private val coinTickerRepository: CoinTickerRepository,
 ) {
-    suspend fun enqueueRefreshWidget(widgetId: Int, config: TickerWidgetConfig? = null) {
+    suspend fun enqueueRefreshWidget(widgetId: Int, config: CoinTickerConfig? = null) {
         val latestConfig = config ?: coinTickerRepository.getConfig(widgetId = widgetId) ?: return
         val request = PeriodicWorkRequestBuilder<RefreshCoinTickerWorker>(
             repeatInterval = latestConfig.refreshInterval,
