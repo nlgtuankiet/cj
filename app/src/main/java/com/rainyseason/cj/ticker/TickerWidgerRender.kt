@@ -39,13 +39,8 @@ class TickerWidgerRender @Inject constructor(
 
     @LayoutRes
     fun selectLayout(config: TickerWidgetConfig): Int {
-        return when (config.extraSize) {
-            0 -> R.layout.widget_coin_ticker
-            10 -> R.layout.widget_coin_ticker_e10
-            20 -> R.layout.widget_coin_ticker_e20
-            30 -> R.layout.widget_coin_ticker_e30
-            else -> error("not support")
-        }
+        // TODO support multiple layout
+        return R.layout.widget_coin_ticker_multiple
     }
 
     fun <T> select(theme: String, light: T, dark: T): T {
@@ -68,6 +63,26 @@ class TickerWidgerRender @Inject constructor(
         params: TickerWidgetRenderParams,
     ) {
         val theme = params.config.theme
+        val renderData = params.data.addBitmap(context)
+        val config = params.config
+
+        val visibleIndies = when (config.extraSize) {
+            10 -> listOf(0)
+            20 -> listOf(0, 1)
+            30 -> listOf(0, 1, 2)
+            else -> listOf()
+        }
+        visibleIndies.forEach { visibleIndex ->
+            view.setViewVisibility(
+                listOf(R.id.right_1, R.id.right_2, R.id.right_3)[visibleIndex],
+                View.VISIBLE
+            )
+            view.setViewVisibility(
+                listOf(R.id.bottom_1, R.id.bottom_2, R.id.bottom_3)[visibleIndex],
+                View.VISIBLE
+            )
+        }
+
         view.setInt(
             R.id.container,
             "setBackgroundResource",
@@ -77,7 +92,7 @@ class TickerWidgerRender @Inject constructor(
                 R.drawable.coin_ticker_background_dark
             )
         )
-        val renderData = params.data.addBitmap(context)
+
 
         view.setTextViewText(R.id.symbol, renderData.symbol)
 
@@ -94,7 +109,6 @@ class TickerWidgerRender @Inject constructor(
 
         val changes = formatChange(params)
         view.setTextViewText(R.id.change_percent, changes)
-        view.setViewVisibility(R.id.loading, if (params.showLoading) View.VISIBLE else View.GONE)
         view.setViewVisibility(
             R.id.progress_bar,
             if (params.showLoading) View.VISIBLE else View.GONE
