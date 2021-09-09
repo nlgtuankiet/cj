@@ -23,6 +23,10 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name="com.rainyseason.cj.DrawSampleActivity"
+            android:exported="true" />
+
         <receiver android:name=".ticker.CoinTickerProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
