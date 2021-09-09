@@ -8,6 +8,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
@@ -78,6 +79,14 @@ fun Context.dpToPx(value: Int): Int {
     ).toInt()
 }
 
+fun Context.dpToPxF(value: Float): Float {
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        value.toFloat(),
+        resources.displayMetrics
+    )
+}
+
 
 fun <T : Parcelable> Fragment.requireArgs(): T {
     return arguments!!.getParcelable<T>("args")!!
@@ -90,8 +99,9 @@ fun <T : Parcelable, F : Fragment> F.putArgs(args: T): F {
     return this
 }
 
-fun Context.getColorCompat(@ColorRes color: Int): Int {
-    return ContextCompat.getColor(this, color)
+@ColorInt
+fun Context.getColorCompat(@ColorRes id: Int): Int {
+    return ContextCompat.getColor(this, id)
 }
 
 

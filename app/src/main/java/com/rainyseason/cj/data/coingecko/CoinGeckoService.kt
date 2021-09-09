@@ -17,4 +17,11 @@ interface CoinGeckoService {
 
     @GET("coins/list")
     suspend fun getCoinList(): List<CoinListEntry>
+
+    @GET("coins/{id}/market_chart/")
+    suspend fun getMarketChart(
+        @Path("id") id: String,
+        @Query(value = "vs_currency") vsCurrency: String,
+        @Query(value = "day") day: Long,
+    ): MarketChartResponse
 }

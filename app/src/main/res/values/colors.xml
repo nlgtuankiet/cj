@@ -22,4 +22,10 @@
 
 
     <color name="red_600">#E53935</color>
+
+    <color name="ticket_line_green">#CC4CAF50</color>
+    <color name="ticket_line_green_background">#804CAF50</color>
+
+    <color name="ticket_line_red">#eb4d3d</color>
+    <color name="ticket_line_red_background">#80eb4d3d</color>
 </resources>

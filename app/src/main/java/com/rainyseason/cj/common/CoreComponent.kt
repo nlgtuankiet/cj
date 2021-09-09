@@ -3,8 +3,10 @@ package com.rainyseason.cj.common
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.view.View
+import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.ticker.TickerWidgerRender
+import com.squareup.moshi.Moshi
 import okhttp3.Call
 
 interface CoreComponent {
@@ -12,6 +14,8 @@ interface CoreComponent {
     val tickerWidgetRender: TickerWidgerRender
     val appWidgetManager: AppWidgetManager
     val coinTickerHandler: CoinTickerHandler
+    val coinGeckoService: CoinGeckoService
+    val moshi: Moshi
 }
 
 interface HasCoreComponent {
