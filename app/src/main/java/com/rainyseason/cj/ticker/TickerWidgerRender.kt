@@ -107,6 +107,14 @@ class TickerWidgerRender @Inject constructor(
 
 
         view.setTextViewText(R.id.symbol, renderData.symbol)
+        view.setTextColor(
+            R.id.symbol,
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
 
         val amountContent = formatAmount(params)
         view.setTextViewText(R.id.amount, amountContent)
