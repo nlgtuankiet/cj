@@ -20,6 +20,7 @@ import com.rainyseason.cj.ticker.CoinTickerNavigator
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
 
@@ -55,9 +56,15 @@ class CoinTickerListFragment : Fragment(), MavericksView {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
+        Timber.d("onCreateView")
         return inflater.inflate(R.layout.coin_ticker_list_fragment, container, false)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Timber.d("onDestroyView")
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

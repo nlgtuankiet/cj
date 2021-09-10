@@ -98,9 +98,12 @@ fun <T : Parcelable> Fragment.requireArgs(): T {
 }
 
 fun <T : Parcelable, F : Fragment> F.putArgs(args: T): F {
-    arguments = Bundle().apply {
-        putParcelable("args", args)
-    }
+    arguments = Bundle().putArgs(args)
+    return this
+}
+
+fun <T : Parcelable> Bundle.putArgs(args: T): Bundle {
+    putParcelable("args", args)
     return this
 }
 

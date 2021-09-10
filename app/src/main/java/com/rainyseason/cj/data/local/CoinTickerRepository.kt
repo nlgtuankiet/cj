@@ -44,7 +44,9 @@ class CoinTickerRepository @Inject constructor(
             it.asMap().keys.filterIsInstance<Preferences.Key<String>>().map { k -> k.name }
         }.first()
         val regex = """_(\d+)${'$'}""".toRegex()
-        val ids = keys.map { regex.find(it)!!.groupValues[1].toInt() }.toSet().toList().sorted()
+        val ids = keys.mapNotNull {
+            regex.find(it)?.groupValues?.get(1)?.toInt()
+        }.toSet().toList().sorted()
         return ids
     }
 

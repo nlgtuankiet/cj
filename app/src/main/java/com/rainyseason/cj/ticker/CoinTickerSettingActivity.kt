@@ -12,7 +12,6 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.ActivityScope
 import com.rainyseason.cj.data.UserCurrency
 import com.rainyseason.cj.data.local.CoinTickerRepository
-import com.rainyseason.cj.ticker.list.CoinTickerListFragment
 import com.rainyseason.cj.ticker.list.CoinTickerListFragmentModule
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
 import dagger.Module
@@ -65,6 +64,9 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
     @Inject
     lateinit var coinTickerRepository: CoinTickerRepository
 
+    @Inject
+    lateinit var navigator: CoinTickerNavigator
+
     private var widgetSaved = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,10 +80,9 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
             return
         }
 
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.fragment_container, CoinTickerListFragment())
-                .commit()
+        val coinId = intent.extras?.getString(COIN_ID_EXTRA)
+        if (coinId != null) {
+            navigator.moveToPreview(coinId)
         }
 
         if (BuildConfig.DEBUG) {
@@ -148,6 +149,11 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
 
     override fun androidInjector(): AndroidInjector<Any> {
         return androidInjector
+    }
+
+
+    companion object {
+        const val COIN_ID_EXTRA = "coin_id"
     }
 
 }
