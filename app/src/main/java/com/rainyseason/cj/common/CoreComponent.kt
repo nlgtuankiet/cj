@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.view.View
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
+import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.ticker.TickerWidgerRender
 import com.squareup.moshi.Moshi
@@ -16,6 +17,7 @@ interface CoreComponent {
     val coinTickerHandler: CoinTickerHandler
     val coinGeckoService: CoinGeckoService
     val moshi: Moshi
+    val coinTickerRepository: CoinTickerRepository
 }
 
 interface HasCoreComponent {

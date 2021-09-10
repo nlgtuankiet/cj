@@ -61,11 +61,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             maybeSaveDisplayData(state)
         }
 
-        onEach(CoinTickerPreviewState::config) { config ->
-            config?.let { maybeSaveConfig(config) }
-            Timber.d("config: $config")
-        }
-
         viewModelScope.launch {
             saveInitialConfig()
         }
@@ -77,6 +72,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         val config = CoinTickerConfig(
             widgetId = widgetId,
             coinId = args.coinId,
+            layout = args.layout,
             numberOfPriceDecimal = null,
             numberOfChangePercentDecimal = 1
         )

@@ -2,53 +2,32 @@ package com.rainyseason.cj.ticker
 
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.goBackground
 import com.rainyseason.cj.common.logString
 import com.rainyseason.cj.data.local.CoinTickerRepository
-import dagger.Module
-import dagger.android.AndroidInjection
-import dagger.android.ContributesAndroidInjector
 import timber.log.Timber
-import javax.inject.Inject
 
+class CoinTickerProviderDefault : CoinTickerProvider()
+class CoinTickerProviderGraph : CoinTickerProvider()
+class CoinTickerProviderCoin360 : CoinTickerProvider()
 
-@Module
-interface CoinTickerProviderModule {
-    @ContributesAndroidInjector
-    fun provider(): CoinTickerProvider
-}
+abstract class CoinTickerProvider : AppWidgetProvider() {
 
-class CoinTickerProvider : AppWidgetProvider() {
-
-    @Inject
     lateinit var coinTickerHandler: CoinTickerHandler
 
-    @Inject
     lateinit var coinTickerRepository: CoinTickerRepository
 
-    @Inject
     lateinit var appWidgetManager: AppWidgetManager
 
     override fun onReceive(context: Context, intent: Intent) {
         Timber.d("onReceive: ${intent.logString()}")
-        AndroidInjection.inject(this, context)
+        coinTickerHandler = context.coreComponent.coinTickerHandler
+        coinTickerRepository = context.coreComponent.coinTickerRepository
+        appWidgetManager = context.coreComponent.appWidgetManager
         super.onReceive(context, intent)
-        when (intent.action) {
-            Intent.ACTION_BOOT_COMPLETED -> {
-                val ids = appWidgetManager.getAppWidgetIds(
-                    ComponentName(
-                        context,
-                        CoinTickerProvider::class.java
-                    )
-                )
-                goBackground {
-                    ids.forEach { coinTickerHandler.enqueueRefreshWidget(widgetId = it) }
-                }
-            }
-        }
     }
 
 
