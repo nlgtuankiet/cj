@@ -68,16 +68,18 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
 
     private suspend fun saveInitialConfig() {
-        // load last config
-        val config = CoinTickerConfig(
-            widgetId = widgetId,
-            coinId = args.coinId,
-            layout = args.layout,
-            numberOfPriceDecimal = null,
-            numberOfChangePercentDecimal = 1
-        )
+        val lastConfig = coinTickerRepository.getConfig(widgetId = widgetId)
+        if (lastConfig == null) {
+            val config = CoinTickerConfig(
+                widgetId = widgetId,
+                coinId = args.coinId,
+                layout = args.layout,
+                numberOfPriceDecimal = null,
+                numberOfChangePercentDecimal = 1
+            )
 
-        coinTickerRepository.setConfig(widgetId, config)
+            coinTickerRepository.setConfig(widgetId, config)
+        }
     }
 
     private fun updateConfig(block: CoinTickerConfig.() -> CoinTickerConfig) {
@@ -88,6 +90,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 maybeSaveConfig(newConfig)
             }
         }
+    }
+
+    fun setClickAction(value: String) {
+        updateConfig { copy(clickAction = value) }
     }
 
     fun setPriceChangeInterval(value: String) {

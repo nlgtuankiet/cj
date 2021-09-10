@@ -103,7 +103,6 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
             config = config,
             data = data,
             showLoading = false,
-            clickToUpdate = true,
         )
         val remoteView = RemoteViews(packageName, render.selectLayout(config))
         render.render(

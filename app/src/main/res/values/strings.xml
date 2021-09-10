@@ -49,4 +49,9 @@
     <string name="coin_ticket_style_default">Default</string>
     <string name="coin_ticket_style_graph">Graph</string>
     <string name="coin_ticket_style_coin360">Coin 360</string>
+
+    <string name="coin_ticker_preview_setting_header_click_action">Click action</string>
+    <string name="coin_ticker_preview_setting_header_click_action_refresh">Refresh widget</string>
+    <string name="coin_ticker_preview_setting_header_click_action_setting">Open setting page</string>
+
 </resources>

@@ -44,12 +44,20 @@ data class CoinTickerConfig(
     val changeInterval: String = ChangeInterval._24H,
 
     @Json(name = "layout")
-    val layout: String = Layout.DEFAULT
+    val layout: String = Layout.DEFAULT,
+
+    @Json(name = "click_action")
+    val clickAction: String = ClickAction.REFRESH,
 ) {
 
     object Layout {
         const val DEFAULT = "default"
         const val GRAPH = "graph"
         const val COIN360 = "coin360"
+    }
+
+    object ClickAction {
+        const val REFRESH = "refresh"
+        const val SETTING = "setting"
     }
 }

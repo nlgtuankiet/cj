@@ -65,7 +65,6 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             config = config,
             data = oldDisplayData,
             showLoading = true,
-            clickToUpdate = false,
         )
         render.render(
             view = loadingView,
@@ -84,7 +83,6 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
                 config = config,
                 data = oldDisplayData,
                 showLoading = true,
-                clickToUpdate = true,
             )
             render.render(
                 view = loadingView,
@@ -121,7 +119,6 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             config = config,
             data = newDisplayData,
             showLoading = false,
-            clickToUpdate = true,
         )
         render.render(
             view = newView,

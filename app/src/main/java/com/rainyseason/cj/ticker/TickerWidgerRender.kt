@@ -41,11 +41,13 @@ data class TickerWidgetRenderParams(
     val data: CoinTickerDisplayData,
     val showLoading: Boolean = false,
     val clickToUpdate: Boolean = false,
+    val isPreview: Boolean = false,
 )
 
 @Singleton
 class TickerWidgerRender @Inject constructor(
-    private val context: Context
+    private val context: Context,
+    private val appWidgetManager: AppWidgetManager,
 ) {
 
     @LayoutRes
@@ -91,6 +93,7 @@ class TickerWidgerRender @Inject constructor(
             )
         }
         view.setBackgroundResource(R.id.container, backgroundRes)
+        view.applyClickAction(params)
         view.setTextViewText(R.id.symbol, renderData.symbol)
 
         val changes = formatChange(
@@ -101,6 +104,57 @@ class TickerWidgerRender @Inject constructor(
 
         val amountContent = formatAmount(params)
         view.setTextViewText(R.id.amount, amountContent)
+    }
+
+    @SuppressLint("UnspecifiedImmutableFlag")
+    fun RemoteViews.applyClickAction(params: TickerWidgetRenderParams) {
+        if (params.isPreview) {
+            return
+        }
+        val config = params.config
+        val pendingIntent = when (params.config.clickAction) {
+            CoinTickerConfig.ClickAction.REFRESH -> {
+                val layoutRes = appWidgetManager.getAppWidgetInfo(config.widgetId)?.initialLayout
+                    ?: R.layout.widget_coin_ticker_2x2_default
+                val clazz = when (layoutRes) {
+                    R.layout.widget_coin_ticker_2x2_default -> CoinTickerProviderDefault::class.java
+                    R.layout.widget_coin_ticker_2x2_graph -> CoinTickerProviderGraph::class.java
+                    R.layout.widget_coin_ticker_2x2_coin360 -> CoinTickerProviderCoin360::class.java
+                    else -> error("Unknown layout for $layoutRes")
+                }
+                val intent = Intent(context, clazz)
+                intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                intent.putExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_IDS,
+                    intArrayOf(params.config.widgetId)
+                )
+                PendingIntent.getBroadcast(
+                    context,
+                    params.config.widgetId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                )
+            }
+            CoinTickerConfig.ClickAction.SETTING -> {
+                val intent = Intent(context, CoinTickerSettingActivity::class.java)
+                intent.putExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    params.config.widgetId,
+                )
+                intent.putExtra(
+                    CoinTickerSettingActivity.COIN_ID_EXTRA,
+                    params.config.coinId,
+                )
+                PendingIntent.getActivity(
+                    context,
+                    params.config.widgetId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                )
+            }
+            else -> error("Unknown action ${params.config.clickAction}")
+        }
+        setOnClickPendingIntent(R.id.container, pendingIntent)
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")
@@ -120,6 +174,7 @@ class TickerWidgerRender @Inject constructor(
             )
         )
 
+        view.applyClickAction(params)
 
         view.setTextViewText(R.id.symbol, renderData.symbol)
         view.setTextColor(
@@ -161,22 +216,6 @@ class TickerWidgerRender @Inject constructor(
                 context.getColorCompat(R.color.gray_50),
             )
         )
-
-        if (params.clickToUpdate) {
-            val intent = Intent(context, CoinTickerProvider::class.java)
-            intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
-            intent.putExtra(
-                AppWidgetManager.EXTRA_APPWIDGET_IDS,
-                intArrayOf(params.config.widgetId)
-            )
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                params.config.widgetId,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT
-            )
-            view.setOnClickPendingIntent(R.id.container, pendingIntent)
-        }
 
         if (config.layout == CoinTickerConfig.Layout.GRAPH) {
             val data = renderData.graphData
