@@ -48,4 +48,5 @@
 
     <string name="coin_ticket_style_default">Default</string>
     <string name="coin_ticket_style_graph">Graph</string>
+    <string name="coin_ticket_style_coin360">Coin 360</string>
 </resources>

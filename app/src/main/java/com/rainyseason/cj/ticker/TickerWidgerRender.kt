@@ -24,6 +24,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
+import com.rainyseason.cj.common.setBackgroundResource
 import com.rainyseason.cj.data.UserCurrency
 import timber.log.Timber
 import java.text.DecimalFormat
@@ -51,11 +52,12 @@ class TickerWidgerRender @Inject constructor(
     fun selectLayout(config: CoinTickerConfig): Int {
         return when (config.layout) {
             CoinTickerConfig.Layout.GRAPH -> R.layout.widget_coin_ticker_2x2_graph
+            CoinTickerConfig.Layout.COIN360 -> R.layout.widget_coin_ticker_2x2_coin360
             else -> R.layout.widget_coin_ticker_2x2_default
         }
     }
 
-    fun <T> select(theme: String, light: T, dark: T): T {
+    private fun <T> select(theme: String, light: T, dark: T): T {
         if (theme == Theme.LIGHT) {
             return light
         }
@@ -69,35 +71,48 @@ class TickerWidgerRender @Inject constructor(
         return light
     }
 
-    @SuppressLint("UnspecifiedImmutableFlag")
-    fun render(
+    private fun renderCoin360(
         view: RemoteViews,
         params: TickerWidgetRenderParams,
     ) {
-        val theme = params.config.theme
-        val renderData = params.data.addBitmap(context)
         val config = params.config
-
-        val visibleIndies = when (config.extraSize) {
-            10 -> listOf(0)
-            20 -> listOf(0, 1)
-            30 -> listOf(0, 1, 2)
-            else -> listOf()
-        }
-        visibleIndies.forEach { visibleIndex ->
-            view.setViewVisibility(
-                listOf(R.id.right_1, R.id.right_2, R.id.right_3)[visibleIndex],
-                View.VISIBLE
+        val renderData = params.data
+        val backgroundRes = if ((renderData.changePercent ?: 0.0) > 0) {
+            select(
+                config.theme,
+                R.drawable.coin_ticker_background_positive_light,
+                R.drawable.coin_ticker_background_positive_dark
             )
-            view.setViewVisibility(
-                listOf(R.id.bottom_1, R.id.bottom_2, R.id.bottom_3)[visibleIndex],
-                View.VISIBLE
+        } else {
+            select(
+                config.theme,
+                R.drawable.coin_ticker_background_negative_light,
+                R.drawable.coin_ticker_background_negative_dark
             )
         }
+        view.setBackgroundResource(R.id.container, backgroundRes)
+        view.setTextViewText(R.id.symbol, renderData.symbol)
 
-        view.setInt(
+        val changes = formatChange(
+            params = params,
+            withColor = false
+        )
+        view.setTextViewText(R.id.change_percent, changes)
+
+        val amountContent = formatAmount(params)
+        view.setTextViewText(R.id.amount, amountContent)
+    }
+
+    @SuppressLint("UnspecifiedImmutableFlag")
+    fun renderDefault(
+        view: RemoteViews,
+        params: TickerWidgetRenderParams,
+    ) {
+        val config = params.config
+        val theme = config.theme
+        val renderData = params.data
+        view.setBackgroundResource(
             R.id.container,
-            "setBackgroundResource",
             select(
                 theme,
                 R.drawable.coin_ticker_background,
@@ -130,6 +145,7 @@ class TickerWidgerRender @Inject constructor(
         val changePercent = renderData.changePercent
         val changes = formatChange(params)
         view.setTextViewText(R.id.change_percent, changes)
+
         view.setViewVisibility(
             R.id.progress_bar,
             if (params.showLoading) View.VISIBLE else View.GONE
@@ -178,10 +194,42 @@ class TickerWidgerRender @Inject constructor(
                 view.setImageViewBitmap(R.id.graph, bitmap)
             }
         }
-
     }
 
-    private fun SpannableStringBuilder.appendChange(amount: Double, numberOfDecimal: Int?) {
+    fun render(
+        view: RemoteViews,
+        params: TickerWidgetRenderParams,
+    ) {
+        val config = params.config
+
+        val visibleIndies = when (config.extraSize) {
+            10 -> listOf(0)
+            20 -> listOf(0, 1)
+            30 -> listOf(0, 1, 2)
+            else -> listOf()
+        }
+        visibleIndies.forEach { visibleIndex ->
+            view.setViewVisibility(
+                listOf(R.id.right_1, R.id.right_2, R.id.right_3)[visibleIndex],
+                View.VISIBLE
+            )
+            view.setViewVisibility(
+                listOf(R.id.bottom_1, R.id.bottom_2, R.id.bottom_3)[visibleIndex],
+                View.VISIBLE
+            )
+        }
+
+        when (config.layout) {
+            CoinTickerConfig.Layout.COIN360 -> renderCoin360(view, params)
+            else -> renderDefault(view, params)
+        }
+    }
+
+    private fun SpannableStringBuilder.appendChange(
+        amount: Double,
+        numberOfDecimal: Int?,
+        withColor: Boolean,
+    ) {
         val color = if (amount > 0) {
             ContextCompat.getColor(context, R.color.green_700)
         } else {
@@ -193,18 +241,24 @@ class TickerWidgerRender @Inject constructor(
         } else {
             amount.toString()
         }
-        color(color) {
-            val symbol = if (amount > 0) {
-                "+"
-            } else {
-                ""
+        val symbol = if (amount > 0) {
+            "+"
+        } else {
+            ""
+        }
+        if (withColor) {
+            color(color) {
+                append("${symbol}${amountText}%")
             }
+        } else {
             append("${symbol}${amountText}%")
         }
+
     }
 
     private fun formatChange(
         params: TickerWidgetRenderParams,
+        withColor: Boolean = true,
     ): CharSequence {
         val config = params.config
         val data = params.data
@@ -213,7 +267,11 @@ class TickerWidgerRender @Inject constructor(
         val content = buildSpannedString {
             val amount = data.changePercent
             if (amount != null) {
-                appendChange(amount, config.numberOfChangePercentDecimal)
+                appendChange(
+                    amount = amount,
+                    numberOfDecimal = config.numberOfChangePercentDecimal,
+                    withColor = withColor
+                )
             } else {
                 append(context.getString(R.string.loading))
             }

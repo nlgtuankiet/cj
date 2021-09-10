@@ -7,9 +7,12 @@ import android.os.Parcelable
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.RemoteViews
 import androidx.activity.ComponentActivity
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -125,4 +128,8 @@ fun List<List<Double>>.changePercent(): Double {
     val last = last()[1]
     val diff = last - open
     return 1.0 * diff / open
+}
+
+fun RemoteViews.setBackgroundResource(@IdRes id: Int, @DrawableRes value: Int) {
+    setInt(id, "setBackgroundResource", value)
 }
