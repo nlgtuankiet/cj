@@ -54,4 +54,6 @@
     <string name="coin_ticker_preview_setting_header_click_action_refresh">Refresh widget</string>
     <string name="coin_ticker_preview_setting_header_click_action_setting">Open setting page</string>
 
+    <string name="coin_ticker_preview_setting_show_currency_symbol">Show currency symbol</string>
+
 </resources>

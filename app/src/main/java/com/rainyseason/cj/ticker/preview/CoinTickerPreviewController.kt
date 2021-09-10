@@ -84,6 +84,23 @@ class CoinTickerPreviewController(
         }
     }
 
+
+    private fun buildShowCurrencySymbol(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+
+        maybeBuildHorizontalSeparator(id = "show_currency_separator")
+
+        settingSwitchView {
+            id("setting_show_currency")
+            title(R.string.coin_ticker_preview_setting_show_currency_symbol)
+            checked(config.showCurrencySymbol)
+            onClickListener { _ ->
+                viewModel.switchShowCurrency()
+            }
+        }
+    }
+
+
     private fun buildShowThousandSeparator(state: CoinTickerPreviewState) {
         val config = state.config ?: return
 
@@ -369,6 +386,7 @@ class CoinTickerPreviewController(
         buildChangePercentInternal(state)
         buildPriceDecimal(state)
         buildPercentDecimal(state)
+        buildShowCurrencySymbol(state)
         buildShowThousandSeparator(state)
     }
 

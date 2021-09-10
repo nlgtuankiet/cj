@@ -195,6 +195,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
+    fun switchShowCurrency() {
+        updateConfig { copy(showCurrencySymbol = !showCurrencySymbol) }
+    }
+
     fun switchThousandsSeparator() {
         updateConfig { copy(showThousandsSeparator = !showThousandsSeparator) }
     }

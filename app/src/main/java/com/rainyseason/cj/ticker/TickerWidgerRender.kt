@@ -331,10 +331,14 @@ class TickerWidgerRender @Inject constructor(
 
         val formatter: DecimalFormat = NumberFormat.getCurrencyInstance(Locale.US) as DecimalFormat
         formatter.currency = Currency.getInstance(Locale.US)
+        if (!config.showCurrencySymbol) {
+            val symbol = formatter.decimalFormatSymbols
+            symbol.currencySymbol = ""
+            formatter.decimalFormatSymbols = symbol
+        }
         formatter.maximumFractionDigits = config.numberOfPriceDecimal ?: Int.MAX_VALUE
         formatter.minimumFractionDigits = 0
         formatter.isGroupingUsed = config.showThousandsSeparator
-
         var formattedPrice = formatter.format(amount)
         if (roundToM) {
             formattedPrice += "M"

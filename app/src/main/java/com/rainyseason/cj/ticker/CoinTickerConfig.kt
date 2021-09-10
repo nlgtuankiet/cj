@@ -48,6 +48,9 @@ data class CoinTickerConfig(
 
     @Json(name = "click_action")
     val clickAction: String = ClickAction.REFRESH,
+
+    @Json(name = "show_currency_symbol")
+    val showCurrencySymbol: Boolean = true,
 ) {
 
     object Layout {
