@@ -20,6 +20,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.airbnb.epoxy.EpoxyModel
+import com.airbnb.epoxy.ModelCollector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -132,4 +134,15 @@ fun List<List<Double>>.changePercent(): Double {
 
 fun RemoteViews.setBackgroundResource(@IdRes id: Int, @DrawableRes value: Int) {
     setInt(id, "setBackgroundResource", value)
+}
+
+fun buildModels(block: ModelCollector.() -> Unit): List<EpoxyModel<*>> {
+    val models = mutableListOf<EpoxyModel<*>>()
+    val collector = object  : ModelCollector {
+        override fun add(model: EpoxyModel<*>) {
+            models.add(model)
+        }
+    }
+    block.invoke(collector)
+    return models
 }
