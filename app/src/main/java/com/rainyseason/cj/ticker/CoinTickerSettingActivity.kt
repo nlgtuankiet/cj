@@ -7,10 +7,11 @@ import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.airbnb.mvrx.MavericksView
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.ActivityScope
 import com.rainyseason.cj.data.UserCurrency
+import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.list.CoinTickerListFragment
 import com.rainyseason.cj.ticker.list.CoinTickerListFragmentModule
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
@@ -22,7 +23,9 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import javax.inject.Inject
 
 @Module
@@ -45,7 +48,7 @@ interface CoinTickerWidgetSaver {
     )
 }
 
-class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, MavericksView,
+class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
     CoinTickerWidgetSaver {
     @Inject
     lateinit var androidInjector: DispatchingAndroidInjector<Any>
@@ -58,6 +61,11 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
 
     @Inject
     lateinit var coinTickerHandler: CoinTickerHandler
+
+    @Inject
+    lateinit var coinTickerRepository: CoinTickerRepository
+
+    private var widgetSaved = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -74,6 +82,13 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragment_container, CoinTickerListFragment())
                 .commit()
+        }
+
+        if (BuildConfig.DEBUG) {
+            lifecycleScope.launch {
+                val ids = coinTickerRepository.getAllDataIds()
+                Timber.d("data widget ids: $ids")
+            }
         }
     }
 
@@ -102,11 +117,23 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
             withContext(Dispatchers.IO) {
                 coinTickerHandler.enqueueRefreshWidget(widgetId = config.widgetId, config = config)
             }
+            widgetSaved = true
             setResult(Activity.RESULT_OK, resultValue)
             finish()
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isChangingConfigurations) {
+            return
+        }
+        if (!widgetSaved) {
+            runBlocking {
+                coinTickerRepository.clearAllData(getWidgetId() ?: 0)
+            }
+        }
+    }
 
     fun getWidgetId(): Int? {
         val widgetId = intent?.extras?.getInt(
@@ -122,10 +149,5 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector, Maver
     override fun androidInjector(): AndroidInjector<Any> {
         return androidInjector
     }
-
-    override fun invalidate() {
-
-    }
-
 
 }

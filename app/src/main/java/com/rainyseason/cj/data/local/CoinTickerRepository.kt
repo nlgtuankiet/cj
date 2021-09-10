@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import timber.log.Timber
 import javax.inject.Inject
 
 @Suppress("BlockingMethodInNonBlockingContext")
@@ -27,10 +28,24 @@ class CoinTickerRepository @Inject constructor(
     private val configAdapter = CoinTickerConfigJsonAdapter(moshi = moshi)
 
     suspend fun clearAllData(widgetId: Int) {
+        Timber.d("clearAllData $widgetId")
         dataStore.edit {
             it.remove(displayDataKey(widgetId))
             it.remove(configKey(widgetId))
         }
+        dataStore.data.map {
+            it.asMap().keys.filterIsInstance<Preferences.Key<String>>().map { it.name }
+        }
+    }
+
+    @Suppress("UnnecessaryVariable")
+    suspend fun getAllDataIds(): List<Int> {
+        val keys = dataStore.data.map {
+            it.asMap().keys.filterIsInstance<Preferences.Key<String>>().map { k -> k.name }
+        }.first()
+        val regex = """_(\d+)${'$'}""".toRegex()
+        val ids = keys.map { regex.find(it)!!.groupValues[1].toInt() }.toSet().toList().sorted()
+        return ids
     }
 
     suspend fun getDisplayData(widgetId: Int): CoinTickerDisplayData? {
