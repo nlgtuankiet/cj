@@ -97,7 +97,7 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
         data: CoinTickerDisplayData,
         userCurrency: String,
     ) {
-        val param = TickerWidgetRenderParams(
+        val param = CoinTickerRenderParams(
             config = config,
             data = data,
             showLoading = false,

@@ -60,7 +60,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         val userCurrency = userSettingRepository.getCurrencyCode()
         val currencyCode = configCurrency ?: userCurrency
         val loadingView = RemoteViews(appContext.packageName, render.selectLayout(config))
-        val loadingParams = TickerWidgetRenderParams(
+        val loadingParams = CoinTickerRenderParams(
             config = config,
             data = oldDisplayData,
             showLoading = true,
@@ -78,7 +78,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         } catch (ex: Exception) {
             // show error ui? toast?
             val oldView = RemoteViews(appContext.packageName, render.selectLayout(config))
-            val oldParams = TickerWidgetRenderParams(
+            val oldParams = CoinTickerRenderParams(
                 config = config,
                 data = oldDisplayData,
                 showLoading = true,
@@ -114,7 +114,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
 
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)
         val newView = RemoteViews(appContext.packageName, render.selectLayout(config))
-        val newParams = TickerWidgetRenderParams(
+        val newParams = CoinTickerRenderParams(
             config = config,
             data = newDisplayData,
             showLoading = false,

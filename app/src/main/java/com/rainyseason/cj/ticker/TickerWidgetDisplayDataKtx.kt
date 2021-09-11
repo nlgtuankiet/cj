@@ -5,7 +5,10 @@ import com.bumptech.glide.Glide
 import com.rainyseason.cj.R
 import timber.log.Timber
 
+@Suppress("UNREACHABLE_CODE")
 fun CoinTickerDisplayData.addBitmap(context: Context): CoinTickerDisplayData {
+    // temporary disable
+    return this
     if (iconBitmap != null) {
         return this
     }

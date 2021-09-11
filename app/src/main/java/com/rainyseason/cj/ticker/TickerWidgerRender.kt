@@ -33,8 +33,9 @@ import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
+import kotlin.math.roundToInt
 
-data class TickerWidgetRenderParams(
+data class CoinTickerRenderParams(
     val config: CoinTickerConfig,
     val data: CoinTickerDisplayData,
     val showLoading: Boolean = false,
@@ -73,7 +74,7 @@ class TickerWidgerRender @Inject constructor(
 
     private fun renderCoin360(
         view: RemoteViews,
-        params: TickerWidgetRenderParams,
+        params: CoinTickerRenderParams,
     ) {
         val config = params.config
         val renderData = params.data
@@ -105,21 +106,21 @@ class TickerWidgerRender @Inject constructor(
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")
-    fun RemoteViews.applyClickAction(params: TickerWidgetRenderParams) {
+    fun RemoteViews.applyClickAction(params: CoinTickerRenderParams) {
         if (params.isPreview) {
             return
         }
         val config = params.config
+        val layoutRes = appWidgetManager.getAppWidgetInfo(config.widgetId)?.initialLayout
+            ?: R.layout.widget_coin_ticker_2x2_default
+        val clazz = when (layoutRes) {
+            R.layout.widget_coin_ticker_2x2_default -> CoinTickerProviderDefault::class.java
+            R.layout.widget_coin_ticker_2x2_graph -> CoinTickerProviderGraph::class.java
+            R.layout.widget_coin_ticker_2x2_coin360 -> CoinTickerProviderCoin360::class.java
+            else -> error("Unknown layout for $layoutRes")
+        }
         val pendingIntent = when (params.config.clickAction) {
             CoinTickerConfig.ClickAction.REFRESH -> {
-                val layoutRes = appWidgetManager.getAppWidgetInfo(config.widgetId)?.initialLayout
-                    ?: R.layout.widget_coin_ticker_2x2_default
-                val clazz = when (layoutRes) {
-                    R.layout.widget_coin_ticker_2x2_default -> CoinTickerProviderDefault::class.java
-                    R.layout.widget_coin_ticker_2x2_graph -> CoinTickerProviderGraph::class.java
-                    R.layout.widget_coin_ticker_2x2_coin360 -> CoinTickerProviderCoin360::class.java
-                    else -> error("Unknown layout for $layoutRes")
-                }
                 val intent = Intent(context, clazz)
                 intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                 intent.putExtra(
@@ -150,6 +151,20 @@ class TickerWidgerRender @Inject constructor(
                     PendingIntent.FLAG_UPDATE_CURRENT
                 )
             }
+            CoinTickerConfig.ClickAction.SWITCH_PRICE_MARKET_CAP -> {
+                val intent = Intent(context, clazz)
+                intent.action = CoinTickerConfig.Action.SWITCH_ACTION
+                intent.putExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    params.config.widgetId,
+                )
+                PendingIntent.getBroadcast(
+                    context,
+                    params.config.widgetId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                )
+            }
             else -> error("Unknown action ${params.config.clickAction}")
         }
         setOnClickPendingIntent(R.id.container, pendingIntent)
@@ -158,7 +173,7 @@ class TickerWidgerRender @Inject constructor(
     @SuppressLint("UnspecifiedImmutableFlag")
     fun renderDefault(
         view: RemoteViews,
-        params: TickerWidgetRenderParams,
+        params: CoinTickerRenderParams,
     ) {
         val config = params.config
         val theme = config.theme
@@ -235,7 +250,7 @@ class TickerWidgerRender @Inject constructor(
 
     fun render(
         view: RemoteViews,
-        params: TickerWidgetRenderParams,
+        params: CoinTickerRenderParams,
     ) {
         val config = params.config
 
@@ -294,7 +309,7 @@ class TickerWidgerRender @Inject constructor(
     }
 
     private fun formatChange(
-        params: TickerWidgetRenderParams,
+        params: CoinTickerRenderParams,
         withColor: Boolean = true,
     ): CharSequence {
         val config = params.config
@@ -317,7 +332,7 @@ class TickerWidgerRender @Inject constructor(
     }
 
     private fun formatAmount(
-        params: TickerWidgetRenderParams,
+        params: CoinTickerRenderParams,
     ): String {
         val config = params.config
         val data = params.data
@@ -325,6 +340,9 @@ class TickerWidgerRender @Inject constructor(
         val roundToM = config.roundToMillion && amount > 1_000_000
         if (roundToM) {
             amount /= 1_000_000.0
+            if (amount > 1000) {
+                amount = amount.roundToInt().toDouble()
+            }
         }
         val currencyCode = config.currency ?: params.userCurrency
         val currencyInfo = SUPPORTED_CURRENCY[currencyCode]

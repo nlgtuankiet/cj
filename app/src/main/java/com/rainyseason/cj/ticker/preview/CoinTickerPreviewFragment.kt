@@ -15,9 +15,9 @@ import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.CoinTickerWidgetSaver
 import com.rainyseason.cj.ticker.TickerWidgerRender
-import com.rainyseason.cj.ticker.TickerWidgetRenderParams
 import com.rainyseason.cj.ticker.view.CoinTickerPreviewView
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -85,7 +85,7 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
                 val userCurrency = state.userCurrency.invoke()
                 val params =
                     if (savedConfig != null && savedDisplayData != null && userCurrency != null) {
-                        TickerWidgetRenderParams(
+                        CoinTickerRenderParams(
                             config = savedConfig,
                             data = savedDisplayData,
                             showLoading = false,

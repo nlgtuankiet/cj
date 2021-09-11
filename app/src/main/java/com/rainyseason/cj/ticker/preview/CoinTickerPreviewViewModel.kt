@@ -266,8 +266,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     }
 
     override fun onCleared() {
-        viewModelScope.launch(NonCancellable) {
-            coinTickerRepository.clearDisplayData(widgetId)
+        if (!saved) {
+            viewModelScope.launch(NonCancellable) {
+                coinTickerRepository.clearDisplayData(widgetId)
+            }
         }
         super.onCleared()
     }

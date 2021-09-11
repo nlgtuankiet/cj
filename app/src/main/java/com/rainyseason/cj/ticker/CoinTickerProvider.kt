@@ -6,9 +6,7 @@ import android.content.Context
 import android.content.Intent
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.goBackground
-import com.rainyseason.cj.common.logString
 import com.rainyseason.cj.data.local.CoinTickerRepository
-import timber.log.Timber
 
 class CoinTickerProviderDefault : CoinTickerProvider()
 class CoinTickerProviderGraph : CoinTickerProvider()
@@ -23,10 +21,19 @@ abstract class CoinTickerProvider : AppWidgetProvider() {
     lateinit var appWidgetManager: AppWidgetManager
 
     override fun onReceive(context: Context, intent: Intent) {
-        Timber.d("onReceive: ${intent.logString()}")
         coinTickerHandler = context.coreComponent.coinTickerHandler
         coinTickerRepository = context.coreComponent.coinTickerRepository
         appWidgetManager = context.coreComponent.appWidgetManager
+        val action = intent.action
+        if (action == CoinTickerConfig.Action.SWITCH_ACTION) {
+            goBackground {
+                coinTickerHandler.switchPriceAndMarketCap(
+                    widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
+                )
+            }
+        }
+
+
         super.onReceive(context, intent)
     }
 

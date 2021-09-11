@@ -68,5 +68,10 @@ data class CoinTickerConfig(
     object ClickAction {
         const val REFRESH = "refresh"
         const val SETTING = "setting"
+        const val SWITCH_PRICE_MARKET_CAP = "switch_price_market_cap"
+    }
+
+    object Action {
+        const val SWITCH_ACTION = "com.rainyseason.cj.widget.cointicker.switch"
     }
 }

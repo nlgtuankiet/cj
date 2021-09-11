@@ -15,7 +15,7 @@ import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.inflateAndAdd
-import com.rainyseason.cj.ticker.TickerWidgetRenderParams
+import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -52,7 +52,7 @@ class CoinTickerPreviewView @JvmOverloads constructor(
 
     // work around auto text size problem
     @ModelProp
-    fun setRenderParams(params: TickerWidgetRenderParams?) {
+    fun setRenderParams(params: CoinTickerRenderParams?) {
         Timber.d("render config ${params?.config}")
         container.removeAllViews()
         progressBar.isGone = params != null
@@ -68,7 +68,7 @@ class CoinTickerPreviewView @JvmOverloads constructor(
         renderer.render(remoteView!!, params)
     }
 
-    fun setRenderParamsOld(params: TickerWidgetRenderParams?) {
+    fun setRenderParamsOld(params: CoinTickerRenderParams?) {
         Timber.d("setRenderParams: $params")
         progressBar.isGone = params != null
         if (params == null) {

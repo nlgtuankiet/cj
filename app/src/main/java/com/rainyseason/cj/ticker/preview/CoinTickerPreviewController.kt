@@ -286,6 +286,7 @@ class CoinTickerPreviewController(
         val optionsToString = listOf(
             CoinTickerConfig.ClickAction.REFRESH to R.string.coin_ticker_preview_setting_header_click_action_refresh,
             CoinTickerConfig.ClickAction.SETTING to R.string.coin_ticker_preview_setting_header_click_action_setting,
+            CoinTickerConfig.ClickAction.SWITCH_PRICE_MARKET_CAP to R.string.coin_ticker_preview_setting_header_click_action_switch,
         ).map { it.first to context.getString(it.second) }
         val selectedOption = config.clickAction
         maybeBuildHorizontalSeparator(id = "setting_click_action_separator")
