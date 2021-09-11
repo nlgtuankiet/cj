@@ -4,13 +4,13 @@ import android.app.Application
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.os.Looper
-import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
+import com.rainyseason.cj.data.UserSettingStorage
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.squareup.moshi.Moshi
@@ -117,15 +117,30 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePrefs(context: Context): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create(
+    fun provideCoinTickerStorage(context: Context): CoinTickerStorage {
+        val pref = PreferenceDataStoreFactory.create(
             corruptionHandler = null,
             migrations = emptyList(),
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = {
-                context.preferencesDataStoreFile("settings")
+                context.preferencesDataStoreFile("coin_ticker_storage")
             }
         )
+        return CoinTickerStorage(pref)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserSettingStorage(context: Context): UserSettingStorage {
+        val pref = PreferenceDataStoreFactory.create(
+            corruptionHandler = null,
+            migrations = emptyList(),
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = {
+                context.preferencesDataStoreFile("user_setting_storage")
+            }
+        )
+        return UserSettingStorage(pref)
     }
 
     @Provides

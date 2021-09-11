@@ -73,7 +73,7 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
         val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
         val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
         val userCurrency = withState(viewModel) { it.userCurrency.invoke() } ?: return
-        (requireActivity() as CoinTickerWidgetSaver).saveWidget(userCurrency, config, displayData)
+        (requireActivity() as CoinTickerWidgetSaver).saveWidget(config, displayData, userCurrency)
     }
 
     override fun invalidate() {

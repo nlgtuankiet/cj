@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.setCancelButton
 import com.rainyseason.cj.common.view.horizontalSeparatorView
@@ -244,11 +245,11 @@ class CoinTickerPreviewController(
         val userCurrency = state.userCurrency.invoke()
         val params = if (savedConfig != null && savedDisplayData != null && userCurrency != null) {
             TickerWidgetRenderParams(
-                userCurrency = userCurrency,
                 config = savedConfig,
                 data = savedDisplayData,
                 showLoading = false,
-                isPreview = true
+                isPreview = true,
+                userCurrency = userCurrency,
             )
         } else {
             null
@@ -271,6 +272,39 @@ class CoinTickerPreviewController(
         buildClickAction(state)
         buildRefreshInternal(state)
         buildExtraSize(state)
+        buildCurrency(state)
+    }
+
+    private fun buildCurrency(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        val userCurrency = state.userCurrency.invoke() ?: return
+        val currencyCodeToString = SUPPORTED_CURRENCY.mapValues {
+            it.value.name
+        }.toList().sortedBy { it.first }
+
+
+        val selectedOption = config.currency ?: userCurrency
+        maybeBuildHorizontalSeparator(id = "setting_currency_separator")
+        settingTitleSummaryView {
+            id("setting_currency")
+            title(R.string.coin_ticker_preview_setting_header_currency)
+            summary(currencyCodeToString.toMap()[selectedOption]!!)
+            onClickListener { _ ->
+                val currentState = withState(viewModel) { it }
+                val currentOption = currentState.config!!.currency
+                    ?: currentState.userCurrency.invoke()!!
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_setting_header_currency)
+                    .setSingleChoiceItems(
+                        currencyCodeToString.map { it.second }.toTypedArray(),
+                        currencyCodeToString.indexOfFirst { it.first == currentOption }
+                    ) { dialog, which ->
+                        viewModel.setCurrency(currencyCodeToString[which].first)
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
     }
 
     private fun buildClickAction(state: CoinTickerPreviewState) {

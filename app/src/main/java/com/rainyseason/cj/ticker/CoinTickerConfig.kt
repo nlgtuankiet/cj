@@ -51,6 +51,9 @@ data class CoinTickerConfig(
 
     @Json(name = "show_currency_symbol")
     val showCurrencySymbol: Boolean = true,
+
+    @Json(name = "currency")
+    val currency: String? = null,
 ) {
 
     object Layout {

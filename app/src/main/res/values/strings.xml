@@ -57,4 +57,6 @@
     <string name="coin_ticker_preview_setting_show_currency_symbol">Show currency symbol</string>
     <string name="open_telegram_group">Open telegram group</string>
 
+    <string name="coin_ticker_preview_setting_header_currency">Currency</string>
+
 </resources>

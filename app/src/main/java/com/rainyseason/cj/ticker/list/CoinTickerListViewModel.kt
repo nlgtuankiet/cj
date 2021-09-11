@@ -23,7 +23,7 @@ data class CoinTickerListState(
 ) : MavericksState
 
 class CoinTickerListViewModel @Inject constructor(
-    private val userCuRepository: UserSettingRepository,
+    private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
 ) : MavericksViewModel<CoinTickerListState>(CoinTickerListState()) {
 
@@ -50,9 +50,9 @@ class CoinTickerListViewModel @Inject constructor(
 
         marketJob?.cancel()
         marketJob = viewModelScope.launch {
-            val userCurrency = userCuRepository.getCurrency()
+            val currency = userSettingRepository.getCurrencyCode()
             suspend {
-                coinGeckoService.getCoinMarkets(vsCurrency = userCurrency.id, perPage = 1000)
+                coinGeckoService.getCoinMarkets(vsCurrency = currency, perPage = 1000)
             }.execute { copy(markets = it) }
         }
     }

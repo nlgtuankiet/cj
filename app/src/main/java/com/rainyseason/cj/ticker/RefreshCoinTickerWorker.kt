@@ -4,7 +4,6 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
@@ -22,11 +21,10 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     @Assisted val appContext: Context,
     @Assisted val params: WorkerParameters,
     private val coinGeckoService: CoinGeckoService,
-    private val userSettingRepository: UserSettingRepository,
     private val coinTickerRepository: CoinTickerRepository,
+    private val userSettingRepository: UserSettingRepository,
     private val appWidgetManager: AppWidgetManager,
     private val render: TickerWidgerRender,
-    private val workManager: WorkManager,
 ) : CoroutineWorker(appContext = appContext, params = params) {
 
     override suspend fun doWork(): Result {
@@ -48,7 +46,6 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
      * TODO when user clear app data, the config is missing, so we just return?
      */
     private suspend fun updateWidget(widgetId: Int) {
-        val userCurrency = userSettingRepository.getCurrency()
         val config = coinTickerRepository.getConfig(widgetId)
         if (config == null) {
             Timber.d("missing widget config for id $widgetId")
@@ -59,12 +56,15 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         val oldDisplayData: CoinTickerDisplayData = coinTickerRepository.getDisplayData(widgetId)
             ?: throw IllegalStateException("missing display data")
 
+        val configCurrency = config.currency
+        val userCurrency = userSettingRepository.getCurrencyCode()
+        val currencyCode = configCurrency ?: userCurrency
         val loadingView = RemoteViews(appContext.packageName, render.selectLayout(config))
         val loadingParams = TickerWidgetRenderParams(
-            userCurrency = userCurrency,
             config = config,
             data = oldDisplayData,
             showLoading = true,
+            userCurrency = userCurrency,
         )
         render.render(
             view = loadingView,
@@ -79,10 +79,10 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             // show error ui? toast?
             val oldView = RemoteViews(appContext.packageName, render.selectLayout(config))
             val oldParams = TickerWidgetRenderParams(
-                userCurrency = userCurrency,
                 config = config,
                 data = oldDisplayData,
                 showLoading = true,
+                userCurrency = userCurrency,
             )
             render.render(
                 view = loadingView,
@@ -94,7 +94,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
 
         val graphResponse = coinGeckoService.getMarketChart(
             id = config.coinId,
-            vsCurrency = userCurrency.id,
+            vsCurrency = currencyCode,
             day = when (config.changeInterval) {
                 ChangeInterval._24H -> 1
                 ChangeInterval._7D -> 7
@@ -107,18 +107,18 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
 
         val newDisplayData = CoinTickerDisplayData.create(
             config = config,
-            userCurrency = userCurrency,
             coinDetail = coinDetail,
             marketChartResponse = mapOf(config.changeInterval to graphResponse),
+            userCurrency = userCurrency,
         )
 
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)
         val newView = RemoteViews(appContext.packageName, render.selectLayout(config))
         val newParams = TickerWidgetRenderParams(
-            userCurrency = userCurrency,
             config = config,
             data = newDisplayData,
             showLoading = false,
+            userCurrency = userCurrency,
         )
         render.render(
             view = newView,

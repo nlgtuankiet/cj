@@ -2,7 +2,6 @@ package com.rainyseason.cj.ticker
 
 import android.graphics.Bitmap
 import com.rainyseason.cj.common.changePercent
-import com.rainyseason.cj.data.UserCurrency
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.MarketChartResponse
 import com.squareup.moshi.Json
@@ -39,17 +38,17 @@ data class CoinTickerDisplayData(
     companion object {
         fun create(
             config: CoinTickerConfig,
-            userCurrency: UserCurrency,
             coinDetail: CoinDetailResponse,
             marketChartResponse: Map<String, MarketChartResponse?>,
+            userCurrency: String,
         ): CoinTickerDisplayData {
-
+            val currencyCode = config.currency ?: userCurrency
             val priceChangePercent = when (config.changeInterval) {
-                ChangeInterval._7D -> coinDetail.marketData.priceChangePercentage7dInCurrency[userCurrency.id]!!
-                ChangeInterval._14D -> coinDetail.marketData.priceChangePercentage14dInCurrency[userCurrency.id]!!
-                ChangeInterval._30D -> coinDetail.marketData.priceChangePercentage30dInCurrency[userCurrency.id]!!
-                ChangeInterval._1Y -> coinDetail.marketData.priceChangePercentage1yInCurrency[userCurrency.id]!!
-                else -> coinDetail.marketData.priceChangePercentage24hInCurrency[userCurrency.id]!!
+                ChangeInterval._7D -> coinDetail.marketData.priceChangePercentage7dInCurrency[currencyCode]!!
+                ChangeInterval._14D -> coinDetail.marketData.priceChangePercentage14dInCurrency[currencyCode]!!
+                ChangeInterval._30D -> coinDetail.marketData.priceChangePercentage30dInCurrency[currencyCode]!!
+                ChangeInterval._1Y -> coinDetail.marketData.priceChangePercentage1yInCurrency[currencyCode]!!
+                else -> coinDetail.marketData.priceChangePercentage24hInCurrency[currencyCode]!!
             }
 
             val marketCapChangePercent = marketChartResponse[config.changeInterval]
@@ -64,8 +63,8 @@ data class CoinTickerDisplayData(
             }
 
             val amount = when (config.bottomContentType) {
-                BottomContentType.PRICE -> coinDetail.marketData.currentPrice[userCurrency.id]!!
-                BottomContentType.MARKET_CAP -> coinDetail.marketData.marketCap[userCurrency.id]!!
+                BottomContentType.PRICE -> coinDetail.marketData.currentPrice[currencyCode]!!
+                BottomContentType.MARKET_CAP -> coinDetail.marketData.marketCap[currencyCode]!!
                 else -> error("Unknown ${config.bottomContentType}")
             }
 

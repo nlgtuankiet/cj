@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.ActivityScope
-import com.rainyseason.cj.data.UserCurrency
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.list.CoinTickerListFragmentModule
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
@@ -41,9 +40,9 @@ interface CoinTickerSettingActivityModule {
 
 interface CoinTickerWidgetSaver {
     fun saveWidget(
-        userCurrency: UserCurrency,
         config: CoinTickerConfig,
-        data: CoinTickerDisplayData
+        data: CoinTickerDisplayData,
+        userCurrency: String,
     )
 }
 
@@ -94,15 +93,15 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
     }
 
     override fun saveWidget(
-        userCurrency: UserCurrency,
         config: CoinTickerConfig,
-        data: CoinTickerDisplayData
+        data: CoinTickerDisplayData,
+        userCurrency: String,
     ) {
         val param = TickerWidgetRenderParams(
-            userCurrency = userCurrency,
             config = config,
             data = data,
             showLoading = false,
+            userCurrency = userCurrency,
         )
         val remoteView = RemoteViews(packageName, render.selectLayout(config))
         render.render(

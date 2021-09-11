@@ -59,7 +59,7 @@ data class CurrencyInfo(
     val locale: Locale,
 )
 
-val SUPPORTED_CURRENCY = listOf(
+val SUPPORTED_CURRENCY = mapOf(
     "usd" to CurrencyInfo(
         code = "usd",
         name = "US Dollar",

@@ -21,27 +21,26 @@ import androidx.core.graphics.withClip
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.setBackgroundResource
-import com.rainyseason.cj.data.UserCurrency
 import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
-import java.util.*
+import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
 import kotlin.math.roundToInt
 
 data class TickerWidgetRenderParams(
-    val userCurrency: UserCurrency,
     val config: CoinTickerConfig,
     val data: CoinTickerDisplayData,
     val showLoading: Boolean = false,
-    val clickToUpdate: Boolean = false,
     val isPreview: Boolean = false,
+    val userCurrency: String,
 )
 
 @Singleton
@@ -328,9 +327,14 @@ class TickerWidgerRender @Inject constructor(
         if (roundToM) {
             amount = (amount / 1_000_000.0).roundToInt().toDouble()
         }
-
-        val formatter: DecimalFormat = NumberFormat.getCurrencyInstance(Locale.US) as DecimalFormat
-        formatter.currency = Currency.getInstance(Locale.US)
+        val currencyCode = config.currency ?: params.userCurrency
+        val currencyInfo = SUPPORTED_CURRENCY[currencyCode]
+        if (currencyInfo == null) {
+            error("Unknown $currencyInfo")
+        }
+        val locale = currencyInfo.locale
+        val formatter: DecimalFormat = NumberFormat.getCurrencyInstance(locale) as DecimalFormat
+        formatter.currency = Currency.getInstance(locale)
         if (!config.showCurrencySymbol) {
             val symbol = formatter.decimalFormatSymbols
             symbol.currencySymbol = ""

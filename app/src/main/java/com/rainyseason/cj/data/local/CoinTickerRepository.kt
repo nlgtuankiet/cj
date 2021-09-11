@@ -1,10 +1,10 @@
 package com.rainyseason.cj.data.local
 
 import android.content.Context
-import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerConfigJsonAdapter
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 @Suppress("BlockingMethodInNonBlockingContext")
 class CoinTickerRepository @Inject constructor(
-    private val dataStore: DataStore<Preferences>,
+    private val dataStore: CoinTickerStorage,
     private val context: Context,
     private val moshi: Moshi,
 ) {
