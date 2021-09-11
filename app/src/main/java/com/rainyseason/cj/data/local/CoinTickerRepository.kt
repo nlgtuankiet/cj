@@ -33,8 +33,11 @@ class CoinTickerRepository @Inject constructor(
             it.remove(displayDataKey(widgetId))
             it.remove(configKey(widgetId))
         }
-        dataStore.data.map {
-            it.asMap().keys.filterIsInstance<Preferences.Key<String>>().map { it.name }
+    }
+
+    suspend fun clearDisplayData(widgetId: Int) {
+        dataStore.edit {
+            it.remove(displayDataKey(widgetId))
         }
     }
 

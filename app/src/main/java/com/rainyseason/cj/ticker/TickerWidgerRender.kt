@@ -33,7 +33,6 @@ import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
-import kotlin.math.roundToInt
 
 data class TickerWidgetRenderParams(
     val config: CoinTickerConfig,
@@ -323,9 +322,9 @@ class TickerWidgerRender @Inject constructor(
         val config = params.config
         val data = params.data
         var amount = data.getAmount(config)
-        val roundToM = amount >= 1_000_000
+        val roundToM = config.roundToMillion && amount > 1_000_000
         if (roundToM) {
-            amount = (amount / 1_000_000.0).roundToInt().toDouble()
+            amount /= 1_000_000.0
         }
         val currencyCode = config.currency ?: params.userCurrency
         val currencyInfo = SUPPORTED_CURRENCY[currencyCode]

@@ -22,6 +22,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.mapNotNull
@@ -50,6 +51,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     private val widgetId = args.widgetId
     private val loadGraphJobs = mutableMapOf<String, Job>()
+    private var saved = false
 
     init {
         loadUserCurrency()
@@ -93,8 +95,8 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 widgetId = widgetId,
                 coinId = args.coinId,
                 layout = args.layout,
-                numberOfPriceDecimal = null,
-                numberOfChangePercentDecimal = 1
+                numberOfPriceDecimal = 2,
+                numberOfChangePercentDecimal = 1,
             )
 
             coinTickerRepository.setConfig(widgetId, config)
@@ -220,6 +222,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         updateConfig { copy(showCurrencySymbol = !showCurrencySymbol) }
     }
 
+    fun switchRoundToMillion() {
+        updateConfig { copy(roundToMillion = !roundToMillion) }
+    }
+
     fun switchThousandsSeparator() {
         updateConfig { copy(showThousandsSeparator = !showThousandsSeparator) }
     }
@@ -253,6 +259,17 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         )
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = data)
         return data
+    }
+
+    fun save() {
+        saved = true
+    }
+
+    override fun onCleared() {
+        viewModelScope.launch(NonCancellable) {
+            coinTickerRepository.clearDisplayData(widgetId)
+        }
+        super.onCleared()
     }
 
     @AssistedFactory

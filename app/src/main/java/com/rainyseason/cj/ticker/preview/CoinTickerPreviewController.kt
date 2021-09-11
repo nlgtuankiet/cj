@@ -396,6 +396,23 @@ class CoinTickerPreviewController(
         buildPercentDecimal(state)
         buildShowCurrencySymbol(state)
         buildShowThousandSeparator(state)
+        buildRoundToMillion(state)
+    }
+
+
+    private fun buildRoundToMillion(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+
+        maybeBuildHorizontalSeparator(id = "round_to_million_separator")
+
+        settingSwitchView {
+            id("round_to_million")
+            title(R.string.coin_ticker_preview_setting_round_to_million)
+            checked(config.roundToMillion)
+            onClickListener { _ ->
+                viewModel.switchRoundToMillion()
+            }
+        }
     }
 
     private fun buildPercentDecimal(state: CoinTickerPreviewState) {

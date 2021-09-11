@@ -106,6 +106,7 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
     }
 
     private fun save() {
+        viewModel.save()
         val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
         val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
         val userCurrency = withState(viewModel) { it.userCurrency.invoke() } ?: return

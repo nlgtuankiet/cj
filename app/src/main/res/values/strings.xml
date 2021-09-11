@@ -59,4 +59,6 @@
 
     <string name="coin_ticker_preview_setting_header_currency">Currency</string>
 
+    <string name="coin_ticker_preview_setting_round_to_million">Round to million</string>
+
 </resources>

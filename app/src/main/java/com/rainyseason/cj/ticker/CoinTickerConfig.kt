@@ -54,6 +54,9 @@ data class CoinTickerConfig(
 
     @Json(name = "currency")
     val currency: String? = null,
+
+    @Json(name = "round_to_million")
+    val roundToMillion: Boolean = true,
 ) {
 
     object Layout {
