@@ -15,9 +15,7 @@ import com.rainyseason.cj.common.view.settingTitleSummaryView
 import com.rainyseason.cj.ticker.BottomContentType
 import com.rainyseason.cj.ticker.ChangeInterval
 import com.rainyseason.cj.ticker.CoinTickerConfig
-import com.rainyseason.cj.ticker.TickerWidgetRenderParams
 import com.rainyseason.cj.ticker.view.CoinTickerPreviewViewModel_
-import com.rainyseason.cj.ticker.view.coinTickerPreviewView
 import java.util.concurrent.TimeUnit
 
 class CoinTickerPreviewController(
@@ -234,29 +232,6 @@ class CoinTickerPreviewController(
                     }
                     .show()
             }
-        }
-    }
-
-
-    private fun buildPreview(state: CoinTickerPreviewState) {
-        val savedConfig = state.savedConfig.invoke()
-        val savedDisplayData = state.savedDisplayData.invoke()
-        val userCurrency = state.userCurrency.invoke()
-        val params = if (savedConfig != null && savedDisplayData != null && userCurrency != null) {
-            TickerWidgetRenderParams(
-                config = savedConfig,
-                data = savedDisplayData,
-                showLoading = false,
-                isPreview = true,
-                userCurrency = userCurrency,
-            )
-        } else {
-            null
-        }
-
-        coinTickerPreviewView {
-            id("preview")
-            renderParams(params)
         }
     }
 

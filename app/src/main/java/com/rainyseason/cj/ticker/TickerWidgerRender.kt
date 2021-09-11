@@ -78,7 +78,7 @@ class TickerWidgerRender @Inject constructor(
     ) {
         val config = params.config
         val renderData = params.data
-        val backgroundRes = if ((renderData.changePercent ?: 0.0) > 0) {
+        val backgroundRes = if ((renderData.getChangePercent(config) ?: 0.0) > 0) {
             select(
                 config.theme,
                 R.drawable.coin_ticker_background_positive_light,
@@ -196,7 +196,7 @@ class TickerWidgerRender @Inject constructor(
             )
         )
 
-        val changePercent = renderData.changePercent
+        val changePercent = renderData.getChangePercent(config)
         val changes = formatChange(params)
         view.setTextViewText(R.id.change_percent, changes)
 
@@ -217,7 +217,7 @@ class TickerWidgerRender @Inject constructor(
         )
 
         if (config.layout == CoinTickerConfig.Layout.GRAPH) {
-            val data = renderData.graphData
+            val data = renderData.getGraphData(config)
             if (data != null && changePercent != null) {
                 val extraSize = config.extraSize
                 val width = context.dpToPxF(110 + extraSize - 12 * 2f)
@@ -303,7 +303,7 @@ class TickerWidgerRender @Inject constructor(
 
         @Suppress("UnnecessaryVariable")
         val content = buildSpannedString {
-            val amount = data.changePercent
+            val amount = data.getChangePercent(config)
             if (amount != null) {
                 appendChange(
                     amount = amount,
@@ -322,7 +322,7 @@ class TickerWidgerRender @Inject constructor(
     ): String {
         val config = params.config
         val data = params.data
-        var amount = data.amount
+        var amount = data.getAmount(config)
         val roundToM = amount >= 1_000_000
         if (roundToM) {
             amount = (amount / 1_000_000.0).roundToInt().toDouble()

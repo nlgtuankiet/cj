@@ -25,15 +25,48 @@ data class CoinTickerDisplayData(
     @Json(name = "name")
     val name: String,
 
-    @Json(name = "amount")
-    val amount: Double,
+    @Json(name = "price")
+    val price: Double,
 
-    @Json(name = "change_percent")
-    val changePercent: Double?,
+    @Json(name = "price_change_percent")
+    val priceChangePercent: Double?,
 
-    @Json(name = "graph_data")
-    val graphData: List<List<Double>>? = null,
+    @Json(name = "market_cap")
+    val marketCap: Double,
+
+    @Json(name = "market_cap_change_percent")
+    val marketCapChangePercent: Double?,
+
+    @Json(name = "price_graph")
+    val priceGraph: List<List<Double>>? = null,
+
+    @Json(name = "market_graph")
+    val marketCapGraph: List<List<Double>>? = null,
 ) {
+
+    fun getChangePercent(config: CoinTickerConfig): Double? {
+        return when (config.bottomContentType) {
+            BottomContentType.PRICE -> priceChangePercent
+            BottomContentType.MARKET_CAP -> marketCapChangePercent
+            else -> error("Unknown ${config.bottomContentType}")
+        }
+    }
+
+    fun getAmount(config: CoinTickerConfig): Double {
+        return when (config.bottomContentType) {
+            BottomContentType.PRICE -> price
+            BottomContentType.MARKET_CAP -> marketCap
+            else -> error("Unknown ${config.bottomContentType}")
+        }
+    }
+
+    fun getGraphData(config: CoinTickerConfig): List<List<Double>>? {
+        return when (config.bottomContentType) {
+            BottomContentType.PRICE -> priceGraph
+            BottomContentType.MARKET_CAP -> marketCapGraph
+            else -> error("Unknown ${config.bottomContentType}")
+        }
+    }
 
     companion object {
         fun create(
@@ -56,29 +89,16 @@ data class CoinTickerDisplayData(
                 ?.changePercent()
                 ?.let { it * 100 }
 
-            val changePercent = when (config.bottomContentType) {
-                BottomContentType.PRICE -> priceChangePercent
-                BottomContentType.MARKET_CAP -> marketCapChangePercent
-                else -> error("Unknown ${config.bottomContentType}")
-            }
-
-            val amount = when (config.bottomContentType) {
-                BottomContentType.PRICE -> coinDetail.marketData.currentPrice[currencyCode]!!
-                BottomContentType.MARKET_CAP -> coinDetail.marketData.marketCap[currencyCode]!!
-                else -> error("Unknown ${config.bottomContentType}")
-            }
-
             return CoinTickerDisplayData(
                 iconUrl = coinDetail.image.large,
                 symbol = coinDetail.symbol,
                 name = coinDetail.name,
-                amount = amount,
-                changePercent = changePercent,
-                graphData = when (config.bottomContentType) {
-                    BottomContentType.PRICE -> marketChartResponse[config.changeInterval]?.prices
-                    BottomContentType.MARKET_CAP -> marketChartResponse[config.changeInterval]?.marketCaps
-                    else -> null
-                }?.filter { it.size == 2 }
+                price = coinDetail.marketData.currentPrice[currencyCode]!!,
+                priceChangePercent = priceChangePercent,
+                marketCap = coinDetail.marketData.marketCap[currencyCode]!!,
+                marketCapChangePercent = marketCapChangePercent,
+                priceGraph = marketChartResponse[config.changeInterval]?.prices,
+                marketCapGraph = marketChartResponse[config.changeInterval]?.marketCaps,
             )
         }
     }
