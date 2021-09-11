@@ -5,6 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.rainyseason.cj.ticker.view.CoinTickerPreviewView
+        android:id="@+id/preview_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:layout_height="150dp" />
+
     <com.airbnb.epoxy.EpoxyRecyclerView
         android:id="@+id/setting_content"
         android:layout_width="0dp"
@@ -12,7 +21,7 @@
         app:layout_constraintBottom_toTopOf="@id/separator"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/preview_view">
 
     </com.airbnb.epoxy.EpoxyRecyclerView>
 

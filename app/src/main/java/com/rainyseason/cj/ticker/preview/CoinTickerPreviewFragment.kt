@@ -8,17 +8,26 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.airbnb.epoxy.EpoxyRecyclerView
-import com.airbnb.epoxy.stickyheader.StickyHeaderLinearLayoutManager
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.ticker.CoinTickerWidgetSaver
 import com.rainyseason.cj.ticker.TickerWidgerRender
+import com.rainyseason.cj.ticker.TickerWidgetRenderParams
+import com.rainyseason.cj.ticker.view.CoinTickerPreviewView
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Module
@@ -59,13 +68,40 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
 
         val recyclerView = view.findViewById<EpoxyRecyclerView>(R.id.setting_content)
         recyclerView.setController(controller)
-        recyclerView.layoutManager = StickyHeaderLinearLayoutManager(requireContext())
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         view.findViewById<Button>(R.id.save_button).setOnClickListener {
             save()
         }
 
         view.findViewById<ImageView>(R.id.back_button).setOnClickListener {
             requireActivity().onBackPressed()
+        }
+
+        val previewView = view.findViewById<CoinTickerPreviewView>(R.id.preview_view)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.stateFlow.map { state ->
+                val savedConfig = state.savedConfig.invoke()
+                val savedDisplayData = state.savedDisplayData.invoke()
+                val userCurrency = state.userCurrency.invoke()
+                val params =
+                    if (savedConfig != null && savedDisplayData != null && userCurrency != null) {
+                        TickerWidgetRenderParams(
+                            config = savedConfig,
+                            data = savedDisplayData,
+                            showLoading = false,
+                            isPreview = true,
+                            userCurrency = userCurrency,
+                        )
+                    } else {
+                        null
+                    }
+                params
+            }
+                .distinctUntilChanged()
+                .flowOn(Dispatchers.IO)
+                .collect {
+                    previewView.setRenderParams(it)
+                }
         }
     }
 

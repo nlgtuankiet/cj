@@ -39,7 +39,6 @@ class CoinTickerPreviewController(
 
     override fun buildModels() {
         val state = withState(viewModel) { it }
-        buildPreview(state)
         buildLayout(state)
         buildCommonSetting(state)
         buildBottomSetting(state)
