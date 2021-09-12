@@ -15,7 +15,7 @@
         tools:ignore="AllowBackup">
         <meta-data
             android:name="firebase_performance_logcat_enabled"
-            android:value="true" />
+            android:value="@bool/firebase_performance_logcat_enabled" />
         <activity
             android:name="com.rainyseason.cj.MainActivity"
             android:exported="true">
