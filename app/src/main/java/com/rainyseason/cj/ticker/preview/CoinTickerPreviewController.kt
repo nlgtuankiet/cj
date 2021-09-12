@@ -37,9 +37,35 @@ class CoinTickerPreviewController(
 
     override fun buildModels() {
         val state = withState(viewModel) { it }
-        buildLayout(state)
-        buildCommonSetting(state)
+        buildStyle(state)
+        buildBehaviorSetting(state)
+        buildCurrencyGroup(state)
         buildBottomSetting(state)
+    }
+
+
+    private fun buildCurrencyGroup(state: CoinTickerPreviewState) {
+        settingHeaderView {
+            id("header_currency_group")
+            content(R.string.coin_ticker_preview_setting_header_currency_group)
+        }
+        addSeparator = false
+        buildCurrency(state)
+        buildPriceDecimal(state)
+        buildRoundToMillion(state)
+        buildShowCurrencySymbol(state)
+        buildShowThousandSeparator(state)
+    }
+
+    private fun buildStyle(state: CoinTickerPreviewState) {
+        settingHeaderView {
+            id("header_style")
+            content(R.string.coin_ticker_preview_setting_header_style)
+        }
+        addSeparator = false
+        buildLayout(state)
+        buildExtraSize(state)
+        buildTheme(state)
     }
 
     private fun buildLayout(state: CoinTickerPreviewState) {
@@ -51,23 +77,17 @@ class CoinTickerPreviewController(
             CoinTickerConfig.Layout.COIN360 to R.string.coin_ticket_style_coin360,
         ).map { it.first to context.getString(it.second) }
 
-        settingHeaderView {
-            id("header_layout")
-            content(R.string.coin_ticker_preview_setting_header_layout)
-        }
-
-        addSeparator = false
         maybeBuildHorizontalSeparator(id = "header_layout_separator")
 
         settingTitleSummaryView {
-            id("setting_style")
-            title(R.string.coin_ticker_preview_setting_style)
+            id("setting_layout")
+            title(R.string.coin_ticker_preview_setting_layout)
             summary(layoutToString.first { it.first == config.layout }.second)
             onClickListener { _ ->
                 val currentLayout =
                     withState(viewModel) { it.config?.layout } ?: return@onClickListener
                 AlertDialog.Builder(context)
-                    .setTitle(R.string.coin_ticker_preview_setting_style)
+                    .setTitle(R.string.coin_ticker_preview_setting_layout)
                     .setCancelButton()
                     .setSingleChoiceItems(
                         layoutToString.map { it.second }.toTypedArray(),
@@ -136,7 +156,8 @@ class CoinTickerPreviewController(
                 val selectedExtra = currentConfig.extraSize
 
                 AlertDialog.Builder(context)
-                    .setTitle(R.string.coin_ticker_preview_refresh_internal)
+                    .setTitle(R.string.coin_ticker_preview_setting_extra_size)
+                    .setCancelButton()
                     .setSingleChoiceItems(
                         valueToSummary.values.toTypedArray(),
                         valueToSummary.keys.indexOfFirst { selectedExtra == it },
@@ -178,7 +199,8 @@ class CoinTickerPreviewController(
                 val themeToSummaryString = themeToSummary.mapValues { context.getString(it.value) }
                 val selectedTheme = currentConfig.theme
                 AlertDialog.Builder(context)
-                    .setTitle(R.string.coin_ticker_preview_refresh_internal)
+                    .setTitle(R.string.coin_ticker_preview_setting_theme)
+                    .setCancelButton()
                     .setSingleChoiceItems(
                         themeToSummaryString.values.toTypedArray(),
                         themeToSummaryString.keys.indexOfFirst { selectedTheme == it },
@@ -199,7 +221,7 @@ class CoinTickerPreviewController(
         maybeBuildHorizontalSeparator(id = "refresh_internal_separator")
         settingTitleSummaryView {
             id("refresh_internal")
-            title(R.string.coin_ticker_preview_refresh_internal)
+            title(R.string.coin_ticker_preview_refresh_interval)
             summary(createInterval(refreshInterval, refreshInternalUnit))
             onClickListener { _ ->
                 val currentConfig = withState(viewModel) { it.config } ?: return@onClickListener
@@ -218,7 +240,7 @@ class CoinTickerPreviewController(
                 val currentRefreshInternalUnit = currentConfig.refreshIntervalUnit
 
                 AlertDialog.Builder(context)
-                    .setTitle(R.string.coin_ticker_preview_refresh_internal)
+                    .setTitle(R.string.coin_ticker_preview_refresh_interval)
                     .setCancelButton()
                     .setSingleChoiceItems(
                         optionsString.toTypedArray(),
@@ -236,17 +258,14 @@ class CoinTickerPreviewController(
     }
 
 
-    private fun buildCommonSetting(state: CoinTickerPreviewState) {
+    private fun buildBehaviorSetting(state: CoinTickerPreviewState) {
         settingHeaderView {
-            id("common-header")
-            content(R.string.coin_ticker_preview_setting_header_common)
+            id("behavior_header")
+            content(R.string.coin_ticker_preview_setting_header_behavior)
         }
         addSeparator = false
-        buildTheme(state)
         buildClickAction(state)
         buildRefreshInternal(state)
-        buildExtraSize(state)
-        buildCurrency(state)
     }
 
     private fun buildCurrency(state: CoinTickerPreviewState) {
@@ -269,6 +288,7 @@ class CoinTickerPreviewController(
                     ?: currentState.userCurrency.invoke()!!
                 AlertDialog.Builder(context)
                     .setTitle(R.string.coin_ticker_preview_setting_header_currency)
+                    .setCancelButton()
                     .setSingleChoiceItems(
                         currencyCodeToString.map { it.second }.toTypedArray(),
                         currencyCodeToString.indexOfFirst { it.first == currentOption }
@@ -298,7 +318,8 @@ class CoinTickerPreviewController(
                 val currentState = withState(viewModel) { it }
                 val currentOption = currentState.config!!.clickAction
                 AlertDialog.Builder(context)
-                    .setTitle(R.string.coin_ticker_preview_setting_bottom_content_type)
+                    .setTitle(R.string.coin_ticker_preview_setting_header_click_action)
+                    .setCancelButton()
                     .setSingleChoiceItems(
                         optionsToString.map { it.second }.toTypedArray(),
                         optionsToString.indexOfFirst { it.first == currentOption }
@@ -333,6 +354,7 @@ class CoinTickerPreviewController(
                 val currentContentType = currentState.config!!.bottomContentType
                 AlertDialog.Builder(context)
                     .setTitle(R.string.coin_ticker_preview_setting_bottom_content_type)
+                    .setCancelButton()
                     .setSingleChoiceItems(
                         options.map { context.getString(it.second) }.toTypedArray(),
                         options.indexOfFirst { it.first == currentContentType }
@@ -370,7 +392,7 @@ class CoinTickerPreviewController(
                 val options = ChangeInterval.ALL_PRICE_INTERVAL
                 val currentInterval = currentConfig.changeInterval
                 AlertDialog.Builder(context)
-                    .setTitle(R.string.coin_ticker_preview_setting_bottom_content_type)
+                    .setTitle(R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header)
                     .setCancelButton()
                     .setSingleChoiceItems(
                         options.map { context.getString(mapping[it]!!) }.toTypedArray(),
@@ -393,11 +415,7 @@ class CoinTickerPreviewController(
         addSeparator = false
         buildBottomContentType(state)
         buildChangePercentInternal(state)
-        buildPriceDecimal(state)
         buildPercentDecimal(state)
-        buildShowCurrencySymbol(state)
-        buildShowThousandSeparator(state)
-        buildRoundToMillion(state)
     }
 
 
@@ -436,7 +454,8 @@ class CoinTickerPreviewController(
                 val currentState = withState(viewModel) { it }
                 val currentPercentDecimal = currentState.config?.numberOfChangePercentDecimal
                 AlertDialog.Builder(context)
-                    .setTitle(R.string.number_of_price_decimal)
+                    .setTitle(R.string.number_of_change_percent_decimal)
+                    .setCancelButton()
                     .setSingleChoiceItems(
                         optionsString.toTypedArray(),
                         options.indexOf(currentPercentDecimal)
@@ -471,6 +490,7 @@ class CoinTickerPreviewController(
                 val currentPriceDecimal = currentState.config?.numberOfPriceDecimal
                 AlertDialog.Builder(context)
                     .setTitle(R.string.number_of_price_decimal)
+                    .setCancelButton()
                     .setSingleChoiceItems(
                         optionsString.toTypedArray(),
                         options.indexOf(currentPriceDecimal)

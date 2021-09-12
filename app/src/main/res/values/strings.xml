@@ -2,14 +2,14 @@
     <string name="app_name">Bitcoin Widget Pro</string>
     <string name="loading">loading</string>
 
-    <string name="welcome_message">Hi!\nThis is Bitcoin Widget Pro\nTo add widget, go to home screen, long press and select widget\n\n\nThis app is in early development, you can report bugs and request features in our telegram group:\nt.me/bwpapp</string>
+    <string name="welcome_message">To add widget, go to home screen, long press and select widget\n\n\nThis app is in early development, you can report bugs and request features in our telegram group:\nt.me/bwpapp</string>
 
-    <string name="number_of_price_decimal">Number of price decimal</string>
+    <string name="number_of_price_decimal">Number of currency decimal</string>
     <string name="number_of_change_percent_decimal">Number of change percent decimal</string>
-    <string name="coin_ticker_preview_refresh_internal">Refresh internal</string>
+    <string name="coin_ticker_preview_refresh_interval">Refresh interval</string>
 
     <string name="coin_ticker_preview_setting_theme">Theme</string>
-    <string name="coin_ticker_preview_setting_header_common">Common</string>
+    <string name="coin_ticker_preview_setting_header_behavior">Behavior</string>
 
     <string name="coin_ticker_preview_setting_theme_default">Automatic (based on system)</string>
     <string name="coin_ticker_preview_setting_theme_light">Light</string>
@@ -17,7 +17,7 @@
     <string name="coin_ticker_preview_setting_show_thousands_separator">Show thousands separator</string>
 
     <string name="coin_ticker_preview_setting_extra_size">Extra size</string>
-    <string name="coin_ticker_preview_setting_style">Style</string>
+    <string name="coin_ticker_preview_setting_layout">Layout</string>
     <string name="coin_ticker_preview_setting_extra_size_none">None</string>
 
 
@@ -30,7 +30,8 @@
 
 
     <string name="coin_ticker_preview_setting_header_bottom">Bottom content</string>
-    <string name="coin_ticker_preview_setting_header_layout">Layout</string>
+    <string name="coin_ticker_preview_setting_header_style">Style</string>
+    <string name="coin_ticker_preview_setting_header_currency_group">Currency style</string>
     <string name="coin_ticker_preview_setting_bottom_content_type">Content type</string>
     <string name="coin_ticker_preview_setting_bottom_content_price">Price</string>
     <string name="coin_ticker_preview_setting_bottom_content_market_cap">Market Cap</string>

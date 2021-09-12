@@ -32,6 +32,7 @@ import java.text.NumberFormat
 import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -218,7 +219,6 @@ class TickerWidgerRender @Inject constructor(
             R.id.progress_bar,
             if (params.showLoading) View.VISIBLE else View.GONE
         )
-        view.setImageViewBitmap(R.id.icon, renderData.iconBitmap)
 
         view.setTextViewText(R.id.name, renderData.name)
         view.setTextColor(
@@ -254,6 +254,17 @@ class TickerWidgerRender @Inject constructor(
     ) {
         val config = params.config
 
+        var isInDemo = false
+        var newParam = params
+        if (isInDemo) {
+            newParam = params.copy(
+                data = params.data.copy(
+                    priceChangePercent = params.data.priceChangePercent?.let { abs(it) },
+                    marketCapChangePercent = params.data.marketCapChangePercent?.let { abs(it) },
+                )
+            )
+        }
+
         val visibleIndies = when (config.extraSize) {
             10 -> listOf(0)
             20 -> listOf(0, 1)
@@ -272,8 +283,8 @@ class TickerWidgerRender @Inject constructor(
         }
 
         when (config.layout) {
-            CoinTickerConfig.Layout.COIN360 -> renderCoin360(view, params)
-            else -> renderDefault(view, params)
+            CoinTickerConfig.Layout.COIN360 -> renderCoin360(view, newParam)
+            else -> renderDefault(view, newParam)
         }
     }
 

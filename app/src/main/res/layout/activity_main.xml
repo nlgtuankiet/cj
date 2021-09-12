@@ -6,6 +6,18 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <ImageView
+        android:scaleType="centerCrop"
+        android:src="@drawable/support_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:id="@+id/background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        tools:ignore="ContentDescription" />
+
     <TextView
         android:id="@+id/notice"
         android:layout_height="wrap_content"
@@ -13,7 +25,7 @@
         android:layout_marginEnd="24dp"
         android:text="@string/welcome_message"
         android:textAlignment="center"
-        android:textColor="@color/gray_900"
+        android:textColor="@color/gray_50"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -25,7 +37,7 @@
         android:id="@+id/open_telegram"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:text="@string/open_telegram_group"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

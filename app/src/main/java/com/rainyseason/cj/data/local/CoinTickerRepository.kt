@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.math.abs
 
 @Suppress("BlockingMethodInNonBlockingContext")
 class CoinTickerRepository @Inject constructor(

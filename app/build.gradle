@@ -7,6 +7,34 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
+
+def getBooleanProp(name) {
+    if (project.hasProperty(name)) {
+        try {
+            return Boolean.parseBoolean(project.property(name))
+        } catch(ignored) {
+            return true
+        }
+    }
+    return false
+}
+
+def isRelease = getBooleanProp("release")
+
+static def generateVersionCode() {
+    def result = "git rev-list HEAD --count".execute().text.trim() //unix
+    if(result.empty) result = "PowerShell -Command git rev-list HEAD --count".execute().text.trim() //windows
+    if(result.empty) throw new RuntimeException("Could not generate versioncode on this platform? Cmd output: ${result.text}")
+    return result.toInteger()
+}
+
+if (getBooleanProp("release")) {
+    println "Apply firebase performance plugin"
+    apply plugin: 'com.google.firebase.firebase-perf'
+}
+
+
+
 android {
     compileSdk 30
 
@@ -14,7 +42,13 @@ android {
         applicationId "com.rainyseason.cj"
         minSdk 21
         targetSdk 30
-        versionCode 2
+        if (isRelease) {
+            def number = generateVersionCode()
+            println "Version code is $number"
+            versionCode number
+        } else {
+            versionCode 1
+        }
         versionName "1.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -118,6 +152,8 @@ dependencies {
 
     def nav_version = "2.3.5"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
+
+    implementation 'com.google.firebase:firebase-perf'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
