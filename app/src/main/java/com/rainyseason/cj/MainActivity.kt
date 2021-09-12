@@ -1,5 +1,6 @@
 package com.rainyseason.cj
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -34,9 +35,15 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<Button>(R.id.open_telegram).setOnClickListener {
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse("tg://resolve?domain=bwpapp")
-            startActivity(intent)
+            try {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse("tg://resolve?domain=bwpapp")
+                startActivity(intent)
+            } catch (ex: ActivityNotFoundException) {
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse("https://t.me/bwpapp")
+                startActivity(intent)
+            }
         }
         window.statusBarColor = getColorCompat(R.color.gray_900)
     }
@@ -54,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                     val name = it.name
                     builder.append("$name ")
                 }
-            println("coin list: ${builder.toString()}")
+            println("coin list: $builder")
         }
     }
 
