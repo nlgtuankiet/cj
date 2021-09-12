@@ -51,7 +51,7 @@ class CoinTickerPreviewController(
         }
         addSeparator = false
         buildCurrency(state)
-        buildPriceDecimal(state)
+        buildAmountDecimal(state)
         buildRoundToMillion(state)
         buildShowCurrencySymbol(state)
         buildShowThousandSeparator(state)
@@ -468,18 +468,18 @@ class CoinTickerPreviewController(
         }
     }
 
-    private fun buildPriceDecimal(state: CoinTickerPreviewState) {
+    private fun buildAmountDecimal(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        val priceDecimal = config.numberOfPriceDecimal
+        val priceDecimal = config.numberOfAmountDecimal
 
-        maybeBuildHorizontalSeparator(id = "price_decimal_separator")
+        maybeBuildHorizontalSeparator(id = "amount_decimal_separator")
         settingTitleSummaryView {
-            id("price_decimal")
+            id("amount_decimal")
             title(R.string.number_of_price_decimal)
             if (priceDecimal == null) {
                 summary(R.string.setting_keep_original_price)
             } else {
-                summary("$priceDecimal")
+                summary("$priceDecimal ${context.getString(R.string.number_of_price_decimal_explain)}")
             }
             onClickListener { _ ->
                 val options = listOf<Int?>(null) + (0..100)
@@ -487,7 +487,7 @@ class CoinTickerPreviewController(
                     it?.toString() ?: context.getString(R.string.setting_keep_original_price)
                 }
                 val currentState = withState(viewModel) { it }
-                val currentPriceDecimal = currentState.config?.numberOfPriceDecimal
+                val currentPriceDecimal = currentState.config?.numberOfAmountDecimal
                 AlertDialog.Builder(context)
                     .setTitle(R.string.number_of_price_decimal)
                     .setCancelButton()

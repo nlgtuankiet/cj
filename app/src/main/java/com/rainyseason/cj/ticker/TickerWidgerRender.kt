@@ -33,6 +33,7 @@ import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
+import kotlin.math.floor
 import kotlin.math.min
 import kotlin.math.roundToInt
 
@@ -321,6 +322,38 @@ class TickerWidgerRender @Inject constructor(
 
     }
 
+    /**
+     * Ex: 2 decimal
+     * ....**
+     * 0.001234
+     * -> 4
+     */
+    private fun getSmartNumberOfDecimal(amount: Double, configNumberOfDecimal: Int?): Int {
+        if (configNumberOfDecimal == null) {
+            return Int.MAX_VALUE
+        }
+        if (configNumberOfDecimal == 0) {
+            return 0
+        }
+        if (amount == 0.0) {
+            return 0
+        }
+        if (amount >= 100) {
+            return 0
+        }
+        if (amount >= 0.1) {
+            return configNumberOfDecimal
+        }
+        var result = 0
+        var tempAmount = amount
+        while (floor(tempAmount * 10).toInt() == 0) {
+            result++
+            tempAmount *= 10
+        }
+        result += configNumberOfDecimal
+        return result
+    }
+
     private fun formatChange(
         params: CoinTickerRenderParams,
         withColor: Boolean = true,
@@ -349,12 +382,10 @@ class TickerWidgerRender @Inject constructor(
         val config = params.config
         val data = params.data
         var amount = data.getAmount(config)
+
         val roundToM = config.roundToMillion && amount > 1_000_000
         if (roundToM) {
-            amount /= 1_000_000.0
-            if (amount > 1000) {
-                amount = amount.roundToInt().toDouble()
-            }
+            amount /= 1_000_000
         }
         val currencyCode = config.currency ?: params.userCurrency
         val currencyInfo = SUPPORTED_CURRENCY[currencyCode]
@@ -369,7 +400,10 @@ class TickerWidgerRender @Inject constructor(
             symbol.currencySymbol = ""
             formatter.decimalFormatSymbols = symbol
         }
-        formatter.maximumFractionDigits = config.numberOfPriceDecimal ?: Int.MAX_VALUE
+        formatter.maximumFractionDigits = getSmartNumberOfDecimal(
+            amount,
+            config.numberOfAmountDecimal
+        )
         formatter.minimumFractionDigits = 0
         formatter.isGroupingUsed = config.showThousandsSeparator
         var formattedPrice = formatter.format(amount)

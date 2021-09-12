@@ -95,7 +95,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 widgetId = widgetId,
                 coinId = args.coinId,
                 layout = args.layout,
-                numberOfPriceDecimal = 2,
+                numberOfAmountDecimal = 2,
                 numberOfChangePercentDecimal = 1,
             )
 
@@ -155,7 +155,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         Timber.d("setNumberOfDecimal $value")
         val number = value.toIntOrNull()?.coerceAtLeast(0)
         updateConfig {
-            copy(numberOfPriceDecimal = number)
+            copy(numberOfAmountDecimal = number)
         }
     }
 
