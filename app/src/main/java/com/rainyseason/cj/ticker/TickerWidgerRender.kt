@@ -231,16 +231,18 @@ class TickerWidgerRender @Inject constructor(
         )
 
         if (config.layout == CoinTickerConfig.Layout.GRAPH) {
-            val data = renderData.getGraphData(config)
-            if (data != null && changePercent != null) {
+            val data = renderData.getGraphData(config).orEmpty()
+            val filteredData = data.filter { it.size == 2 && it[1] != 0.0 }
+            if (filteredData.size >= 2) {
                 val extraSize = config.extraSize
                 val width = context.dpToPxF(110 + extraSize - 12 * 2f)
                 val height = width / 2
+                val isPositive = filteredData.last()[1] > filteredData.first()[1]
                 val bitmap = createGraphBitmap(
                     context = context,
                     width = width,
                     height = height,
-                    isPositive = changePercent > 0,
+                    isPositive = isPositive,
                     data = data
                 )
                 view.setImageViewBitmap(R.id.graph, bitmap)
@@ -329,14 +331,13 @@ class TickerWidgerRender @Inject constructor(
         @Suppress("UnnecessaryVariable")
         val content = buildSpannedString {
             val amount = data.getChangePercent(config)
+
             if (amount != null) {
                 appendChange(
                     amount = amount,
                     numberOfDecimal = config.numberOfChangePercentDecimal,
                     withColor = withColor
                 )
-            } else {
-                append(context.getString(R.string.loading))
             }
         }
         return content

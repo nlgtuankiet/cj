@@ -77,11 +77,11 @@ data class CoinTickerDisplayData(
         ): CoinTickerDisplayData {
             val currencyCode = config.currency ?: userCurrency
             val priceChangePercent = when (config.changeInterval) {
-                ChangeInterval._7D -> coinDetail.marketData.priceChangePercentage7dInCurrency[currencyCode]!!
-                ChangeInterval._14D -> coinDetail.marketData.priceChangePercentage14dInCurrency[currencyCode]!!
-                ChangeInterval._30D -> coinDetail.marketData.priceChangePercentage30dInCurrency[currencyCode]!!
-                ChangeInterval._1Y -> coinDetail.marketData.priceChangePercentage1yInCurrency[currencyCode]!!
-                else -> coinDetail.marketData.priceChangePercentage24hInCurrency[currencyCode]!!
+                ChangeInterval._7D -> coinDetail.marketData.priceChangePercentage7dInCurrency[currencyCode]
+                ChangeInterval._14D -> coinDetail.marketData.priceChangePercentage14dInCurrency[currencyCode]
+                ChangeInterval._30D -> coinDetail.marketData.priceChangePercentage30dInCurrency[currencyCode]
+                ChangeInterval._1Y -> coinDetail.marketData.priceChangePercentage1yInCurrency[currencyCode]
+                else -> coinDetail.marketData.priceChangePercentage24hInCurrency[currencyCode]
             }
 
             val marketCapChangePercent = marketChartResponse[config.changeInterval]
