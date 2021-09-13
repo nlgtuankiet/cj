@@ -16,6 +16,7 @@
         <meta-data
             android:name="firebase_performance_logcat_enabled"
             android:value="@bool/firebase_performance_logcat_enabled" />
+
         <activity
             android:name="com.rainyseason.cj.MainActivity"
             android:exported="true">
@@ -28,6 +29,10 @@
 
         <activity
             android:name="com.rainyseason.cj.DrawSampleActivity"
+            android:exported="true" />
+
+        <activity
+            android:name=".featureflag.DebugFlagSetter"
             android:exported="true" />
 
         <receiver android:name=".ticker.CoinTickerProviderDefault">

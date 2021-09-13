@@ -5,6 +5,7 @@ import android.content.Context
 import android.view.View
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.local.CoinTickerRepository
+import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.ticker.TickerWidgerRender
 import com.squareup.moshi.Moshi
@@ -18,6 +19,7 @@ interface CoreComponent {
     val coinGeckoService: CoinGeckoService
     val moshi: Moshi
     val coinTickerRepository: CoinTickerRepository
+    val debugFlagProvider: DebugFlagProvider
 }
 
 interface HasCoreComponent {

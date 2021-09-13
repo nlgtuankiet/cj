@@ -26,6 +26,8 @@ import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.setBackgroundResource
+import com.rainyseason.cj.featureflag.DebugFlag
+import com.rainyseason.cj.featureflag.isEnable
 import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -35,7 +37,6 @@ import javax.inject.Singleton
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.min
-import kotlin.math.roundToInt
 
 data class CoinTickerRenderParams(
     val config: CoinTickerConfig,
@@ -243,7 +244,7 @@ class TickerWidgerRender @Inject constructor(
                     context = context,
                     width = width,
                     height = height,
-                    isPositive = isPositive,
+                    isPositive = isPositive || DebugFlag.POSITIVE_WIDGET.isEnable,
                     data = data
                 )
                 view.setImageViewBitmap(R.id.graph, bitmap)
@@ -257,9 +258,8 @@ class TickerWidgerRender @Inject constructor(
     ) {
         val config = params.config
 
-        var isInDemo = false
         var newParam = params
-        if (isInDemo) {
+        if (DebugFlag.POSITIVE_WIDGET.isEnable) {
             newParam = params.copy(
                 data = params.data.copy(
                     priceChangePercent = params.data.priceChangePercent?.let { abs(it) },
