@@ -56,7 +56,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     init {
         loadConfig()
         loadDisplayData()
-        loadCoinDetail()
+
 
         onEach { state ->
             maybeSaveDisplayData(state)
@@ -66,7 +66,18 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             saveInitialConfig()
         }
 
-        viewModelScope.launch {
+        reload()
+    }
+
+    fun reload() {
+        loadCoinDetail()
+        loadGraphs()
+    }
+
+    private var loadGraphsJob: Job? = null
+    private fun loadGraphs() {
+        loadGraphsJob?.cancel()
+        loadGraphsJob = viewModelScope.launch {
             stateFlow.mapNotNull { state ->
                 val savedConfig = state.savedConfig
                 if (savedConfig !is Success) {

@@ -1,4 +1,4 @@
-package com.rainyseason.cj.ticker.list.view
+package com.rainyseason.cj.common.view
 
 import android.content.Context
 import android.util.AttributeSet
@@ -12,7 +12,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.inflateAndAdd
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_MATCH_HEIGHT)
-class CoinTickerListRetryView @JvmOverloads constructor(
+class RetryView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
 ) : FrameLayout(context, attributeSet) {

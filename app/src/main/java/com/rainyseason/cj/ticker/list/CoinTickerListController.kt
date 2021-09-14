@@ -10,12 +10,12 @@ import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.loadingView
 import com.rainyseason.cj.common.view.emptyView
+import com.rainyseason.cj.common.view.retryView
 import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.ticker.CoinTickerNavigator
 import com.rainyseason.cj.ticker.list.view.coinTickerListCoinView
 import com.rainyseason.cj.ticker.list.view.coinTickerListMarketView
-import com.rainyseason.cj.ticker.list.view.coinTickerListRetryView
 import kotlin.math.max
 
 class CoinTickerListController constructor(
@@ -48,7 +48,7 @@ class CoinTickerListController constructor(
     private fun buildRetryButton(state: CoinTickerListState): BuildState {
         val async = state.markets
         if (async is Fail) {
-            coinTickerListRetryView {
+            retryView {
                 id("retry")
                 reason(async.error.getUserErrorMessage(context = context))
                 buttonText(R.string.reload)

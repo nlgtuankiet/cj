@@ -3,12 +3,16 @@ package com.rainyseason.cj.ticker.preview
 import android.content.Context
 import androidx.appcompat.app.AlertDialog
 import com.airbnb.epoxy.AsyncEpoxyController
+import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
+import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.setCancelButton
 import com.rainyseason.cj.common.view.horizontalSeparatorView
+import com.rainyseason.cj.common.view.retryView
 import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.common.view.settingSwitchView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
@@ -37,10 +41,32 @@ class CoinTickerPreviewController(
 
     override fun buildModels() {
         val state = withState(viewModel) { it }
+        val buildRetryResult = buildRetry(state)
+        if (buildRetryResult == BuildState.Stop) {
+            return
+        }
         buildStyle(state)
         buildBehaviorSetting(state)
         buildCurrencyGroup(state)
         buildBottomSetting(state)
+    }
+
+    private fun buildRetry(state: CoinTickerPreviewState): BuildState {
+        val errors = listOf(
+            (state.coinDetailResponse as? Fail)?.error,
+        ) + state.marketChartResponse.values.map {
+            (it as? Fail)?.error
+        }
+        val error = errors.firstOrNull { it != null } ?: return BuildState.Next
+        retryView {
+            id("retry")
+            reason(error.getUserErrorMessage(context = context))
+            buttonText(R.string.reload)
+            onRetryClickListener { _ ->
+                viewModel.reload()
+            }
+        }
+        return BuildState.Stop
     }
 
 

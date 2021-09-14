@@ -58,7 +58,7 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         return inflater.inflate(R.layout.coin_ticker_preview_fragment, container, false)
     }
