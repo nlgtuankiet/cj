@@ -21,6 +21,7 @@ import javax.inject.Inject
 
 @Module
 interface MainActivityModule {
+    @Suppress("unused")
     @ContributesAndroidInjector
     fun activity(): MainActivity
 }

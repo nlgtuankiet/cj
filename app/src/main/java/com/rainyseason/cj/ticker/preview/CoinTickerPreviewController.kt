@@ -128,7 +128,7 @@ class CoinTickerPreviewController(
             id("show_thousand_separator")
             title(R.string.coin_ticker_preview_setting_show_thousands_separator)
             checked(config.showThousandsSeparator)
-            onClickListener { v ->
+            onClickListener { _ ->
                 viewModel.switchThousandsSeparator()
             }
         }
@@ -332,8 +332,7 @@ class CoinTickerPreviewController(
 
     private fun buildBottomContentType(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        val contentType = config.bottomContentType
-        val summary = when (contentType) {
+        val summary = when (val contentType = config.bottomContentType) {
             BottomContentType.PRICE -> R.string.coin_ticker_preview_setting_bottom_content_price
             BottomContentType.MARKET_CAP -> R.string.coin_ticker_preview_setting_bottom_content_market_cap
             else -> error("contentType: $contentType")

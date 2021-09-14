@@ -14,11 +14,11 @@ class CoinTickerProviderCoin360 : CoinTickerProvider()
 
 abstract class CoinTickerProvider : AppWidgetProvider() {
 
-    lateinit var coinTickerHandler: CoinTickerHandler
+    private lateinit var coinTickerHandler: CoinTickerHandler
 
-    lateinit var coinTickerRepository: CoinTickerRepository
+    private lateinit var coinTickerRepository: CoinTickerRepository
 
-    lateinit var appWidgetManager: AppWidgetManager
+    private lateinit var appWidgetManager: AppWidgetManager
 
     override fun onReceive(context: Context, intent: Intent) {
         coinTickerHandler = context.coreComponent.coinTickerHandler

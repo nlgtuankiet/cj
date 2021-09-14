@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package com.rainyseason.cj.common
 
 import android.content.Context
@@ -87,14 +89,14 @@ fun Context.dpToPx(value: Int): Int {
 fun Context.dpToPxF(value: Float): Float {
     return TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,
-        value.toFloat(),
+        value,
         resources.displayMetrics
     )
 }
 
 
 fun <T : Parcelable> Fragment.requireArgs(): T {
-    return arguments!!.getParcelable<T>("args")!!
+    return arguments!!.getParcelable("args")!!
 }
 
 fun <T : Parcelable, F : Fragment> F.putArgs(args: T): F {

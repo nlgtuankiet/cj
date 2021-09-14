@@ -42,7 +42,6 @@ class CoinTickerListFragment : Fragment(), MavericksView {
     private val controller: CoinTickerListController by lazy {
         CoinTickerListController(
             viewModel = viewModel,
-            context = requireContext(),
             navigator = navigator,
         )
     }

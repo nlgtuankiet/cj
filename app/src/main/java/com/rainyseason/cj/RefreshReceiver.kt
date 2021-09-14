@@ -22,11 +22,11 @@ class RefreshReceiver : BroadcastReceiver() {
             return
         }
         goBackground {
-            handle(context, intent)
+            handle(context)
         }
     }
 
-    private suspend fun handle(context: Context, intent: Intent) {
+    private suspend fun handle(context: Context) {
         // refresh add ticker widget
         val widgetManager = context.coreComponent.appWidgetManager
         val tickerHandler = context.coreComponent.coinTickerHandler

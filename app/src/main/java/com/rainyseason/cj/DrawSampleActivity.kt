@@ -34,10 +34,11 @@ class DrawSampleActivity : AppCompatActivity() {
     }
 
 
-    fun drawGraph() {
+    private fun drawGraph() {
         container.setImageBitmap(drawLinearGradient(this))
 
         lifecycleScope.launch {
+            @Suppress("BlockingMethodInNonBlockingContext")
             val response = MarketChartResponseJsonAdapter(coreComponent.moshi).fromJson(
                 samplePrice30Day
             )!!

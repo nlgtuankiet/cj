@@ -37,6 +37,7 @@ data class UserSetting(
     val numberOfChangePercentDecimal: Int? = 1,
 )
 
+@Suppress("MemberVisibilityCanBePrivate")
 @Singleton
 class UserSettingRepository @Inject constructor(
     private val store: UserSettingStorage,

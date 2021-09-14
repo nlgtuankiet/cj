@@ -24,7 +24,7 @@ class SettingNumberView @JvmOverloads constructor(
     }
 
     private val textInputLayout: TextInputLayout = findViewById(R.id.text_input_layout)
-    private val editText: TextInputEditText = findViewById<TextInputEditText>(R.id.edit_text)
+    private val editText: TextInputEditText = findViewById(R.id.edit_text)
 
 
     @TextProp

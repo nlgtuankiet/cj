@@ -17,7 +17,7 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.CoinTickerWidgetSaver
-import com.rainyseason.cj.ticker.TickerWidgerRender
+import com.rainyseason.cj.ticker.TickerWidgetRenderer
 import com.rainyseason.cj.ticker.view.CoinTickerPreviewView
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -41,7 +41,7 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
     private val viewModel: CoinTickerPreviewViewModel by fragmentViewModel()
 
     @Inject
-    lateinit var render: TickerWidgerRender
+    lateinit var render: TickerWidgetRenderer
 
     @Inject
     lateinit var viewModelFactory: CoinTickerPreviewViewModel.Factory

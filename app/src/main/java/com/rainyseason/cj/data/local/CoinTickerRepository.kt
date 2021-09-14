@@ -63,8 +63,8 @@ class CoinTickerRepository @Inject constructor(
 
     suspend fun setDisplayData(widgetId: Int, data: CoinTickerDisplayData) {
         val key = displayDataKey(widgetId)
-        val data = displayAdapter.toJson(data)
-        dataStore.edit { it[key] = data }
+        val jsonData = displayAdapter.toJson(data)
+        dataStore.edit { it[key] = jsonData }
     }
 
     fun getDisplayDataStream(widgetId: Int): Flow<CoinTickerDisplayData> {

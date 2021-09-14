@@ -33,14 +33,15 @@ class CoinTickerPreviewView @JvmOverloads constructor(
     private var remoteView: RemoteViews? = null
     private val renderer = coreComponent.tickerWidgetRender
     private val container = findViewById<FrameLayout>(R.id.preview_container)
-    private var currentLayout: Int? = null
     private val progressBar: ProgressBar by lazy { findViewById(R.id.progress_bar) }
     private val captureButton = findViewById<ImageView>(R.id.capture)
 
     init {
         captureButton.isGone = !BuildConfig.DEBUG
         captureButton.setOnClickListener {
+            @Suppress("DEPRECATION")
             container.isDrawingCacheEnabled = true
+            @Suppress("DEPRECATION")
             val b: Bitmap = container.drawingCache
             b.compress(
                 Bitmap.CompressFormat.PNG,
@@ -68,30 +69,4 @@ class CoinTickerPreviewView @JvmOverloads constructor(
         renderer.render(remoteView!!, params)
     }
 
-    fun setRenderParamsOld(params: CoinTickerRenderParams?) {
-        Timber.d("setRenderParams: $params")
-        progressBar.isGone = params != null
-        if (params == null) {
-            remoteView = null
-            container.removeAllViews()
-            return
-        }
-        val layout = renderer.selectLayout(params.config)
-        if (currentLayout != layout) {
-            currentLayout = layout
-            remoteView = null
-            container.removeAllViews()
-
-        }
-        if (remoteView == null) {
-            remoteView = LocalRemoteViews(
-                context,
-                container,
-                layout
-            )
-        }
-        remoteView?.let { view ->
-            renderer.render(view, params)
-        }
-    }
 }

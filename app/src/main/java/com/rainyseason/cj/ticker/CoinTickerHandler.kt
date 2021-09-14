@@ -16,7 +16,7 @@ class CoinTickerHandler @Inject constructor(
     private val context: Context,
     private val workManager: WorkManager,
     private val coinTickerRepository: CoinTickerRepository,
-    private val renderer: TickerWidgerRender,
+    private val renderer: TickerWidgetRenderer,
     private val appWidgetManager: AppWidgetManager,
 ) {
     suspend fun enqueueRefreshWidget(widgetId: Int, config: CoinTickerConfig? = null) {
@@ -48,7 +48,6 @@ class CoinTickerHandler @Inject constructor(
             }
         )
         coinTickerRepository.setConfig(widgetId, newConfig)
-        val currencyCode = config.currency
         val params = CoinTickerRenderParams(
             config = newConfig,
             data = displayData,

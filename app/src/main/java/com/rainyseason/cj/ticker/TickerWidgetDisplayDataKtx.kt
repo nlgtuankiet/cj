@@ -6,8 +6,11 @@ import com.rainyseason.cj.R
 import timber.log.Timber
 
 @Suppress("UNREACHABLE_CODE")
-fun CoinTickerDisplayData.addBitmap(context: Context): CoinTickerDisplayData {
+fun CoinTickerDisplayData.addBitmap(
+    context: Context,
+): CoinTickerDisplayData {
     // temporary disable
+    context.packageName
     return this
     if (iconBitmap != null) {
         return this
@@ -19,5 +22,6 @@ fun CoinTickerDisplayData.addBitmap(context: Context): CoinTickerDisplayData {
         .submit(size, size)
         .get()
     Timber.d("add bitmap: ${bitmap.hashCode()}")
+    @Suppress("UnusedDataClassCopyResult")
     return copy(iconBitmap = bitmap)
 }

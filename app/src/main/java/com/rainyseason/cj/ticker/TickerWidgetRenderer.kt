@@ -46,7 +46,7 @@ data class CoinTickerRenderParams(
 )
 
 @Singleton
-class TickerWidgerRender @Inject constructor(
+class TickerWidgetRenderer @Inject constructor(
     private val context: Context,
     private val appWidgetManager: AppWidgetManager,
 ) {
@@ -212,7 +212,6 @@ class TickerWidgerRender @Inject constructor(
             )
         )
 
-        val changePercent = renderData.getChangePercent(config)
         val changes = formatChange(params)
         view.setTextViewText(R.id.change_percent, changes)
 

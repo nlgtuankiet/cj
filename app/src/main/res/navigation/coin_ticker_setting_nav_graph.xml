@@ -7,7 +7,7 @@
     <fragment
         android:id="@+id/coin_list"
         android:name="com.rainyseason.cj.ticker.list.CoinTickerListFragment"
-        android:label="List"></fragment>
+        android:label="List" />
 
     <fragment
         android:id="@+id/preview"

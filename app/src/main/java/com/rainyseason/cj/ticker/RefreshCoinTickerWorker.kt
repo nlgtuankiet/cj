@@ -5,7 +5,6 @@ import android.content.Context
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.local.CoinTickerRepository
@@ -22,9 +21,8 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     @Assisted val params: WorkerParameters,
     private val coinGeckoService: CoinGeckoService,
     private val coinTickerRepository: CoinTickerRepository,
-    private val userSettingRepository: UserSettingRepository,
     private val appWidgetManager: AppWidgetManager,
-    private val render: TickerWidgerRender,
+    private val render: TickerWidgetRenderer,
 ) : CoroutineWorker(appContext = appContext, params = params) {
 
     override suspend fun doWork(): Result {
@@ -57,8 +55,6 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             ?: throw IllegalStateException("missing display data")
 
         val configCurrency = config.currency
-        val userCurrency = userSettingRepository.getCurrencyCode()
-        val currencyCode = configCurrency
         val loadingView = RemoteViews(appContext.packageName, render.selectLayout(config))
         val loadingParams = CoinTickerRenderParams(
             config = config,
@@ -92,7 +88,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
 
         val graphResponse = coinGeckoService.getMarketChart(
             id = config.coinId,
-            vsCurrency = currencyCode,
+            vsCurrency = configCurrency,
             day = when (config.changeInterval) {
                 ChangeInterval._24H -> 1
                 ChangeInterval._7D -> 7

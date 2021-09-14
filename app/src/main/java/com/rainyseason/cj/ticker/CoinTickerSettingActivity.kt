@@ -28,6 +28,7 @@ import javax.inject.Inject
 
 @Module
 interface CoinTickerSettingActivityModule {
+    @Suppress("unused")
     @ContributesAndroidInjector(
         modules = [
             CoinTickerPreviewFragmentModule::class,
@@ -54,7 +55,7 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
     lateinit var appWidgetManager: AppWidgetManager
 
     @Inject
-    lateinit var render: TickerWidgerRender
+    lateinit var render: TickerWidgetRenderer
 
     @Inject
     lateinit var coinTickerHandler: CoinTickerHandler

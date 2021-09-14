@@ -7,13 +7,13 @@ import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.ticker.CoinTickerHandler
-import com.rainyseason.cj.ticker.TickerWidgerRender
+import com.rainyseason.cj.ticker.TickerWidgetRenderer
 import com.squareup.moshi.Moshi
 import okhttp3.Call
 
 interface CoreComponent {
     val callFactory: Call.Factory
-    val tickerWidgetRender: TickerWidgerRender
+    val tickerWidgetRender: TickerWidgetRenderer
     val appWidgetManager: AppWidgetManager
     val coinTickerHandler: CoinTickerHandler
     val coinGeckoService: CoinGeckoService
