@@ -270,13 +270,12 @@ class CoinTickerPreviewController(
 
     private fun buildCurrency(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        val userCurrency = state.userCurrency.invoke() ?: return
         val currencyCodeToString = SUPPORTED_CURRENCY.mapValues {
             it.value.name
         }.toList().sortedBy { it.first }
 
 
-        val selectedOption = config.currency ?: userCurrency
+        val selectedOption = config.currency
         maybeBuildHorizontalSeparator(id = "setting_currency_separator")
         settingTitleSummaryView {
             id("setting_currency")
@@ -285,7 +284,6 @@ class CoinTickerPreviewController(
             onClickListener { _ ->
                 val currentState = withState(viewModel) { it }
                 val currentOption = currentState.config!!.currency
-                    ?: currentState.userCurrency.invoke()!!
                 AlertDialog.Builder(context)
                     .setTitle(R.string.coin_ticker_preview_setting_header_currency)
                     .setCancelButton()

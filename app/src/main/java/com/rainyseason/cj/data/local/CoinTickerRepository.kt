@@ -5,10 +5,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.rainyseason.cj.common.CoinTickerStorage
+import com.rainyseason.cj.data.UserSetting
+import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.ticker.CoinTickerConfig
-import com.rainyseason.cj.ticker.CoinTickerConfigJsonAdapter
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
-import com.rainyseason.cj.ticker.CoinTickerDisplayDataJsonAdapter
 import com.rainyseason.cj.ticker.addBitmap
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
@@ -17,16 +17,16 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.math.abs
 
 @Suppress("BlockingMethodInNonBlockingContext")
 class CoinTickerRepository @Inject constructor(
+    moshi: Moshi,
     private val dataStore: CoinTickerStorage,
     private val context: Context,
-    private val moshi: Moshi,
+    private val userSettingRepository: UserSettingRepository,
 ) {
-    private val displayAdapter = CoinTickerDisplayDataJsonAdapter(moshi = moshi)
-    private val configAdapter = CoinTickerConfigJsonAdapter(moshi = moshi)
+    private val displayAdapter = moshi.adapter(CoinTickerDisplayData::class.java)
+    private val configAdapter = moshi.adapter(CoinTickerConfig::class.java)
 
     suspend fun clearAllData(widgetId: Int) {
         Timber.d("clearAllData $widgetId")
@@ -91,6 +91,17 @@ class CoinTickerRepository @Inject constructor(
         val key = configKey(widgetId)
         val data = configAdapter.toJson(widgetConfig)
         dataStore.edit { it[key] = data }
+        val userSetting = UserSetting(
+            currencyCode = widgetConfig.currency,
+            refreshInterval = widgetConfig.refreshInterval,
+            refreshIntervalUnit = widgetConfig.refreshIntervalUnit,
+            amountDecimals = widgetConfig.numberOfAmountDecimal,
+            roundToMillion = widgetConfig.roundToMillion,
+            showCurrencySymbol = widgetConfig.showCurrencySymbol,
+            showThousandsSeparator = widgetConfig.showThousandsSeparator,
+            numberOfChangePercentDecimal = widgetConfig.numberOfChangePercentDecimal,
+        )
+        userSettingRepository.setUserSetting(userSetting)
     }
 
     suspend fun getConfig(widgetId: Int): CoinTickerConfig? {

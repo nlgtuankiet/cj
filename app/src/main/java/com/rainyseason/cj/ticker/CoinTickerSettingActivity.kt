@@ -42,7 +42,6 @@ interface CoinTickerWidgetSaver {
     fun saveWidget(
         config: CoinTickerConfig,
         data: CoinTickerDisplayData,
-        userCurrency: String,
     )
 }
 
@@ -95,13 +94,11 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
     override fun saveWidget(
         config: CoinTickerConfig,
         data: CoinTickerDisplayData,
-        userCurrency: String,
     ) {
         val param = CoinTickerRenderParams(
             config = config,
             data = data,
             showLoading = false,
-            userCurrency = userCurrency,
         )
         val remoteView = RemoteViews(packageName, render.selectLayout(config))
         render.render(

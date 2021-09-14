@@ -43,7 +43,6 @@ data class CoinTickerRenderParams(
     val data: CoinTickerDisplayData,
     val showLoading: Boolean = false,
     val isPreview: Boolean = false,
-    val userCurrency: String,
 )
 
 @Singleton
@@ -387,7 +386,7 @@ class TickerWidgerRender @Inject constructor(
         if (roundToM) {
             amount /= 1_000_000
         }
-        val currencyCode = config.currency ?: params.userCurrency
+        val currencyCode = config.currency
         val currencyInfo = SUPPORTED_CURRENCY[currencyCode]
         if (currencyInfo == null) {
             error("Unknown $currencyInfo")

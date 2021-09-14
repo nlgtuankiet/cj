@@ -58,13 +58,12 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
 
         val configCurrency = config.currency
         val userCurrency = userSettingRepository.getCurrencyCode()
-        val currencyCode = configCurrency ?: userCurrency
+        val currencyCode = configCurrency
         val loadingView = RemoteViews(appContext.packageName, render.selectLayout(config))
         val loadingParams = CoinTickerRenderParams(
             config = config,
             data = oldDisplayData,
             showLoading = true,
-            userCurrency = userCurrency,
         )
         render.render(
             view = loadingView,
@@ -82,7 +81,6 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
                 config = config,
                 data = oldDisplayData,
                 showLoading = true,
-                userCurrency = userCurrency,
             )
             render.render(
                 view = loadingView,
@@ -109,7 +107,6 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             config = config,
             coinDetail = coinDetail,
             marketChartResponse = mapOf(config.changeInterval to graphResponse),
-            userCurrency = userCurrency,
         )
 
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)
@@ -118,7 +115,6 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             config = config,
             data = newDisplayData,
             showLoading = false,
-            userCurrency = userCurrency,
         )
         render.render(
             view = newView,

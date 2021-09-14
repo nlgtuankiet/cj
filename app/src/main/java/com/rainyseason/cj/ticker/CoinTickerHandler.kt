@@ -7,7 +7,6 @@ import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,7 +16,6 @@ class CoinTickerHandler @Inject constructor(
     private val context: Context,
     private val workManager: WorkManager,
     private val coinTickerRepository: CoinTickerRepository,
-    private val userSettingRepository: UserSettingRepository,
     private val renderer: TickerWidgerRender,
     private val appWidgetManager: AppWidgetManager,
 ) {
@@ -50,13 +48,12 @@ class CoinTickerHandler @Inject constructor(
             }
         )
         coinTickerRepository.setConfig(widgetId, newConfig)
-        val currencyCode = config.currency ?: userSettingRepository.getCurrencyCode()
+        val currencyCode = config.currency
         val params = CoinTickerRenderParams(
             config = newConfig,
             data = displayData,
             showLoading = false,
             isPreview = false,
-            userCurrency = currencyCode
         )
         val view = RemoteViews(context.packageName, renderer.selectLayout(newConfig))
         renderer.render(view, params)

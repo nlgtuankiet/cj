@@ -54,7 +54,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private var saved = false
 
     init {
-        loadUserCurrency()
         loadConfig()
         loadDisplayData()
         loadCoinDetail()
@@ -70,14 +69,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         viewModelScope.launch {
             stateFlow.mapNotNull { state ->
                 val savedConfig = state.savedConfig
-                val userCurrency = state.userCurrency
                 if (savedConfig !is Success) {
                     return@mapNotNull null
                 }
-                if (userCurrency !is Success) {
-                    return@mapNotNull null
-                }
-                savedConfig.invoke().currency ?: userCurrency.invoke()
+                savedConfig.invoke().currency
             }.distinctUntilChanged()
                 .collect { currencyCode ->
                     ChangeInterval.ALL_PRICE_INTERVAL.forEach { interval ->
@@ -91,14 +86,20 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private suspend fun saveInitialConfig() {
         val lastConfig = coinTickerRepository.getConfig(widgetId = widgetId)
         if (lastConfig == null) {
+            val userSetting = userSettingRepository.getUserSetting()
             val config = CoinTickerConfig(
                 widgetId = widgetId,
                 coinId = args.coinId,
                 layout = args.layout,
-                numberOfAmountDecimal = 2,
-                numberOfChangePercentDecimal = 1,
+                numberOfAmountDecimal = userSetting.amountDecimals,
+                numberOfChangePercentDecimal = userSetting.numberOfChangePercentDecimal,
+                refreshInterval = userSetting.refreshInterval,
+                refreshIntervalUnit = userSetting.refreshIntervalUnit,
+                showThousandsSeparator = userSetting.showThousandsSeparator,
+                showCurrencySymbol = userSetting.showCurrencySymbol,
+                roundToMillion = userSetting.roundToMillion,
+                currency = userSetting.currencyCode,
             )
-
             coinTickerRepository.setConfig(widgetId, config)
         }
     }
@@ -178,18 +179,13 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
         viewModelScope.launch {
             coinTickerRepository.setConfig(widgetId, config)
+            userSettingRepository.setCurrencyCode(config.currency)
         }
     }
 
     private fun loadConfig() {
         coinTickerRepository.getConfigStream(widgetId)
             .execute { copy(savedConfig = it) }
-    }
-
-    private fun loadUserCurrency() {
-        userSettingRepository.getCurrencyCodeFlow().execute {
-            copy(userCurrency = it)
-        }
     }
 
     private fun loadGraph(interval: String, currency: String) {
@@ -231,7 +227,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     }
 
     private fun maybeSaveDisplayData(state: CoinTickerPreviewState) {
-        val userCurrency = state.userCurrency.invoke() ?: return
         val coinDetail = state.coinDetailResponse.invoke() ?: return
         val config = state.config ?: return
 
@@ -240,7 +235,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 config = config,
                 coinDetail = coinDetail,
                 marketChartResponse = state.marketChartResponse.mapValues { it.value.invoke() },
-                userCurrency = userCurrency,
             )
         }
     }
@@ -249,13 +243,11 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         config: CoinTickerConfig,
         coinDetail: CoinDetailResponse,
         marketChartResponse: Map<String, MarketChartResponse?>,
-        userCurrency: String,
     ): CoinTickerDisplayData {
         val data = CoinTickerDisplayData.create(
             config = config,
             coinDetail = coinDetail,
             marketChartResponse = marketChartResponse,
-            userCurrency = userCurrency,
         )
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = data)
         return data

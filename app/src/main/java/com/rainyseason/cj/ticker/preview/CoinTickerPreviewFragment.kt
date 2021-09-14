@@ -82,15 +82,13 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
             viewModel.stateFlow.map { state ->
                 val savedConfig = state.savedConfig.invoke()
                 val savedDisplayData = state.savedDisplayData.invoke()
-                val userCurrency = state.userCurrency.invoke()
                 val params =
-                    if (savedConfig != null && savedDisplayData != null && userCurrency != null) {
+                    if (savedConfig != null && savedDisplayData != null) {
                         CoinTickerRenderParams(
                             config = savedConfig,
                             data = savedDisplayData,
                             showLoading = false,
                             isPreview = true,
-                            userCurrency = userCurrency,
                         )
                     } else {
                         null
@@ -109,8 +107,7 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
         viewModel.save()
         val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
         val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
-        val userCurrency = withState(viewModel) { it.userCurrency.invoke() } ?: return
-        (requireActivity() as CoinTickerWidgetSaver).saveWidget(config, displayData, userCurrency)
+        (requireActivity() as CoinTickerWidgetSaver).saveWidget(config, displayData)
     }
 
     override fun invalidate() {
