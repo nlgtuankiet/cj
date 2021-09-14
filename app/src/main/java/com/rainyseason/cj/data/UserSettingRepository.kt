@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,27 +43,8 @@ class UserSettingRepository @Inject constructor(
     moshi: Moshi,
 ) {
 
-    private val key = stringPreferencesKey("currency_code")
     private val settingsKey = stringPreferencesKey("settings")
     private val settingsAdapter = moshi.adapter(UserSetting::class.java)
-
-    suspend fun getCurrencyCode(): String {
-        return getCurrencyCodeFlow().first()
-    }
-
-    fun getCurrencyCodeFlow(): Flow<String> {
-        return store.data.map { pref ->
-            pref[key]
-        }
-            .mapNotNull { code ->
-                code ?: "user"
-            }
-            .distinctUntilChanged()
-    }
-
-    suspend fun setCurrencyCode(code: String) {
-        store.edit { pref -> pref[key] = code }
-    }
 
     suspend fun setUserSetting(userSetting: UserSetting) {
         store.edit {

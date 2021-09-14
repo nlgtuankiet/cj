@@ -24,8 +24,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.ModelCollector
+import com.rainyseason.cj.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
+import java.net.UnknownHostException
 
 /**
  * Launches a new coroutine and repeats `block` every time the Fragment's viewLifecycleOwner
@@ -146,11 +149,21 @@ fun RemoteViews.setBackgroundResource(@IdRes id: Int, @DrawableRes value: Int) {
 
 fun buildModels(block: ModelCollector.() -> Unit): List<EpoxyModel<*>> {
     val models = mutableListOf<EpoxyModel<*>>()
-    val collector = object  : ModelCollector {
+    val collector = object : ModelCollector {
         override fun add(model: EpoxyModel<*>) {
             models.add(model)
         }
     }
     block.invoke(collector)
     return models
+}
+
+fun Throwable.getUserErrorMessage(context: Context): CharSequence {
+    if (this is UnknownHostException) {
+        return context.getString(R.string.error_no_network)
+    }
+    if (this is HttpException && this.code() == 429) {
+        return context.getString(R.string.error_rate_limit)
+    }
+    return context.getString(R.string.error_unknown)
 }

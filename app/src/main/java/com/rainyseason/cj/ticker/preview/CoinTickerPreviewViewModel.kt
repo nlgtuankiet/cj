@@ -179,7 +179,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
         viewModelScope.launch {
             coinTickerRepository.setConfig(widgetId, config)
-            userSettingRepository.setCurrencyCode(config.currency)
         }
     }
 

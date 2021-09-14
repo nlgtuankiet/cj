@@ -1,11 +1,13 @@
 package com.rainyseason.cj.ticker.list
 
+import android.content.Context
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
+import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.loadingView
 import com.rainyseason.cj.common.view.emptyView
 import com.rainyseason.cj.common.view.settingHeaderView
@@ -13,9 +15,11 @@ import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.ticker.CoinTickerNavigator
 import com.rainyseason.cj.ticker.list.view.coinTickerListCoinView
 import com.rainyseason.cj.ticker.list.view.coinTickerListMarketView
+import com.rainyseason.cj.ticker.list.view.coinTickerListRetryView
 import kotlin.math.max
 
 class CoinTickerListController constructor(
+    private val context: Context,
     private val viewModel: CoinTickerListViewModel,
     private val navigator: CoinTickerNavigator,
 ) : AsyncEpoxyController() {
@@ -25,6 +29,7 @@ class CoinTickerListController constructor(
             id("holder")
         }
         listOf(
+            ::buildRetryButton,
             ::buildMarket,
             ::buildSearchResult,
         ).forEach { builder ->
@@ -38,6 +43,23 @@ class CoinTickerListController constructor(
                 }
             }
         }
+    }
+
+    private fun buildRetryButton(state: CoinTickerListState): BuildState {
+        val async = state.markets
+        if (async is Fail) {
+            coinTickerListRetryView {
+                id("retry")
+                reason(async.error.getUserErrorMessage(context = context))
+                buttonText(R.string.reload)
+                onRetryClickListener { _ ->
+                    viewModel.reload()
+                }
+            }
+            return BuildState.Stop
+        }
+
+        return BuildState.Next
     }
 
     private fun buildMarket(state: CoinTickerListState): BuildState {

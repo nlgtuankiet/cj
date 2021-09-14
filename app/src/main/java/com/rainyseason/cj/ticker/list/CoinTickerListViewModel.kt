@@ -39,20 +39,19 @@ class CoinTickerListViewModel @Inject constructor(
     private var listJob: Job? = null
     private var marketJob: Job? = null
 
-    private fun reload() {
+    fun reload() {
         Timber.d("reload")
         listJob?.cancel()
         listJob = suspend {
             val result = coinGeckoService.getCoinList()
-            println(result)
             result
         }.execute { copy(list = it) }
 
         marketJob?.cancel()
         marketJob = viewModelScope.launch {
-            val currency = userSettingRepository.getCurrencyCode()
+            val setting = userSettingRepository.getUserSetting()
             suspend {
-                coinGeckoService.getCoinMarkets(vsCurrency = currency, perPage = 1000)
+                coinGeckoService.getCoinMarkets(vsCurrency = setting.currencyCode, perPage = 1000)
             }.execute { copy(markets = it) }
         }
     }
