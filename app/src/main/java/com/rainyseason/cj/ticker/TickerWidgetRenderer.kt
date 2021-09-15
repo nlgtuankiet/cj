@@ -18,11 +18,14 @@ import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.RemoteViews
+import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.withClip
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
+import androidx.core.view.updateLayoutParams
+import androidx.core.view.updateMargins
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
@@ -31,6 +34,7 @@ import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.setBackgroundResource
+import com.rainyseason.cj.common.verticalPadding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import timber.log.Timber
@@ -222,7 +226,7 @@ class TickerWidgetRenderer @Inject constructor(
             R.id.name,
             select(
                 theme,
-                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_500),
                 context.getColorCompat(R.color.gray_50),
             )
         )
@@ -247,6 +251,19 @@ class TickerWidgetRenderer @Inject constructor(
         }
     }
 
+    fun updateEdgeMargin(container: ViewGroup, id: Int, isBottom: Boolean = true) {
+        val textView = container.findViewById<TextView>(id)
+        textView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            updateMargins(
+                bottom = if (isBottom) {
+                    context.dpToPx(12) - textView.paint.fontMetricsInt.bottom
+                } else {
+                    bottomMargin
+                }
+            )
+        }
+    }
+
 
     fun renderV2(
         view: RemoteViews,
@@ -254,9 +271,12 @@ class TickerWidgetRenderer @Inject constructor(
     ) {
         val container = FrameLayout(context)
         val options = appWidgetManager.getAppWidgetOptions(params.config.widgetId)
-        val minWidth = context.dpToPx(options[AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH] as Int)
-        val minHegth = context.dpToPx(options[AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT] as Int)
-        val size = min(minHegth, minWidth)
+        val minWidth = context
+            .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH] as? Int) ?: 160)
+        val minHegth = context
+            .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT] as? Int) ?: 160)
+        val size = minHegth.coerceAtMost(minWidth)
+            .coerceAtMost(context.dpToPx(155))
 
         val layout = when (params.config.layout) {
             CoinTickerConfig.Layout.GRAPH -> R.layout.widget_coin_ticker_2x2_graph
@@ -283,19 +303,46 @@ class TickerWidgetRenderer @Inject constructor(
             if (params.showLoading) View.VISIBLE else View.GONE
         )
 
-        when (config.layout) {
+        val specs = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY)
+        container.measure(specs, specs)
+        container.layout(0, 0, size, size)
+
+        val layoutText = config.layout
+        when (layoutText) {
             CoinTickerConfig.Layout.COIN360 -> renderCoin360(localView, newParam)
+            CoinTickerConfig.Layout.GRAPH -> renderDefault(localView, newParam)
             else -> renderDefault(localView, newParam)
         }
+
+        if (layoutText == CoinTickerConfig.Layout.GRAPH || layoutText == CoinTickerConfig.Layout.DEFAULT) {
+            val amountView = container.findViewById<TextView>(R.id.amount)
+            amountView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                updateMargins(bottom = context.dpToPx(12) - amountView.verticalPadding().bottom)
+            }
+
+            val symbolView = container.findViewById<TextView>(R.id.symbol)
+            symbolView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                updateMargins(top = context.dpToPx(12) - symbolView.verticalPadding().top)
+            }
+        }
+
+        if (layoutText == CoinTickerConfig.Layout.GRAPH) {
+            val changePercentTextView = container.findViewById<TextView>(R.id.change_percent)
+            changePercentTextView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                updateMargins(top = context.dpToPx(12) - changePercentTextView.verticalPadding().top)
+            }
+        }
+
+        container.measure(specs, specs)
+        container.layout(0, 0, size, size)
 
 
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         container.layoutParams = ViewGroup.MarginLayoutParams(size, size)
-        val specs = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY)
-        container.measure(specs, specs)
-        container.layout(0, 0, size, size)
+
         container.draw(canvas)
+
         view.setImageViewBitmap(R.id.image_view, bitmap)
     }
 

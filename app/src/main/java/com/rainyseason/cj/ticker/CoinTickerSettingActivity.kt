@@ -10,7 +10,6 @@ import androidx.lifecycle.lifecycleScope
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.ActivityScope
-import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.list.CoinTickerListFragmentModule
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
@@ -91,19 +90,6 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
                 Timber.d("data widget ids: $ids")
             }
         }
-        debugInfo()
-    }
-
-    fun debugInfo() {
-        val widgetId = getWidgetId()!!
-        val options = appWidgetManager.getAppWidgetOptions(widgetId)
-        val minWidth = dpToPx(options[AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH] as Int)
-        val minHegth = dpToPx(options[AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT] as Int)
-
-        val maxWidth = dpToPx(options[AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH] as Int)
-        val maxHegth = dpToPx(options[AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT] as Int)
-
-        Timber.d("widgetId: $widgetId ${minWidth}x${minHegth} ${maxWidth}x${maxHegth}")
     }
 
     override fun saveWidget(

@@ -7,14 +7,14 @@
     android:layout_height="match_parent"
     android:background="@drawable/coin_ticker_background_positive_light">
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/symbol"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
         android:textAllCaps="true"
         android:textColor="@color/white"
-        android:textSize="24sp"
+        android:textSize="26sp"
         app:layout_constraintBottom_toTopOf="@id/amount"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,18 +22,18 @@
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="DOGE" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:autoSizeMaxTextSize="20sp"
+        android:autoSizeMaxTextSize="38sp"
         android:autoSizeMinTextSize="1sp"
         android:autoSizeStepGranularity="1sp"
         android:autoSizeTextType="uniform"
         android:maxLines="1"
         android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="20sp"
+        android:textSize="38sp"
         app:layout_constraintBottom_toTopOf="@id/change_percent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +41,7 @@
         tools:ignore="UnusedAttribute"
         tools:text="$46,842" />
 
-    <TextView
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/change_percent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -50,7 +50,7 @@
         android:orientation="horizontal"
         android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="12sp"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

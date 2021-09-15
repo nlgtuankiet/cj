@@ -6,13 +6,16 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.RemoteViews
+import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -34,6 +37,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.net.UnknownHostException
+import kotlin.math.abs
+
 
 /**
  * Launches a new coroutine and repeats `block` every time the Fragment's viewLifecycleOwner
@@ -189,6 +194,20 @@ fun Context.dismissKeyboard() {
 }
 
 fun View.dismissKeyboard() {
+    val imm: InputMethodManager? =
+        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+    imm?.hideSoftInputFromWindow(windowToken, 0)
     ViewCompat.getWindowInsetsController(this)
         ?.hide(WindowInsetsCompat.Type.ime())
+//    AppCompatTextView(context).setAutoSizeTextTypeUniformWithConfiguration() = 1
+}
+
+data class VerticalTextPadding(val top: Int, val bottom: Int)
+
+fun TextView.verticalPadding(): VerticalTextPadding {
+    val bounds = Rect()
+    paint.getTextBounds("A", 0, 1, bounds)
+    val bottom = paint.fontMetricsInt.run { abs(bottom) }
+    val top = height - bounds.height() - bottom
+    return VerticalTextPadding(top = top, bottom = bottom)
 }
