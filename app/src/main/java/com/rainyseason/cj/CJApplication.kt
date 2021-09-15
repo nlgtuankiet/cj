@@ -7,6 +7,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.airbnb.mvrx.Mavericks
 import com.airbnb.mvrx.MavericksViewModelConfigFactory
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
@@ -57,8 +58,15 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
             MainFlagValueProvider.setDelegate(NoopFlagValueProvider)
         }
 
+        val firebasePerformance = FirebasePerformance.getInstance()
         if (BuildConfig.DEBUG) {
-            FirebasePerformance.getInstance().isPerformanceCollectionEnabled = false
+            firebasePerformance.isPerformanceCollectionEnabled = false
+        }
+
+        val firebaseAnalytics = FirebaseAnalytics.getInstance(this)
+
+        if (BuildConfig.DEBUG) {
+            firebaseAnalytics.setAnalyticsCollectionEnabled(false)
         }
 
         Mavericks.initialize(
