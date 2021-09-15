@@ -19,7 +19,7 @@ def getBooleanProp(name) {
     return false
 }
 
-def isRelease = getBooleanProp("release")
+def isPlayStore = getBooleanProp("playstore")
 
 static def generateVersionCode() {
     def result = "git rev-list HEAD --count".execute().text.trim() //unix
@@ -42,14 +42,19 @@ android {
         applicationId "com.rainyseason.cj"
         minSdk 21
         targetSdk 30
-        if (isRelease) {
-            def number = generateVersionCode()
-            println "Version code is $number"
-            versionCode number
+        if (isPlayStore) {
+            versionCode generateVersionCode()
         } else {
             versionCode 1
         }
-        versionName "1.2"
+        println "Version code is $versionCode"
+
+        if (isPlayStore) {
+            versionName "1.2"
+        } else {
+            versionName "0.1"
+        }
+        println "Version name is $versionName"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -138,6 +143,7 @@ dependencies {
     implementation "com.airbnb.android:epoxy:$epoxyVersion"
     kapt "com.airbnb.android:epoxy-processor:$epoxyVersion"
 
+    //noinspection GradleDependency
     implementation 'com.google.android.material:material:1.5.0-alpha02'
 
     implementation 'com.github.bumptech.glide:glide:4.12.0'
