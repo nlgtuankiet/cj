@@ -2,12 +2,15 @@
 
 package com.rainyseason.cj.common
 
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.TypedValue
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.RemoteViews
 import androidx.activity.ComponentActivity
@@ -18,6 +21,8 @@ import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -36,7 +41,7 @@ import java.net.UnknownHostException
  */
 inline fun Fragment.launchAndRepeatWithViewLifecycle(
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    crossinline block: suspend CoroutineScope.() -> Unit
+    crossinline block: suspend CoroutineScope.() -> Unit,
 ) {
     viewLifecycleOwner.lifecycleScope.launch {
         viewLifecycleOwner.lifecycle.repeatOnLifecycle(minActiveState) {
@@ -48,7 +53,7 @@ inline fun Fragment.launchAndRepeatWithViewLifecycle(
 
 inline fun ComponentActivity.launchAndRepeatWithLifecycle(
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    crossinline block: suspend CoroutineScope.() -> Unit
+    crossinline block: suspend CoroutineScope.() -> Unit,
 ) {
     lifecycleScope.launch {
         lifecycle.repeatOnLifecycle(minActiveState) {
@@ -166,4 +171,24 @@ fun Throwable.getUserErrorMessage(context: Context): CharSequence {
         return context.getString(R.string.error_rate_limit)
     }
     return context.getString(R.string.error_unknown)
+}
+
+fun Context.activity(): Activity? {
+    var context: Context? = this
+    while (context is ContextWrapper) {
+        if (context is Activity) {
+            return context
+        }
+        context = context.baseContext
+    }
+    return null
+}
+
+fun Context.dismissKeyboard() {
+    activity()?.window?.decorView?.dismissKeyboard()
+}
+
+fun View.dismissKeyboard() {
+    ViewCompat.getWindowInsetsController(this)
+        ?.hide(WindowInsetsCompat.Type.ime())
 }
