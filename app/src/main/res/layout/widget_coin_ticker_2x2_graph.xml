@@ -1,22 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/container"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:layout_height="155dp"
+    tools:layout_width="155dp"
     android:background="@drawable/coin_ticker_background">
 
-    <include layout="@layout/widget_size_constraint" />
-
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="@dimen/widget_coin_ticker_icon_size"
-        android:layout_height="@dimen/widget_coin_ticker_icon_size"
-        android:layout_gravity="center_vertical"
-        android:visibility="gone"
-        tools:ignore="ContentDescription" />
 
     <TextView
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         android:id="@+id/symbol"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -29,6 +25,8 @@
         tools:text="DOGE" />
 
     <TextView
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/symbol"
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,13 +46,33 @@
         tools:text="Dogecoin" />
 
 
+    <TextView
+        android:id="@+id/change_percent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:orientation="horizontal"
+        android:textColor="@color/green_700"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="+6.6%" />
+
     <ImageView
+        app:layout_constraintBottom_toTopOf="@id/amount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/name"
         android:id="@+id/graph"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_above="@id/amount"
         android:layout_below="@id/name"
-        android:layout_alignEnd="@id/right_edge"
         android:layout_alignParentStart="true"
         android:layout_marginStart="12dp"
         android:layout_marginTop="4dp"
@@ -63,11 +81,12 @@
         android:scaleType="fitXY" />
 
     <TextView
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:id="@+id/amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignEnd="@id/right_edge"
-        android:layout_alignBottom="@id/bottom_edge"
         android:layout_alignParentStart="true"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
@@ -83,30 +102,4 @@
         tools:ignore="UnusedAttribute"
         tools:text="$0.287661" />
 
-
-    <TextView
-        android:id="@+id/change_percent"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignEnd="@id/right_edge"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="12dp"
-        android:ellipsize="end"
-        android:gravity="center_vertical"
-        android:maxLines="1"
-        android:orientation="horizontal"
-        android:textColor="@color/green_700"
-        android:textSize="12sp"
-        tools:text="+6.6%" />
-
-
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:clickable="false"
-        android:visibility="invisible" />
-
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

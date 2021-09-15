@@ -1,5 +1,6 @@
 package com.rainyseason.cj
 
+import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Bitmap
 import android.view.View
@@ -51,6 +52,17 @@ class LocalRemoteViews(
     override fun setInt(viewId: Int, methodName: String?, value: Int) {
         when (methodName) {
             "setBackgroundResource" -> invokeOn<View>(viewId) { it.setBackgroundResource(value) }
+        }
+    }
+
+    private val pendingIntents = mutableMapOf<Int, PendingIntent>()
+    override fun setOnClickPendingIntent(viewId: Int, pendingIntent: PendingIntent) {
+        pendingIntents[viewId] = pendingIntent
+    }
+
+    fun applyClickPandingIntent(view: RemoteViews) {
+        pendingIntents.forEach { (k, v) ->
+            view.setOnClickPendingIntent(k, v)
         }
     }
 
