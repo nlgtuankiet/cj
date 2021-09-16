@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.goBackground
 import com.rainyseason.cj.data.local.CoinTickerRepository
@@ -37,11 +38,22 @@ abstract class CoinTickerProvider : AppWidgetProvider() {
         super.onReceive(context, intent)
     }
 
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle,
+    ) {
+        goBackground {
+            coinTickerHandler.rerender(appWidgetId)
+        }
+    }
+
 
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
-        appWidgetIds: IntArray
+        appWidgetIds: IntArray,
     ) {
         goBackground {
             appWidgetIds.forEach {

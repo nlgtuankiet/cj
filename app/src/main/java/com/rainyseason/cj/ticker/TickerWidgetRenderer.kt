@@ -367,6 +367,7 @@ class TickerWidgetRenderer @Inject constructor(
             .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT] as? Int) ?: 155)
         return minHegth.coerceAtMost(minWidth)
             .coerceAtMost(context.dpToPx(155))
+            .coerceAtLeast(context.dpToPx(145))
     }
 
     private fun TextView.updateVertialFontMargin(

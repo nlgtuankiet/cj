@@ -36,10 +36,23 @@ class CoinTickerHandler @Inject constructor(
         )
     }
 
-    suspend fun switchPriceAndMarketCap(widgetId: Int) {
+    suspend fun rerender(widgetId: Int) {
         val config = coinTickerRepository.getConfig(widgetId = widgetId) ?: return
         val displayData = coinTickerRepository.getDisplayData(widgetId = widgetId) ?: return
 
+        val params = CoinTickerRenderParams(
+            config = config,
+            data = displayData,
+            showLoading = false,
+            isPreview = false,
+        )
+        val view = RemoteViews(context.packageName, renderer.selectLayout(config))
+        renderer.render(view, params)
+        appWidgetManager.updateAppWidget(widgetId, view)
+    }
+
+    suspend fun switchPriceAndMarketCap(widgetId: Int) {
+        val config = coinTickerRepository.getConfig(widgetId = widgetId) ?: return
         val newConfig = config.copy(
             bottomContentType = when (config.bottomContentType) {
                 BottomContentType.PRICE -> BottomContentType.MARKET_CAP
@@ -48,14 +61,6 @@ class CoinTickerHandler @Inject constructor(
             }
         )
         coinTickerRepository.setConfig(widgetId, newConfig)
-        val params = CoinTickerRenderParams(
-            config = newConfig,
-            data = displayData,
-            showLoading = false,
-            isPreview = false,
-        )
-        val view = RemoteViews(context.packageName, renderer.selectLayout(newConfig))
-        renderer.render(view, params)
-        appWidgetManager.updateAppWidget(widgetId, view)
+        rerender(widgetId)
     }
 }
