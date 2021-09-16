@@ -211,3 +211,7 @@ fun TextView.verticalPadding(): VerticalTextPadding {
     val top = height - bounds.height() - bottom
     return VerticalTextPadding(top = top, bottom = bottom)
 }
+
+fun Context.inflater(): LayoutInflater {
+    return LayoutInflater.from(this)
+}

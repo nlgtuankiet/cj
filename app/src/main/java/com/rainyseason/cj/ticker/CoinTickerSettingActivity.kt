@@ -104,7 +104,7 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
         val remoteView = RemoteViews(packageName, render.selectLayout(config))
         render.render(
             view = remoteView,
-            params = param,
+            inputParams = param,
         )
         appWidgetManager.updateAppWidget(config.widgetId, remoteView)
         val resultValue = Intent().apply {

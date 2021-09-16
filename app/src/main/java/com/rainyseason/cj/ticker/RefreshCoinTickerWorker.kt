@@ -63,7 +63,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         )
         render.render(
             view = loadingView,
-            params = loadingParams,
+            inputParams = loadingParams,
         )
         appWidgetManager.updateAppWidget(widgetId, loadingView)
 
@@ -80,7 +80,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             )
             render.render(
                 view = loadingView,
-                params = oldParams,
+                inputParams = oldParams,
             )
             appWidgetManager.updateAppWidget(widgetId, oldView)
             return
@@ -114,7 +114,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         )
         render.render(
             view = newView,
-            params = newParams,
+            inputParams = newParams,
         )
         appWidgetManager.updateAppWidget(widgetId, newView)
     }

@@ -26,15 +26,17 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
-import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
-import com.rainyseason.cj.common.setBackgroundResource
+import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.verticalPadding
+import com.rainyseason.cj.databinding.WidgetCoinTicker2x2Coin360Binding
+import com.rainyseason.cj.databinding.WidgetCoinTicker2x2DefaultBinding
+import com.rainyseason.cj.databinding.WidgetCoinTicker2x2GraphBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import timber.log.Timber
@@ -78,39 +80,6 @@ class TickerWidgetRenderer @Inject constructor(
             return dark
         }
         return light
-    }
-
-    private fun renderCoin360(
-        view: RemoteViews,
-        params: CoinTickerRenderParams,
-    ) {
-        val config = params.config
-        val renderData = params.data
-        val backgroundRes = if ((renderData.getChangePercent(config) ?: 0.0) > 0) {
-            select(
-                config.theme,
-                R.drawable.coin_ticker_background_positive_light,
-                R.drawable.coin_ticker_background_positive_dark
-            )
-        } else {
-            select(
-                config.theme,
-                R.drawable.coin_ticker_background_negative_light,
-                R.drawable.coin_ticker_background_negative_dark
-            )
-        }
-        view.setBackgroundResource(R.id.container, backgroundRes)
-        view.applyClickAction(params)
-        view.setTextViewText(R.id.symbol, renderData.symbol)
-
-        val changes = formatChange(
-            params = params,
-            withColor = false
-        )
-        view.setTextViewText(R.id.change_percent, changes)
-
-        val amountContent = formatAmount(params)
-        view.setTextViewText(R.id.amount, amountContent)
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")
@@ -178,52 +147,166 @@ class TickerWidgetRenderer @Inject constructor(
         setOnClickPendingIntent(R.id.content, pendingIntent)
     }
 
-    @SuppressLint("UnspecifiedImmutableFlag")
-    fun renderDefault(
-        view: RemoteViews,
+
+    private fun renderCoin360(
+        container: ViewGroup,
+        remoteViews: RemoteViews,
         params: CoinTickerRenderParams,
     ) {
+        val binding = WidgetCoinTicker2x2Coin360Binding
+            .inflate(context.inflater(), container, true)
+        val config = params.config
+        val renderData = params.data
+
+        container.mesureAndLayout(config)
+
+        // bind loading
+        remoteViews.bindLoading(params)
+
+        // bind container
+        val backgroundRes = if ((renderData.getChangePercent(config) ?: 0.0) > 0) {
+            select(
+                config.theme,
+                R.drawable.coin_ticker_background_positive_light,
+                R.drawable.coin_ticker_background_positive_dark
+            )
+        } else {
+            select(
+                config.theme,
+                R.drawable.coin_ticker_background_negative_light,
+                R.drawable.coin_ticker_background_negative_dark
+            )
+        }
+        binding.container.setBackgroundResource(backgroundRes)
+
+        // bind remote view
+        remoteViews.applyClickAction(params)
+
+        // bind symbol
+        binding.symbol.text = renderData.symbol
+
+        // bind change percent
+        binding.changePercent.text = formatChange(params = params, withColor = false)
+
+        // bind amount
+        binding.amount.text = formatAmount(params)
+    }
+
+    private fun renderDefault(
+        container: ViewGroup,
+        remoteViews: RemoteViews,
+        params: CoinTickerRenderParams,
+    ) {
+        val binding = WidgetCoinTicker2x2DefaultBinding
+            .inflate(context.inflater(), container, true)
         val config = params.config
         val theme = config.theme
         val renderData = params.data
-        view.setBackgroundResource(
-            R.id.container,
+
+        container.mesureAndLayout(config)
+
+        remoteViews.bindLoading(params)
+
+        // bind container
+        binding.container.setBackgroundResource(
             select(
                 theme,
                 R.drawable.coin_ticker_background,
                 R.drawable.coin_ticker_background_dark
             )
         )
+        remoteViews.applyClickAction(params)
 
-        view.applyClickAction(params)
-
-        view.setTextViewText(R.id.symbol, renderData.symbol)
-        view.setTextColor(
-            R.id.symbol,
+        // bind symbol
+        binding.symbol.text = renderData.symbol
+        binding.symbol.setTextColor(
             select(
                 theme,
                 context.getColorCompat(R.color.gray_900),
                 context.getColorCompat(R.color.gray_50),
             )
         )
+        binding.symbol.updateVertialFontMargin(updateTop = true)
 
-        val amountContent = formatAmount(params)
-        view.setTextViewText(R.id.amount, amountContent)
-        view.setTextColor(
-            R.id.amount,
+        // bind amount
+        binding.amount.text = formatAmount(params)
+        binding.amount.setTextColor(
             select(
                 theme,
                 context.getColorCompat(R.color.gray_900),
                 context.getColorCompat(R.color.gray_50),
             )
         )
+        binding.amount.updateVertialFontMargin(updateBottom = true)
 
-        val changes = formatChange(params)
-        view.setTextViewText(R.id.change_percent, changes)
+        // bind change percent
+        binding.changePercent.text = formatChange(params)
 
-        view.setTextViewText(R.id.name, renderData.name)
-        view.setTextColor(
-            R.id.name,
+        // bind name
+        binding.name.text = renderData.name
+        binding.name.setTextColor(
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_500),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+    }
+
+    private fun renderGraph(
+        container: ViewGroup,
+        remoteViews: RemoteViews,
+        params: CoinTickerRenderParams,
+    ) {
+        val binding = WidgetCoinTicker2x2GraphBinding
+            .inflate(context.inflater(), container, true)
+        val config = params.config
+        val theme = config.theme
+        val renderData = params.data
+
+        container.mesureAndLayout(config)
+
+        remoteViews.bindLoading(params)
+
+        // bind container
+        binding.container.setBackgroundResource(
+            select(
+                theme,
+                R.drawable.coin_ticker_background,
+                R.drawable.coin_ticker_background_dark
+            )
+        )
+        remoteViews.applyClickAction(params)
+
+        // bind symbol
+        binding.symbol.text = renderData.symbol
+        binding.symbol.setTextColor(
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+        binding.symbol.updateVertialFontMargin(updateTop = true)
+
+        // bind amount
+        binding.amount.text = formatAmount(params)
+        binding.amount.setTextColor(
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+        binding.amount.updateVertialFontMargin(updateBottom = true)
+
+        // bind change percent
+        binding.changePercent.text = formatChange(params)
+        binding.changePercent.updateVertialFontMargin(updateTop = true)
+
+        // bind name
+        binding.name.text = renderData.name
+        binding.name.setTextColor(
             select(
                 theme,
                 context.getColorCompat(R.color.gray_500),
@@ -231,159 +314,102 @@ class TickerWidgetRenderer @Inject constructor(
             )
         )
 
-        if (config.layout == CoinTickerConfig.Layout.GRAPH) {
-            val data = renderData.getGraphData(config).orEmpty()
-            val filteredData = data.filter { it.size == 2 && it[1] != 0.0 }
-            if (filteredData.size >= 2) {
-                val extraSize = config.extraSize
-                val width = context.dpToPxF(110 + extraSize - 12 * 2f)
-                val height = width / 2
-                val isPositive = filteredData.last()[1] > filteredData.first()[1]
-                val bitmap = createGraphBitmap(
-                    context = context,
-                    width = width,
-                    height = height,
-                    isPositive = isPositive || DebugFlag.POSITIVE_WIDGET.isEnable,
-                    data = data
-                )
-                view.setImageViewBitmap(R.id.graph, bitmap)
-            }
+        val graphData = renderData.getGraphData(config).orEmpty()
+        val filteredData = graphData.filter { it.size == 2 && it[1] != 0.0 }
+        if (filteredData.size >= 2) {
+            val extraSize = config.extraSize
+            val width = context.dpToPxF(110 + extraSize - 12 * 2f)
+            val height = width / 2
+            val isPositive = filteredData.last()[1] > filteredData.first()[1]
+            val bitmap = createGraphBitmap(
+                context = context,
+                width = width,
+                height = height,
+                isPositive = isPositive || DebugFlag.POSITIVE_WIDGET.isEnable,
+                data = graphData
+            )
+            binding.graph.setImageBitmap(bitmap)
         }
     }
 
-    fun updateEdgeMargin(container: ViewGroup, id: Int, isBottom: Boolean = true) {
-        val textView = container.findViewById<TextView>(id)
-        textView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+    private fun RemoteViews.bindLoading(params: CoinTickerRenderParams) {
+        setViewVisibility(
+            R.id.progress_bar,
+            if (params.showLoading) View.VISIBLE else View.GONE
+        )
+    }
+
+    private fun CoinTickerRenderParams.maybePositive(): CoinTickerRenderParams {
+        if (DebugFlag.POSITIVE_WIDGET.isEnable) {
+            return this.copy(
+                data = this.data.copy(
+                    priceChangePercent = this.data.priceChangePercent?.let { abs(it) },
+                    marketCapChangePercent = this.data.marketCapChangePercent?.let { abs(it) },
+                )
+            )
+        }
+        return this
+    }
+
+    private fun ViewGroup.mesureAndLayout(config: CoinTickerConfig) {
+        val size = config.getWidgetSize()
+        val specs = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY)
+        layoutParams = ViewGroup.MarginLayoutParams(size, size)
+        measure(specs, specs)
+        layout(0, 0, size, size)
+    }
+
+    private fun CoinTickerConfig.getWidgetSize(): Int {
+        val options = appWidgetManager.getAppWidgetOptions(widgetId)
+        val minWidth = context
+            .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH] as? Int) ?: 155)
+        val minHegth = context
+            .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT] as? Int) ?: 155)
+        return minHegth.coerceAtMost(minWidth)
+            .coerceAtMost(context.dpToPx(155))
+    }
+
+    private fun TextView.updateVertialFontMargin(
+        updateTop: Boolean = false,
+        updateBottom: Boolean = false,
+    ) {
+        val vertialPadding = verticalPadding()
+        updateLayoutParams<ViewGroup.MarginLayoutParams> {
             updateMargins(
-                bottom = if (isBottom) {
-                    context.dpToPx(12) - textView.paint.fontMetricsInt.bottom
+                bottom = if (updateBottom) {
+                    context.dpToPx(12) - vertialPadding.bottom
                 } else {
                     bottomMargin
+                },
+                top = if (updateTop) {
+                    context.dpToPx(12) - vertialPadding.top
+                } else {
+                    topMargin
                 }
             )
         }
     }
 
-
-    fun renderV2(
-        view: RemoteViews,
-        params: CoinTickerRenderParams,
-    ) {
-        val container = FrameLayout(context)
-        val options = appWidgetManager.getAppWidgetOptions(params.config.widgetId)
-        val minWidth = context
-            .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH] as? Int) ?: 160)
-        val minHegth = context
-            .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT] as? Int) ?: 160)
-        val size = minHegth.coerceAtMost(minWidth)
-            .coerceAtMost(context.dpToPx(155))
-
-        val layout = when (params.config.layout) {
-            CoinTickerConfig.Layout.GRAPH -> R.layout.widget_coin_ticker_2x2_graph
-            CoinTickerConfig.Layout.COIN360 -> R.layout.widget_coin_ticker_2x2_coin360
-            else -> R.layout.widget_coin_ticker_2x2_default
-        }
-
-        val localView = LocalRemoteViews(context, container, layout)
-
-        val config = params.config
-
-        var newParam = params
-        if (DebugFlag.POSITIVE_WIDGET.isEnable) {
-            newParam = params.copy(
-                data = params.data.copy(
-                    priceChangePercent = params.data.priceChangePercent?.let { abs(it) },
-                    marketCapChangePercent = params.data.marketCapChangePercent?.let { abs(it) },
-                )
-            )
-        }
-
-        view.setViewVisibility(
-            R.id.progress_bar,
-            if (params.showLoading) View.VISIBLE else View.GONE
-        )
-
-        val specs = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY)
-        container.measure(specs, specs)
-        container.layout(0, 0, size, size)
-
-        val layoutText = config.layout
-        when (layoutText) {
-            CoinTickerConfig.Layout.COIN360 -> renderCoin360(localView, newParam)
-            CoinTickerConfig.Layout.GRAPH -> renderDefault(localView, newParam)
-            else -> renderDefault(localView, newParam)
-        }
-
-        if (layoutText == CoinTickerConfig.Layout.GRAPH || layoutText == CoinTickerConfig.Layout.DEFAULT) {
-            val amountView = container.findViewById<TextView>(R.id.amount)
-            amountView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                updateMargins(bottom = context.dpToPx(12) - amountView.verticalPadding().bottom)
-            }
-
-            val symbolView = container.findViewById<TextView>(R.id.symbol)
-            symbolView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                updateMargins(top = context.dpToPx(12) - symbolView.verticalPadding().top)
-            }
-        }
-
-        if (layoutText == CoinTickerConfig.Layout.GRAPH) {
-            val changePercentTextView = container.findViewById<TextView>(R.id.change_percent)
-            changePercentTextView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                updateMargins(top = context.dpToPx(12) - changePercentTextView.verticalPadding().top)
-            }
-        }
-
-        container.measure(specs, specs)
-        container.layout(0, 0, size, size)
-
-
-        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        container.layoutParams = ViewGroup.MarginLayoutParams(size, size)
-
-        container.draw(canvas)
-
-        view.setImageViewBitmap(R.id.image_view, bitmap)
-    }
-
     fun render(
         view: RemoteViews,
-        params: CoinTickerRenderParams,
+        inputParams: CoinTickerRenderParams,
     ) {
-        return renderV2(view, params)
-        val config = params.config
-
-        var newParam = params
-        if (DebugFlag.POSITIVE_WIDGET.isEnable) {
-            newParam = params.copy(
-                data = params.data.copy(
-                    priceChangePercent = params.data.priceChangePercent?.let { abs(it) },
-                    marketCapChangePercent = params.data.marketCapChangePercent?.let { abs(it) },
-                )
-            )
+        val container = FrameLayout(context)
+        container.mesureAndLayout(inputParams.config)
+        val params = inputParams.maybePositive()
+        when (inputParams.config.layout) {
+            CoinTickerConfig.Layout.DEFAULT -> renderDefault(container, view, params)
+            CoinTickerConfig.Layout.GRAPH -> renderGraph(container, view, params)
+            CoinTickerConfig.Layout.COIN360 -> renderCoin360(container, view, params)
+            else -> error("Unknown layout: ${params.config.layout}")
         }
 
-        val visibleIndies = when (config.extraSize) {
-            10 -> listOf(0)
-            20 -> listOf(0, 1)
-            30 -> listOf(0, 1, 2)
-            else -> listOf()
-        }
-        visibleIndies.forEach { visibleIndex ->
-            view.setViewVisibility(
-                listOf(R.id.right_1, R.id.right_2, R.id.right_3)[visibleIndex],
-                View.VISIBLE
-            )
-            view.setViewVisibility(
-                listOf(R.id.bottom_1, R.id.bottom_2, R.id.bottom_3)[visibleIndex],
-                View.VISIBLE
-            )
-        }
-
-        when (config.layout) {
-            CoinTickerConfig.Layout.COIN360 -> renderCoin360(view, newParam)
-            else -> renderDefault(view, newParam)
-        }
+        container.mesureAndLayout(params.config)
+        val size = params.config.getWidgetSize()
+        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        container.draw(canvas)
+        view.setImageViewBitmap(R.id.image_view, bitmap)
     }
 
     private fun SpannableStringBuilder.appendChange(
