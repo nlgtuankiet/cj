@@ -31,9 +31,6 @@ data class CoinTickerConfig(
     @Json(name = "theme")
     val theme: String = Theme.AUTO,
 
-    @Json(name = "extra_size")
-    val extraSize: Int = 0,
-
     @Json(name = "show_thousands_separator")
     val showThousandsSeparator: Boolean = true,
 

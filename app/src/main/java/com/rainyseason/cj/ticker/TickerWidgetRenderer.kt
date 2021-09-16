@@ -313,10 +313,10 @@ class TickerWidgetRenderer @Inject constructor(
         )
 
         val graphData = renderData.getGraphData(config).orEmpty()
+        val widgetSize = getWidgetSize(widgetId = config.widgetId)
         val filteredData = graphData.filter { it.size == 2 && it[1] != 0.0 }
         if (filteredData.size >= 2) {
-            val extraSize = config.extraSize
-            val width = context.dpToPxF(110 + extraSize - 12 * 2f)
+            val width = context.dpToPxF(widgetSize - 12 * 2f)
             val height = width / 2
             val isPositive = filteredData.last()[1] > filteredData.first()[1]
             val bitmap = createGraphBitmap(
@@ -548,7 +548,7 @@ class TickerWidgetRenderer @Inject constructor(
         val bitmap = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val paint = Paint()
-        paint.strokeWidth = context.dpToPxF(1.5f)
+        paint.strokeWidth = context.dpToPxF(8f)
         paint.style = Paint.Style.STROKE
         paint.strokeCap = Paint.Cap.ROUND
         paint.color = if (isPositive) {
