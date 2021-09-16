@@ -59,11 +59,10 @@ class CoinTickerPreviewView @JvmOverloads constructor(
         val widgetSize = renderer.getWidgetSize(id)
         container.updateLayoutParams<MarginLayoutParams> {
             height = widgetSize
-            height = widgetSize
+            width = widgetSize
         }
         val containerSize = widgetSize + context.dpToPx(12 * 2)
         mainContainer.updateLayoutParams<MarginLayoutParams> {
-            height = containerSize
             height = containerSize
         }
 

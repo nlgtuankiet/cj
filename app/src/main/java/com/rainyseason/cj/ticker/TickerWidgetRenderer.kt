@@ -8,10 +8,8 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.Shader
 import android.text.SpannableStringBuilder
 import android.view.View
 import android.view.View.MeasureSpec
@@ -365,9 +363,11 @@ class TickerWidgetRenderer @Inject constructor(
             .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH] as? Int) ?: 155)
         val minHegth = context
             .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT] as? Int) ?: 155)
-        return minHegth.coerceAtMost(minWidth)
+        val size = minHegth.coerceAtMost(minWidth)
             .coerceAtMost(context.dpToPx(155))
             .coerceAtLeast(context.dpToPx(145))
+        Timber.d("widget $widgetId size $size min $minWidth $minHegth")
+        return size
     }
 
     private fun TextView.updateVertialFontMargin(
@@ -585,23 +585,16 @@ class TickerWidgetRenderer @Inject constructor(
         path.lineTo(0f, height)
         path.close()
 
-        val gradientColor = if (isPositive) {
-            context.getColorCompat(R.color.ticket_line_green_background)
+        val drawableRes = if (isPositive) {
+            R.drawable.graph_background_green
         } else {
-            context.getColorCompat(R.color.ticket_line_red_background)
+            R.drawable.graph_background_red
         }
+        val gradientDrawable = ContextCompat.getDrawable(context, drawableRes)!!
 
         canvas.withClip(path) {
-            val gradient = LinearGradient(
-                width / 2f, minY, width / 2f, height,
-                gradientColor,
-                context.getColorCompat(android.R.color.transparent),
-                Shader.TileMode.CLAMP
-            )
-            val gPaint = Paint()
-            gPaint.isDither = true
-            gPaint.shader = gradient
-            drawRect(0f, 0f, width, height, gPaint)
+            gradientDrawable.setBounds(0, 0, width.toInt(), height.toInt())
+            gradientDrawable.draw(this)
         }
 
         return bitmap
