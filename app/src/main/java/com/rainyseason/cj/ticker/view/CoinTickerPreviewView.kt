@@ -7,13 +7,16 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.RemoteViews
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isGone
+import androidx.core.view.updateLayoutParams
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.coreComponent
+import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.inflateAndAdd
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import timber.log.Timber
@@ -33,6 +36,7 @@ class CoinTickerPreviewView @JvmOverloads constructor(
     private var remoteView: RemoteViews? = null
     private val renderer = coreComponent.tickerWidgetRender
     private val container = findViewById<FrameLayout>(R.id.preview_container)
+    private val mainContainer = findViewById<ConstraintLayout>(R.id.container)
     private val progressBar: ProgressBar by lazy { findViewById(R.id.progress_bar) }
     private val captureButton = findViewById<ImageView>(R.id.capture)
 
@@ -49,6 +53,20 @@ class CoinTickerPreviewView @JvmOverloads constructor(
                 FileOutputStream(File(context.cacheDir, "capture.png"))
             )
         }
+    }
+
+    fun setWidgetId(id: Int) {
+        val widgetSize = renderer.getWidgetSize(id)
+        container.updateLayoutParams<MarginLayoutParams> {
+            height = widgetSize
+            height = widgetSize
+        }
+        val containerSize = widgetSize + context.dpToPx(12 * 2)
+        mainContainer.updateLayoutParams<MarginLayoutParams> {
+            height = containerSize
+            height = containerSize
+        }
+
     }
 
     // work around auto text size problem

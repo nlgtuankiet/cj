@@ -352,14 +352,14 @@ class TickerWidgetRenderer @Inject constructor(
     }
 
     private fun ViewGroup.mesureAndLayout(config: CoinTickerConfig) {
-        val size = config.getWidgetSize()
+        val size = getWidgetSize(config.widgetId)
         val specs = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY)
         layoutParams = ViewGroup.MarginLayoutParams(size, size)
         measure(specs, specs)
         layout(0, 0, size, size)
     }
 
-    private fun CoinTickerConfig.getWidgetSize(): Int {
+    fun getWidgetSize(widgetId: Int): Int {
         val options = appWidgetManager.getAppWidgetOptions(widgetId)
         val minWidth = context
             .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH] as? Int) ?: 155)
@@ -405,7 +405,7 @@ class TickerWidgetRenderer @Inject constructor(
         }
 
         container.mesureAndLayout(params.config)
-        val size = params.config.getWidgetSize()
+        val size = getWidgetSize(params.config.widgetId)
         val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         container.draw(canvas)

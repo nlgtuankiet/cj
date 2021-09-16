@@ -15,6 +15,7 @@ import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.CoinTickerWidgetSaver
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
@@ -78,6 +79,7 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
         }
 
         val previewView = view.findViewById<CoinTickerPreviewView>(R.id.preview_view)
+        previewView.setWidgetId(requireArgs<CoinTickerPreviewArgs>().widgetId)
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.stateFlow.map { state ->
                 val savedConfig = state.savedConfig.invoke()
