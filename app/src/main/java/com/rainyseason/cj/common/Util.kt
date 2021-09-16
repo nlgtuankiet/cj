@@ -23,6 +23,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -199,7 +200,6 @@ fun View.dismissKeyboard() {
     imm?.hideSoftInputFromWindow(windowToken, 0)
     ViewCompat.getWindowInsetsController(this)
         ?.hide(WindowInsetsCompat.Type.ime())
-//    AppCompatTextView(context).setAutoSizeTextTypeUniformWithConfiguration() = 1
 }
 
 data class VerticalTextPadding(val top: Int, val bottom: Int)
@@ -213,5 +213,6 @@ fun TextView.verticalPadding(): VerticalTextPadding {
 }
 
 fun Context.inflater(): LayoutInflater {
-    return LayoutInflater.from(this)
+    val themeContext = ContextThemeWrapper(this, R.style.Theme_CryptoJet)
+    return LayoutInflater.from(themeContext)
 }

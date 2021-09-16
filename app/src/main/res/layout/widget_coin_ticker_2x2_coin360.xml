@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/coin_ticker_background_positive_light">
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/symbol"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
         app:layout_constraintVertical_chainStyle="packed"
         tools:text="DOGE" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -41,7 +41,7 @@
         tools:ignore="UnusedAttribute"
         tools:text="$46,842" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/change_percent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
