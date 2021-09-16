@@ -38,6 +38,7 @@ if (getBooleanProp("release")) {
 android {
     compileSdk 30
 
+
     defaultConfig {
         applicationId "com.rainyseason.cj"
         minSdk 21
@@ -66,6 +67,10 @@ android {
             storeFile file(System.getenv('ANDROID_KEY_FILE'))
             storePassword System.getenv('ANDROID_KEY_PASS')
         }
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 
     buildTypes {
@@ -134,6 +139,7 @@ dependencies {
     implementation 'com.airbnb.android:mavericks:2.3.0'
 
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
+    //noinspection GradleDependency
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha03'
 
     //noinspection GradleDependency
