@@ -48,24 +48,24 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         injectIfNecessary()
 
 
-        if (BuildConfig.DEBUG) {
+        if (!BuildConfig.IS_PLAY_STORE) {
             Timber.plant(Timber.DebugTree())
         }
 
-        if (BuildConfig.DEBUG) {
+        if (!BuildConfig.IS_PLAY_STORE) {
             MainFlagValueProvider.setDelegate(debugFlagProvider.get())
         } else {
             MainFlagValueProvider.setDelegate(NoopFlagValueProvider)
         }
 
         val firebasePerformance = FirebasePerformance.getInstance()
-        if (BuildConfig.DEBUG) {
+        if (!BuildConfig.IS_PLAY_STORE) {
             firebasePerformance.isPerformanceCollectionEnabled = false
         }
 
         val firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
-        if (BuildConfig.DEBUG) {
+        if (!BuildConfig.IS_PLAY_STORE) {
             firebaseAnalytics.setAnalyticsCollectionEnabled(false)
         }
 
