@@ -250,7 +250,32 @@ class TickerWidgetRenderer @Inject constructor(
                 context.getColorCompat(R.color.gray_50),
             )
         )
+
+
+        container.mesureAndLayout(config)
+
+        run {
+            // graph between change percent and amount is 12dp
+            val currentGap = binding.run {
+                changePercent.verticalPadding().bottom + amount.verticalPadding().top
+            }
+            binding.changePercent.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                updateMargins(bottom = -currentGap + context.dpToPx(12))
+            }
+        }
+
+        run {
+            // graph between symbol and name is 12dp
+            val currentGap = binding.run {
+                symbol.verticalPadding().bottom + name.verticalPadding().top
+            }
+            binding.name.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                updateMargins(top = -currentGap + context.dpToPx(12))
+            }
+        }
+
     }
+
 
     private fun renderGraph(
         container: ViewGroup,
@@ -313,12 +338,41 @@ class TickerWidgetRenderer @Inject constructor(
             )
         )
 
+        container.mesureAndLayout(config)
+
+        run {
+            // config gap between graph and amount to 12dp
+            val amountTopGap = binding.amount.verticalPadding().top
+            binding.graph.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                updateMargins(bottom = -amountTopGap + context.dpToPx(12))
+            }
+        }
+
+        run {
+            // gap between symbol and name is 8dp
+            val currenGap = binding.run {
+                symbol.verticalPadding().bottom + name.verticalPadding().top
+            }
+            binding.name.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                updateMargins(top = -currenGap + context.dpToPx(8))
+            }
+        }
+
+        run {
+            // gap between name and graph is 12dp
+            val currenGap = binding.name.verticalPadding().bottom
+
+            binding.graph.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                updateMargins(top = -currenGap + context.dpToPx(12))
+            }
+        }
+
         val graphData = renderData.getGraphData(config).orEmpty()
-        val widgetSize = getWidgetSize(widgetId = config.widgetId)
         val filteredData = graphData.filter { it.size == 2 && it[1] != 0.0 }
         if (filteredData.size >= 2) {
-            val width = context.dpToPxF(widgetSize - 12 * 2f)
-            val height = width / 2
+            container.mesureAndLayout(config)
+            val width = binding.graph.measuredWidth.toFloat()
+            val height = binding.graph.measuredHeight.toFloat()
             val isPositive = filteredData.last()[1] > filteredData.first()[1]
             val bitmap = createGraphBitmap(
                 context = context,
@@ -328,12 +382,6 @@ class TickerWidgetRenderer @Inject constructor(
                 data = graphData
             )
             binding.graph.setImageBitmap(bitmap)
-
-            // config gap between graph and amount to 4dp
-            val amountTopGap = binding.amount.verticalPadding().top
-            binding.graph.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                updateMargins(bottom = -amountTopGap + context.dpToPx(8))
-            }
         }
     }
 
@@ -564,7 +612,7 @@ class TickerWidgetRenderer @Inject constructor(
         val bitmap = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val paint = Paint()
-        paint.strokeWidth = context.dpToPxF(8f)
+        paint.strokeWidth = context.dpToPxF(2f)
         paint.style = Paint.Style.STROKE
         paint.isAntiAlias = true
         paint.strokeCap = Paint.Cap.ROUND
