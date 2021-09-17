@@ -14,7 +14,7 @@ import java.lang.ref.WeakReference
 
 class LocalRemoteViews(
     context: Context,
-    container: ViewGroup,
+    val container: ViewGroup,
     @LayoutRes layoutId: Int,
 ) : RemoteViews(context.packageName, layoutId) {
 

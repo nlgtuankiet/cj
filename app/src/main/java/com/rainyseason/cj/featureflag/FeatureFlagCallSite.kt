@@ -80,6 +80,7 @@ object FeatureFlag {
 
 object DebugFlag {
     val POSITIVE_WIDGET = DebugKey("positive_widget")
+    val SHOW_PREVIEW_LAYOUT_BOUNDS = DebugKey("show_preview_layout_bounds")
 }
 
 class DebugFlagSetter : AppCompatActivity() {

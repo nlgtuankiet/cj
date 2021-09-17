@@ -24,6 +24,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
+import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
@@ -407,10 +408,19 @@ class TickerWidgetRenderer @Inject constructor(
 
         container.mesureAndLayout(params.config)
         val size = getWidgetSize(params.config.widgetId)
-        val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        container.draw(canvas)
-        view.setImageViewBitmap(R.id.image_view, bitmap)
+
+
+        if (params.isPreview && DebugFlag.SHOW_PREVIEW_LAYOUT_BOUNDS.isEnable) {
+            view as LocalRemoteViews
+            view.container.removeAllViews()
+            view.container.addView(container)
+        } else {
+            val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            container.draw(canvas)
+            view.setImageViewBitmap(R.id.image_view, bitmap)
+        }
+
     }
 
     private fun SpannableStringBuilder.appendChange(
