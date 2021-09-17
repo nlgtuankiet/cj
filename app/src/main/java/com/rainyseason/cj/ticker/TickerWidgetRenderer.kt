@@ -328,6 +328,12 @@ class TickerWidgetRenderer @Inject constructor(
                 data = graphData
             )
             binding.graph.setImageBitmap(bitmap)
+
+            // config gap between graph and amount to 4dp
+            val amountTopGap = binding.amount.verticalPadding().top
+            binding.graph.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                updateMargins(bottom = -amountTopGap + context.dpToPx(8))
+            }
         }
     }
 
@@ -560,6 +566,7 @@ class TickerWidgetRenderer @Inject constructor(
         val paint = Paint()
         paint.strokeWidth = context.dpToPxF(8f)
         paint.style = Paint.Style.STROKE
+        paint.isAntiAlias = true
         paint.strokeCap = Paint.Cap.ROUND
         paint.color = if (isPositive) {
             context.getColorCompat(R.color.ticket_line_green)
