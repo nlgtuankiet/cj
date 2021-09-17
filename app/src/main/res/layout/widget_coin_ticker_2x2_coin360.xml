@@ -8,9 +8,12 @@
     android:background="@drawable/coin_ticker_background_positive_light">
 
     <com.google.android.material.textview.MaterialTextView
+
         android:id="@+id/symbol"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:textAlignment="center"
         android:textAllCaps="true"
         android:textColor="@color/white"
@@ -26,6 +29,8 @@
         android:id="@+id/amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:autoSizeMaxTextSize="38sp"
         android:autoSizeMinTextSize="1sp"
         android:autoSizeStepGranularity="1sp"
@@ -45,6 +50,8 @@
         android:id="@+id/change_percent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:orientation="horizontal"
