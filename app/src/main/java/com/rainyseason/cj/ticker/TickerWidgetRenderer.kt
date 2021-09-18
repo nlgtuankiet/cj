@@ -374,12 +374,19 @@ class TickerWidgetRenderer @Inject constructor(
             val width = binding.graph.measuredWidth.toFloat()
             val height = binding.graph.measuredHeight.toFloat()
             val isPositive = filteredData.last()[1] > filteredData.first()[1]
+            val renderData = if (!isPositive && DebugFlag.POSITIVE_WIDGET.isEnable) {
+                filteredData.mapIndexed { index, point ->
+                    listOf(point[0], filteredData[filteredData.size - 1 - index][1])
+                }
+            } else {
+                filteredData
+            }
             val bitmap = createGraphBitmap(
                 context = context,
                 width = width,
                 height = height,
                 isPositive = isPositive || DebugFlag.POSITIVE_WIDGET.isEnable,
-                data = graphData
+                data = renderData
             )
             binding.graph.setImageBitmap(bitmap)
         }

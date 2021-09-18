@@ -54,7 +54,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private var saved = false
 
     init {
-        loadConfig()
         loadDisplayData()
 
 
@@ -62,9 +61,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             maybeSaveDisplayData(state)
         }
 
-        viewModelScope.launch {
-            saveInitialConfig()
-        }
+
 
         reload()
     }
@@ -72,6 +69,9 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     fun reload() {
         loadCoinDetail()
         loadGraphs()
+        viewModelScope.launch {
+            saveInitialConfig()
+        }
     }
 
     private var loadGraphsJob: Job? = null
@@ -112,7 +112,12 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 currency = userSetting.currencyCode,
             )
             coinTickerRepository.setConfig(widgetId, config)
+        } else {
+            val newConfig = lastConfig.copy(coinId = args.coinId)
+            coinTickerRepository.setConfig(widgetId, newConfig)
         }
+
+        loadConfig()
     }
 
     private fun updateConfig(block: CoinTickerConfig.() -> CoinTickerConfig) {
@@ -187,8 +192,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
+    private var loadConfigJob: Job? = null
     private fun loadConfig() {
-        coinTickerRepository.getConfigStream(widgetId)
+        loadConfigJob?.cancel()
+        loadConfigJob = coinTickerRepository.getConfigStream(widgetId)
             .execute { copy(savedConfig = it) }
     }
 
