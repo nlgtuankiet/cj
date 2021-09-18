@@ -8,12 +8,16 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.data.UserSettingStorage
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
+import com.rainyseason.cj.tracking.AppTracker
+import com.rainyseason.cj.tracking.Tracker
 import com.squareup.moshi.Moshi
+import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
 import dagger.Module
@@ -38,7 +42,8 @@ import javax.inject.Singleton
         AndroidSupportInjectionModule::class,
         MainActivityModule::class,
         CoinTickerSettingActivityModule::class,
-        AppModule::class
+        AppProvides::class,
+        AppBinds::class,
     ]
 )
 @Singleton
@@ -48,14 +53,20 @@ interface AppComponent : AndroidInjector<CJApplication>, CoreComponent {
     @Component.Factory
     interface Factory {
         fun create(
-            @BindsInstance application: Application
+            @BindsInstance application: Application,
         ): AppComponent
     }
 }
 
+@Module
+interface AppBinds {
+    @Binds
+    fun tracker(appTracker: AppTracker): Tracker
+}
+
 
 @Module
-object AppModule {
+object AppProvides {
 
     @Provides
     @Singleton
@@ -68,6 +79,12 @@ object AppModule {
             builder.addInterceptor(logging)
         }
         return builder
+    }
+
+    @Provides
+    @Singleton
+    fun firebaseAnalytic(context: Context): FirebaseAnalytics {
+        return FirebaseAnalytics.getInstance(context)
     }
 
     @Provides

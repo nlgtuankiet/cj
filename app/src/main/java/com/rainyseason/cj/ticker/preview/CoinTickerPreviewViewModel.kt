@@ -18,6 +18,7 @@ import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.ChangeInterval
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
+import com.rainyseason.cj.tracking.Tracker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -47,6 +48,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private val coinTickerRepository: CoinTickerRepository,
     private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
+    private val tracker: Tracker,
 ) : MavericksViewModel<CoinTickerPreviewState>(CoinTickerPreviewState()) {
 
     private val widgetId = args.widgetId

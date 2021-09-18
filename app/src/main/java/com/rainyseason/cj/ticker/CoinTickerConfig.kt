@@ -56,6 +56,24 @@ data class CoinTickerConfig(
     val roundToMillion: Boolean = true,
 ) {
 
+    fun getTrackingParams(): Map<String, Any?> {
+        return mapOf(
+            "coin_id" to coinId,
+            "number_of_price_decimal" to numberOfAmountDecimal,
+            "number_of_change_percent_decimal" to numberOfChangePercentDecimal,
+            "refresh_interval_seconds" to refreshIntervalUnit.toSeconds(refreshInterval),
+            "theme" to theme,
+            "show_thousands_separator" to showThousandsSeparator,
+            "bottom_content_type" to bottomContentType,
+            "change_interval" to changeInterval,
+            "layout" to layout,
+            "click_action" to clickAction,
+            "show_currency_symbol" to showCurrencySymbol,
+            "currency" to currency,
+            "round_to_million" to roundToMillion,
+        )
+    }
+
     object Layout {
         const val DEFAULT = "default"
         const val GRAPH = "graph"

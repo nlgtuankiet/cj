@@ -8,6 +8,8 @@ import androidx.work.WorkerParameters
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.local.CoinTickerRepository
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -23,6 +25,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     private val coinTickerRepository: CoinTickerRepository,
     private val appWidgetManager: AppWidgetManager,
     private val render: TickerWidgetRenderer,
+    private val tracker: Tracker,
 ) : CoroutineWorker(appContext = appContext, params = params) {
 
     override suspend fun doWork(): Result {
@@ -51,6 +54,12 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             // TODO launch intent to config the widget?
             return
         }
+
+        tracker.logKeyParamsEvent(
+            key = "widget_refresh",
+            params = config.getTrackingParams(),
+        )
+
         val oldDisplayData: CoinTickerDisplayData = coinTickerRepository.getDisplayData(widgetId)
             ?: throw IllegalStateException("missing display data")
 

@@ -13,6 +13,8 @@ import com.rainyseason.cj.common.ActivityScope
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.list.CoinTickerListFragmentModule
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -66,6 +68,9 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
     @Inject
     lateinit var navigator: CoinTickerNavigator
 
+    @Inject
+    lateinit var tracker: Tracker
+
     private var widgetSaved = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,6 +106,12 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
             data = data,
             showLoading = false,
         )
+
+        tracker.logKeyParamsEvent(
+            key = "widget_save",
+            params = config.getTrackingParams(),
+        )
+
         val remoteView = RemoteViews(packageName, render.selectLayout(config))
         render.render(
             view = remoteView,
