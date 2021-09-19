@@ -5,6 +5,8 @@ import android.content.Context
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.internal.common.CrashlyticsCore
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.local.CoinTickerRepository
@@ -37,7 +39,12 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             throw IllegalArgumentException("invalid id")
         }
 
-        updateWidget(widgetId)
+        try {
+            updateWidget(widgetId)
+        } catch (ex: Throwable) {
+            FirebaseCrashlytics.getInstance().recordException(ex)
+        }
+
 
         return Result.success()
     }
