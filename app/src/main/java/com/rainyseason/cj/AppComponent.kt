@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.os.Looper
 import android.os.PowerManager
+import android.util.Log
 import androidx.core.content.getSystemService
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
@@ -168,7 +169,16 @@ object AppProvides {
         context: Context,
         factory: AppWorkerFactory,
     ): WorkManager {
-        val config = Configuration.Builder().setWorkerFactory(factory).build()
+        val config = Configuration.Builder()
+            .setWorkerFactory(factory)
+            .apply {
+                if (BuildConfig.IS_PLAY_STORE) {
+                    setMinimumLoggingLevel(Int.MAX_VALUE)
+                } else {
+                    setMinimumLoggingLevel(Log.VERBOSE)
+                }
+            }
+            .build()
         WorkManager.initialize(context, config)
         return WorkManager.getInstance(context)
     }
