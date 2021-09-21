@@ -10,6 +10,10 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
+import android.net.Uri
+import android.os.Build
+import android.os.PowerManager
+import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.view.View
 import android.view.View.MeasureSpec
@@ -24,6 +28,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
@@ -32,6 +37,7 @@ import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
+import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.verticalPadding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2Coin360Binding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2DefaultBinding
@@ -59,6 +65,7 @@ data class CoinTickerRenderParams(
 @Singleton
 class TickerWidgetRenderer @Inject constructor(
     private val context: Context,
+    private val powerManager: PowerManager,
     private val appWidgetManager: AppWidgetManager,
 ) {
 
@@ -457,6 +464,7 @@ class TickerWidgetRenderer @Inject constructor(
         view: RemoteViews,
         inputParams: CoinTickerRenderParams,
     ) {
+        Timber.d("render showLoading: ${inputParams.showLoading}, isPreview: ${inputParams.isPreview}, config: ${inputParams.config}")
         val container = FrameLayout(context)
         container.mesureAndLayout(inputParams.config)
         val params = inputParams.maybePositive()
@@ -467,9 +475,10 @@ class TickerWidgetRenderer @Inject constructor(
             else -> error("Unknown layout: ${params.config.layout}")
         }
 
+        renderBaterryOptimizeInfo(container, view, params)
+
         container.mesureAndLayout(params.config)
         val size = getWidgetSize(params.config.widgetId)
-
 
         if (params.isPreview && DebugFlag.SHOW_PREVIEW_LAYOUT_BOUNDS.isEnable) {
             view as LocalRemoteViews
@@ -482,6 +491,57 @@ class TickerWidgetRenderer @Inject constructor(
             view.setImageViewBitmap(R.id.image_view, bitmap)
         }
 
+
+    }
+
+
+    private fun renderBaterryOptimizeInfo(
+        container: ViewGroup,
+        view: RemoteViews,
+        params: CoinTickerRenderParams,
+    ) {
+        if (!context.isInBatteryOptimize()) {
+            return
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            // improve handle
+            return
+        }
+        if (!params.config.showBatteryWarning) {
+            return
+        }
+
+        // render warning content
+        val warningContent =
+            context.inflater().inflate(R.layout.widget_square_2x2_battery_warning, container, true)
+        val textView = warningContent.findViewById<TextView>(R.id.battery_optmize_text)
+        val warningRes = if (params.isPreview) {
+            R.string.notice_battery_optimize
+        } else {
+            R.string.notice_battery_optimize_without_action
+        }
+        textView.setText(warningRes)
+
+        if (!params.isPreview) {
+            return
+        }
+
+        val intent = Intent()
+        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        intent.data = Uri.parse("package:${context.packageName}")
+        intent.flags = intent.flags.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+        val hasActivity = context.packageManager.resolveActivity(intent, 0) != null
+        if (!hasActivity) {
+            FirebaseCrashlytics.getInstance().recordException(
+                IllegalStateException("Unable to find app detail activity")
+            )
+            return
+        }
+
+        view as LocalRemoteViews
+        view.container.setOnClickListener {
+            context.startActivity(intent)
+        }
     }
 
     private fun SpannableStringBuilder.appendChange(

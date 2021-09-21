@@ -54,6 +54,9 @@ data class CoinTickerConfig(
 
     @Json(name = "round_to_million")
     val roundToMillion: Boolean = true,
+
+    @Json(name = "show_battery_warning")
+    val showBatteryWarning: Boolean = true,
 ) {
 
     fun getTrackingParams(): Map<String, Any?> {

@@ -8,7 +8,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.mvrx.MavericksView
@@ -80,28 +82,31 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
 
         val previewView = view.findViewById<CoinTickerPreviewView>(R.id.preview_view)
         previewView.setWidgetId(requireArgs<CoinTickerPreviewArgs>().widgetId)
+
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.stateFlow.map { state ->
-                val savedConfig = state.savedConfig.invoke()
-                val savedDisplayData = state.savedDisplayData.invoke()
-                val params =
-                    if (savedConfig != null && savedDisplayData != null) {
-                        CoinTickerRenderParams(
-                            config = savedConfig,
-                            data = savedDisplayData,
-                            showLoading = false,
-                            isPreview = true,
-                        )
-                    } else {
-                        null
-                    }
-                params
-            }
-                .distinctUntilChanged()
-                .flowOn(Dispatchers.IO)
-                .collect {
-                    previewView.setRenderParams(it)
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                viewModel.stateFlow.map { state ->
+                    val savedConfig = state.savedConfig.invoke()
+                    val savedDisplayData = state.savedDisplayData.invoke()
+                    val params =
+                        if (savedConfig != null && savedDisplayData != null) {
+                            CoinTickerRenderParams(
+                                config = savedConfig,
+                                data = savedDisplayData,
+                                showLoading = false,
+                                isPreview = true,
+                            )
+                        } else {
+                            null
+                        }
+                    params
                 }
+                    .distinctUntilChanged()
+                    .flowOn(Dispatchers.IO)
+                    .collect {
+                        previewView.setRenderParams(it)
+                    }
+            }
         }
     }
 

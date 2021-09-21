@@ -6,7 +6,8 @@ import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.crashlytics.internal.common.CrashlyticsCore
+import com.rainyseason.cj.common.BaterrySaveException
+import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.local.CoinTickerRepository
@@ -39,10 +40,32 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             throw IllegalArgumentException("invalid id")
         }
 
+        if (appContext.isInBatteryOptimize()) {
+            tracker.logKeyParamsEvent(
+                "widget_refresh_fail",
+                mapOf(
+                    "reason" to "in_battery_optimize"
+                )
+            )
+            return Result.retry()
+        }
+
         try {
             updateWidget(widgetId)
         } catch (ex: Throwable) {
-            FirebaseCrashlytics.getInstance().recordException(ex)
+            val sendEx = if (appContext.isInBatteryOptimize()) {
+                BaterrySaveException(ex)
+            } else {
+                ex
+            }
+            tracker.logKeyParamsEvent(
+                "widget_refresh_fail",
+                mapOf(
+                    "reason" to "unknown",
+                    "message" to (sendEx.message ?: sendEx.cause?.message ?: "")
+                )
+            )
+            FirebaseCrashlytics.getInstance().recordException(sendEx)
         }
 
 
@@ -88,18 +111,19 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             coinDetail = coinGeckoService.getCoinDetail(config.coinId)
         } catch (ex: Exception) {
             // show error ui? toast?
-            val oldView = RemoteViews(appContext.packageName, render.selectLayout(config))
+            val errorView = RemoteViews(appContext.packageName, render.selectLayout(config))
             val oldParams = CoinTickerRenderParams(
                 config = config,
                 data = oldDisplayData,
-                showLoading = true,
+                showLoading = false,
+                isPreview = false
             )
             render.render(
-                view = loadingView,
+                view = errorView,
                 inputParams = oldParams,
             )
-            appWidgetManager.updateAppWidget(widgetId, oldView)
-            return
+            appWidgetManager.updateAppWidget(widgetId, errorView)
+            throw ex
         }
 
         val graphResponse = coinGeckoService.getMarketChart(

@@ -227,6 +227,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
+    fun switchShowBaterryWarning() {
+        updateConfig { copy(showBatteryWarning = !showBatteryWarning) }
+    }
+
     fun switchShowCurrency() {
         updateConfig { copy(showCurrencySymbol = !showCurrencySymbol) }
     }

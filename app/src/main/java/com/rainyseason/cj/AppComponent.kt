@@ -4,6 +4,8 @@ import android.app.Application
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.os.Looper
+import android.os.PowerManager
+import androidx.core.content.getSystemService
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.work.Configuration
@@ -169,6 +171,12 @@ object AppProvides {
         val config = Configuration.Builder().setWorkerFactory(factory).build()
         WorkManager.initialize(context, config)
         return WorkManager.getInstance(context)
+    }
+
+    @Provides
+    @Singleton
+    fun powerManager(context: Context): PowerManager {
+        return context.getSystemService()!!
     }
 }
 

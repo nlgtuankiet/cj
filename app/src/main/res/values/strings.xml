@@ -68,5 +68,7 @@
     <string name="error_no_network">No internet connection, try to enable WIFI!</string>
     <string name="error_rate_limit">Too many network response, please wait for a moment and try again!</string>
     <string name="error_unknown">Unknown erorr, please try again!</string>
-
+    <string name="notice_battery_optimize">Widget cann\'t update when battery saver is enabled\nClick to exclude app from battery saver</string>
+    <string name="notice_battery_optimize_without_action">Widget cann\'t update when battery saver is enabled\nClick to refresh</string>
+    <string name="coin_ticker_preview_setting_show_battery_warning">Show battery optimization warning</string>
 </resources>

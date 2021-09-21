@@ -38,6 +38,16 @@ static def generateVersionCode() {
 android {
     compileSdk 30
 
+    testOptions {
+        unitTests.all {
+            // All the usual Gradle options.
+            testLogging {
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen { false }
+                showStandardStreams = true
+            }
+        }
+    }
 
     defaultConfig {
         applicationId "com.rainyseason.cj"
@@ -129,6 +139,7 @@ dependencies {
     def moshi_version = "1.12.0"
     implementation("com.squareup.moshi:moshi:$moshi_version")
     kapt("com.squareup.moshi:moshi-kotlin-codegen:$moshi_version")
+    kaptTest("com.squareup.moshi:moshi-kotlin-codegen:$moshi_version")
 
     def dagger_version = '2.38.1'
     implementation "com.google.dagger:dagger:${dagger_version}"

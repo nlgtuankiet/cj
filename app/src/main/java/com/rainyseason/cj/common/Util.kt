@@ -7,8 +7,10 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
+import android.os.PowerManager
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -25,6 +27,7 @@ import androidx.annotation.LayoutRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -215,4 +218,13 @@ fun TextView.verticalPadding(): VerticalTextPadding {
 fun Context.inflater(): LayoutInflater {
     val themeContext = ContextThemeWrapper(this, R.style.Theme_CryptoJet)
     return LayoutInflater.from(themeContext)
+}
+
+fun Context.isInBatteryOptimize(): Boolean {
+    val powerManager = getSystemService<PowerManager>()!!
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        powerManager.isPowerSaveMode && !powerManager.isIgnoringBatteryOptimizations(packageName)
+    } else {
+        powerManager.isPowerSaveMode
+    }
 }

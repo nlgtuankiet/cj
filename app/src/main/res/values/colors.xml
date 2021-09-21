@@ -23,6 +23,8 @@
     <color name="gray_500">#9E9E9E</color>
     <color name="gray_900">#212121</color>
 
+    <color name="black_a75">#BF000000</color>
+
 
     <color name="red_600">#E53935</color>
     <color name="red_500">#F44336</color>

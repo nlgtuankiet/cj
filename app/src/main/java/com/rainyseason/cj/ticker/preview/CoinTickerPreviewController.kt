@@ -91,6 +91,21 @@ class CoinTickerPreviewController(
         addSeparator = false
         buildLayout(state)
         buildTheme(state)
+        buildBatteryWarning(state)
+    }
+
+    private fun buildBatteryWarning(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        maybeBuildHorizontalSeparator(id = "show_battery_warning_separator")
+
+        settingSwitchView {
+            id("show_battery_warning")
+            title(R.string.coin_ticker_preview_setting_show_battery_warning)
+            checked(config.showBatteryWarning)
+            onClickListener { _ ->
+                viewModel.switchShowBaterryWarning()
+            }
+        }
     }
 
     private fun buildLayout(state: CoinTickerPreviewState) {

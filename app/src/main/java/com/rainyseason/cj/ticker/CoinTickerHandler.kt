@@ -3,11 +3,13 @@ package com.rainyseason.cj.ticker
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.widget.RemoteViews
+import androidx.work.BackoffPolicy
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.rainyseason.cj.data.local.CoinTickerRepository
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,6 +30,7 @@ class CoinTickerHandler @Inject constructor(
             .setInputData(
                 Data.Builder().putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId).build()
             )
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5L, TimeUnit.SECONDS)
             .build()
         workManager.enqueueUniquePeriodicWork(
             "refresh_${widgetId}",

@@ -15,6 +15,7 @@ import com.rainyseason.cj.common.NoopWorker
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.featureflag.MainFlagValueProvider
 import com.rainyseason.cj.featureflag.NoopFlagValueProvider
+import com.rainyseason.cj.util.ExceptionLoggerTree
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
@@ -50,6 +51,7 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
 
         if (!BuildConfig.IS_PLAY_STORE) {
             Timber.plant(Timber.DebugTree())
+            Timber.plant(ExceptionLoggerTree())
         }
 
         if (!BuildConfig.IS_PLAY_STORE) {
