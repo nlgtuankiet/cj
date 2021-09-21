@@ -49,9 +49,9 @@ class CoinTickerPreviewController(
             return
         }
         buildStyle(state)
-        buildBehaviorSetting(state)
         buildCurrencyGroup(state)
         buildBottomSetting(state)
+        buildBehaviorSetting(state)
     }
 
     private fun buildRetry(state: CoinTickerPreviewState): BuildState {
