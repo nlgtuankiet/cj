@@ -61,7 +61,7 @@ android {
         println "Version code is $versionCode"
 
         if (isPlayStore) {
-            versionName "1.4.2"
+            versionName "1.5"
         } else {
             versionName "0.1"
         }
