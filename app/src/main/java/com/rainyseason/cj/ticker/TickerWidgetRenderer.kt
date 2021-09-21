@@ -184,6 +184,7 @@ class TickerWidgetRenderer @Inject constructor(
             )
         }
         binding.container.setBackgroundResource(backgroundRes)
+        applyBackgroundTransparency(binding.container, config)
 
         // bind remote view
         remoteViews.applyClickAction(params)
@@ -196,6 +197,15 @@ class TickerWidgetRenderer @Inject constructor(
 
         // bind amount
         binding.amount.text = formatAmount(params)
+    }
+
+    private fun applyBackgroundTransparency(
+        background: View,
+        config: CoinTickerConfig,
+    ) {
+        background.background?.mutate()?.apply {
+            alpha = ((100 - config.backgroundTransparency.toDouble()) / 100 * 255).toInt()
+        }
     }
 
     private fun renderDefault(
@@ -221,6 +231,8 @@ class TickerWidgetRenderer @Inject constructor(
                 R.drawable.coin_ticker_background_dark
             )
         )
+        applyBackgroundTransparency(binding.container, config)
+
         remoteViews.applyClickAction(params)
 
         // bind symbol
@@ -307,6 +319,7 @@ class TickerWidgetRenderer @Inject constructor(
                 R.drawable.coin_ticker_background_dark
             )
         )
+        applyBackgroundTransparency(binding.container, config)
         remoteViews.applyClickAction(params)
 
         // bind symbol

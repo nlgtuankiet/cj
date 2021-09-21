@@ -14,6 +14,7 @@ import com.rainyseason.cj.common.setCancelButton
 import com.rainyseason.cj.common.view.horizontalSeparatorView
 import com.rainyseason.cj.common.view.retryView
 import com.rainyseason.cj.common.view.settingHeaderView
+import com.rainyseason.cj.common.view.settingSliderView
 import com.rainyseason.cj.common.view.settingSwitchView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
 import com.rainyseason.cj.ticker.BottomContentType
@@ -93,6 +94,24 @@ class CoinTickerPreviewController(
         buildTheme(state)
         buildBatteryWarning(state)
         buildSizeAdjustment(state)
+        buildBackgroundTransparency(state)
+    }
+
+    private fun buildBackgroundTransparency(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        maybeBuildHorizontalSeparator(id = "separator_background_transparency")
+
+        settingSliderView {
+            id("setting_background_transparency")
+            title(R.string.coin_ticker_preview_setting_background_transparency)
+            valueFrom(0)
+            valueTo(100)
+            stepSize(5)
+            value(config.backgroundTransparency)
+            onChangeListener { newValue ->
+                viewModel.setBackgroundTransparency(newValue)
+            }
+        }
     }
 
 

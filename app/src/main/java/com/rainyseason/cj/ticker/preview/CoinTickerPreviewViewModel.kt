@@ -149,6 +149,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         updateConfig { copy(bottomContentType = type) }
     }
 
+    fun setBackgroundTransparency(value: Int) {
+        updateConfig { copy(backgroundTransparency = value) }
+    }
+
     fun setAdjustment(value: Int) {
         updateConfig { copy(sizeAdjustment = value) }
     }

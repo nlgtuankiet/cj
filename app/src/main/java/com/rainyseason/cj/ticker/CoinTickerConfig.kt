@@ -60,6 +60,9 @@ data class CoinTickerConfig(
 
     @Json(name = "size_adjustment")
     val sizeAdjustment: Int = 0,
+
+    @Json(name = "background_transparency")
+    val backgroundTransparency: Int = 0,
 ) {
 
     fun getTrackingParams(): Map<String, Any?> {

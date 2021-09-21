@@ -74,4 +74,5 @@
 
 
     <string name="coin_ticker_preview_setting_size_adjustment">Size adjustmnet</string>
+    <string name="coin_ticker_preview_setting_background_transparency">Background transparency</string>
 </resources>
