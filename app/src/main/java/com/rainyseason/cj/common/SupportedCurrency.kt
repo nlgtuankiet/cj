@@ -111,4 +111,91 @@ val SUPPORTED_CURRENCY = mapOf(
         name = "British Pound Sterling",
         locale = Locale.UK
     ),
+
+    // added since 1.5
+    "cad" to CurrencyInfo(
+        code = "cad",
+        name = "Canadian Dollar",
+        locale = Locale.CANADA
+    ),
+    "nzd" to CurrencyInfo(
+        code = "nzd",
+        name = "New Zealand Dollar",
+        locale = Locale("en", "NZ")
+    ),
+    "inr" to CurrencyInfo(
+        code = "inr",
+        name = "Indian Rupee",
+        locale = Locale("hi", "IN")
+    ),
+    "aud" to CurrencyInfo(
+        code = "aud",
+        name = "Australian Dollar",
+        locale = Locale("en", "AU")
+    ),
+    "php" to CurrencyInfo(
+        code = "php",
+        name = "Philippine Pesor",
+        locale = Locale("en", "PH")
+    ),
+    "pln" to CurrencyInfo(
+        code = "pln",
+        name = "Polish Zloty",
+        locale = Locale("pl", "PL")
+    ),
+    "sgd" to CurrencyInfo(
+        code = "sgd",
+        name = "Singapore Dollar",
+        locale = Locale("en", "SG")
+    ),
+    "sek" to CurrencyInfo(
+        code = "sek",
+        name = "Swedish Krona",
+        locale = Locale("sv", "SE")
+    ),
+    "chf" to CurrencyInfo(
+        code = "chf",
+        name = "Swiss Franc",
+        locale = Locale("fr", "CH")
+    ),
+    "myr" to CurrencyInfo(
+        code = "myr",
+        name = "Malaysian Ringgit",
+        locale = Locale("ms", "MY")
+    ),
+    "thb" to CurrencyInfo(
+        code = "thb",
+        name = "Thai Baht",
+        locale = Locale("th", "TH")
+    ),
+    "rub" to CurrencyInfo(
+        code = "rub",
+        name = "Russian Ruble",
+        locale = Locale("ru", "RU")
+    ),
+    "czk" to CurrencyInfo(
+        code = "czk",
+        name = "Czech Koruna",
+        locale = Locale("cs", "CZ")
+    ),
+    "brl" to CurrencyInfo(
+        code = "brl",
+        name = "Brazil Real",
+        locale = Locale("pt", "BR")
+    ),
+    "dkk" to CurrencyInfo(
+        code = "dkk",
+        name = "Danish Krone",
+        locale = Locale("da", "DK")
+    ),
+    "ils" to CurrencyInfo(
+        code = "ils",
+        name = "Israeli New Shekel",
+        locale = Locale("iw", "IL")
+    ),
+    "huf" to CurrencyInfo(
+        code = "huf",
+        name = "Hungarian Forint",
+        locale = Locale("hu", "HU")
+    ),
 )
