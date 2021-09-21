@@ -8,6 +8,7 @@ import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.airbnb.epoxy.TextProp
+import com.google.android.material.slider.LabelFormatter
 import com.google.android.material.slider.Slider
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.inflateAndAdd
@@ -50,6 +51,11 @@ class SettingSliderView @JvmOverloads constructor(
         slider.value = value.toFloat()
     }
 
+    @ModelProp
+    fun setLabelFormatter(formatter: NamedFormatter?) {
+        slider.setLabelFormatter(formatter)
+    }
+
     @CallbackProp
     fun setOnChangeListener(l: ((newValue: Int) -> Unit)?) {
         if (l != null) {
@@ -62,5 +68,35 @@ class SettingSliderView @JvmOverloads constructor(
             slider.clearOnChangeListeners()
         }
     }
+}
 
+abstract class NamedFormatter(val value: String) : LabelFormatter {
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return value == (other as? NamedFormatter)?.value
+    }
+}
+
+object PercentLabelFormatrer : NamedFormatter("PercentLabelFormatrer") {
+    override fun getFormattedValue(value: Float): String {
+        return "${value.toInt()}%"
+    }
+}
+
+object SizeLabelFormatter : NamedFormatter("SizeLabelFormatter") {
+
+    override fun getFormattedValue(value: Float): String {
+        val intValue = value.toInt()
+        return when {
+            intValue > 0 -> {
+                "+$intValue"
+            }
+            else -> {
+                intValue.toString()
+            }
+        }
+    }
 }

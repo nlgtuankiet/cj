@@ -80,6 +80,9 @@ data class CoinTickerConfig(
             "show_currency_symbol" to showCurrencySymbol,
             "currency" to currency,
             "round_to_million" to roundToMillion,
+            "show_battery_ưarning" to showBatteryWarning,
+            "size_adjustment" to sizeAdjustment,
+            "background_transparency" to backgroundTransparency,
         )
     }
 

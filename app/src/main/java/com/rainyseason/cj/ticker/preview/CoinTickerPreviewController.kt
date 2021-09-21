@@ -11,6 +11,8 @@ import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.setCancelButton
+import com.rainyseason.cj.common.view.PercentLabelFormatrer
+import com.rainyseason.cj.common.view.SizeLabelFormatter
 import com.rainyseason.cj.common.view.horizontalSeparatorView
 import com.rainyseason.cj.common.view.retryView
 import com.rainyseason.cj.common.view.settingHeaderView
@@ -108,6 +110,7 @@ class CoinTickerPreviewController(
             valueTo(100)
             stepSize(5)
             value(config.backgroundTransparency)
+            labelFormatter(PercentLabelFormatrer)
             onChangeListener { newValue ->
                 viewModel.setBackgroundTransparency(newValue)
             }
@@ -119,54 +122,19 @@ class CoinTickerPreviewController(
         val config = state.config ?: return
         maybeBuildHorizontalSeparator(id = "size_adjustment_separator")
 
-        val allAdjustment = listOf(
-            -24,
-            -20,
-            -16,
-            -12,
-            -8,
-            -4,
-            0,
-            4,
-            8,
-            12,
-            16,
-            20,
-            24
-        )
 
-        fun adjustmentToString(value: Int): String {
-            return if (value > 0) {
-                "+$value"
-            } else {
-                value.toString()
-            }
-        }
-
-        val textValues = allAdjustment.map { adjustmentToString(it) }
-
-        settingTitleSummaryView {
+        settingSliderView {
             id("setting_size_adjustment")
             title(R.string.coin_ticker_preview_setting_size_adjustment)
-            summary(adjustmentToString(config.sizeAdjustment))
-            onClickListener { _ ->
-                val currentAdjustment = withState(viewModel) { it.config?.sizeAdjustment }
-                    ?: return@onClickListener
-                AlertDialog.Builder(context)
-                    .setTitle(R.string.coin_ticker_preview_setting_size_adjustment)
-                    .setCancelButton()
-                    .setSingleChoiceItems(
-                        textValues.toTypedArray(),
-                        allAdjustment.indexOfFirst { currentAdjustment == it },
-                    ) { dialog, which ->
-                        val select = allAdjustment[which]
-                        viewModel.setAdjustment(select)
-                        dialog.dismiss()
-                    }
-                    .show()
+            valueFrom(-24)
+            valueTo(24)
+            stepSize(4)
+            value(config.sizeAdjustment)
+            labelFormatter(SizeLabelFormatter)
+            onChangeListener { value ->
+                viewModel.setAdjustment(value)
             }
         }
-
     }
 
     private fun buildBatteryWarning(state: CoinTickerPreviewState) {
