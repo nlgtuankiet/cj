@@ -159,14 +159,15 @@ dependencies {
 
     implementation 'androidx.preference:preference-ktx:1.1.1'
 
-    implementation platform('com.google.firebase:firebase-bom:28.4.0')
+    implementation platform('com.google.firebase:firebase-bom:28.4.1')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-crashlytics'
+    implementation 'com.google.firebase:firebase-perf-ktx'
 
     def nav_version = "2.3.5"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
 
-    implementation 'com.google.firebase:firebase-perf'
+
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
