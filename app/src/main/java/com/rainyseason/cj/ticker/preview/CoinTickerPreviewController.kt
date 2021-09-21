@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit
 
 class CoinTickerPreviewController(
     private val viewModel: CoinTickerPreviewViewModel,
-    private val context: Context
+    private val context: Context,
 ) : AsyncEpoxyController() {
 
     private var addSeparator = true
@@ -92,6 +92,62 @@ class CoinTickerPreviewController(
         buildLayout(state)
         buildTheme(state)
         buildBatteryWarning(state)
+        buildSizeAdjustment(state)
+    }
+
+
+    private fun buildSizeAdjustment(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        maybeBuildHorizontalSeparator(id = "size_adjustment_separator")
+
+        val allAdjustment = listOf(
+            -24,
+            -20,
+            -16,
+            -12,
+            -8,
+            -4,
+            0,
+            4,
+            8,
+            12,
+            16,
+            20,
+            24
+        )
+
+        fun adjustmentToString(value: Int): String {
+            return if (value > 0) {
+                "+$value"
+            } else {
+                value.toString()
+            }
+        }
+
+        val textValues = allAdjustment.map { adjustmentToString(it) }
+
+        settingTitleSummaryView {
+            id("setting_size_adjustment")
+            title(R.string.coin_ticker_preview_setting_size_adjustment)
+            summary(adjustmentToString(config.sizeAdjustment))
+            onClickListener { _ ->
+                val currentAdjustment = withState(viewModel) { it.config?.sizeAdjustment }
+                    ?: return@onClickListener
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_setting_size_adjustment)
+                    .setCancelButton()
+                    .setSingleChoiceItems(
+                        textValues.toTypedArray(),
+                        allAdjustment.indexOfFirst { currentAdjustment == it },
+                    ) { dialog, which ->
+                        val select = allAdjustment[which]
+                        viewModel.setAdjustment(select)
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
+
     }
 
     private fun buildBatteryWarning(state: CoinTickerPreviewState) {

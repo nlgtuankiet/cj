@@ -100,6 +100,7 @@ class CoinTickerRepository @Inject constructor(
             showCurrencySymbol = widgetConfig.showCurrencySymbol,
             showThousandsSeparator = widgetConfig.showThousandsSeparator,
             numberOfChangePercentDecimal = widgetConfig.numberOfChangePercentDecimal,
+            sizeAdjustment = widgetConfig.sizeAdjustment,
         )
         userSettingRepository.setUserSetting(userSetting)
     }

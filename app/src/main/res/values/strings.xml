@@ -71,4 +71,7 @@
     <string name="notice_battery_optimize">Widget cann\'t update when battery saver is enabled\nClick to exclude app from battery saver</string>
     <string name="notice_battery_optimize_without_action">Widget cann\'t update when battery saver is enabled\nClick to refresh</string>
     <string name="coin_ticker_preview_setting_show_battery_warning">Show battery optimization warning</string>
+
+
+    <string name="coin_ticker_preview_setting_size_adjustment">Size adjustmnet</string>
 </resources>

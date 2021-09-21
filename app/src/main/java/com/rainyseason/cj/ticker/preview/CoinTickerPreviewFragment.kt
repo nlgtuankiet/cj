@@ -81,7 +81,6 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
         }
 
         val previewView = view.findViewById<CoinTickerPreviewView>(R.id.preview_view)
-        previewView.setWidgetId(requireArgs<CoinTickerPreviewArgs>().widgetId)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {

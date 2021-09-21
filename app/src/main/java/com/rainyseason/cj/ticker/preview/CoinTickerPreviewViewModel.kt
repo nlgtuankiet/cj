@@ -112,6 +112,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 showCurrencySymbol = userSetting.showCurrencySymbol,
                 roundToMillion = userSetting.roundToMillion,
                 currency = userSetting.currencyCode,
+                sizeAdjustment = userSetting.sizeAdjustment,
             )
             coinTickerRepository.setConfig(widgetId, config)
         } else {
@@ -146,6 +147,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     fun setBottomContentType(type: String) {
         updateConfig { copy(bottomContentType = type) }
+    }
+
+    fun setAdjustment(value: Int) {
+        updateConfig { copy(sizeAdjustment = value) }
     }
 
     fun setLayout(value: String) {

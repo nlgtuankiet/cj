@@ -419,15 +419,15 @@ class TickerWidgetRenderer @Inject constructor(
     }
 
     private fun ViewGroup.mesureAndLayout(config: CoinTickerConfig) {
-        val size = getWidgetSize(config.widgetId)
+        val size = getWidgetSize(config)
         val specs = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY)
         layoutParams = ViewGroup.MarginLayoutParams(size, size)
         measure(specs, specs)
         layout(0, 0, size, size)
     }
 
-    fun getWidgetSize(widgetId: Int): Int {
-        val options = appWidgetManager.getAppWidgetOptions(widgetId)
+    fun getWidgetSize(config: CoinTickerConfig): Int {
+        val options = appWidgetManager.getAppWidgetOptions(config.widgetId)
         val minWidth = context
             .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH] as? Int) ?: 155)
         val minHegth = context
@@ -435,8 +435,9 @@ class TickerWidgetRenderer @Inject constructor(
         val size = minHegth.coerceAtMost(minWidth)
             .coerceAtMost(context.dpToPx(155))
             .coerceAtLeast(context.dpToPx(145))
-        Timber.d("widget $widgetId size $size min $minWidth $minHegth")
-        return size
+        val finalSize = size + context.dpToPx(config.sizeAdjustment)
+        Timber.d("widget ${config.widgetId} size $finalSize min $minWidth $minHegth")
+        return finalSize
     }
 
     private fun TextView.updateVertialFontMargin(
@@ -478,7 +479,7 @@ class TickerWidgetRenderer @Inject constructor(
         renderBaterryOptimizeInfo(container, view, params)
 
         container.mesureAndLayout(params.config)
-        val size = getWidgetSize(params.config.widgetId)
+        val size = getWidgetSize(params.config)
 
         if (params.isPreview && DebugFlag.SHOW_PREVIEW_LAYOUT_BOUNDS.isEnable) {
             view as LocalRemoteViews

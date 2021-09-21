@@ -56,15 +56,7 @@ class CoinTickerPreviewView @JvmOverloads constructor(
     }
 
     fun setWidgetId(id: Int) {
-        val widgetSize = renderer.getWidgetSize(id)
-        container.updateLayoutParams<MarginLayoutParams> {
-            height = widgetSize
-            width = widgetSize
-        }
-        val containerSize = widgetSize + context.dpToPx(12 * 2)
-        mainContainer.updateLayoutParams<MarginLayoutParams> {
-            height = containerSize
-        }
+
 
     }
 
@@ -83,6 +75,15 @@ class CoinTickerPreviewView @JvmOverloads constructor(
             container,
             layout
         )
+        val widgetSize = renderer.getWidgetSize(params.config)
+        container.updateLayoutParams<MarginLayoutParams> {
+            height = widgetSize
+            width = widgetSize
+        }
+        val containerSize = widgetSize + context.dpToPx(12 * 2)
+        mainContainer.updateLayoutParams<MarginLayoutParams> {
+            height = containerSize
+        }
         renderer.render(remoteView!!, params)
     }
 

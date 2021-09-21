@@ -34,6 +34,8 @@ data class UserSetting(
     val showThousandsSeparator: Boolean = true,
     @Json(name = "number_of_change_percent_decimal")
     val numberOfChangePercentDecimal: Int? = 1,
+    @Json(name = "size_adjustment")
+    val sizeAdjustment: Int = 0,
 )
 
 @Suppress("MemberVisibilityCanBePrivate")
