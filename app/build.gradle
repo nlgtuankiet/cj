@@ -21,6 +21,11 @@ def getBooleanProp(name) {
 
 def isPlayStore = getBooleanProp("playstore")
 
+if (isPlayStore) {
+    println "Apply firebase performance plugin"
+    apply plugin: 'com.google.firebase.firebase-perf'
+}
+
 static def generateVersionCode() {
     def result = "git rev-list HEAD --count".execute().text.trim() //unix
     if(result.empty) result = "PowerShell -Command git rev-list HEAD --count".execute().text.trim() //windows
@@ -28,10 +33,7 @@ static def generateVersionCode() {
     return result.toInteger()
 }
 
-if (getBooleanProp("release")) {
-    println "Apply firebase performance plugin"
-    apply plugin: 'com.google.firebase.firebase-perf'
-}
+
 
 android {
     compileSdk 30

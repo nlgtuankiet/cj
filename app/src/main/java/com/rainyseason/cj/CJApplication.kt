@@ -59,15 +59,10 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         }
 
         val firebasePerformance = FirebasePerformance.getInstance()
-        if (!BuildConfig.IS_PLAY_STORE) {
-            firebasePerformance.isPerformanceCollectionEnabled = false
-        }
+        firebasePerformance.isPerformanceCollectionEnabled = BuildConfig.IS_PLAY_STORE
 
         val firebaseAnalytics = FirebaseAnalytics.getInstance(this)
-
-        if (!BuildConfig.IS_PLAY_STORE) {
-            firebaseAnalytics.setAnalyticsCollectionEnabled(false)
-        }
+        firebaseAnalytics.setAnalyticsCollectionEnabled(BuildConfig.IS_PLAY_STORE)
 
         Mavericks.initialize(
             context = this,
