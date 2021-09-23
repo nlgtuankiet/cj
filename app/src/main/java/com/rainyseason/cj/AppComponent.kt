@@ -14,6 +14,9 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
+import com.rainyseason.cj.data.ForceCacheInterceptor
+import com.rainyseason.cj.data.NetworkUrlLoggerInterceptor
+import com.rainyseason.cj.data.NoMustRevalidateInterceptor
 import com.rainyseason.cj.data.UserSettingStorage
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
@@ -30,13 +33,16 @@ import dagger.android.support.AndroidSupportInjectionModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import okhttp3.Cache
 import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import timber.log.Timber
+import java.io.File
 import javax.inject.Provider
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 
@@ -73,13 +79,23 @@ object AppProvides {
 
     @Provides
     @Singleton
-    fun provideBaseClientBuilder(): OkHttpClient.Builder {
+    fun provideBaseClientBuilder(
+        forceCacheInterceptor: ForceCacheInterceptor,
+        networkUrlLoggerInterceptor: NetworkUrlLoggerInterceptor,
+        noMustRevalidateInterceptor: NoMustRevalidateInterceptor,
+    ): OkHttpClient.Builder {
         checkNotMainThread()
         val builder = OkHttpClient.Builder()
+        builder.addNetworkInterceptor(noMustRevalidateInterceptor)
+        builder.addInterceptor(forceCacheInterceptor)
         if (BuildConfig.DEBUG) {
             val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
             logging.level = HttpLoggingInterceptor.Level.BODY
             builder.addInterceptor(logging)
+            val networkLogging = HttpLoggingInterceptor { message -> Timber.tag("OkHttpN").d(message) }
+            networkLogging.level = HttpLoggingInterceptor.Level.HEADERS
+            builder.addNetworkInterceptor(networkLogging)
+            builder.addNetworkInterceptor(networkUrlLoggerInterceptor)
         }
         return builder
     }
@@ -88,6 +104,24 @@ object AppProvides {
     @Singleton
     fun firebaseAnalytic(context: Context): FirebaseAnalytics {
         return FirebaseAnalytics.getInstance(context)
+    }
+
+    @Qualifier
+    annotation class CoinGecko
+
+    @Provides
+    @CoinGecko
+    @Singleton
+    fun coinGeckoCallFactory(
+        context: Context,
+        clientProvider: Provider<OkHttpClient>,
+    ): Call.Factory {
+        val coinGeckoClient: OkHttpClient by lazy {
+            clientProvider.get().newBuilder()
+                .cache(Cache(File(context.cacheDir, "coin_gecko_api"), 50L * 1024 * 1024))
+                .build()
+        }
+        return Call.Factory { coinGeckoClient.newCall(it) }
     }
 
     @Provides
@@ -114,10 +148,11 @@ object AppProvides {
     @Singleton
     fun provideCoinGeckoService(
         moshi: Moshi,
+        @CoinGecko
         callFactory: Call.Factory,
     ): CoinGeckoService {
         return Retrofit.Builder()
-            .baseUrl("https://api.coingecko.com/api/v3/")
+            .baseUrl(CoinGeckoService.BASE_URL)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .callFactory(callFactory)
             .build()

@@ -11,7 +11,16 @@ import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.data.coingecko.MarketsResponseEntry
+import com.rainyseason.cj.data.coingecko.getCoinListFlow
+import com.rainyseason.cj.data.coingecko.getCoinMarketsFlow
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.skip
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -22,37 +31,42 @@ data class CoinTickerListState(
     val keyword: String = "",
 ) : MavericksState
 
+
 class CoinTickerListViewModel @Inject constructor(
     private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
 ) : MavericksViewModel<CoinTickerListState>(CoinTickerListState()) {
 
+    private val keywordDebound = MutableStateFlow("")
+
     init {
         reload()
+        @OptIn(FlowPreview::class)
+        viewModelScope.launch {
+            keywordDebound.drop(1)
+                .debounce(300)
+                .distinctUntilChanged()
+                .collect { setState { copy(keyword = it) } }
+        }
     }
 
 
     fun submitNewKeyword(newKeyword: String) {
-        setState { copy(keyword = newKeyword.trim()) }
+        keywordDebound.value = newKeyword.trim()
     }
 
     private var listJob: Job? = null
     private var marketJob: Job? = null
 
     fun reload() {
-        Timber.d("reload")
         listJob?.cancel()
-        listJob = suspend {
-            val result = coinGeckoService.getCoinList()
-            result
-        }.execute { copy(list = it) }
+        listJob = coinGeckoService.getCoinListFlow().execute { copy(list = it) }
 
         marketJob?.cancel()
         marketJob = viewModelScope.launch {
             val setting = userSettingRepository.getUserSetting()
-            suspend {
-                coinGeckoService.getCoinMarkets(vsCurrency = setting.currencyCode, perPage = 1000)
-            }.execute { copy(markets = it) }
+            coinGeckoService.getCoinMarketsFlow(vsCurrency = setting.currencyCode, perPage = 1000)
+            .execute { copy(markets = it) }
         }
     }
 
