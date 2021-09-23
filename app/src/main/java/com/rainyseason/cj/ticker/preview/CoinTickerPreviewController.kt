@@ -155,8 +155,8 @@ class CoinTickerPreviewController(
         val config = state.config ?: return
 
         val layoutToString = listOf(
-            CoinTickerConfig.Layout.DEFAULT to R.string.coin_ticket_style_default,
             CoinTickerConfig.Layout.GRAPH to R.string.coin_ticket_style_graph,
+            CoinTickerConfig.Layout.DEFAULT to R.string.coin_ticket_style_default,
             CoinTickerConfig.Layout.COIN360 to R.string.coin_ticket_style_coin360,
         ).map { it.first to context.getString(it.second) }
 
