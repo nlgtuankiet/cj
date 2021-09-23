@@ -1,5 +1,6 @@
 package com.rainyseason.cj.data.coingecko
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.data.Signal
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -47,7 +48,7 @@ private fun <T> fastResponseFlow(
             val cacheReponse = cacheProvider.invoke()
             emit(cacheReponse)
         } catch (ex: Exception) {
-
+            FirebaseCrashlytics.getInstance().recordException(ex)
         }
         val realResponse = networkProvider.invoke()
         emit(realResponse)
