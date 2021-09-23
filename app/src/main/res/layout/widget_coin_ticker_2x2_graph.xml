@@ -11,8 +11,10 @@
 
 
     <com.google.android.material.textview.MaterialTextView
+        android:layout_width="0dp"
         android:id="@+id/symbol"
-        android:layout_width="wrap_content"
+
+        android:layout_marginEnd="2dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
@@ -20,6 +22,12 @@
         android:textAllCaps="true"
         android:textColor="@color/gray_900"
         android:textSize="16sp"
+        android:maxLines="1"
+        app:autoSizeMaxTextSize="16sp"
+        app:autoSizeMinTextSize="1sp"
+        app:autoSizeStepGranularity="1sp"
+        app:autoSizeTextType="uniform"
+        app:layout_constraintEnd_toStartOf="@id/change_percent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="DOGE" />
@@ -34,6 +42,10 @@
         android:layout_marginEnd="12dp"
         android:includeFontPadding="false"
         android:maxLines="1"
+        app:autoSizeMaxTextSize="16sp"
+        app:autoSizeMinTextSize="1sp"
+        app:autoSizeStepGranularity="1sp"
+        app:autoSizeTextType="uniform"
         android:textColor="@color/gray_500"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
