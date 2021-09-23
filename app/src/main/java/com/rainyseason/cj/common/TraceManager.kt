@@ -47,5 +47,10 @@ class TraceManager @Inject constructor(
 
 data class CoinTickerListTTI(
     val widgetId: Int,
-): TraceParam(key = "coin_ticker_list_tti_$widgetId", name = "coin_ticker_list_tti")
+) : TraceParam(key = "coin_ticker_list_tti_$widgetId", name = "coin_ticker_list_tti")
+
+data class CoinTickerPreviewTTI(
+    val widgetId: Int,
+) : TraceParam(key = "coin_ticker_preview_tti_$widgetId", name = "coin_ticker_preview_tti")
+
 open class TraceParam(val key: String, val name: String)

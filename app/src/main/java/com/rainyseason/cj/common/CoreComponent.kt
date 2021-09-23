@@ -20,6 +20,7 @@ interface CoreComponent {
     val moshi: Moshi
     val coinTickerRepository: CoinTickerRepository
     val debugFlagProvider: DebugFlagProvider
+    val traceManager: TraceManager
 }
 
 interface HasCoreComponent {

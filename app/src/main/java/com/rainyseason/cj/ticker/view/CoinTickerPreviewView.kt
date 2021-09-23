@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.RemoteViews
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.doOnPreDraw
 import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
 import com.airbnb.epoxy.ModelProp
@@ -15,6 +16,7 @@ import com.airbnb.epoxy.ModelView
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.CoinTickerPreviewTTI
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.inflateAndAdd
@@ -64,6 +66,11 @@ class CoinTickerPreviewView @JvmOverloads constructor(
     @ModelProp
     fun setRenderParams(params: CoinTickerRenderParams?) {
         Timber.d("render config ${params?.config}")
+        if (params != null) {
+            mainContainer.doOnPreDraw {
+                coreComponent.traceManager.endTrace(CoinTickerPreviewTTI(params.config.widgetId))
+            }
+        }
         container.removeAllViews()
         progressBar.isGone = params != null
         if (params == null) {

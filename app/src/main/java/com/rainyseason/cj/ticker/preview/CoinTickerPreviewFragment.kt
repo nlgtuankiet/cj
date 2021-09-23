@@ -17,6 +17,8 @@ import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.CoinTickerPreviewTTI
+import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.CoinTickerWidgetSaver
@@ -49,6 +51,11 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
     @Inject
     lateinit var viewModelFactory: CoinTickerPreviewViewModel.Factory
 
+    @Inject
+    lateinit var traceManager: TraceManager
+
+    private val args: CoinTickerPreviewArgs by lazy { requireArgs() }
+
     private val controller: CoinTickerPreviewController by lazy {
         CoinTickerPreviewController(viewModel, requireContext())
     }
@@ -56,6 +63,7 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         AndroidSupportInjection.inject(this)
+        traceManager.beginTrace(CoinTickerPreviewTTI(args.widgetId))
     }
 
     override fun onCreateView(
