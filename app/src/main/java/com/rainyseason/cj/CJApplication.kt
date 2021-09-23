@@ -12,9 +12,11 @@ import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
+import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.featureflag.MainFlagValueProvider
 import com.rainyseason.cj.featureflag.NoopFlagValueProvider
+import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.util.ExceptionLoggerTree
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -41,6 +43,12 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     @Inject
     lateinit var debugFlagProvider: Provider<DebugFlagProvider>
 
+    @Inject
+    lateinit var firebasePerformance: FirebasePerformance
+
+    @Inject
+    lateinit var firebaseAnalytics: FirebaseAnalytics
+
     private lateinit var appComponent: AppComponent
 
     override fun onCreate() {
@@ -60,10 +68,8 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
             MainFlagValueProvider.setDelegate(NoopFlagValueProvider)
         }
 
-        val firebasePerformance = FirebasePerformance.getInstance()
         firebasePerformance.isPerformanceCollectionEnabled = BuildConfig.IS_PLAY_STORE
 
-        val firebaseAnalytics = FirebaseAnalytics.getInstance(this)
         firebaseAnalytics.setAnalyticsCollectionEnabled(BuildConfig.IS_PLAY_STORE)
 
         Mavericks.initialize(

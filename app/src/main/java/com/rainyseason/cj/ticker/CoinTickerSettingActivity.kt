@@ -10,6 +10,8 @@ import androidx.lifecycle.lifecycleScope
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.ActivityScope
+import com.rainyseason.cj.common.CoinTickerListTTI
+import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.list.CoinTickerListFragmentModule
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
@@ -71,6 +73,9 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
     @Inject
     lateinit var tracker: Tracker
 
+    @Inject
+    lateinit var traceManager: TraceManager
+
     private var widgetSaved = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,6 +92,10 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
         val coinId = intent.extras?.getString(COIN_ID_EXTRA)
         if (coinId != null) {
             navigator.moveToPreview(coinId)
+        }
+
+        if (coinId == null) {
+            traceManager.beginTrace(CoinTickerListTTI(widgetId = widgetId))
         }
 
         if (BuildConfig.DEBUG) {
@@ -143,17 +152,6 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
         }
     }
 
-    fun getWidgetId(): Int? {
-        val widgetId = intent?.extras?.getInt(
-            AppWidgetManager.EXTRA_APPWIDGET_ID,
-            AppWidgetManager.INVALID_APPWIDGET_ID
-        ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
-        if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
-            return null
-        }
-        return widgetId
-    }
-
     override fun androidInjector(): AndroidInjector<Any> {
         return androidInjector
     }
@@ -163,4 +161,15 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
         const val COIN_ID_EXTRA = "coin_id"
     }
 
+}
+
+fun Activity.getWidgetId(): Int? {
+    val widgetId = intent?.extras?.getInt(
+        AppWidgetManager.EXTRA_APPWIDGET_ID,
+        AppWidgetManager.INVALID_APPWIDGET_ID
+    ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
+    if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+        return null
+    }
+    return widgetId
 }

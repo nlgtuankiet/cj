@@ -12,6 +12,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.data.ForceCacheInterceptor
@@ -19,6 +20,8 @@ import com.rainyseason.cj.data.NetworkUrlLoggerInterceptor
 import com.rainyseason.cj.data.NoMustRevalidateInterceptor
 import com.rainyseason.cj.data.UserSettingStorage
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
+import com.rainyseason.cj.featureflag.DebugFlag
+import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.rainyseason.cj.tracking.AppTracker
 import com.rainyseason.cj.tracking.Tracker
@@ -79,6 +82,12 @@ object AppProvides {
 
     @Provides
     @Singleton
+    fun firebasePerformance(context: Context): FirebasePerformance {
+        return FirebasePerformance.getInstance()
+    }
+
+    @Provides
+    @Singleton
     fun provideBaseClientBuilder(
         forceCacheInterceptor: ForceCacheInterceptor,
         networkUrlLoggerInterceptor: NetworkUrlLoggerInterceptor,
@@ -91,11 +100,17 @@ object AppProvides {
         if (BuildConfig.DEBUG) {
             val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
             logging.level = HttpLoggingInterceptor.Level.BODY
-            builder.addInterceptor(logging)
+
             val networkLogging = HttpLoggingInterceptor { message -> Timber.tag("OkHttpN").d(message) }
             networkLogging.level = HttpLoggingInterceptor.Level.HEADERS
-            builder.addNetworkInterceptor(networkLogging)
-            builder.addNetworkInterceptor(networkUrlLoggerInterceptor)
+
+            if (DebugFlag.SHOW_HTTP_LOG.isEnable) {
+                builder.addInterceptor(logging)
+                if (DebugFlag.SHOW_NETWORK_LOG.isEnable) {
+                    builder.addNetworkInterceptor(networkLogging)
+                    builder.addNetworkInterceptor(networkUrlLoggerInterceptor)
+                }
+            }
         }
         return builder
     }

@@ -12,11 +12,14 @@ import android.widget.ImageView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.airbnb.epoxy.EpoxyRecyclerView
+import com.airbnb.epoxy.EpoxyVisibilityTracker
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.setTextIfDifferent
 import com.rainyseason.cj.ticker.CoinTickerNavigator
+import com.rainyseason.cj.ticker.getWidgetId
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
@@ -37,6 +40,9 @@ class CoinTickerListFragment : Fragment(), MavericksView {
     @Inject
     lateinit var navigator: CoinTickerNavigator
 
+    @Inject
+    lateinit var traceManager: TraceManager
+
     private val viewModel: CoinTickerListViewModel by fragmentViewModel()
 
     private val controller: CoinTickerListController by lazy {
@@ -44,13 +50,14 @@ class CoinTickerListFragment : Fragment(), MavericksView {
             context = requireContext(),
             viewModel = viewModel,
             navigator = navigator,
+            traceManager = traceManager,
+            widgetId = requireActivity().getWidgetId()!!
         )
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         AndroidSupportInjection.inject(this)
-
     }
 
     override fun onCreateView(
@@ -95,6 +102,7 @@ class CoinTickerListFragment : Fragment(), MavericksView {
 
 
         recyclerView.setController(controller)
+        EpoxyVisibilityTracker().attach(recyclerView)
         viewModel.onEach {
             controller.requestModelBuild()
         }

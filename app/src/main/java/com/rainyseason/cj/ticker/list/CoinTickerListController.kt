@@ -1,12 +1,16 @@
 package com.rainyseason.cj.ticker.list
 
 import android.content.Context
+import androidx.core.view.doOnPreDraw
 import com.airbnb.epoxy.AsyncEpoxyController
+import com.airbnb.epoxy.VisibilityState
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
+import com.rainyseason.cj.common.CoinTickerListTTI
+import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.loadingView
 import com.rainyseason.cj.common.view.emptyView
@@ -22,6 +26,8 @@ class CoinTickerListController constructor(
     private val context: Context,
     private val viewModel: CoinTickerListViewModel,
     private val navigator: CoinTickerNavigator,
+    private val traceManager: TraceManager,
+    private val widgetId: Int,
 ) : AsyncEpoxyController() {
     override fun buildModels() {
         val state = withState(viewModel) { it }
@@ -85,12 +91,21 @@ class CoinTickerListController constructor(
             return BuildState.Next
         }
 
-        marketSearchResult.forEach { entry ->
+        marketSearchResult.forEachIndexed { index, entry ->
             coinTickerListMarketView {
                 id(entry.id)
                 name(entry.name)
                 symbol(entry.symbol)
                 iconUrl(entry.image)
+                if (index == 0) {
+                    onVisibilityStateChanged { _, view, visibilityState ->
+                        if (visibilityState == VisibilityState.VISIBLE) {
+                            view.doOnPreDraw {
+                                traceManager.endTrace(CoinTickerListTTI(widgetId))
+                            }
+                        }
+                    }
+                }
                 onClickListener { _ ->
                     navigator.moveToPreview(coinId = entry.id)
                 }

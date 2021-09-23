@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.common.coreComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +16,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -58,7 +61,9 @@ class DebugFlagProvider @Inject constructor(context: Context) : FlagValueProvide
 
 
     override fun get(flagKey: FlagKey): String? {
-        return data.value[stringPreferencesKey(flagKey.value)] as? String
+        val result = data.value[stringPreferencesKey(flagKey.value)] as? String
+        Timber.d("Flag ${flagKey.value} return $result")
+        return result
     }
 
     suspend fun set(flagKey: FlagKey, value: String?) {
@@ -81,6 +86,10 @@ object FeatureFlag {
 object DebugFlag {
     val POSITIVE_WIDGET = DebugKey("positive_widget")
     val SHOW_PREVIEW_LAYOUT_BOUNDS = DebugKey("show_preview_layout_bounds")
+    val SHOW_HTTP_LOG = DebugKey("show_http_log").withDefault("true")
+    val SHOW_NETWORK_LOG = DebugKey("show_network_log").withDefault("false")
+    val ENABLE_FIREBASE_PERFORMANCE = DebugKey("enable_firebase_performance")
+        .withDefault("false")
 }
 
 class DebugFlagSetter : AppCompatActivity() {
