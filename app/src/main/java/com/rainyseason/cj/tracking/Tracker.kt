@@ -52,7 +52,9 @@ class FirebaseTracker @Inject constructor(
                 is Boolean -> bundle.putBoolean(key, value)
                 is Double -> bundle.putDouble(key, value)
                 is Float -> bundle.putFloat(key, value)
-                else -> error("Unsupport $value for event ${event.key} -> $key")
+                else -> if (value != null) {
+                    error("Unsupport $value for event ${event.key} -> $key")
+                }
             }
         }
         firebaseAnalytics.logEvent(event.key, bundle)
