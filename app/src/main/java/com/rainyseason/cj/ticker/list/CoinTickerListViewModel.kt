@@ -7,6 +7,8 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.rainyseason.cj.data.CoinHistoryEntry
+import com.rainyseason.cj.data.CoinHistoryRepository
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.CoinListEntry
@@ -20,14 +22,13 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.skip
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 data class CoinTickerListState(
     val markets: Async<List<MarketsResponseEntry>> = Uninitialized,
     val list: Async<List<CoinListEntry>> = Uninitialized,
+    val history: Async<List<CoinHistoryEntry>> = Uninitialized,
     val keyword: String = "",
 ) : MavericksState
 
@@ -35,6 +36,7 @@ data class CoinTickerListState(
 class CoinTickerListViewModel @Inject constructor(
     private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
+    private val coinHistoryRepository: CoinHistoryRepository,
 ) : MavericksViewModel<CoinTickerListState>(CoinTickerListState()) {
 
     private val keywordDebound = MutableStateFlow("")
@@ -55,10 +57,29 @@ class CoinTickerListViewModel @Inject constructor(
         keywordDebound.value = newKeyword.trim()
     }
 
+    fun addToHistory(entry: CoinHistoryEntry) {
+        viewModelScope.launch {
+            coinHistoryRepository.add(entry)
+        }
+    }
+
+    fun removeHistory(id: String) {
+        viewModelScope.launch {
+            coinHistoryRepository.remove(id)
+        }
+    }
+
     private var listJob: Job? = null
     private var marketJob: Job? = null
+    private var historyJob: Job? = null
 
     fun reload() {
+        historyJob?.cancel()
+        historyJob = coinHistoryRepository.getHistory()
+            .execute {
+                copy(history = it)
+            }
+
         listJob?.cancel()
         listJob = coinGeckoService.getCoinListFlow().execute { copy(list = it) }
 
@@ -66,7 +87,7 @@ class CoinTickerListViewModel @Inject constructor(
         marketJob = viewModelScope.launch {
             val setting = userSettingRepository.getUserSetting()
             coinGeckoService.getCoinMarketsFlow(vsCurrency = setting.currencyCode, perPage = 1000)
-            .execute { copy(markets = it) }
+                .execute { copy(markets = it) }
         }
     }
 
@@ -74,7 +95,7 @@ class CoinTickerListViewModel @Inject constructor(
     companion object : MavericksViewModelFactory<CoinTickerListViewModel, CoinTickerListState> {
         override fun create(
             viewModelContext: ViewModelContext,
-            state: CoinTickerListState
+            state: CoinTickerListState,
         ): CoinTickerListViewModel? {
             val fragment =
                 (viewModelContext as FragmentViewModelContext).fragment<CoinTickerListFragment>()

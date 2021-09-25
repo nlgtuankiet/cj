@@ -7,7 +7,9 @@ import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import androidx.core.content.getSystemService
+import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.work.Configuration
 import androidx.work.WorkManager
@@ -15,6 +17,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
+import com.rainyseason.cj.data.CoinHistory
 import com.rainyseason.cj.data.ForceCacheInterceptor
 import com.rainyseason.cj.data.NetworkUrlLoggerInterceptor
 import com.rainyseason.cj.data.NoMustRevalidateInterceptor
@@ -211,6 +214,20 @@ object AppProvides {
             }
         )
         return UserSettingStorage(pref)
+    }
+
+    @Provides
+    @CoinHistory
+    @Singleton
+    fun provideCoinHistoryStorage(context: Context): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+            corruptionHandler = null,
+            migrations = emptyList(),
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = {
+                context.preferencesDataStoreFile("coin_history")
+            }
+        )
     }
 
     @Provides

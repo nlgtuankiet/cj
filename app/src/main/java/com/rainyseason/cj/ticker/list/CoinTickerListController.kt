@@ -16,9 +16,12 @@ import com.rainyseason.cj.common.loadingView
 import com.rainyseason.cj.common.view.emptyView
 import com.rainyseason.cj.common.view.retryView
 import com.rainyseason.cj.common.view.settingHeaderView
+import com.rainyseason.cj.data.CoinHistoryEntry
 import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.ticker.CoinTickerNavigator
+import com.rainyseason.cj.ticker.list.view.CoinTickerListHistoryView
 import com.rainyseason.cj.ticker.list.view.coinTickerListCoinView
+import com.rainyseason.cj.ticker.list.view.coinTickerListHistoryView
 import com.rainyseason.cj.ticker.list.view.coinTickerListMarketView
 import kotlin.math.max
 
@@ -36,6 +39,7 @@ class CoinTickerListController constructor(
         }
         listOf(
             ::buildRetryButton,
+            ::buildHistory,
             ::buildMarket,
             ::buildSearchResult,
         ).forEach { builder ->
@@ -68,6 +72,48 @@ class CoinTickerListController constructor(
         return BuildState.Next
     }
 
+    private fun buildHistory(state: CoinTickerListState): BuildState {
+        val historyEntries = state.history.invoke().orEmpty()
+        if (historyEntries.isEmpty()) {
+            return BuildState.Next
+        }
+
+        if (state.keyword.isNotEmpty()) {
+            return BuildState.Next
+        }
+
+        settingHeaderView {
+            id("header_history")
+            content(R.string.coin_history_header)
+        }
+
+        historyEntries.forEach { entry ->
+            coinTickerListHistoryView {
+                id("history_${entry.id}")
+                name(entry.name)
+                symbol(entry.symbol)
+                iconUrl(entry.iconUrl)
+                onCancelClickListener { _ ->
+                    viewModel.removeHistory(id = entry.id)
+                }
+                onClickListener { _ ->
+                    viewModel.addToHistory(
+                        CoinHistoryEntry(
+                            id = entry.id,
+                            name = entry.name,
+                            symbol = entry.symbol,
+                            iconUrl = entry.iconUrl,
+                        )
+                    )
+                    navigator.moveToPreview(coinId = entry.id)
+                }
+
+            }
+        }
+
+        return BuildState.Next
+    }
+
     private fun buildMarket(state: CoinTickerListState): BuildState {
         val keyword = state.keyword
 
@@ -91,6 +137,11 @@ class CoinTickerListController constructor(
             return BuildState.Next
         }
 
+        settingHeaderView {
+            id("header_market")
+            content(R.string.coin_market_header)
+        }
+
         marketSearchResult.forEachIndexed { index, entry ->
             coinTickerListMarketView {
                 id(entry.id)
@@ -107,6 +158,14 @@ class CoinTickerListController constructor(
                     }
                 }
                 onClickListener { _ ->
+                    viewModel.addToHistory(
+                        CoinHistoryEntry(
+                            id = entry.id,
+                            symbol = entry.symbol,
+                            iconUrl = entry.image,
+                            name = entry.name,
+                        )
+                    )
                     navigator.moveToPreview(coinId = entry.id)
                 }
             }
@@ -182,6 +241,14 @@ class CoinTickerListController constructor(
                 name(entry.name)
                 symbol(entry.symbol)
                 onClickListener { _ ->
+                    viewModel.addToHistory(
+                        CoinHistoryEntry(
+                            id = entry.id,
+                            name = entry.name,
+                            symbol = entry.symbol,
+                            iconUrl = null,
+                        )
+                    )
                     navigator.moveToPreview(coinId = entry.id)
                 }
             }
