@@ -7,6 +7,7 @@ import com.airbnb.epoxy.VisibilityState
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.withState
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.CoinTickerListTTI
@@ -19,7 +20,6 @@ import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.data.CoinHistoryEntry
 import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.ticker.CoinTickerNavigator
-import com.rainyseason.cj.ticker.list.view.CoinTickerListHistoryView
 import com.rainyseason.cj.ticker.list.view.coinTickerListCoinView
 import com.rainyseason.cj.ticker.list.view.coinTickerListHistoryView
 import com.rainyseason.cj.ticker.list.view.coinTickerListMarketView
@@ -58,6 +58,9 @@ class CoinTickerListController constructor(
     private fun buildRetryButton(state: CoinTickerListState): BuildState {
         val async = state.markets
         if (async is Fail) {
+            if (BuildConfig.DEBUG) {
+                async.error.printStackTrace()
+            }
             retryView {
                 id("retry")
                 reason(async.error.getUserErrorMessage(context = context))

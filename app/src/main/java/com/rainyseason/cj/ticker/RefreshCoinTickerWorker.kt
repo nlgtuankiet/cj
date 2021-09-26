@@ -7,9 +7,11 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.common.BaterrySaveException
+import com.rainyseason.cj.common.exception.logFallbackPrice
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
+import com.rainyseason.cj.data.coingecko.currentPrice
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
@@ -29,6 +31,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     private val appWidgetManager: AppWidgetManager,
     private val render: TickerWidgetRenderer,
     private val tracker: Tracker,
+    private val firebaseCrashlytics: FirebaseCrashlytics,
 ) : CoroutineWorker(appContext = appContext, params = params) {
 
     override suspend fun doWork(): Result {
@@ -65,7 +68,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
                     "message" to (sendEx.message ?: sendEx.cause?.message ?: "")
                 )
             )
-            FirebaseCrashlytics.getInstance().recordException(sendEx)
+            firebaseCrashlytics.recordException(sendEx)
         }
 
 
@@ -139,10 +142,25 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             }
         )
 
+        val marketPrice = if (config.changeInterval == ChangeInterval._24H) {
+            graphResponse.currentPrice()
+        } else {
+            coinGeckoService.getMarketChart(
+                id = config.coinId,
+                vsCurrency = configCurrency,
+                day = 1,
+            ).currentPrice()
+        }
+
+        val price = marketPrice ?: coinDetail.marketData.currentPrice[config.currency]!!
+        if (marketPrice == null) {
+            firebaseCrashlytics.logFallbackPrice(config.coinId)
+        }
         val newDisplayData = CoinTickerDisplayData.create(
             config = config,
             coinDetail = coinDetail,
             marketChartResponse = mapOf(config.changeInterval to graphResponse),
+            price = price
         )
 
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)

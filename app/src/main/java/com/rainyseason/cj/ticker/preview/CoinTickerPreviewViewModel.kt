@@ -8,12 +8,15 @@ import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.rainyseason.cj.common.exception.logFallbackPrice
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.MarketChartResponse
+import com.rainyseason.cj.data.coingecko.currentPrice
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.ChangeInterval
 import com.rainyseason.cj.ticker.CoinTickerConfig
@@ -48,6 +51,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private val coinTickerRepository: CoinTickerRepository,
     private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
+    private val firebaseCrashlytics: FirebaseCrashlytics,
     private val tracker: Tracker,
 ) : MavericksViewModel<CoinTickerPreviewState>(CoinTickerPreviewState()) {
 
@@ -252,15 +256,35 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         updateConfig { copy(showThousandsSeparator = !showThousandsSeparator) }
     }
 
+
+    private var fallbackPriceRecord = false
     private fun maybeSaveDisplayData(state: CoinTickerPreviewState) {
         val coinDetail = state.coinDetailResponse.invoke() ?: return
         val config = state.config ?: return
+
+        val market24h = state.marketChartResponse[ChangeInterval._24H]
+
+        // avoid UI glitch
+        if (market24h == null || !market24h.complete) {
+            return
+        }
+
+        val marketPrice = market24h.invoke()?.currentPrice()
+        val price = marketPrice ?: coinDetail.marketData.currentPrice[config.currency]!!
+
+        if (marketPrice == null) {
+            if (!fallbackPriceRecord) {
+                fallbackPriceRecord = true
+                firebaseCrashlytics.logFallbackPrice(config.coinId)
+            }
+        }
 
         viewModelScope.launch {
             setWidgetData(
                 config = config,
                 coinDetail = coinDetail,
                 marketChartResponse = state.marketChartResponse.mapValues { it.value.invoke() },
+                price = price,
             )
         }
     }
@@ -269,11 +293,13 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         config: CoinTickerConfig,
         coinDetail: CoinDetailResponse,
         marketChartResponse: Map<String, MarketChartResponse?>,
+        price: Double,
     ): CoinTickerDisplayData {
         val data = CoinTickerDisplayData.create(
             config = config,
             coinDetail = coinDetail,
             marketChartResponse = marketChartResponse,
+            price = price,
         )
         coinTickerRepository.setDisplayData(widgetId = widgetId, data = data)
         return data

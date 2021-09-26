@@ -69,10 +69,14 @@ data class CoinTickerDisplayData(
     }
 
     companion object {
+        /**
+         * We get the price from market chart 24h because it better
+         */
         fun create(
             config: CoinTickerConfig,
             coinDetail: CoinDetailResponse,
             marketChartResponse: Map<String, MarketChartResponse?>,
+            price: Double,
         ): CoinTickerDisplayData {
             val currencyCode = config.currency
             val priceChangePercent = when (config.changeInterval) {
@@ -92,7 +96,7 @@ data class CoinTickerDisplayData(
                 iconUrl = coinDetail.image.large,
                 symbol = coinDetail.symbol,
                 name = coinDetail.name,
-                price = coinDetail.marketData.currentPrice[currencyCode]!!,
+                price = price,
                 priceChangePercent = priceChangePercent,
                 marketCap = coinDetail.marketData.marketCap[currencyCode]!!,
                 marketCapChangePercent = marketCapChangePercent,
