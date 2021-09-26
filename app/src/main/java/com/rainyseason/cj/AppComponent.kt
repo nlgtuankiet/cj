@@ -14,6 +14,7 @@ import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
@@ -116,6 +117,12 @@ object AppProvides {
             }
         }
         return builder
+    }
+
+    @Provides
+    @Singleton
+    fun firebaseCrashlytic(context: Context): FirebaseCrashlytics {
+        return FirebaseCrashlytics.getInstance()
     }
 
     @Provides
