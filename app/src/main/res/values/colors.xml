@@ -34,11 +34,11 @@
 
     <color name="ticket_line_green">#CC4CAF50</color>
     <color name="ticket_line_green_background">#804CAF50</color>
-    <color name="ticket_line_green_background_middle">#1A4CAF50</color>
+    <color name="ticket_line_green_background_middle">#334CAF50</color>
 
     <color name="ticket_line_red">#eb4d3d</color>
     <color name="ticket_line_red_background">#80eb4d3d</color>
-    <color name="ticket_line_red_background_middle">#1AEB4D3D</color>
+    <color name="ticket_line_red_background_middle">#33EB4D3D</color>
 
     <color name="ticker_background_positive_light">#8dbf84</color>
     <color name="ticker_background_positive_dark">#5d8556</color>
