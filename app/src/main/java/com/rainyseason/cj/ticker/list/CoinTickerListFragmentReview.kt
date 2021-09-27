@@ -1,6 +1,5 @@
 package com.rainyseason.cj.ticker.list
 
-import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -8,6 +7,7 @@ import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.ktx.requestReview
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.rainyseason.cj.BuildConfig
+import com.rainyseason.cj.R
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.dismissKeyboard
 import com.rainyseason.cj.databinding.CoinTickerListFragmentBinding
@@ -18,7 +18,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@SuppressLint("SetTextI18n")
 fun CoinTickerListFragment.setupReview(
     binding: CoinTickerListFragmentBinding,
     scope: CoroutineScope,
@@ -71,12 +70,14 @@ fun CoinTickerListFragment.setupReview(
     fun moveToTellWhyState() {
         tellWhy.isVisible = true
         reviewIcon.isGone = true
-        askReviewTitle.text = "Tell us what's wrong : ("
+        askReviewTitle.text = context.getString(R.string.inapp_review_tell_what_wrong)
 
-        rightButton.text = "Submit"
+        rightButton.text = context.getString(R.string.inapp_review_submit_feedback)
         rightButton.setOnClickListener {
             moveToEndState()
-            Toast.makeText(context, "Thank you for your feedback!", Toast.LENGTH_SHORT)
+            Toast.makeText(context,
+                R.string.inapp_review_thank_you_for_feedback,
+                Toast.LENGTH_SHORT)
                 .show()
             tracker.logKeyParamsEvent(
                 "app_review_negative_why",
@@ -86,7 +87,7 @@ fun CoinTickerListFragment.setupReview(
             )
         }
 
-        leftButton.text = "Maybe later"
+        leftButton.text = context.getString(R.string.inapp_review_cancel_feedback)
         leftButton.setOnClickListener {
             moveToEndState()
         }

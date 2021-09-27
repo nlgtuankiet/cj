@@ -131,7 +131,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:text="Do you like the app?"
+                android:text="@string/inapp_review_do_you_like_the_app"
                 android:textAlignment="center"
                 android:textColor="@color/gray_900"
                 android:textSize="16sp"
@@ -139,8 +139,7 @@
                 app:layout_constraintBottom_toTopOf="@id/tell_why"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/review_icon"
-                tools:ignore="HardcodedText" />
+                app:layout_constraintTop_toBottomOf="@id/review_icon" />
 
             <com.google.android.material.textfield.TextInputLayout
                 app:layout_constraintBottom_toTopOf="@id/right_button"
@@ -160,10 +159,9 @@
                 <com.google.android.material.textfield.TextInputEditText
                     android:maxLines="2"
                     android:id="@+id/tell_why_edit_text"
-                    android:hint="Tell us about it"
-                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    tools:ignore="HardcodedText" />
+                    android:layout_width="match_parent"
+                    android:hint="@string/inapp_review_tell_why_hint" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -171,7 +169,7 @@
                 android:layout_marginEnd="12dp"
                 android:id="@+id/left_button"
                 android:layout_marginStart="16dp"
-                android:text="No"
+                android:text="@string/inapp_review_like_app_no"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -179,12 +177,11 @@
                 app:layout_constraintEnd_toStartOf="@id/right_button"
                 android:textAllCaps="false"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                tools:ignore="HardcodedText" />
+                app:layout_constraintStart_toStartOf="parent" />
 
             <Button
                 android:id="@+id/right_button"
-                android:text="Yes, I like it!"
+                android:text="@string/inapp_review_like_app_yes"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
@@ -192,8 +189,7 @@
                 app:layout_constraintStart_toEndOf="@id/left_button"
                 android:textAllCaps="false"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                tools:ignore="HardcodedText" />
+                app:layout_constraintEnd_toEndOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
