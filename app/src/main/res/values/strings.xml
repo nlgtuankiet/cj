@@ -4,7 +4,7 @@
 
     <string name="welcome_message">To add widget, go to home screen, long press and select widget\n\n\nThis app is in early development, you can report bugs and request features in our telegram group:\nt.me/bwpapp</string>
 
-    <string name="number_of_price_decimal">Amount decimals</string>
+    <string name="number_of_price_decimal">Price decimals</string>
     <string name="number_of_price_decimal_explain">(not count leading 0)</string>
     <string name="number_of_change_percent_decimal">Number of change percent decimal</string>
     <string name="coin_ticker_preview_refresh_interval">Refresh interval</string>
