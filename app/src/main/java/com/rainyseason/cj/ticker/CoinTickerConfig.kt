@@ -17,7 +17,7 @@ data class CoinTickerConfig(
     val coinId: String,
 
     @Json(name = "number_of_price_decimal")
-    val numberOfAmountDecimal: Int? = null,
+    val numberOfAmountDecimal: Int? = 2,
 
     @Json(name = "number_of_change_percent_decimal")
     val numberOfChangePercentDecimal: Int? = null,

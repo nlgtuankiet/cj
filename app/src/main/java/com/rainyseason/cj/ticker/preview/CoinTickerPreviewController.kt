@@ -11,6 +11,7 @@ import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.setCancelButton
+import com.rainyseason.cj.common.view.IntLabelFormater
 import com.rainyseason.cj.common.view.PercentLabelFormatrer
 import com.rainyseason.cj.common.view.SizeLabelFormatter
 import com.rainyseason.cj.common.view.horizontalSeparatorView
@@ -513,35 +514,20 @@ class CoinTickerPreviewController(
 
     private fun buildAmountDecimal(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        val priceDecimal = config.numberOfAmountDecimal
+        val priceDecimal = config.numberOfAmountDecimal ?: 2
 
         maybeBuildHorizontalSeparator(id = "amount_decimal_separator")
-        settingTitleSummaryView {
+
+        settingSliderView {
             id("amount_decimal")
             title(R.string.number_of_price_decimal)
-            if (priceDecimal == null) {
-                summary(R.string.setting_keep_original_price)
-            } else {
-                summary("$priceDecimal ${context.getString(R.string.number_of_price_decimal_explain)}")
-            }
-            onClickListener { _ ->
-                val options = listOf<Int?>(null) + (0..100)
-                val optionsString = options.map {
-                    it?.toString() ?: context.getString(R.string.setting_keep_original_price)
-                }
-                val currentState = withState(viewModel) { it }
-                val currentPriceDecimal = currentState.config?.numberOfAmountDecimal
-                AlertDialog.Builder(context)
-                    .setTitle(R.string.number_of_price_decimal)
-                    .setCancelButton()
-                    .setSingleChoiceItems(
-                        optionsString.toTypedArray(),
-                        options.indexOf(currentPriceDecimal)
-                    ) { dialog, which ->
-                        viewModel.setNumberOfDecimal(options[which].toString())
-                        dialog.dismiss()
-                    }
-                    .show()
+            labelFormatter(IntLabelFormater)
+            valueFrom(0)
+            valueTo(15)
+            stepSize(1)
+            value(priceDecimal)
+            onChangeListener { value ->
+                viewModel.setNumberOfDecimal(value)
             }
         }
     }

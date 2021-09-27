@@ -177,11 +177,9 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
-    fun setNumberOfDecimal(value: String) {
-        Timber.d("setNumberOfDecimal $value")
-        val number = value.toIntOrNull()?.coerceAtLeast(0)
+    fun setNumberOfDecimal(value: Int) {
         updateConfig {
-            copy(numberOfAmountDecimal = number)
+            copy(numberOfAmountDecimal = value)
         }
     }
 

@@ -80,6 +80,12 @@ abstract class NamedFormatter(val value: String) : LabelFormatter {
     }
 }
 
+object IntLabelFormater : NamedFormatter("NumberLabelFormater") {
+    override fun getFormattedValue(value: Float): String {
+        return value.toInt().toString()
+    }
+}
+
 object PercentLabelFormatrer : NamedFormatter("PercentLabelFormatrer") {
     override fun getFormattedValue(value: Float): String {
         return "${value.toInt()}%"
