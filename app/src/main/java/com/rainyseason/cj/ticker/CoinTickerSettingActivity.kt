@@ -12,6 +12,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.ActivityScope
 import com.rainyseason.cj.common.CoinTickerListTTI
 import com.rainyseason.cj.common.TraceManager
+import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.list.CoinTickerListFragmentModule
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
@@ -76,6 +77,9 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
     @Inject
     lateinit var traceManager: TraceManager
 
+    @Inject
+    lateinit var commonRepository: CommonRepository
+
     private var widgetSaved = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -133,6 +137,7 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 coinTickerHandler.enqueueRefreshWidget(widgetId = config.widgetId, config = config)
+                commonRepository.increaseWidgetUsed()
             }
             widgetSaved = true
             setResult(Activity.RESULT_OK, resultValue)

@@ -122,6 +122,13 @@ fun CoinTickerListFragment.setupReview(
     }
 
     scope.launch {
+        val widgetUsed = commonRepository.getWidgetsUsed()
+
+        if (widgetUsed < 2) {
+            // wait for user use as least 1 widget before ask them for review
+            return@launch
+        }
+
         val isUserLikeTheApp = commonRepository.isUserLikeTheApp()
         if (isUserLikeTheApp) {
             maybeShowGoogleInAppReview()

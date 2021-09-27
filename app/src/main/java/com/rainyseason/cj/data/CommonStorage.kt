@@ -9,7 +9,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
-import com.google.android.play.core.review.ReviewManagerFactory
 import com.rainyseason.cj.ticker.CoinTickerProviderCoin360
 import com.rainyseason.cj.ticker.CoinTickerProviderDefault
 import com.rainyseason.cj.ticker.CoinTickerProviderGraph
@@ -50,11 +49,6 @@ class CommonRepository @Inject constructor(
 
     private suspend fun setDislikeMilis(milis: Long) {
         storage.edit { it[lastDislikeKey] = milis }
-    }
-
-    fun show() {
-        val factory = ReviewManagerFactory.create(context)
-//        val reviewManager = factory.launchReviewFlow()
     }
 
     suspend fun getWidgetsUsed(): Int {
