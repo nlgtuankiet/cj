@@ -82,9 +82,24 @@ class CoinTickerPreviewController(
         addSeparator = false
         buildCurrency(state)
         buildAmountDecimal(state)
+        buildHideDecimalOnLargePrice(state)
         buildRoundToMillion(state)
         buildShowCurrencySymbol(state)
         buildShowThousandSeparator(state)
+    }
+
+    private fun buildHideDecimalOnLargePrice(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        maybeBuildHorizontalSeparator(id = "hide_decimal_separator")
+
+        settingSwitchView {
+            id("hide_decimal")
+            title(R.string.coin_ticker_preview_setting_hide_decimal)
+            checked(config.hideDecimalOnLargePrice)
+            onClickListener { _ ->
+                viewModel.switchHideDecimal()
+            }
+        }
     }
 
     private fun buildStyle(state: CoinTickerPreviewState) {

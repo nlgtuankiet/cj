@@ -63,6 +63,9 @@ data class CoinTickerConfig(
 
     @Json(name = "background_transparency")
     val backgroundTransparency: Int = 0,
+
+    @Json(name = "hide_decimal_on_large_price")
+    val hideDecimalOnLargePrice: Boolean = true,
 ) {
 
     fun getTrackingParams(): Map<String, Any?> {

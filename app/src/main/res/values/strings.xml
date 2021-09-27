@@ -64,6 +64,8 @@
 
     <string name="coin_ticker_preview_setting_round_to_million">Round to million</string>
 
+    <string name="coin_ticker_preview_setting_hide_decimal">Hide decimals on large price</string>
+
     <string name="reload">Reload</string>
     <string name="error_no_network">No internet connection, try to enable WIFI!</string>
     <string name="error_rate_limit">Too many network response, please wait for a moment and try again!</string>

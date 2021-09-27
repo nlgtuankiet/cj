@@ -243,6 +243,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         updateConfig { copy(showCurrencySymbol = !showCurrencySymbol) }
     }
 
+    fun switchHideDecimal() {
+        updateConfig { copy(hideDecimalOnLargePrice = !hideDecimalOnLargePrice) }
+    }
+
     fun switchRoundToMillion() {
         updateConfig { copy(roundToMillion = !roundToMillion) }
     }

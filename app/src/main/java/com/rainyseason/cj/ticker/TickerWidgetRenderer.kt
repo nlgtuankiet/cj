@@ -563,29 +563,7 @@ class TickerWidgetRenderer @Inject constructor(
         numberOfDecimal: Int?,
         withColor: Boolean,
     ) {
-        val color = if (amount > 0) {
-            ContextCompat.getColor(context, R.color.green_700)
-        } else {
-            ContextCompat.getColor(context, R.color.red_600)
-        }
 
-        val amountText = if (numberOfDecimal != null) {
-            "%.${numberOfDecimal}f".format(amount)
-        } else {
-            amount.toString()
-        }
-        val symbol = if (amount > 0) {
-            "+"
-        } else {
-            ""
-        }
-        if (withColor) {
-            color(color) {
-                append("${symbol}${amountText}%")
-            }
-        } else {
-            append("${symbol}${amountText}%")
-        }
 
     }
 
@@ -595,7 +573,11 @@ class TickerWidgetRenderer @Inject constructor(
      * 0.001234
      * -> 4
      */
-    private fun getSmartNumberOfDecimal(amount: Double, configNumberOfDecimal: Int?): Int {
+    private fun getSmartNumberOfDecimal(
+        amount: Double,
+        configNumberOfDecimal: Int?,
+        hideOnLargeAmount: Boolean = false,
+    ): Int {
         if (configNumberOfDecimal == null) {
             return Int.MAX_VALUE
         }
@@ -605,7 +587,7 @@ class TickerWidgetRenderer @Inject constructor(
         if (amount == 0.0) {
             return 0
         }
-        if (amount >= 100) {
+        if (amount >= 100 && hideOnLargeAmount) {
             return 0
         }
         if (amount >= 0.1) {
@@ -633,11 +615,33 @@ class TickerWidgetRenderer @Inject constructor(
             val amount = data.getChangePercent(config)
 
             if (amount != null) {
-                appendChange(
+                val color = if (amount > 0) {
+                    ContextCompat.getColor(context, R.color.green_700)
+                } else {
+                    ContextCompat.getColor(context, R.color.red_600)
+                }
+                val locate = SUPPORTED_CURRENCY[config.currency]!!.locale
+                val formatter: DecimalFormat =
+                    NumberFormat.getCurrencyInstance(locate) as DecimalFormat
+                val numberOfDecimals = getSmartNumberOfDecimal(
                     amount = amount,
-                    numberOfDecimal = config.numberOfChangePercentDecimal,
-                    withColor = withColor
+                    configNumberOfDecimal = config.numberOfChangePercentDecimal ?: 1
                 )
+                formatter.maximumFractionDigits = numberOfDecimals
+                formatter.minimumFractionDigits = numberOfDecimals
+                val formattedPercent = formatter.format(amount)
+                val symbol = if (amount > 0) {
+                    "+"
+                } else {
+                    ""
+                }
+                if (withColor) {
+                    color(color) {
+                        append("${symbol}${formattedPercent}%")
+                    }
+                } else {
+                    append("${symbol}${formattedPercent}%")
+                }
             }
         }
         return content
@@ -668,8 +672,9 @@ class TickerWidgetRenderer @Inject constructor(
             formatter.decimalFormatSymbols = symbol
         }
         val numberOfDecimals = getSmartNumberOfDecimal(
-            amount,
-            config.numberOfAmountDecimal
+            amount = amount,
+            configNumberOfDecimal = config.numberOfAmountDecimal,
+            hideOnLargeAmount = config.hideDecimalOnLargePrice
         )
         formatter.maximumFractionDigits = numberOfDecimals
         formatter.minimumFractionDigits = numberOfDecimals
