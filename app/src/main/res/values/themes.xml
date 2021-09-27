@@ -17,6 +17,7 @@
         <item name="android:textViewStyle">@style/TextViewStyle</item>
         <item name="buttonStyle">@style/ButtonStyle</item>
 
+        <item name="bottomNavigationStyle">@style/BottomNavigationViewStyle</item>
     </style>
 
     <style name="ButtonStyle" parent="android:Widget.Holo.Button">
@@ -25,5 +26,11 @@
 
     <style name="TextViewStyle" parent="android:Widget.TextView">
         <item name="android:fontFamily">@font/open_sans_regular</item>
+    </style>
+
+    <style name="BottomNavigationViewStyle" parent="Widget.MaterialComponents.BottomNavigationView.Colored">
+        <item name="android:background">@color/teal_500</item>
+        <item name="itemTextColor">@color/bottom_nav_item_color</item>
+        <item name="itemIconTint">@color/bottom_nav_item_color</item>
     </style>
 </resources>
