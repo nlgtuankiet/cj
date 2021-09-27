@@ -667,11 +667,12 @@ class TickerWidgetRenderer @Inject constructor(
             symbol.currencySymbol = ""
             formatter.decimalFormatSymbols = symbol
         }
-        formatter.maximumFractionDigits = getSmartNumberOfDecimal(
+        val numberOfDecimals = getSmartNumberOfDecimal(
             amount,
             config.numberOfAmountDecimal
         )
-        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = numberOfDecimals
+        formatter.minimumFractionDigits = numberOfDecimals
         formatter.isGroupingUsed = config.showThousandsSeparator
         var formattedPrice = formatter.format(amount)
         if (roundToM) {
