@@ -1,0 +1,39 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+    id 'application'
+}
+
+applicationDefaultJvmArgs = ["-Dkotlinx.coroutines.debug"]
+
+dependencies {
+    implementation platform('org.jetbrains.kotlin:kotlin-bom')
+
+
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.1'
+
+    // This dependency is used by the application.
+    implementation 'com.google.guava:guava:30.0-jre'
+    implementation("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation 'org.jsoup:jsoup:1.14.2'
+    implementation 'com.google.code.gson:gson:2.8.8'
+
+
+    // Use the Kotlin test library.
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
+
+    // Use the Kotlin JUnit integration.
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-junit'
+}
+
+application {
+    // Define the main class for the application.
+    mainClass = 'MainKt'
+
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
