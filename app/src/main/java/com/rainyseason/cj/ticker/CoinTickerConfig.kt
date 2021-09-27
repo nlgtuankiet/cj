@@ -20,7 +20,7 @@ data class CoinTickerConfig(
     val numberOfAmountDecimal: Int? = 2,
 
     @Json(name = "number_of_change_percent_decimal")
-    val numberOfChangePercentDecimal: Int? = null,
+    val numberOfChangePercentDecimal: Int? = 1,
 
     @Json(name = "refresh_interval")
     val refreshInterval: Long = 60,

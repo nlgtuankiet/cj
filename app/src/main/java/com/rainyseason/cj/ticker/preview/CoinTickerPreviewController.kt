@@ -480,34 +480,19 @@ class CoinTickerPreviewController(
 
     private fun buildPercentDecimal(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        val percentDecimal = config.numberOfChangePercentDecimal
+        val percentDecimal = config.numberOfChangePercentDecimal ?: 1
         maybeBuildHorizontalSeparator(id = "percent_decimal_separator")
-        settingTitleSummaryView {
+
+        settingSliderView {
             id("percent_decimal")
             title(R.string.number_of_change_percent_decimal)
-            if (percentDecimal == null) {
-                summary(R.string.setting_keep_original_price)
-            } else {
-                summary("$percentDecimal")
-            }
-            onClickListener { _ ->
-                val options = listOf<Int?>(null) + (0..3)
-                val optionsString = options.map {
-                    it?.toString() ?: context.getString(R.string.setting_keep_original_price)
-                }
-                val currentState = withState(viewModel) { it }
-                val currentPercentDecimal = currentState.config?.numberOfChangePercentDecimal
-                AlertDialog.Builder(context)
-                    .setTitle(R.string.number_of_change_percent_decimal)
-                    .setCancelButton()
-                    .setSingleChoiceItems(
-                        optionsString.toTypedArray(),
-                        options.indexOf(currentPercentDecimal)
-                    ) { dialog, which ->
-                        viewModel.setNumberOfChangePercentDecimal(options[which].toString())
-                        dialog.dismiss()
-                    }
-                    .show()
+            valueFrom(0)
+            valueTo(5)
+            value(percentDecimal)
+            stepSize(1)
+            labelFormatter(IntLabelFormater)
+            onChangeListener { value ->
+                viewModel.setNumberOfChangePercentDecimal(value)
             }
         }
     }

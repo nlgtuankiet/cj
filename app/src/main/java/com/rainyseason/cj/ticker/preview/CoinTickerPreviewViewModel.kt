@@ -31,7 +31,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 data class CoinTickerPreviewState(
@@ -183,11 +182,9 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
-    fun setNumberOfChangePercentDecimal(value: String) {
-        Timber.d("setNumberOfChangePercentDecimal $value")
-        val number = value.toIntOrNull()?.coerceAtLeast(0)
+    fun setNumberOfChangePercentDecimal(value: Int) {
         updateConfig {
-            copy(numberOfChangePercentDecimal = number)
+            copy(numberOfChangePercentDecimal = value)
         }
     }
 
