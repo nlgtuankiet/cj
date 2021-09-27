@@ -126,7 +126,6 @@
                 tools:ignore="ContentDescription" />
 
             <com.google.android.material.textview.MaterialTextView
-                app:layout_constraintVertical_chainStyle="packed"
                 android:id="@+id/ask_review_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -136,6 +135,7 @@
                 android:textAlignment="center"
                 android:textColor="@color/gray_900"
                 android:textSize="16sp"
+                app:layout_goneMarginTop="24dp"
                 app:layout_constraintBottom_toTopOf="@id/tell_why"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

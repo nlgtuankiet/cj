@@ -4,16 +4,47 @@ import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import com.google.android.play.core.ktx.launchReview
+import com.google.android.play.core.ktx.requestReview
+import com.google.android.play.core.review.ReviewManagerFactory
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.dismissKeyboard
 import com.rainyseason.cj.databinding.CoinTickerListFragmentBinding
 import com.rainyseason.cj.tracking.logKeyParamsEvent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-
-@Suppress("unused")
 @SuppressLint("SetTextI18n")
-fun CoinTickerListFragment.setupReview(binding: CoinTickerListFragmentBinding) {
+fun CoinTickerListFragment.setupReview(
+    binding: CoinTickerListFragmentBinding,
+    scope: CoroutineScope,
+) {
+    val context = requireContext()
+    val commonRepository = requireContext().coreComponent.commonRepository
+    val reviewManager = ReviewManagerFactory.create(context)
+
+    val reviewInfoRequest = scope.async {
+        reviewManager.requestReview()
+    }
+
+    fun maybeShowGoogleInAppReview() {
+        scope.launch {
+            try {
+                val reviewInfo = reviewInfoRequest.await()
+                reviewManager.launchReview(requireActivity(), reviewInfo)
+            } catch (ex: Exception) {
+                context.coreComponent.firebaseCrashlytics.recordException(ex)
+                if (BuildConfig.DEBUG) {
+                    ex.printStackTrace()
+                }
+            }
+        }
+    }
+
     val askForReviewBackground = binding.askForReviewBackground
     val showReview = binding.showReview
     val askForReviewContainer = binding.askForReviewContainer
@@ -25,9 +56,10 @@ fun CoinTickerListFragment.setupReview(binding: CoinTickerListFragmentBinding) {
     val tracker = rightButton.coreComponent.tracker
     val reviewIcon = binding.reviewIcon
 
-
-    fun maybeShowGoogleInAppReview() {
-
+    fun setUserLikeTheApp(value: Boolean) {
+        scope.launch {
+            commonRepository.setUserLikeTheApp(value)
+        }
     }
 
     fun moveToEndState() {
@@ -44,6 +76,8 @@ fun CoinTickerListFragment.setupReview(binding: CoinTickerListFragmentBinding) {
         rightButton.text = "Submit"
         rightButton.setOnClickListener {
             moveToEndState()
+            Toast.makeText(context, "Thank you for your feedback!", Toast.LENGTH_SHORT)
+                .show()
             tracker.logKeyParamsEvent(
                 "app_review_negative_why",
                 mapOf(
@@ -65,30 +99,47 @@ fun CoinTickerListFragment.setupReview(binding: CoinTickerListFragmentBinding) {
         leftButton.setOnClickListener {
             moveToTellWhyState()
             tracker.logKeyParamsEvent("app_review_negative")
-            // save to local storage
+            setUserLikeTheApp(false)
         }
 
         askForReviewContainer.isVisible = true
-        askForReviewContainer.setOnClickListener { }
 
         rightButton.setOnClickListener {
             tracker.logKeyParamsEvent("app_review_positive")
-            Toast.makeText(rightButton.context, "Thank you for your feedback!", Toast.LENGTH_SHORT)
-                .show()
-            maybeShowGoogleInAppReview()
             moveToEndState()
+            maybeShowGoogleInAppReview()
+            setUserLikeTheApp(true)
         }
 
     }
-
-
-
-
 
     if (BuildConfig.DEBUG) {
         showReview.isVisible = true
         showReview.setOnClickListener {
             moveToStartState()
+        }
+    }
+
+    scope.launch {
+        val isUserLikeTheApp = commonRepository.isUserLikeTheApp()
+        if (isUserLikeTheApp) {
+            maybeShowGoogleInAppReview()
+            return@launch
+        } else {
+            val lastDislikeMilis = commonRepository.lastDislikeMilis()
+            if (lastDislikeMilis == null) {
+                withContext(Dispatchers.Main) {
+                    moveToStartState()
+                }
+            } else {
+                val interval = System.currentTimeMillis() - lastDislikeMilis
+                val askAgainInterval = 7L * 24 * 60 * 60 * 1000
+                if (interval > askAgainInterval) {
+                    withContext(Dispatchers.Main) {
+                        moveToStartState()
+                    }
+                }
+            }
         }
     }
 }

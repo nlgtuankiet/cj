@@ -5,8 +5,10 @@ import android.content.ComponentName
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import com.google.android.play.core.review.ReviewManagerFactory
 import com.rainyseason.cj.ticker.CoinTickerProviderCoin360
 import com.rainyseason.cj.ticker.CoinTickerProviderDefault
@@ -28,7 +30,27 @@ class CommonRepository @Inject constructor(
 ) {
 
     private val widgetsUsedKey = intPreferencesKey("widgets_used")
+    private val userLikeAppKey = booleanPreferencesKey("user_like_app")
+    private val lastDislikeKey = longPreferencesKey("last_dislike")
 
+    suspend fun isUserLikeTheApp(): Boolean {
+        return storage.data.first()[userLikeAppKey] ?: false
+    }
+
+    suspend fun setUserLikeTheApp(value: Boolean) {
+        storage.edit { it[userLikeAppKey] = value }
+        if (!value) {
+            setDislikeMilis(System.currentTimeMillis())
+        }
+    }
+
+    suspend fun lastDislikeMilis(): Long? {
+        return storage.data.first()[lastDislikeKey]
+    }
+
+    private suspend fun setDislikeMilis(milis: Long) {
+        storage.edit { it[lastDislikeKey] = milis }
+    }
 
     fun show() {
         val factory = ReviewManagerFactory.create(context)

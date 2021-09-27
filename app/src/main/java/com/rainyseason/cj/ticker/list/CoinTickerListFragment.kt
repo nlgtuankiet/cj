@@ -77,7 +77,7 @@ class CoinTickerListFragment : Fragment(), MavericksView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = CoinTickerListFragmentBinding.bind(view)
-        setupReview(binding)
+        setupReview(binding, viewModel.viewModelScope)
         val recyclerView = view.findViewById<EpoxyRecyclerView>(R.id.content_recycler_view)
         val backButton = view.findViewById<ImageView>(R.id.back_button)
         backButton.setOnClickListener {

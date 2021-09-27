@@ -3,6 +3,8 @@ package com.rainyseason.cj.common
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.view.View
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.featureflag.DebugFlagProvider
@@ -23,6 +25,8 @@ interface CoreComponent {
     val debugFlagProvider: DebugFlagProvider
     val traceManager: TraceManager
     val tracker: Tracker
+    val commonRepository: CommonRepository
+    val firebaseCrashlytics: FirebaseCrashlytics
 }
 
 interface HasCoreComponent {
