@@ -110,6 +110,8 @@ class CoinTickerPreviewController(
         addSeparator = false
         buildLayout(state)
         buildTheme(state)
+        buildChangePercentInternal(state)
+        buildRefreshInternal(state)
         buildBatteryWarning(state)
         buildSizeAdjustment(state)
         buildBackgroundTransparency(state)
@@ -327,7 +329,6 @@ class CoinTickerPreviewController(
         }
         addSeparator = false
         buildClickAction(state)
-        buildRefreshInternal(state)
     }
 
     private fun buildCurrency(state: CoinTickerPreviewState) {
@@ -473,7 +474,6 @@ class CoinTickerPreviewController(
         }
         addSeparator = false
         buildBottomContentType(state)
-        buildChangePercentInternal(state)
         buildPercentDecimal(state)
     }
 
