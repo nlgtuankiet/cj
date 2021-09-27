@@ -96,7 +96,7 @@
         android:visibility="gone"
         android:id="@+id/ask_for_review_container"
         android:layout_width="0dp"
-        android:layout_height="230dp"
+        android:layout_height="200dp"
         android:layout_marginStart="12dp"
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="12dp"
@@ -113,38 +113,37 @@
             android:background="@color/white"
             android:elevation="16dp">
 
+            <ImageView
+                android:id="@+id/review_icon"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
+                android:src="@drawable/rate_5_star"
+                android:visibility="visible"
+                app:layout_constraintBottom_toTopOf="@id/ask_review_title"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription" />
+
             <com.google.android.material.textview.MaterialTextView
                 app:layout_constraintVertical_chainStyle="packed"
-                app:layout_constraintBottom_toTopOf="@id/rating_bar"
                 android:id="@+id/ask_review_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="16dp"
-                android:text="What is your experienceso far?"
+                android:text="Do you like the app?"
                 android:textAlignment="center"
                 android:textColor="@color/gray_900"
                 android:textSize="16sp"
+                app:layout_constraintBottom_toTopOf="@id/tell_why"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/review_icon"
                 tools:ignore="HardcodedText" />
 
-            <me.zhanghai.android.materialratingbar.MaterialRatingBar
-                style="@style/Widget.MaterialRatingBar.RatingBar"
-                android:layout_width="0dp"
-                android:id="@+id/rating_bar"
-                app:layout_constraintBottom_toTopOf="@id/tell_why"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="48dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="48dp"
-                android:stepSize="1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/ask_review_title" />
-
             <com.google.android.material.textfield.TextInputLayout
+                app:layout_constraintBottom_toTopOf="@id/right_button"
                 android:visibility="gone"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:id="@+id/tell_why"
@@ -153,15 +152,15 @@
                 android:layout_marginStart="16dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/rating_bar"
-                app:layout_constraintBottom_toTopOf="@id/submit_review"
+                app:layout_constraintTop_toBottomOf="@id/ask_review_title"
+                tools:visibility="visible"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:maxLines="2"
                     android:id="@+id/tell_why_edit_text"
-                    android:hint="(Optional) Tell us about it"
+                    android:hint="Tell us about it"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     tools:ignore="HardcodedText" />
@@ -170,27 +169,27 @@
 
             <Button
                 android:layout_marginEnd="12dp"
-                app:layout_constraintEnd_toStartOf="@id/submit_review"
+                android:id="@+id/left_button"
                 android:layout_marginStart="16dp"
-                android:id="@+id/cancel_button"
+                android:text="No"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
-                android:text="Later"
+                app:layout_constraintEnd_toStartOf="@id/right_button"
                 android:textAllCaps="false"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:ignore="HardcodedText" />
 
             <Button
-                app:layout_constraintStart_toEndOf="@id/cancel_button"
-                android:id="@+id/submit_review"
+                android:id="@+id/right_button"
+                android:text="Yes, I like it!"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
                 android:layout_marginBottom="24dp"
-                android:text="Submit"
+                app:layout_constraintStart_toEndOf="@id/left_button"
                 android:textAllCaps="false"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

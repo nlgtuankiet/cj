@@ -1,5 +1,7 @@
 package com.rainyseason.cj.ticker.list
 
+import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import com.rainyseason.cj.BuildConfig
@@ -7,21 +9,22 @@ import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.dismissKeyboard
 import com.rainyseason.cj.databinding.CoinTickerListFragmentBinding
 import com.rainyseason.cj.tracking.logKeyParamsEvent
-import timber.log.Timber
 
 
 @Suppress("unused")
+@SuppressLint("SetTextI18n")
 fun CoinTickerListFragment.setupReview(binding: CoinTickerListFragmentBinding) {
     val askForReviewBackground = binding.askForReviewBackground
     val showReview = binding.showReview
     val askForReviewContainer = binding.askForReviewContainer
-    val ratingBar = binding.ratingBar
     val tellWhyEditText = binding.tellWhyEditText
     val tellWhy = binding.tellWhy
     val askReviewTitle = binding.askReviewTitle
-    val cancelButton = binding.cancelButton
-    val submitButton = binding.submitReview
-    val tracker = submitButton.coreComponent.tracker
+    val leftButton = binding.leftButton
+    val rightButton = binding.rightButton
+    val tracker = rightButton.coreComponent.tracker
+    val reviewIcon = binding.reviewIcon
+
 
     fun maybeShowGoogleInAppReview() {
 
@@ -30,54 +33,53 @@ fun CoinTickerListFragment.setupReview(binding: CoinTickerListFragmentBinding) {
     fun moveToEndState() {
         askForReviewBackground.isGone = true
         askForReviewContainer.isGone = true
-        submitButton.dismissKeyboard()
+        rightButton.dismissKeyboard()
+    }
+
+    fun moveToTellWhyState() {
+        tellWhy.isVisible = true
+        reviewIcon.isGone = true
+        askReviewTitle.text = "Tell us what's wrong : ("
+
+        rightButton.text = "Submit"
+        rightButton.setOnClickListener {
+            moveToEndState()
+            tracker.logKeyParamsEvent(
+                "app_review_negative_why",
+                mapOf(
+                    "content" to tellWhyEditText.text.toString()
+                )
+            )
+        }
+
+        leftButton.text = "Maybe later"
+        leftButton.setOnClickListener {
+            moveToEndState()
+        }
     }
 
     fun moveToStartState() {
         askForReviewBackground.isVisible = true
         askForReviewBackground.setOnClickListener { }
 
-        cancelButton.setOnClickListener {
-            moveToEndState()
-            tracker.logKeyParamsEvent("app_review_cancel")
+        leftButton.setOnClickListener {
+            moveToTellWhyState()
+            tracker.logKeyParamsEvent("app_review_negative")
+            // save to local storage
         }
 
         askForReviewContainer.isVisible = true
-        askForReviewContainer.setOnClickListener {  }
+        askForReviewContainer.setOnClickListener { }
 
-
-        ratingBar.setOnRatingBarChangeListener { _, rating, _ ->
-            val ratingInt = rating.toInt()
-            Timber.d("ratingInt: $ratingInt")
-            if (ratingInt != 5) {
-                tellWhy.isVisible = true
-                askReviewTitle.isGone = true
-            }
-        }
-
-
-        submitButton.setOnClickListener {
-            val rating = ratingBar.rating.toInt()
-            val why = tellWhyEditText.text?.toString().orEmpty()
-            tracker.logKeyParamsEvent(
-                "app_review",
-                mapOf(
-                    "rating" to rating,
-                    "why" to why
-                )
-            )
-
-
-            if (rating == 5) {
-                maybeShowGoogleInAppReview()
-            }
+        rightButton.setOnClickListener {
+            tracker.logKeyParamsEvent("app_review_positive")
+            Toast.makeText(rightButton.context, "Thank you for your feedback!", Toast.LENGTH_SHORT)
+                .show()
+            maybeShowGoogleInAppReview()
             moveToEndState()
         }
 
     }
-
-
-
 
 
 

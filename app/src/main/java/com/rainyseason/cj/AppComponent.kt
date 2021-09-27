@@ -19,6 +19,7 @@ import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.data.CoinHistory
+import com.rainyseason.cj.data.CommonStorage
 import com.rainyseason.cj.data.ForceCacheInterceptor
 import com.rainyseason.cj.data.NetworkUrlLoggerInterceptor
 import com.rainyseason.cj.data.NoMustRevalidateInterceptor
@@ -86,7 +87,7 @@ object AppProvides {
 
     @Provides
     @Singleton
-    fun firebasePerformance(context: Context): FirebasePerformance {
+    fun firebasePerformance(): FirebasePerformance {
         return FirebasePerformance.getInstance()
     }
 
@@ -121,7 +122,7 @@ object AppProvides {
 
     @Provides
     @Singleton
-    fun firebaseCrashlytic(context: Context): FirebaseCrashlytics {
+    fun firebaseCrashlytic(): FirebaseCrashlytics {
         return FirebaseCrashlytics.getInstance()
     }
 
@@ -221,6 +222,20 @@ object AppProvides {
             }
         )
         return UserSettingStorage(pref)
+    }
+
+    @Provides
+    @CommonStorage
+    @Singleton
+    fun provideCommonStorage(context: Context): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
+            corruptionHandler = null,
+            migrations = emptyList(),
+            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+            produceFile = {
+                context.preferencesDataStoreFile("common")
+            }
+        )
     }
 
     @Provides
