@@ -44,6 +44,8 @@ import com.rainyseason.cj.databinding.WidgetCoinTicker2x2DefaultBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2GraphBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logKeyParamsEvent
 import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -67,6 +69,7 @@ class TickerWidgetRenderer @Inject constructor(
     private val context: Context,
     private val powerManager: PowerManager,
     private val appWidgetManager: AppWidgetManager,
+    private val tracker: Tracker,
 ) {
 
     @LayoutRes
@@ -554,6 +557,7 @@ class TickerWidgetRenderer @Inject constructor(
 
         view as LocalRemoteViews
         view.container.setOnClickListener {
+            tracker.logKeyParamsEvent("open_battery_optimize")
             context.startActivity(intent)
         }
     }
