@@ -17,6 +17,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
+import java.util.concurrent.TimeUnit
 
 fun CoinTickerListFragment.setupReview(
     binding: CoinTickerListFragmentBinding,
@@ -123,9 +125,19 @@ fun CoinTickerListFragment.setupReview(
 
     scope.launch {
         val widgetUsed = commonRepository.getWidgetsUsed()
+        val firstInstallTime = context.packageManager.getPackageInfo(context.packageName, 0)
+            .firstInstallTime
 
+        val timeUse = System.currentTimeMillis() - firstInstallTime
+        val minTimeUse = TimeUnit.DAYS.toMillis(1)
+        Timber.d("First install time is $firstInstallTime")
         if (widgetUsed < 2) {
             // wait for user use as least 1 widget before ask them for review
+            return@launch
+        }
+
+        if (timeUse < minTimeUse) {
+            // wait for user use as least 1 day before ask them for review
             return@launch
         }
 
@@ -141,7 +153,7 @@ fun CoinTickerListFragment.setupReview(
                 }
             } else {
                 val interval = System.currentTimeMillis() - lastDislikeMilis
-                val askAgainInterval = 7L * 24 * 60 * 60 * 1000
+                val askAgainInterval = TimeUnit.DAYS.toMillis(7)
                 if (interval > askAgainInterval) {
                     withContext(Dispatchers.Main) {
                         moveToStartState()
