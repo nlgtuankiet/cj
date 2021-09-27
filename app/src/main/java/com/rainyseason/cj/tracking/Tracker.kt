@@ -24,7 +24,7 @@ class KeyParamsEvent(
 
 fun Tracker.logKeyParamsEvent(
     key: String,
-    params: Map<String, Any?>,
+    params: Map<String, Any?> = emptyMap(),
 ) {
     val event = KeyParamsEvent(key, params)
     log(event = event)

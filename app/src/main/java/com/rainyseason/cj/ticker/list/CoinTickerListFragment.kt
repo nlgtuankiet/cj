@@ -18,6 +18,7 @@ import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.setTextIfDifferent
+import com.rainyseason.cj.databinding.CoinTickerListFragmentBinding
 import com.rainyseason.cj.ticker.CoinTickerNavigator
 import com.rainyseason.cj.ticker.getWidgetId
 import dagger.Module
@@ -75,6 +76,8 @@ class CoinTickerListFragment : Fragment(), MavericksView {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val binding = CoinTickerListFragmentBinding.bind(view)
+        setupReview(binding)
         val recyclerView = view.findViewById<EpoxyRecyclerView>(R.id.content_recycler_view)
         val backButton = view.findViewById<ImageView>(R.id.back_button)
         backButton.setOnClickListener {

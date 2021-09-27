@@ -8,6 +8,7 @@ import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
+import com.rainyseason.cj.tracking.Tracker
 import com.squareup.moshi.Moshi
 import okhttp3.Call
 
@@ -21,6 +22,7 @@ interface CoreComponent {
     val coinTickerRepository: CoinTickerRepository
     val debugFlagProvider: DebugFlagProvider
     val traceManager: TraceManager
+    val tracker: Tracker
 }
 
 interface HasCoreComponent {

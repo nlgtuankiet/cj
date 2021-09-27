@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <View
         android:id="@+id/toolbar_container"
         android:layout_width="0dp"
@@ -28,7 +27,6 @@
         tools:ignore="ContentDescription" />
 
     <EditText
-        android:textColorHint="@color/white_a50"
         android:id="@+id/search_box"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -38,6 +36,7 @@
         android:hint="@string/search_hint"
         android:inputType="text"
         android:textColor="?colorOnPrimary"
+        android:textColorHint="@color/white_a50"
         android:textCursorDrawable="@null"
         app:layout_constraintBottom_toBottomOf="@id/toolbar_container"
         app:layout_constraintEnd_toEndOf="parent"
@@ -68,5 +67,137 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar_container" />
+
+    <View
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:id="@+id/ask_for_review_background"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/black_a50"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:id="@+id/show_review"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <com.google.android.material.card.MaterialCardView
+        tools:visibility="visible"
+        android:visibility="gone"
+        android:id="@+id/ask_for_review_container"
+        android:layout_width="0dp"
+        android:layout_height="230dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:animateLayoutChanges="true"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            android:elevation="16dp">
+
+            <com.google.android.material.textview.MaterialTextView
+                app:layout_constraintVertical_chainStyle="packed"
+                app:layout_constraintBottom_toTopOf="@id/rating_bar"
+                android:id="@+id/ask_review_title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:text="What is your experienceso far?"
+                android:textAlignment="center"
+                android:textColor="@color/gray_900"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="HardcodedText" />
+
+            <me.zhanghai.android.materialratingbar.MaterialRatingBar
+                style="@style/Widget.MaterialRatingBar.RatingBar"
+                android:layout_width="0dp"
+                android:id="@+id/rating_bar"
+                app:layout_constraintBottom_toTopOf="@id/tell_why"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="48dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="48dp"
+                android:stepSize="1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/ask_review_title" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:visibility="gone"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:id="@+id/tell_why"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginStart="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/rating_bar"
+                app:layout_constraintBottom_toTopOf="@id/submit_review"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:maxLines="2"
+                    android:id="@+id/tell_why_edit_text"
+                    android:hint="(Optional) Tell us about it"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    tools:ignore="HardcodedText" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <Button
+                android:layout_marginEnd="12dp"
+                app:layout_constraintEnd_toStartOf="@id/submit_review"
+                android:layout_marginStart="16dp"
+                android:id="@+id/cancel_button"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:text="Later"
+                android:textAllCaps="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                app:layout_constraintStart_toEndOf="@id/cancel_button"
+                android:id="@+id/submit_review"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="24dp"
+                android:text="Submit"
+                android:textAllCaps="false"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:ignore="HardcodedText" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

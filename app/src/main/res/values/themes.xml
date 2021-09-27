@@ -14,7 +14,16 @@
         <!-- Customize your theme here. -->
 
 
-        <item name="android:fontFamily">@font/open_sans_regular</item>
+        <item name="android:textViewStyle">@style/TextViewStyle</item>
+        <item name="buttonStyle">@style/ButtonStyle</item>
 
+    </style>
+
+    <style name="ButtonStyle" parent="android:Widget.Holo.Button">
+        <item name="android:fontFamily">@font/open_sans_semi_bold</item>
+    </style>
+
+    <style name="TextViewStyle" parent="android:Widget.TextView">
+        <item name="android:fontFamily">@font/open_sans_regular</item>
     </style>
 </resources>
