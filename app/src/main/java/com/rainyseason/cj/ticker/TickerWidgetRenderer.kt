@@ -633,6 +633,9 @@ class TickerWidgetRenderer @Inject constructor(
                 )
                 formatter.maximumFractionDigits = numberOfDecimals
                 formatter.minimumFractionDigits = numberOfDecimals
+                formatter.decimalFormatSymbols = formatter.decimalFormatSymbols.apply {
+                    currencySymbol = ""
+                }
                 val formattedPercent = formatter.format(amount)
                 val symbol = if (amount > 0) {
                     "+"
