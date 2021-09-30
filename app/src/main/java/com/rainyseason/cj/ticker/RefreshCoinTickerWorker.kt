@@ -6,7 +6,6 @@ import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.rainyseason.cj.common.BaterrySaveException
 import com.rainyseason.cj.common.exception.logFallbackPrice
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
@@ -56,19 +55,14 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         try {
             updateWidget(widgetId)
         } catch (ex: Throwable) {
-            val sendEx = if (appContext.isInBatteryOptimize()) {
-                BaterrySaveException(ex)
-            } else {
-                ex
-            }
             tracker.logKeyParamsEvent(
                 "widget_refresh_fail",
                 mapOf(
                     "reason" to "unknown",
-                    "message" to (sendEx.message ?: sendEx.cause?.message ?: "")
+                    "message" to ex.message
                 )
             )
-            firebaseCrashlytics.recordException(sendEx)
+            firebaseCrashlytics.recordException(ex)
         }
 
 
