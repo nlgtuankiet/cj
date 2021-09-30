@@ -32,7 +32,7 @@ class CoinTickerHandler @Inject constructor(
             .setInputData(
                 Data.Builder().putInt(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId).build()
             )
-            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5L, TimeUnit.SECONDS)
+            .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5L, TimeUnit.MINUTES)
             .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
