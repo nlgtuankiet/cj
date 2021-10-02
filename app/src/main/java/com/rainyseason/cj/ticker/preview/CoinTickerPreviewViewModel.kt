@@ -10,6 +10,7 @@ import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.common.exception.logFallbackPrice
+import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSettingRepository
@@ -40,6 +41,7 @@ data class CoinTickerPreviewState(
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
     val marketChartResponse: Map<String, Async<MarketChartResponse>> = emptyMap(),
     val numberOfDecimal: Int? = null,
+    val isInBatterySaver: Boolean = false,
 ) : MavericksState {
     val config: CoinTickerConfig?
         get() = savedConfig.invoke()
@@ -51,7 +53,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
     private val firebaseCrashlytics: FirebaseCrashlytics,
-    private val tracker: Tracker,
 ) : MavericksViewModel<CoinTickerPreviewState>(CoinTickerPreviewState()) {
 
     private val widgetId = args.widgetId
@@ -317,6 +318,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         super.onCleared()
     }
 
+    fun setIsInBatterySaver(inBatteryOptimize: Boolean) {
+        setState { copy(isInBatterySaver = inBatteryOptimize) }
+    }
+
     @AssistedFactory
     interface Factory {
         fun create(args: CoinTickerPreviewArgs): CoinTickerPreviewViewModel
@@ -325,7 +330,8 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     companion object :
         MavericksViewModelFactory<CoinTickerPreviewViewModel, CoinTickerPreviewState> {
         override fun initialState(viewModelContext: ViewModelContext): CoinTickerPreviewState {
-            return CoinTickerPreviewState()
+            val isInBatterySaver = viewModelContext.activity.isInBatteryOptimize()
+            return CoinTickerPreviewState(isInBatterySaver = isInBatterySaver)
         }
 
         override fun create(

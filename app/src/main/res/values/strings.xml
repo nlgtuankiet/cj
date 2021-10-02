@@ -94,4 +94,8 @@
     <string name="bottom_nav_contact">Contact</string>
     <string name="home_add_widget">Add widget</string>
     <string name="drag_and_drop_to_add_widget">Long press in home screen to add widget!</string>
+
+    <string name="coin_ticker_preview_battery_saver_warning">Widget can\'t update under battery saver mode\nPlease exlucde app from battery saver\nApp info ➜ Baterry ➜ Unrestricted</string>
+    <string name="coin_ticker_preview_go_to_app_info">Go to app info</string>
+    <string name="coin_ticker_preview_save_widget">Save</string>
 </resources>

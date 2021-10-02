@@ -2,28 +2,28 @@ package com.rainyseason.cj.ticker.preview
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
+import androidx.core.view.isGone
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.CoinTickerPreviewTTI
 import com.rainyseason.cj.common.TraceManager
+import com.rainyseason.cj.common.appInfoIntent
+import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.requireArgs
+import com.rainyseason.cj.databinding.CoinTickerPreviewFragmentBinding
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.CoinTickerWidgetSaver
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
-import com.rainyseason.cj.ticker.view.CoinTickerPreviewView
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
@@ -41,7 +41,7 @@ interface CoinTickerPreviewFragmentModule {
     fun fragment(): CoinTickerPreviewFragment
 }
 
-class CoinTickerPreviewFragment : Fragment(), MavericksView {
+class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment), MavericksView {
 
     private val viewModel: CoinTickerPreviewViewModel by fragmentViewModel()
 
@@ -53,6 +53,9 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
 
     @Inject
     lateinit var traceManager: TraceManager
+
+    @Inject
+    lateinit var tracker: Tracker
 
     private val args: CoinTickerPreviewArgs by lazy { requireArgs() }
 
@@ -66,30 +69,28 @@ class CoinTickerPreviewFragment : Fragment(), MavericksView {
         traceManager.beginTrace(CoinTickerPreviewTTI(args.widgetId))
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        return inflater.inflate(R.layout.coin_ticker_preview_fragment, container, false)
+    override fun onResume() {
+        super.onResume()
+        val isInBatteryOptimize = requireContext().isInBatteryOptimize()
+        viewModel.setIsInBatterySaver(isInBatteryOptimize)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val recyclerView = view.findViewById<EpoxyRecyclerView>(R.id.setting_content)
+        val binding = CoinTickerPreviewFragmentBinding.bind(view)
+        val recyclerView = binding.settingContent
         recyclerView.setController(controller)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        view.findViewById<Button>(R.id.save_button).setOnClickListener {
-            save()
-        }
 
-        view.findViewById<ImageView>(R.id.back_button).setOnClickListener {
+        binding.backButton.setOnClickListener {
             requireActivity().onBackPressed()
         }
 
-        val previewView = view.findViewById<CoinTickerPreviewView>(R.id.preview_view)
-
+        binding.saveButton.setOnClickListener {
+            save()
+        }
+        
+        val previewView = binding.previewView
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 viewModel.stateFlow.map { state ->

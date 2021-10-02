@@ -571,8 +571,6 @@ class TickerWidgetRenderer @Inject constructor(
             else -> error("Unknown layout: ${params.config.layout}")
         }
 
-        renderBaterryOptimizeInfo(container, view, params)
-
         container.mesureAndLayout(params.config)
         val size = getWidgetSize(params.config)
 
@@ -585,58 +583,6 @@ class TickerWidgetRenderer @Inject constructor(
             val canvas = Canvas(bitmap)
             container.draw(canvas)
             view.setImageViewBitmap(R.id.image_view, bitmap)
-        }
-    }
-
-
-    private fun renderBaterryOptimizeInfo(
-        container: ViewGroup,
-        view: RemoteViews,
-        params: CoinTickerRenderParams,
-    ) {
-        if (!context.isInBatteryOptimize()) {
-            return
-        }
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            // improve handle
-            return
-        }
-        if (!params.config.showBatteryWarning) {
-            return
-        }
-
-        // render warning content
-        val warningContent =
-            context.inflater()
-                .inflate(R.layout.widget_coin_ticker_2x2_battery_warning, container, true)
-        val textView = warningContent.findViewById<TextView>(R.id.battery_optmize_text)
-        val warningRes = if (params.isPreview) {
-            R.string.notice_battery_optimize
-        } else {
-            R.string.notice_battery_optimize_without_action
-        }
-        textView.setText(warningRes)
-
-        if (!params.isPreview) {
-            return
-        }
-
-        val intent = Intent()
-        intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-        intent.data = Uri.parse("package:${context.packageName}")
-        intent.flags = intent.flags.or(Intent.FLAG_ACTIVITY_NEW_TASK)
-        val hasActivity = context.packageManager.resolveActivity(intent, 0) != null
-        if (!hasActivity) {
-            FirebaseCrashlytics.getInstance().recordException(
-                IllegalStateException("Unable to find app detail activity")
-            )
-            return
-        }
-
-        view as LocalRemoteViews
-        view.container.setOnClickListener {
-            tracker.logKeyParamsEvent("open_battery_optimize")
-            context.startActivity(intent)
         }
     }
 
