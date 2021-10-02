@@ -5,6 +5,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import androidx.appcompat.app.AppCompatActivity
 import com.rainyseason.cj.common.coreComponent
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -14,12 +15,14 @@ import kotlin.system.measureTimeMillis
 
 class DrawSampleActivity : AppCompatActivity() {
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_draw_sample)
         val checkBox = findViewById<CheckBox>(R.id.enable_cache)
 
         findViewById<Button>(R.id.go_button).setOnClickListener {
+            @OptIn(DelicateCoroutinesApi::class)
             GlobalScope.launch(Dispatchers.IO) {
                 val time = measureTimeMillis {
                     try {

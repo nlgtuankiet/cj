@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CryptoJet"
-        tools:ignore="AllowBackup">
+        tools:ignore="AllowBackup,MediaCapabilities">
         <meta-data
             android:name="firebase_performance_logcat_enabled"
             android:value="@bool/firebase_performance_logcat_enabled" />
@@ -35,7 +35,9 @@
             android:name=".featureflag.DebugFlagSetter"
             android:exported="true" />
 
-        <receiver android:name=".ticker.CoinTickerProviderGraph">
+        <receiver
+            android:name=".ticker.CoinTickerProviderGraph"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.rainyseason.cj.widget.cointicker.switch" />
@@ -45,7 +47,9 @@
                 android:resource="@xml/ticker_widget_info_graph" />
         </receiver>
 
-        <receiver android:name=".ticker.CoinTickerProviderMini">
+        <receiver
+            android:name=".ticker.CoinTickerProviderMini"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.rainyseason.cj.widget.cointicker.switch" />
@@ -55,7 +59,9 @@
                 android:resource="@xml/ticker_widget_info_mini" />
         </receiver>
 
-        <receiver android:name=".ticker.CoinTickerProviderDefault">
+        <receiver
+            android:name=".ticker.CoinTickerProviderDefault"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.rainyseason.cj.widget.cointicker.switch" />
@@ -65,7 +71,9 @@
                 android:resource="@xml/ticker_widget_info_default" />
         </receiver>
 
-        <receiver android:name=".ticker.CoinTickerProviderCoin360">
+        <receiver
+            android:name=".ticker.CoinTickerProviderCoin360"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="com.rainyseason.cj.widget.cointicker.switch" />
@@ -75,14 +83,18 @@
                 android:resource="@xml/ticker_widget_info_coin360" />
         </receiver>
 
-        <receiver android:name=".RefreshReceiver">
+        <receiver
+            android:name=".RefreshReceiver"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ticker.CoinTickerSettingActivity">
+        <activity
+            android:name=".ticker.CoinTickerSettingActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>

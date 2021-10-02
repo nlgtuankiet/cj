@@ -1,17 +1,13 @@
+@file:Suppress("deprecation")
+
 package com.rainyseason.cj.common
 
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkInfo
 import android.os.Build
-import androidx.annotation.VisibleForTesting
 import androidx.core.content.getSystemService
-import androidx.core.net.ConnectivityManagerCompat
-import androidx.work.Logger
-import androidx.work.impl.constraints.NetworkState
-import androidx.work.impl.constraints.trackers.NetworkStateTracker
 import java.net.ConnectException
 import java.net.SocketException
 import java.net.SocketTimeoutException
@@ -50,7 +46,6 @@ fun Context.hasValidNetworkConnection(): Boolean {
     }
 }
 
-@Suppress("deprecation")
 private fun ConnectivityManager.isConnected(): Boolean {
     val info: NetworkInfo? = activeNetworkInfo
     return info != null && info.isConnected

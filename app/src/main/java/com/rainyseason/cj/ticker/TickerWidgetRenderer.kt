@@ -10,9 +10,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
 import android.util.Size
 import android.view.View
 import android.view.View.MeasureSpec
@@ -28,7 +25,6 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
@@ -37,7 +33,6 @@ import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
-import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.verticalPadding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x1MiniBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2Coin360Binding
@@ -46,7 +41,6 @@ import com.rainyseason.cj.databinding.WidgetCoinTicker2x2GraphBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.tracking.Tracker
-import com.rainyseason.cj.tracking.logKeyParamsEvent
 import timber.log.Timber
 import java.text.DecimalFormat
 import java.text.NumberFormat
@@ -708,7 +702,7 @@ class TickerWidgetRenderer @Inject constructor(
         formatter.isGroupingUsed = config.showThousandsSeparator
         var formattedPrice = formatter.format(amount)
         if (roundToM) {
-            formattedPrice += "M"
+            formattedPrice += roundSymbol
         }
         return formattedPrice
     }

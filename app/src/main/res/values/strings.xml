@@ -1,11 +1,9 @@
 <resources>
     <string name="app_name">Bitcoin Widget Pro</string>
-    <string name="loading">loading</string>
 
     <string name="welcome_message">You can report bugs and request features in our telegram group:\nt.me/bwpapp</string>
 
     <string name="number_of_price_decimal">Price decimals</string>
-    <string name="number_of_price_decimal_explain">(not count leading 0)</string>
     <string name="number_of_change_percent_decimal">Change percent decimals</string>
     <string name="coin_ticker_preview_refresh_interval">Refresh widget every</string>
 
@@ -17,18 +15,7 @@
     <string name="coin_ticker_preview_setting_theme_dark">Dark</string>
     <string name="coin_ticker_preview_setting_show_thousands_separator">Show thousands separator</string>
 
-    <string name="coin_ticker_preview_setting_extra_size">Extra size</string>
     <string name="coin_ticker_preview_setting_layout">Layout</string>
-    <string name="coin_ticker_preview_setting_extra_size_none">None</string>
-
-
-    <string name="coin_ticker_list_market_header">Top 100</string>
-    <string name="coin_ticker_list_all_header">All</string>
-    <string name="coin_ticker_list_search">Search</string>
-
-    <string name="setting_value_default">Default</string>
-    <string name="setting_keep_original_price">Keep original</string>
-
 
     <string name="coin_ticker_preview_setting_header_bottom">Bottom content</string>
     <string name="coin_ticker_preview_setting_header_style">Style</string>
@@ -42,7 +29,6 @@
     <string name="coin_ticker_preview_setting_bottom_change_percent_interval_7d">7 days</string>
     <string name="coin_ticker_preview_setting_bottom_change_percent_interval_14d">14 days</string>
     <string name="coin_ticker_preview_setting_bottom_change_percent_interval_30d">30 days</string>
-    <string name="coin_ticker_preview_setting_bottom_change_percent_interval_60d">60 days</string>
     <string name="coin_ticker_preview_setting_bottom_change_percent_interval_1y">1 year</string>
     <string name="search_hint">Search…</string>
     <string name="search_result_other_coin_header">Other result</string>
@@ -71,8 +57,6 @@
     <string name="error_no_network">No internet connection, try to enable WIFI!</string>
     <string name="error_rate_limit">Too many network response, please wait for a moment and try again!</string>
     <string name="error_unknown">Unknown erorr, please try again!</string>
-    <string name="notice_battery_optimize">Widget cann\'t update when battery saver is enabled\nClick to exclude app from battery saver</string>
-    <string name="notice_battery_optimize_without_action">Widget cann\'t update when battery saver is enabled\nClick to refresh</string>
     <string name="coin_ticker_preview_setting_show_battery_warning">Show battery optimization warning</string>
 
 
