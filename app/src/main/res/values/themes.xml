@@ -21,7 +21,7 @@
     </style>
 
     <style name="ButtonStyle" parent="android:Widget.Holo.Button">
-        <item name="android:fontFamily">@font/open_sans_semi_bold</item>
+        <item name="android:fontFamily">@font/open_sans_medium</item>
     </style>
 
     <style name="TextViewStyle" parent="android:Widget.TextView">
@@ -43,6 +43,6 @@
         <item name="autoSizeMinTextSize">1sp</item>
         <item name="autoSizeMaxTextSize">14sp</item>
         <item name="autoSizeStepGranularity">1sp</item>
-        <item name="android:fontFamily">@font/open_sans_semi_bold</item>
+        <item name="android:fontFamily">@font/open_sans_medium</item>
     </style>
 </resources>
