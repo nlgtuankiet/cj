@@ -11,6 +11,8 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.dismissKeyboard
 import com.rainyseason.cj.databinding.CoinTickerListFragmentBinding
+import com.rainyseason.cj.featureflag.DebugFlag
+import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.tracking.logKeyParamsEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -116,7 +118,7 @@ fun CoinTickerListFragment.setupReview(
 
     }
 
-    if (BuildConfig.DEBUG) {
+    if (DebugFlag.SHOW_TRIGGER_REVIEW_BUTTON.isEnable) {
         showReview.isVisible = true
         showReview.setOnClickListener {
             moveToStartState()

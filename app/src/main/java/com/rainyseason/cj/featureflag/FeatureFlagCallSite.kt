@@ -88,7 +88,7 @@ object DebugFlag {
     val SHOW_PREVIEW_LAYOUT_BOUNDS = DebugKey("show_preview_layout_bounds")
     val SHOW_HTTP_LOG = DebugKey("show_http_log").withDefault("true")
     val SHOW_NETWORK_LOG = DebugKey("show_network_log").withDefault("false")
-    val ENABLE_FIREBASE_PERFORMANCE = DebugKey("enable_firebase_performance")
+    val SHOW_TRIGGER_REVIEW_BUTTON = DebugKey("show_trigger_review_button")
         .withDefault("false")
 }
 
