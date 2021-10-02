@@ -562,15 +562,6 @@ class TickerWidgetRenderer @Inject constructor(
         }
     }
 
-    private fun SpannableStringBuilder.appendChange(
-        amount: Double,
-        numberOfDecimal: Int?,
-        withColor: Boolean,
-    ) {
-
-
-    }
-
     /**
      * Ex: 2 decimal
      * ....**
