@@ -3,7 +3,6 @@ package com.rainyseason.cj.ticker.preview
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import androidx.core.view.isGone
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -13,7 +12,6 @@ import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.dialog.MaterialDialogs
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.CoinTickerPreviewTTI
 import com.rainyseason.cj.common.TraceManager
@@ -69,12 +67,6 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
         super.onAttach(context)
         AndroidSupportInjection.inject(this)
         traceManager.beginTrace(CoinTickerPreviewTTI(args.widgetId))
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val isInBatteryOptimize = requireContext().isInBatteryOptimize()
-        viewModel.setIsInBatterySaver(isInBatteryOptimize)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

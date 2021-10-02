@@ -10,7 +10,6 @@ import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.common.exception.logFallbackPrice
-import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSettingRepository
@@ -22,7 +21,6 @@ import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.ChangeInterval
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
-import com.rainyseason.cj.tracking.Tracker
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -41,7 +39,6 @@ data class CoinTickerPreviewState(
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
     val marketChartResponse: Map<String, Async<MarketChartResponse>> = emptyMap(),
     val numberOfDecimal: Int? = null,
-    val isInBatterySaver: Boolean = false,
 ) : MavericksState {
     val config: CoinTickerConfig?
         get() = savedConfig.invoke()
@@ -318,10 +315,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         super.onCleared()
     }
 
-    fun setIsInBatterySaver(inBatteryOptimize: Boolean) {
-        setState { copy(isInBatterySaver = inBatteryOptimize) }
-    }
-
     @AssistedFactory
     interface Factory {
         fun create(args: CoinTickerPreviewArgs): CoinTickerPreviewViewModel
@@ -330,8 +323,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     companion object :
         MavericksViewModelFactory<CoinTickerPreviewViewModel, CoinTickerPreviewState> {
         override fun initialState(viewModelContext: ViewModelContext): CoinTickerPreviewState {
-            val isInBatterySaver = viewModelContext.activity.isInBatteryOptimize()
-            return CoinTickerPreviewState(isInBatterySaver = isInBatterySaver)
+            return CoinTickerPreviewState()
         }
 
         override fun create(
