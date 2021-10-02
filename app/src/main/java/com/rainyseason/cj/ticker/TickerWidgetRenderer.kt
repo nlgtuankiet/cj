@@ -354,7 +354,7 @@ class TickerWidgetRenderer @Inject constructor(
 
         // bind change percent
         binding.changePercent.text = formatChange(params)
-        binding.changePercent.updateVertialFontMargin(updateTop = true)
+        binding.changePercent.updateVertialFontMargin(updateBottom = true)
 
 
         drawGraph(container, binding.graph, params)
