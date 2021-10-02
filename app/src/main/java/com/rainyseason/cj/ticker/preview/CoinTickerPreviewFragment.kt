@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.dialog.MaterialDialogs
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.CoinTickerPreviewTTI
 import com.rainyseason.cj.common.TraceManager
@@ -89,7 +91,7 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
         binding.saveButton.setOnClickListener {
             save()
         }
-        
+
         val previewView = binding.previewView
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -119,10 +121,42 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
     }
 
     private fun save() {
-        viewModel.save()
-        val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
-        val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
-        (requireActivity() as CoinTickerWidgetSaver).saveWidget(config, displayData)
+        fun actualSave() {
+            viewModel.save()
+            val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
+            val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
+            (requireActivity() as CoinTickerWidgetSaver).saveWidget(config, displayData)
+        }
+
+        val isInBatterySaver = requireContext().isInBatteryOptimize()
+        if (isInBatterySaver) {
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle(R.string.coin_ticker_preview_battery_saver_warning_dialog_title)
+                .setMessage(R.string.coin_ticker_preview_battery_saver_warning)
+                .setPositiveButton(R.string.coin_ticker_preview_save_widget_anyway) { _, _ ->
+                    tracker.logKeyParamsEvent(
+                        "battery_saver_impression",
+                        mapOf("action" to "save_anyway")
+                    )
+                    actualSave()
+                }
+                .apply {
+                    val intent = requireContext().appInfoIntent()
+                    if (intent != null) {
+                        setNegativeButton(R.string.coin_ticker_preview_go_to_app_info) { _, _ ->
+                            tracker.logKeyParamsEvent(
+                                "battery_saver_impression",
+                                mapOf("action" to "open_app_info")
+                            )
+                            startActivity(intent)
+                        }
+                    }
+                }
+                .show()
+        } else {
+            actualSave()
+        }
+
     }
 
     override fun invalidate() {
