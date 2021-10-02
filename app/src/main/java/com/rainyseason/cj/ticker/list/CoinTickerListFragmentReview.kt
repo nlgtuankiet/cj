@@ -22,10 +22,12 @@ import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
+@Suppress("UNREACHABLE_CODE", "unused")
 fun CoinTickerListFragment.setupReview(
     binding: CoinTickerListFragmentBinding,
     scope: CoroutineScope,
 ) {
+    return
     val context = requireContext()
     val commonRepository = requireContext().coreComponent.commonRepository
     val reviewManager = ReviewManagerFactory.create(context)
