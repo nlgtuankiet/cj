@@ -57,11 +57,6 @@ class CoinTickerPreviewView @JvmOverloads constructor(
         }
     }
 
-    fun setWidgetId(id: Int) {
-
-
-    }
-
     // work around auto text size problem
     @ModelProp
     fun setRenderParams(params: CoinTickerRenderParams?) {
@@ -84,12 +79,11 @@ class CoinTickerPreviewView @JvmOverloads constructor(
         )
         val widgetSize = renderer.getWidgetSize(params.config)
         container.updateLayoutParams<MarginLayoutParams> {
-            height = widgetSize
-            width = widgetSize
+            height = widgetSize.height
+            width = widgetSize.width
         }
-        val containerSize = widgetSize + context.dpToPx(12 * 2)
         mainContainer.updateLayoutParams<MarginLayoutParams> {
-            height = containerSize
+            height = widgetSize.height + context.dpToPx(12 * 2)
         }
         renderer.render(remoteView!!, params)
     }

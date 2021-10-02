@@ -172,11 +172,21 @@ class CoinTickerPreviewController(
     private fun buildLayout(state: CoinTickerPreviewState) {
         val config = state.config ?: return
 
-        val layoutToString = listOf(
+        val layoutToString2x2 = listOf(
             CoinTickerConfig.Layout.GRAPH to R.string.coin_ticket_style_graph,
             CoinTickerConfig.Layout.DEFAULT to R.string.coin_ticket_style_default,
             CoinTickerConfig.Layout.COIN360 to R.string.coin_ticket_style_coin360,
-        ).map { it.first to context.getString(it.second) }
+        )
+
+        val layoutToString2x1 = listOf(
+            CoinTickerConfig.Layout.MINI to R.string.coin_ticket_style_mini,
+        )
+
+        val layoutToString = listOf(
+            layoutToString2x2,
+            layoutToString2x1,
+        ).first { it.any { entry -> entry.first == config.layout } }
+            .map { it.first to context.getString(it.second) }
 
         maybeBuildHorizontalSeparator(id = "header_layout_separator")
 

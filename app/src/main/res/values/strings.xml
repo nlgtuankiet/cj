@@ -48,9 +48,10 @@
     <string name="search_result_other_coin_header">Other result</string>
 
 
-    <string name="coin_ticket_style_default">Default</string>
+    <string name="coin_ticket_style_default">Simple</string>
     <string name="coin_ticket_style_graph">Graph</string>
     <string name="coin_ticket_style_coin360">Coin 360</string>
+    <string name="coin_ticket_style_mini">Mini</string>
 
     <string name="coin_ticker_preview_setting_header_click_action">Click action</string>
     <string name="coin_ticker_preview_setting_header_click_action_refresh">Refresh widget</string>

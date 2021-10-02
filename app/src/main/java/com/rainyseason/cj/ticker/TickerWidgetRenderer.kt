@@ -12,13 +12,13 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.net.Uri
 import android.os.Build
-import android.os.PowerManager
 import android.provider.Settings
-import android.text.SpannableStringBuilder
+import android.util.Size
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.LayoutRes
@@ -39,6 +39,7 @@ import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.verticalPadding
+import com.rainyseason.cj.databinding.WidgetCoinTicker2x1MiniBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2Coin360Binding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2DefaultBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2GraphBinding
@@ -67,14 +68,19 @@ data class CoinTickerRenderParams(
 @Singleton
 class TickerWidgetRenderer @Inject constructor(
     private val context: Context,
-    private val powerManager: PowerManager,
     private val appWidgetManager: AppWidgetManager,
     private val tracker: Tracker,
 ) {
 
     @LayoutRes
     fun selectLayout(config: CoinTickerConfig): Int {
-        return R.layout.widget_square_2x2
+        return when (config.layout) {
+            CoinTickerConfig.Layout.GRAPH -> R.layout.widget_coin_ticker_2x2
+            CoinTickerConfig.Layout.DEFAULT -> R.layout.widget_coin_ticker_2x2
+            CoinTickerConfig.Layout.COIN360 -> R.layout.widget_coin_ticker_2x2
+            CoinTickerConfig.Layout.MINI -> R.layout.widget_coin_ticker_2x1
+            else -> error("not support ${config.layout}")
+        }
     }
 
     private fun <T> select(theme: String, light: T, dark: T): T {
@@ -103,6 +109,7 @@ class TickerWidgetRenderer @Inject constructor(
             R.layout.widget_coin_ticker_2x2_default -> CoinTickerProviderDefault::class.java
             R.layout.widget_coin_ticker_2x2_graph -> CoinTickerProviderGraph::class.java
             R.layout.widget_coin_ticker_2x2_coin360 -> CoinTickerProviderCoin360::class.java
+            R.layout.widget_coin_ticker_2x1_mini -> CoinTickerProviderMini::class.java
             else -> error("Unknown layout for $layoutRes")
         }
         val pendingIntent = when (params.config.clickAction) {
@@ -298,6 +305,92 @@ class TickerWidgetRenderer @Inject constructor(
 
     }
 
+    private fun renderMini(
+        container: ViewGroup,
+        remoteViews: RemoteViews,
+        params: CoinTickerRenderParams,
+    ) {
+        val binding = WidgetCoinTicker2x1MiniBinding
+            .inflate(context.inflater(), container, true)
+        val config = params.config
+        val theme = config.theme
+        val renderData = params.data
+
+        container.mesureAndLayout(config)
+
+        remoteViews.bindLoading(params)
+
+        // bind container
+        binding.container.setBackgroundResource(
+            select(
+                theme,
+                R.drawable.coin_ticker_background,
+                R.drawable.coin_ticker_background_dark
+            )
+        )
+        applyBackgroundTransparency(binding.container, config)
+        remoteViews.applyClickAction(params)
+
+        // bind symbol
+        binding.symbol.text = renderData.symbol
+        binding.symbol.setTextColor(
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+        binding.symbol.updateVertialFontMargin(updateTop = true)
+
+        // bind amount
+        binding.amount.text = formatAmount(params)
+        binding.amount.setTextColor(
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+
+        // bind change percent
+        binding.changePercent.text = formatChange(params)
+        binding.changePercent.updateVertialFontMargin(updateTop = true)
+
+
+        drawGraph(container, binding.graph, params)
+    }
+
+    private fun drawGraph(
+        container: ViewGroup,
+        imageView: ImageView,
+        params: CoinTickerRenderParams,
+    ) {
+        val data = params.data
+        val config = params.config
+        val graphData = data.getGraphData(config).orEmpty()
+        val filteredData = graphData.filter { it.size == 2 && it[1] != 0.0 }
+        if (filteredData.size >= 2) {
+            container.mesureAndLayout(config)
+            val width = imageView.measuredWidth.toFloat()
+            val height = imageView.measuredHeight.toFloat()
+            val isPositive = filteredData.last()[1] > filteredData.first()[1]
+            val renderData = if (!isPositive && DebugFlag.POSITIVE_WIDGET.isEnable) {
+                filteredData.mapIndexed { index, point ->
+                    listOf(point[0], filteredData[filteredData.size - 1 - index][1])
+                }
+            } else {
+                filteredData
+            }
+            val bitmap = createGraphBitmap(
+                context = context,
+                width = width,
+                height = height,
+                isPositive = isPositive || DebugFlag.POSITIVE_WIDGET.isEnable,
+                data = renderData
+            )
+            imageView.setImageBitmap(bitmap)
+        }
+    }
 
     private fun renderGraph(
         container: ViewGroup,
@@ -390,29 +483,7 @@ class TickerWidgetRenderer @Inject constructor(
             }
         }
 
-        val graphData = renderData.getGraphData(config).orEmpty()
-        val filteredData = graphData.filter { it.size == 2 && it[1] != 0.0 }
-        if (filteredData.size >= 2) {
-            container.mesureAndLayout(config)
-            val width = binding.graph.measuredWidth.toFloat()
-            val height = binding.graph.measuredHeight.toFloat()
-            val isPositive = filteredData.last()[1] > filteredData.first()[1]
-            val renderData = if (!isPositive && DebugFlag.POSITIVE_WIDGET.isEnable) {
-                filteredData.mapIndexed { index, point ->
-                    listOf(point[0], filteredData[filteredData.size - 1 - index][1])
-                }
-            } else {
-                filteredData
-            }
-            val bitmap = createGraphBitmap(
-                context = context,
-                width = width,
-                height = height,
-                isPositive = isPositive || DebugFlag.POSITIVE_WIDGET.isEnable,
-                data = renderData
-            )
-            binding.graph.setImageBitmap(bitmap)
-        }
+        drawGraph(container, binding.graph, params)
     }
 
     private fun RemoteViews.bindLoading(params: CoinTickerRenderParams) {
@@ -436,13 +507,14 @@ class TickerWidgetRenderer @Inject constructor(
 
     private fun ViewGroup.mesureAndLayout(config: CoinTickerConfig) {
         val size = getWidgetSize(config)
-        val specs = MeasureSpec.makeMeasureSpec(size, MeasureSpec.EXACTLY)
-        layoutParams = ViewGroup.MarginLayoutParams(size, size)
-        measure(specs, specs)
-        layout(0, 0, size, size)
+        val specsWidth = MeasureSpec.makeMeasureSpec(size.width, MeasureSpec.EXACTLY)
+        val specsHeight = MeasureSpec.makeMeasureSpec(size.height, MeasureSpec.EXACTLY)
+        layoutParams = ViewGroup.MarginLayoutParams(size.width, size.width)
+        measure(specsWidth, specsHeight)
+        layout(0, 0, specsWidth, specsHeight)
     }
 
-    fun getWidgetSize(config: CoinTickerConfig): Int {
+    fun getWidgetSize(config: CoinTickerConfig): Size {
         val options = appWidgetManager.getAppWidgetOptions(config.widgetId)
         val minWidth = context
             .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH] as? Int) ?: 155)
@@ -451,9 +523,15 @@ class TickerWidgetRenderer @Inject constructor(
         val size = minHegth.coerceAtMost(minWidth)
             .coerceAtMost(context.dpToPx(155))
             .coerceAtLeast(context.dpToPx(145))
-        val finalSize = size + context.dpToPx(config.sizeAdjustment)
-        Timber.d("widget ${config.widgetId} size $finalSize min $minWidth $minHegth")
-        return finalSize
+        val finalWidth = size + context.dpToPx(config.sizeAdjustment)
+        val finalHeight = when (config.layout) {
+            CoinTickerConfig.Layout.MINI -> finalWidth / 2
+            CoinTickerConfig.Layout.DEFAULT -> finalWidth
+            CoinTickerConfig.Layout.GRAPH -> finalWidth
+            CoinTickerConfig.Layout.COIN360 -> finalWidth
+            else -> error("Unknown layout")
+        }
+        return Size(finalWidth, finalHeight)
     }
 
     private fun TextView.updateVertialFontMargin(
@@ -489,6 +567,7 @@ class TickerWidgetRenderer @Inject constructor(
             CoinTickerConfig.Layout.DEFAULT -> renderDefault(container, view, params)
             CoinTickerConfig.Layout.GRAPH -> renderGraph(container, view, params)
             CoinTickerConfig.Layout.COIN360 -> renderCoin360(container, view, params)
+            CoinTickerConfig.Layout.MINI -> renderMini(container, view, params)
             else -> error("Unknown layout: ${params.config.layout}")
         }
 
@@ -502,13 +581,11 @@ class TickerWidgetRenderer @Inject constructor(
             view.container.removeAllViews()
             view.container.addView(container)
         } else {
-            val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+            val bitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
             container.draw(canvas)
             view.setImageViewBitmap(R.id.image_view, bitmap)
         }
-
-
     }
 
 
@@ -530,7 +607,8 @@ class TickerWidgetRenderer @Inject constructor(
 
         // render warning content
         val warningContent =
-            context.inflater().inflate(R.layout.widget_square_2x2_battery_warning, container, true)
+            context.inflater()
+                .inflate(R.layout.widget_coin_ticker_2x2_battery_warning, container, true)
         val textView = warningContent.findViewById<TextView>(R.id.battery_optmize_text)
         val warningRes = if (params.isPreview) {
             R.string.notice_battery_optimize

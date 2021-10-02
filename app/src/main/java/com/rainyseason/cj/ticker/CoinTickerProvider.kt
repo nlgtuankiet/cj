@@ -12,6 +12,7 @@ import com.rainyseason.cj.data.local.CoinTickerRepository
 class CoinTickerProviderDefault : CoinTickerProvider()
 class CoinTickerProviderGraph : CoinTickerProvider()
 class CoinTickerProviderCoin360 : CoinTickerProvider()
+class CoinTickerProviderMini : CoinTickerProvider()
 
 abstract class CoinTickerProvider : AppWidgetProvider() {
 

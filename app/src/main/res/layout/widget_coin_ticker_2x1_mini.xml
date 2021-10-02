@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/coin_ticker_background"
+    tools:layout_height="77.5dp"
+    tools:layout_width="155dp">
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/symbol"
+        style="@style/Theme.CryptoJet.MiniText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="4dp"
+        android:textAllCaps="true"
+        app:layout_constraintEnd_toStartOf="@id/graph"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText"
+        tools:text="BTC"
+        tools:textColor="@color/gray_900" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/amount"
+        style="@style/Theme.CryptoJet.MiniText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintBottom_toTopOf="@id/change_percent"
+        app:layout_constraintEnd_toStartOf="@id/graph"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/symbol"
+        tools:ignore="HardcodedText"
+        tools:text="1234.1"
+        tools:textColor="@color/gray_900" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/change_percent"
+        style="@style/Theme.CryptoJet.MiniText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/graph"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="HardcodedText"
+        tools:text="+6.9%"
+        tools:textColor="@color/gray_900" />
+
+    <ImageView
+        android:id="@+id/graph"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.45"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.45" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

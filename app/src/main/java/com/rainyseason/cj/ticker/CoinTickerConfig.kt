@@ -93,6 +93,7 @@ data class CoinTickerConfig(
         const val DEFAULT = "default"
         const val GRAPH = "graph"
         const val COIN360 = "coin360"
+        const val MINI = "mini"
     }
 
     object ClickAction {

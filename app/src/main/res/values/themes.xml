@@ -33,4 +33,16 @@
         <item name="itemTextColor">@color/bottom_nav_item_color</item>
         <item name="itemIconTint">@color/bottom_nav_item_color</item>
     </style>
+
+    <style name="Theme.CryptoJet.MiniText">
+        <item name="android:textAlignment">gravity</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:maxLines">1</item>
+        <item name="autoSizeTextType">uniform</item>
+        <item name="autoSizeMinTextSize">1sp</item>
+        <item name="autoSizeMaxTextSize">12sp</item>
+        <item name="autoSizeStepGranularity">1sp</item>
+        <item name="android:fontFamily">@font/open_sans_semi_bold</item>
+    </style>
 </resources>
