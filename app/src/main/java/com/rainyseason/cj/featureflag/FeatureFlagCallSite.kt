@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
-import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.common.coreComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +17,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import timber.log.Timber
@@ -45,6 +43,12 @@ class DebugFlagProvider @Inject constructor(context: Context) : FlagValueProvide
             context.preferencesDataStoreFile("debug_feature_flag")
         }
     )
+
+    fun awaitFirstValue() {
+        runBlocking {
+            store.data.first()
+        }
+    }
 
     private val data = MutableStateFlow(emptyMap<Preferences.Key<*>, Any>())
 

@@ -115,9 +115,9 @@
 
             <ImageView
                 android:id="@+id/review_icon"
-                android:layout_width="72dp"
-                android:layout_height="72dp"
-                android:src="@drawable/rate_5_star"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/customer_feedback"
                 android:visibility="visible"
                 app:layout_constraintBottom_toTopOf="@id/ask_review_title"
                 app:layout_constraintEnd_toEndOf="parent"

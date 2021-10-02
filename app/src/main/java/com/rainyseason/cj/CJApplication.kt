@@ -12,11 +12,9 @@ import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
-import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.featureflag.MainFlagValueProvider
 import com.rainyseason.cj.featureflag.NoopFlagValueProvider
-import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.util.ExceptionLoggerTree
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
@@ -81,6 +79,10 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         )
 
         enqueueNoopWorker()
+
+        if (BuildConfig.DEBUG) {
+            debugFlagProvider.get().awaitFirstValue()
+        }
     }
 
     private fun enqueueNoopWorker() {

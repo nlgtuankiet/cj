@@ -80,10 +80,10 @@
     <string name="coin_ticker_preview_setting_background_transparency">Background transparency</string>
     <string name="coin_history_header">History</string>
     <string name="coin_market_header">Popular</string>
-    <string name="inapp_review_do_you_like_the_app">Do you like the app?</string>
+    <string name="inapp_review_do_you_like_the_app">How do feel about the app?</string>
     <string name="inapp_review_tell_why_hint">Tell us about it</string>
-    <string name="inapp_review_like_app_no">No</string>
-    <string name="inapp_review_like_app_yes">Yes, I like it!</string>
+    <string name="inapp_review_like_app_no">Not good</string>
+    <string name="inapp_review_like_app_yes">I like it!</string>
     <string name="inapp_review_tell_what_wrong">Tell us what\'s wrong : (</string>
     <string name="inapp_review_thank_you_for_feedback">Thank you for your feedback!</string>
     <string name="inapp_review_submit_feedback">Submit</string>
