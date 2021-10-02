@@ -677,7 +677,12 @@ class TickerWidgetRenderer @Inject constructor(
         var amount = data.getAmount(config)
 
         val roundToM = config.roundToMillion && amount > 1_000_000
-        if (roundToM) {
+        var roundSymbol = ""
+        if (amount >= 1_000_000_000) {
+            roundSymbol = "B"
+            amount /= 1_000_000_000
+        } else if (amount >= 1_000_000) {
+            roundSymbol = "M"
             amount /= 1_000_000
         }
         val currencyCode = config.currency

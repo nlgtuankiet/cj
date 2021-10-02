@@ -63,7 +63,7 @@
 
     <string name="coin_ticker_preview_setting_header_currency">Currency</string>
 
-    <string name="coin_ticker_preview_setting_round_to_million">Round to million</string>
+    <string name="coin_ticker_preview_setting_round_to_million">Round to million and billion</string>
 
     <string name="coin_ticker_preview_setting_hide_decimal">Hide decimals on large price</string>
 
