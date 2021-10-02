@@ -1,6 +1,7 @@
 package com.rainyseason.cj.ticker
 
 import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
@@ -29,6 +30,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     private val coinGeckoService: CoinGeckoService,
     private val coinTickerRepository: CoinTickerRepository,
     private val appWidgetManager: AppWidgetManager,
+    private val handler: CoinTickerHandler,
     private val render: TickerWidgetRenderer,
     private val tracker: Tracker,
     private val firebaseCrashlytics: FirebaseCrashlytics,
@@ -41,6 +43,19 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         )
         if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
             throw IllegalArgumentException("invalid id")
+        }
+
+        // check if widget has been removed
+        val widgetIds = listOf(
+            CoinTickerProviderDefault::class.java,
+            CoinTickerProviderGraph::class.java,
+            CoinTickerProviderCoin360::class.java,
+            CoinTickerProviderMini::class.java,
+        ).map { appWidgetManager.getAppWidgetIds(ComponentName(appContext, it)).toList() }
+            .flatten()
+
+        if (widgetId !in widgetIds) {
+            handler.removeRefreshWork(widgetId)
         }
 
         if (appContext.isInBatteryOptimize()) {

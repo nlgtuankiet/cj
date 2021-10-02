@@ -68,6 +68,7 @@ abstract class CoinTickerProvider : AppWidgetProvider() {
         goBackground {
             appWidgetIds.forEach {
                 coinTickerRepository.clearAllData(widgetId = it)
+                coinTickerHandler.removeRefreshWork(widgetId = it)
             }
         }
     }

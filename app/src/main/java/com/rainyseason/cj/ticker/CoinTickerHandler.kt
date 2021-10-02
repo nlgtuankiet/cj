@@ -10,6 +10,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import androidx.work.await
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -44,6 +45,10 @@ class CoinTickerHandler @Inject constructor(
             ExistingPeriodicWorkPolicy.REPLACE,
             request
         )
+    }
+
+    suspend fun removeRefreshWork(widgetId: Int) {
+        workManager.cancelUniqueWork("refresh_${widgetId}").await()
     }
 
     suspend fun rerender(widgetId: Int) {
