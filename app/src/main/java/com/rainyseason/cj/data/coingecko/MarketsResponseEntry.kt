@@ -16,4 +16,10 @@ data class MarketsResponseEntry(
 
     @Json(name = "image")
     val image: String,
+
+    @Json(name = "price_change_percentage_24h")
+    val priceChangePercentage24h: Double?,
+
+    @Json(name = "current_price")
+    val currentPrice: Double,
 )

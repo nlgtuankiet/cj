@@ -18,6 +18,7 @@ interface CoinGeckoService {
     suspend fun getCoinMarkets(
         @Query("vs_currency") vsCurrency: String,
         @Query("per_page") perPage: Int,
+        @Query("page") page: Int = 1,
         @Query(Signal.FORCE_CACHE) forceCache: Boolean = false,
     ): List<MarketsResponseEntry>
 

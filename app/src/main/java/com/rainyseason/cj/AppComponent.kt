@@ -30,6 +30,7 @@ import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.rainyseason.cj.tracking.AppTracker
 import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.watch.WatchListFragmentModule
 import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.BindsInstance
@@ -59,6 +60,7 @@ import javax.inject.Singleton
         AndroidSupportInjectionModule::class,
         MainActivityModule::class,
         CoinTickerSettingActivityModule::class,
+        WatchListFragmentModule::class,
         AppProvides::class,
         AppBinds::class,
     ]

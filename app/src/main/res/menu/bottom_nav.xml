@@ -1,6 +1,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
+        android:id="@id/watch_list"
+        android:icon="@drawable/ic_baseline_star_rate_24"
+        android:title="@string/bottom_nav_watch_list" />
+
+    <item
         android:id="@id/home"
         android:icon="@drawable/ic_baseline_home_24"
         android:title="@string/bottom_nav_home" />

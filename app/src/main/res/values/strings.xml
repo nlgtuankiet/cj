@@ -75,6 +75,7 @@
 
 
     <string name="bottom_nav_home">Home</string>
+    <string name="bottom_nav_watch_list">Watch list</string>
     <string name="bottom_nav_contact">Contact</string>
     <string name="home_add_widget">Add widget</string>
     <string name="drag_and_drop_to_add_widget">Long press in home screen to add widget!</string>

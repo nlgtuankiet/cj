@@ -90,9 +90,12 @@ fun Intent.logString(): String {
 }
 
 
-fun ViewGroup.inflateAndAdd(@LayoutRes layoutRes: Int) {
-    LayoutInflater.from(context).inflate(layoutRes, this, true)
+fun ViewGroup.inflateAndAdd(@LayoutRes layoutRes: Int): View {
+    return LayoutInflater.from(context).inflate(layoutRes, this, true)
 }
+
+val View.inflater: LayoutInflater
+    get() = LayoutInflater.from(context)
 
 
 fun Context.dpToPx(value: Int): Int {
