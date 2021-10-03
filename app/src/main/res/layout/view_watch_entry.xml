@@ -31,6 +31,24 @@
         app:layout_constraintTop_toBottomOf="@id/symbol"
         tools:text="Bitcoin" />
 
+    <View
+        android:id="@+id/symbol_loading"
+        android:layout_width="48dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/watch_text_loading"
+        app:layout_constraintBottom_toTopOf="@id/name_loading"
+        app:layout_constraintStart_toStartOf="@id/symbol"
+        app:layout_constraintTop_toTopOf="@id/symbol" />
+
+    <View
+        android:id="@+id/name_loading"
+        android:layout_width="96dp"
+        android:layout_height="0dp"
+        android:background="@drawable/watch_text_loading"
+        app:layout_constraintBottom_toBottomOf="@id/name"
+        app:layout_constraintStart_toStartOf="@id/name"
+        app:layout_constraintTop_toTopOf="@id/name" />
 
     <TextView
         android:id="@+id/price"
@@ -78,6 +96,8 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp"
         android:id="@+id/graph"
         android:layout_width="100dp"
         android:layout_height="0dp"

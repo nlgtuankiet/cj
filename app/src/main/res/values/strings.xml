@@ -85,4 +85,8 @@
     <string name="coin_ticker_preview_save_widget">Save</string>
     <string name="coin_ticker_preview_save_widget_anyway">Save anyway</string>
     <string name="coin_ticker_preview_battery_saver_warning_dialog_title">Battery saver warning</string>
+
+
+    <string name="watch_add">Add</string>
+    <string name="watch_added">Added</string>
 </resources>

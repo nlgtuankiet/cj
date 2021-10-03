@@ -1,27 +1,42 @@
 package com.rainyseason.cj.watch
 
 import com.airbnb.mvrx.Async
+import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.FragmentViewModelContext
+import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
+import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.rainyseason.cj.common.WatchListRepository
+import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSetting
 import com.rainyseason.cj.data.UserSettingRepository
+import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
+import com.rainyseason.cj.data.coingecko.CoinListEntry
+import com.rainyseason.cj.data.coingecko.MarketChartResponse
 import com.rainyseason.cj.data.coingecko.MarketsResponseEntry
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import java.util.Collections
+
+private typealias State = WatchListState
 
 data class WatchListState(
     val page: Int = 0,
-    val markets: Async<List<MarketsResponseEntry>> = Uninitialized,
     val userSetting: Async<UserSetting> = Uninitialized,
+    val watchList: Async<List<String>> = Uninitialized,
+    val watchEntryDetail: Map<String, Async<CoinDetailResponse>> = emptyMap(),
+    val watchEntryMarket: Map<String, Async<MarketChartResponse>> = emptyMap(),
+    val coinList: Async<List<CoinListEntry>> = Uninitialized,
+    val coinMarket: Async<List<MarketsResponseEntry>> = Uninitialized,
+    val keyword: String = "",
+    val addTasks: Map<String, Async<*>> = emptyMap(),
 ) : MavericksState
 
 
@@ -29,6 +44,7 @@ class WatchListViewModel @AssistedInject constructor(
     @Assisted state: WatchListState,
     private val coinGeckoService: CoinGeckoService,
     private val userSettingRepository: UserSettingRepository,
+    private val watchListRepository: WatchListRepository,
 ) : MavericksViewModel<WatchListState>(state) {
 
 
@@ -36,38 +52,111 @@ class WatchListViewModel @AssistedInject constructor(
         reload()
     }
 
-    private var marketJob: Job? = null
+    private var coinListJob: Job? = null
     private var userSettingJob: Job? = null
+    private var watchListJob: Job? = null
+    private var loadWatchListEntriesJob: Job? = null
+    private var marketJob: Job? = null
 
     private fun reload() {
-        marketJob?.cancel()
-        marketJob = getMarketFlows().execute {
-            copy(markets = it)
+        coinListJob?.cancel()
+        coinListJob = suspend {
+            coinGeckoService.getCoinList()
+        }.execute {
+            copy(coinList = it)
         }
+
+        marketJob?.cancel()
+        marketJob = suspend {
+            val currencyCode = userSettingRepository.getUserSetting().currencyCode
+            coinGeckoService.getCoinMarkets(
+                vsCurrency = currencyCode,
+                perPage = 250,
+                page = 1,
+                sparkline = false
+            )
+        }.execute {
+            copy(coinMarket = it)
+        }
+
 
         userSettingJob?.cancel()
         userSettingJob = userSettingRepository.getUserSettingFlow()
             .execute {
                 copy(userSetting = it)
             }
+
+        watchListJob?.cancel()
+        watchListJob = watchListRepository.getWatchList()
+            .execute {
+                copy(watchList = it)
+            }
+
+        loadWatchListEntriesJob?.cancel()
+        loadWatchListEntriesJob = onEach(
+            State::userSetting,
+            State::watchList,
+        ) { userSetting, watchList ->
+            if (userSetting is Success && watchList is Success) {
+                val currency = userSetting.invoke().currencyCode
+                withState { state ->
+                    watchList.invoke().forEach { coinId ->
+                        val detailAsync = state.watchEntryDetail[coinId]
+                        val marketAsync = state.watchEntryMarket[coinId]
+                        val needLoad = listOf(detailAsync, marketAsync)
+                            .any { it == null || it is Fail }
+                        if (needLoad) {
+                            loadWatchEntry(coinId, currency)
+                        }
+                    }
+                }
+
+            }
+
+        }
     }
 
+    private val wachEntryDetailJob: MutableMap<String, Job> =
+        Collections.synchronizedMap(mutableMapOf())
+    private val wachEntryMarketlJob: MutableMap<String, Job> =
+        Collections.synchronizedMap(mutableMapOf())
 
-    private fun getMarketFlows(): Flow<List<MarketsResponseEntry>> {
-        val list = mutableListOf<MarketsResponseEntry>()
-        return flow {
-            val currency = userSettingRepository.getUserSetting().currencyCode
-            repeat(4) { page ->
-                val coinMarkets = coinGeckoService.getCoinMarkets(
-                    vsCurrency = currency,
-                    perPage = 250,
-                    page = page + 1,
-                    sparkline = true,
-                )
-                list.addAll(coinMarkets)
-                emit(list.toList())
-            }
+    private fun loadWatchEntry(id: String, currencyCode: String) {
+        wachEntryDetailJob.remove(id)?.cancel()
+        wachEntryDetailJob[id] = suspend {
+            coinGeckoService.getCoinDetail(id)
+        }.execute {
+            copy(
+                watchEntryDetail = watchEntryDetail.update { put(id, it) }
+            )
         }
+
+        wachEntryMarketlJob.remove(id)?.cancel()
+        wachEntryMarketlJob[id] = suspend {
+            coinGeckoService.getMarketChart(id, currencyCode, 1)
+        }.execute {
+            copy(
+                watchEntryMarket = watchEntryMarket.update { put(id, it) }
+            )
+        }
+    }
+
+    fun onAddClick(id: String) {
+        withState { state ->
+            if (state.addTasks[id] is Loading) {
+                return@withState
+            }
+
+            val watchList = state.watchList.invoke() ?: return@withState
+            suspend {
+                if (watchList.contains(id)) {
+                    watchListRepository.remove(id)
+                } else {
+                    watchListRepository.add(id)
+                }
+            }.execute { copy(addTasks = addTasks.update { put(id, it) }) }
+        }
+
     }
 
     @AssistedFactory
