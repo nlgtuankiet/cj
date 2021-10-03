@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="default_debounce_key" type="id" />
+    <item name="watch_list_screen" type="id" />
+    <item name="home_screen" type="id" />
+    <item name="contact_screen" type="id" />
+    <item name="main_nav_graph" type="id" />
 </resources>

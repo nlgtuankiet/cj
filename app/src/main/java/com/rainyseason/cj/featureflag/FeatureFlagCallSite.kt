@@ -85,6 +85,7 @@ class DebugFlagProvider @Inject constructor(context: Context) : FlagValueProvide
 @Suppress("unused")
 object FeatureFlag {
     val HOME_V2 = FeatureKey("home_v2").withDefault("false")
+    val WATCH_LIST = FeatureKey("watch_list").withDefault("false")
 }
 
 object DebugFlag {

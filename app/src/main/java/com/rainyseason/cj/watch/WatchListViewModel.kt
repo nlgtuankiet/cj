@@ -7,6 +7,7 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.rainyseason.cj.data.UserSetting
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.MarketsResponseEntry
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.flow
 data class WatchListState(
     val page: Int = 0,
     val markets: Async<List<MarketsResponseEntry>> = Uninitialized,
+    val userSetting: Async<UserSetting> = Uninitialized,
 ) : MavericksState
 
 
@@ -35,22 +37,32 @@ class WatchListViewModel @AssistedInject constructor(
     }
 
     private var marketJob: Job? = null
+    private var userSettingJob: Job? = null
 
     private fun reload() {
-        getMarketFlows().execute {
+        marketJob?.cancel()
+        marketJob = getMarketFlows().execute {
             copy(markets = it)
         }
+
+        userSettingJob?.cancel()
+        userSettingJob = userSettingRepository.getUserSettingFlow()
+            .execute {
+                copy(userSetting = it)
+            }
     }
 
 
-    fun getMarketFlows(): Flow<List<MarketsResponseEntry>> {
+    private fun getMarketFlows(): Flow<List<MarketsResponseEntry>> {
         val list = mutableListOf<MarketsResponseEntry>()
         return flow {
             val currency = userSettingRepository.getUserSetting().currencyCode
             repeat(4) { page ->
-                val coinMarkets = coinGeckoService.getCoinMarkets(vsCurrency = currency,
+                val coinMarkets = coinGeckoService.getCoinMarkets(
+                    vsCurrency = currency,
                     perPage = 250,
-                    page = page + 1
+                    page = page + 1,
+                    sparkline = true,
                 )
                 list.addAll(coinMarkets)
                 emit(list.toList())

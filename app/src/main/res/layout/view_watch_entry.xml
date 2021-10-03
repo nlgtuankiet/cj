@@ -30,4 +30,59 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/symbol"
         tools:text="Bitcoin" />
+
+
+    <TextView
+        android:id="@+id/price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/open_sans_medium"
+        android:textColor="@color/gray_50"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="48,1234.22$" />
+
+
+    <TextView
+        android:id="@+id/change_percent"
+        android:layout_width="64dp"
+        android:layout_height="wrap_content"
+        android:gravity="center|end"
+        android:paddingStart="0dp"
+        android:paddingEnd="4dp"
+        android:textAlignment="gravity"
+        android:textColor="@color/gray_50"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/price"
+        tools:background="@drawable/watch_change_background_green"
+        tools:text="+0.06%" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/standard_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintGuide_end="100dp" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/end_graph"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierDirection="start"
+        app:constraint_referenced_ids="price,change_percent,standard_end"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/graph"
+        android:layout_width="100dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/end_graph"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

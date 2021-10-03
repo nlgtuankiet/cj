@@ -8,8 +8,6 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Path
 import android.util.Size
 import android.view.View
 import android.view.View.MeasureSpec
@@ -20,17 +18,17 @@ import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.LayoutRes
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.withClip
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.GraphRenderer
+import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.dpToPx
-import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.verticalPadding
@@ -42,14 +40,9 @@ import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.tracking.Tracker
 import timber.log.Timber
-import java.text.DecimalFormat
-import java.text.NumberFormat
-import java.util.Currency
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
-import kotlin.math.floor
-import kotlin.math.min
 
 
 data class CoinTickerRenderParams(
@@ -64,6 +57,8 @@ class TickerWidgetRenderer @Inject constructor(
     private val context: Context,
     private val appWidgetManager: AppWidgetManager,
     private val tracker: Tracker,
+    private val numberFormater: NumberFormater,
+    private val graphRenderer: GraphRenderer,
 ) {
 
     @LayoutRes
@@ -375,7 +370,7 @@ class TickerWidgetRenderer @Inject constructor(
             } else {
                 filteredData
             }
-            val bitmap = createGraphBitmap(
+            val bitmap = graphRenderer.createGraphBitmap(
                 context = context,
                 width = width,
                 height = height,
@@ -580,42 +575,6 @@ class TickerWidgetRenderer @Inject constructor(
         }
     }
 
-    /**
-     * Ex: 2 decimal
-     * ....**
-     * 0.001234
-     * -> 4
-     */
-    private fun getSmartNumberOfDecimal(
-        amount: Double,
-        configNumberOfDecimal: Int?,
-        hideOnLargeAmount: Boolean = false,
-    ): Int {
-        if (configNumberOfDecimal == null) {
-            return Int.MAX_VALUE
-        }
-        if (configNumberOfDecimal == 0) {
-            return 0
-        }
-        if (amount == 0.0) {
-            return 0
-        }
-        if (amount >= 100 && hideOnLargeAmount) {
-            return 0
-        }
-        if (amount >= 0.1) {
-            return configNumberOfDecimal
-        }
-        var result = 0
-        var tempAmount = amount
-        while (floor(tempAmount * 10).toInt() == 0) {
-            result++
-            tempAmount *= 10
-        }
-        result += configNumberOfDecimal
-        return result
-    }
-
     private fun formatChange(
         params: CoinTickerRenderParams,
         withColor: Boolean = true,
@@ -634,29 +593,17 @@ class TickerWidgetRenderer @Inject constructor(
                     ContextCompat.getColor(context, R.color.red_600)
                 }
                 val locate = SUPPORTED_CURRENCY[config.currency]!!.locale
-                val formatter: DecimalFormat =
-                    NumberFormat.getCurrencyInstance(locate) as DecimalFormat
-                val numberOfDecimals = getSmartNumberOfDecimal(
+                val content = numberFormater.formatPercent(
                     amount = amount,
-                    configNumberOfDecimal = config.numberOfChangePercentDecimal ?: 1
+                    locate = locate,
+                    numberOfDecimals = config.numberOfChangePercentDecimal ?: 1
                 )
-                formatter.maximumFractionDigits = numberOfDecimals
-                formatter.minimumFractionDigits = numberOfDecimals
-                formatter.decimalFormatSymbols = formatter.decimalFormatSymbols.apply {
-                    currencySymbol = ""
-                }
-                val formattedPercent = formatter.format(amount)
-                val symbol = if (amount > 0) {
-                    "+"
-                } else {
-                    ""
-                }
                 if (withColor) {
                     color(color) {
-                        append("${symbol}${formattedPercent}%")
+                        append(content)
                     }
                 } else {
-                    append("${symbol}${formattedPercent}%")
+                    append(content)
                 }
             }
         }
@@ -668,108 +615,16 @@ class TickerWidgetRenderer @Inject constructor(
     ): String {
         val config = params.config
         val data = params.data
-        var amount = data.getAmount(config)
 
-        val roundToM = config.roundToMillion && amount > 1_000_000
-        var roundSymbol = ""
-        if (amount >= 1_000_000_000) {
-            roundSymbol = "B"
-            amount /= 1_000_000_000
-        } else if (amount >= 1_000_000) {
-            roundSymbol = "M"
-            amount /= 1_000_000
-        }
-        val currencyCode = config.currency
-        val currencyInfo = SUPPORTED_CURRENCY[currencyCode]
-        if (currencyInfo == null) {
-            error("Unknown $currencyInfo")
-        }
-        val locale = currencyInfo.locale
-        val formatter: DecimalFormat = NumberFormat.getCurrencyInstance(locale) as DecimalFormat
-        formatter.currency = Currency.getInstance(locale)
-        if (!config.showCurrencySymbol) {
-            val symbol = formatter.decimalFormatSymbols
-            symbol.currencySymbol = ""
-            formatter.decimalFormatSymbols = symbol
-        }
-        val numberOfDecimals = getSmartNumberOfDecimal(
-            amount = amount,
-            configNumberOfDecimal = config.numberOfAmountDecimal,
-            hideOnLargeAmount = config.hideDecimalOnLargePrice
+        return numberFormater.formatAmount(
+            amount = data.getAmount(config),
+            roundToMillion = config.roundToMillion,
+            currencyCode = config.currency,
+            numberOfDecimal = config.numberOfAmountDecimal ?: 2,
+            hideOnLargeAmount = config.hideDecimalOnLargePrice,
+            showCurrencySymbol = config.showCurrencySymbol,
+            showThousandsSeparator = config.showThousandsSeparator,
         )
-        formatter.maximumFractionDigits = numberOfDecimals
-        formatter.minimumFractionDigits = numberOfDecimals
-        formatter.isGroupingUsed = config.showThousandsSeparator
-        var formattedPrice = formatter.format(amount)
-        if (roundToM) {
-            formattedPrice += roundSymbol
-        }
-        return formattedPrice
-    }
 
-    private fun createGraphBitmap(
-        context: Context,
-        width: Float,
-        height: Float,
-        isPositive: Boolean,
-        data: List<List<Double>>,
-    ): Bitmap {
-        Timber.d("createGraphBitmap $width $height ${data.size}")
-        // [0] timestamp
-        // [1] price
-        val bitmap = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        val paint = Paint()
-        paint.strokeWidth = context.dpToPxF(2f)
-        paint.style = Paint.Style.STROKE
-        paint.isAntiAlias = true
-        paint.strokeCap = Paint.Cap.ROUND
-        paint.color = if (isPositive) {
-            context.getColorCompat(R.color.ticket_line_green)
-        } else {
-            context.getColorCompat(R.color.ticket_line_red)
-        }
-        val minTime = data.minOf { it[0] }
-        val maxTime = data.maxOf { it[0] }
-        val timeInterval = maxTime - minTime
-        val minPrice = data.minOf { it[1] }
-        val maxPrice = data.maxOf { it[1] }
-        val priceInterval = maxPrice - minPrice
-        val path = Path()
-
-        var minY = height
-
-        var started = false
-        data.forEach { point ->
-            val currentPointX = ((point[0] - minTime) / timeInterval * width).toFloat()
-            val currentPointY = (height - (point[1] - minPrice) / priceInterval * height).toFloat()
-            minY = min(minY, currentPointY)
-            if (started) {
-                path.lineTo(currentPointX, currentPointY)
-            } else {
-                started = true
-                path.moveTo(currentPointX, currentPointY)
-            }
-        }
-        canvas.drawPath(path, paint)
-
-        // clip
-        path.lineTo(width, height)
-        path.lineTo(0f, height)
-        path.close()
-
-        val drawableRes = if (isPositive) {
-            R.drawable.graph_background_green
-        } else {
-            R.drawable.graph_background_red
-        }
-        val gradientDrawable = ContextCompat.getDrawable(context, drawableRes)!!
-
-        canvas.withClip(path) {
-            gradientDrawable.setBounds(0, 0, width.toInt(), height.toInt())
-            gradientDrawable.draw(this)
-        }
-
-        return bitmap
     }
 }

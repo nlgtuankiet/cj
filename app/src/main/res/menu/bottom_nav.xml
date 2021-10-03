@@ -1,18 +1,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@id/watch_list"
+        android:id="@id/watch_list_screen"
         android:icon="@drawable/ic_baseline_star_rate_24"
         android:title="@string/bottom_nav_watch_list" />
 
     <item
-        android:id="@id/home"
+        android:id="@id/home_screen"
         android:icon="@drawable/ic_baseline_home_24"
         android:title="@string/bottom_nav_home" />
 
 
     <item
-        android:id="@id/contact"
+        android:id="@id/contact_screen"
         android:icon="@drawable/ic_baseline_chat_24"
         android:title="@string/bottom_nav_contact" />
 </menu>

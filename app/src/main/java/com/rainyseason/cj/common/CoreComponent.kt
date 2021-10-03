@@ -27,6 +27,8 @@ interface CoreComponent {
     val tracker: Tracker
     val commonRepository: CommonRepository
     val firebaseCrashlytics: FirebaseCrashlytics
+    val numberFormater: NumberFormater
+    val graphRenderer: GraphRenderer
 }
 
 interface HasCoreComponent {
