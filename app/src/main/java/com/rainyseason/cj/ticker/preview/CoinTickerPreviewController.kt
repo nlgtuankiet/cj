@@ -1,7 +1,9 @@
 package com.rainyseason.cj.ticker.preview
 
 import android.content.Context
+import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.doOnPreDraw
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.withState
@@ -10,7 +12,9 @@ import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.getUserErrorMessage
+import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.setCancelButton
+import com.rainyseason.cj.common.showKeyboard
 import com.rainyseason.cj.common.view.IntLabelFormater
 import com.rainyseason.cj.common.view.PercentLabelFormatrer
 import com.rainyseason.cj.common.view.SizeLabelFormatter
@@ -24,7 +28,9 @@ import com.rainyseason.cj.ticker.BottomContentType
 import com.rainyseason.cj.ticker.ChangeInterval
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.view.CoinTickerPreviewViewModel_
+import java.util.Locale
 import java.util.concurrent.TimeUnit
+
 
 class CoinTickerPreviewController(
     private val viewModel: CoinTickerPreviewViewModel,
@@ -112,9 +118,45 @@ class CoinTickerPreviewController(
         buildTheme(state)
         buildChangePercentInternal(state)
         buildRefreshInternal(state)
+        buildAmount(state)
         buildBatteryWarning(state)
         buildSizeAdjustment(state)
         buildBackgroundTransparency(state)
+    }
+
+    private fun buildAmount(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        val coinDetailResponse = state.coinDetailResponse.invoke() ?: return
+        val amount = config.amount ?: 1.0
+
+        maybeBuildHorizontalSeparator(id = "separator_amount")
+        settingTitleSummaryView {
+            id("setting_amount")
+            title(R.string.coin_ticker_preview_amount)
+            summary("$amount ${coinDetailResponse.symbol.uppercase(Locale.getDefault())}")
+            onClickListener { view ->
+                val container = view.inflater
+                    .inflate(R.layout.dialog_number_input, null, false)
+                val editText = container.findViewById<EditText>(R.id.edit_text)
+                editText.showSoftInputOnFocus = true
+                val content = amount.toString()
+                editText.setText(content)
+                editText.setSelection(content.length)
+                editText.doOnPreDraw {
+                    editText.requestFocus()
+                    editText.showKeyboard()
+                }
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_amount)
+                    .setView(container)
+                    .setCancelButton()
+                    .setPositiveButton(android.R.string.ok) { dialog, which ->
+                        dialog.dismiss()
+                        viewModel.setAmount(editText.text?.toString())
+                    }
+                    .show()
+            }
+        }
     }
 
     private fun buildBackgroundTransparency(state: CoinTickerPreviewState) {

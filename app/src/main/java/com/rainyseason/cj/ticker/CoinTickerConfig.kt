@@ -66,6 +66,9 @@ data class CoinTickerConfig(
 
     @Json(name = "hide_decimal_on_large_price")
     val hideDecimalOnLargePrice: Boolean = true,
+
+    @Json(name = "amount")
+    val amount: Double? = 1.0,
 ) {
 
     fun getTrackingParams(): Map<String, Any?> {

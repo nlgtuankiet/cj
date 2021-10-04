@@ -200,6 +200,14 @@ fun Context.dismissKeyboard() {
     activity()?.window?.decorView?.dismissKeyboard()
 }
 
+fun View.showKeyboard() {
+    val imm: InputMethodManager? =
+        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?
+    imm?.showSoftInput(this, 0)
+    ViewCompat.getWindowInsetsController(this)
+        ?.show(WindowInsetsCompat.Type.ime())
+}
+
 fun View.dismissKeyboard() {
     val imm: InputMethodManager? =
         context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager?

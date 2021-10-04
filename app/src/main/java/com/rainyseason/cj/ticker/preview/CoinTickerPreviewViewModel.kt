@@ -315,6 +315,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         super.onCleared()
     }
 
+    fun setAmount(value: String?) {
+        updateConfig { copy(amount = value?.toDoubleOrNull() ?: 1.0) }
+    }
+
     @AssistedFactory
     interface Factory {
         fun create(args: CoinTickerPreviewArgs): CoinTickerPreviewViewModel
