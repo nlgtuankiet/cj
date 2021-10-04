@@ -54,7 +54,7 @@ data class CoinTickerDisplayData(
 
     fun getAmount(config: CoinTickerConfig): Double {
         return when (config.bottomContentType) {
-            BottomContentType.PRICE -> price
+            BottomContentType.PRICE -> price * (config.amount ?: 1.0)
             BottomContentType.MARKET_CAP -> marketCap
             else -> error("Unknown ${config.bottomContentType}")
         }
