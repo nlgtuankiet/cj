@@ -95,7 +95,10 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
 
         val coinId = intent.extras?.getString(COIN_ID_EXTRA)
         if (coinId != null) {
-            navigator.moveToPreview(coinId)
+            if (savedInstanceState == null) {
+                // on recreate we are already at preview screen
+                navigator.moveToPreview(coinId)
+            }
         }
 
         if (coinId == null) {
