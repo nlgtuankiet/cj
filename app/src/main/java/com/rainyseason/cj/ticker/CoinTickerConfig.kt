@@ -73,6 +73,7 @@ data class CoinTickerConfig(
 
     fun getTrackingParams(): Map<String, Any?> {
         return mapOf(
+            "widget_id" to widgetId,
             "coin_id" to coinId,
             "number_of_price_decimal" to numberOfAmountDecimal,
             "number_of_change_percent_decimal" to numberOfChangePercentDecimal,
@@ -89,6 +90,8 @@ data class CoinTickerConfig(
             "show_battery_ưarning" to showBatteryWarning,
             "size_adjustment" to sizeAdjustment,
             "background_transparency" to backgroundTransparency,
+            "hide_decimal_on_large_price" to hideDecimalOnLargePrice,
+            "amount" to amount,
         )
     }
 
