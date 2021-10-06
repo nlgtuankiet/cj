@@ -3,13 +3,17 @@ package com.rainyseason.cj.watch
 import android.view.Gravity
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
+import androidx.navigation.findNavController
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
+import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.view.emptyView
 import com.rainyseason.cj.data.coingecko.CoinListEntry
+import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.watch.view.WatchEntryView
+import com.rainyseason.cj.watch.view.WatchEntryViewModelBuilder
 import com.rainyseason.cj.watch.view.watchEntrySeparatorView
 import com.rainyseason.cj.watch.view.watchEntryView
 import com.rainyseason.cj.watch.view.watchHeaderView
@@ -78,6 +82,7 @@ class WatchListController @AssistedInject constructor(
                 )
                 price(priceModel)
                 graph(null)
+                setupOnClick(coinListEntry.id, coinListEntry.symbol)
                 onLongClickListener { view ->
                     showPopup(view, coinListEntry.id)
                     true
@@ -115,6 +120,7 @@ class WatchListController @AssistedInject constructor(
                 name(coinListEntry.name)
                 price(null)
                 graph(null)
+                setupOnClick(coinListEntry.id, coinListEntry.symbol)
                 onLongClickListener { view ->
                     showPopup(view, coinListEntry.id)
                     true
@@ -155,6 +161,15 @@ class WatchListController @AssistedInject constructor(
         return 0.0
     }
 
+    private fun WatchEntryViewModelBuilder.setupOnClick(
+        coinId: String,
+        symbol: String? = null,
+    ) {
+        onClickListener { view ->
+            view.findNavController().navigate(R.id.detail, CoinDetailArgs(coinId, symbol).asArgs())
+        }
+    }
+
     private fun buildWatchList(state: WatchListState): BuildState {
         val userSetting = state.userSetting.invoke() ?: return BuildState.Next
         val watchList = state.watchList.invoke() ?: return BuildState.Next
@@ -193,6 +208,7 @@ class WatchListController @AssistedInject constructor(
                 }
                 price(priceModel)
                 graph(coinMarket?.prices?.filter { it.size == 2 })
+                setupOnClick(coinId, coinDetail?.symbol)
                 onLongClickListener { view ->
                     showPopup(view, coinId)
                     true

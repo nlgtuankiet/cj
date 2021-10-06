@@ -18,8 +18,12 @@ data class CoinDetailResponse(
     val image: Image,
 
     @Json(name = "market_data")
-    val marketData: MarketData
-) {
+    val marketData: MarketData,
+
+    @Json(name = "market_cap_rank")
+    val marketCapRank: Int,
+
+    ) {
 
     @JsonClass(generateAdapter = true)
     data class Image(

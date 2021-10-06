@@ -9,6 +9,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.rainyseason.cj.common.contact.ContactFragment
 import com.rainyseason.cj.common.home.HomeFragment
+import com.rainyseason.cj.detail.CoinDetailFragment
 import com.rainyseason.cj.featureflag.FeatureFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.watch.WatchListFragment
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity() {
             fragment<HomeFragment>(R.id.home_screen)
             fragment<ContactFragment>(R.id.contact_screen)
             fragment<WatchListFragment>(R.id.watch_list_screen)
+            fragment<CoinDetailFragment>(R.id.detail)
         }
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)

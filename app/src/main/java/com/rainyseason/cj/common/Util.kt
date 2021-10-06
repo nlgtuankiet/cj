@@ -129,6 +129,10 @@ fun <T : Parcelable> Bundle.putArgs(args: T): Bundle {
     return this
 }
 
+fun Parcelable.asArgs(): Bundle {
+    return Bundle().putArgs(this)
+}
+
 @ColorInt
 fun Context.getColorCompat(@ColorRes id: Int): Int {
     return ContextCompat.getColor(this, id)

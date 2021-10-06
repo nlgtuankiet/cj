@@ -113,6 +113,11 @@ class WatchEntryView @JvmOverloads constructor(
         super.setOnLongClickListener(l)
     }
 
+    @CallbackProp
+    override fun setOnClickListener(l: OnClickListener?) {
+        super.setOnClickListener(l)
+    }
+
     data class PriceModel(
         val price: Double,
         val changePercent: Double?,

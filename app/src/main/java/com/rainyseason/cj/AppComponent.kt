@@ -25,6 +25,7 @@ import com.rainyseason.cj.data.NetworkUrlLoggerInterceptor
 import com.rainyseason.cj.data.NoMustRevalidateInterceptor
 import com.rainyseason.cj.data.UserSettingStorage
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
+import com.rainyseason.cj.detail.CoinDetailModule
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
@@ -61,6 +62,7 @@ import javax.inject.Singleton
         MainActivityModule::class,
         CoinTickerSettingActivityModule::class,
         WatchListFragmentModule::class,
+        CoinDetailModule::class,
         AppProvides::class,
         AppBinds::class,
     ]
