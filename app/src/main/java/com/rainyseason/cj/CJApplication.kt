@@ -8,6 +8,7 @@ import androidx.work.WorkManager
 import com.airbnb.mvrx.Mavericks
 import com.airbnb.mvrx.MavericksViewModelConfigFactory
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
@@ -82,6 +83,10 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
 
         if (BuildConfig.DEBUG) {
             debugFlagProvider.get().awaitFirstValue()
+            FirebaseCrashlytics.getInstance().apply {
+                setCrashlyticsCollectionEnabled(false)
+                deleteUnsentReports()
+            }
         }
     }
 
