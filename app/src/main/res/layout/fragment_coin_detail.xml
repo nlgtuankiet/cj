@@ -66,4 +66,14 @@
         app:layout_constraintTop_toTopOf="@id/toolbar_frame"
         tools:text="#1" />
 
+
+    <com.airbnb.epoxy.EpoxyRecyclerView
+        android:id="@+id/content_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_frame" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

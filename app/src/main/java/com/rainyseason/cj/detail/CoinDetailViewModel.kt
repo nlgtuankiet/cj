@@ -7,6 +7,7 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSetting
 import com.rainyseason.cj.data.UserSettingRepository
@@ -24,6 +25,7 @@ data class CoinDetailState(
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
     val userSetting: Async<UserSetting> = Uninitialized,
     val marketChartResponse: Map<Int, Async<MarketChartResponse>> = emptyMap(),
+    val selectedInterval: TimeInterval = TimeInterval.I_24H,
 ) : MavericksState
 
 class CoinDetailViewModel @AssistedInject constructor(
@@ -35,6 +37,7 @@ class CoinDetailViewModel @AssistedInject constructor(
 
     private var coinDetailJob: Job? = null
     private val loadGraphJobs = mutableMapOf<Int, Job>()
+    private var userSettingJob: Job? = null
 
     init {
         reload()
@@ -59,6 +62,14 @@ class CoinDetailViewModel @AssistedInject constructor(
                 }
             }
         }
+
+        userSettingJob?.cancel()
+        userSettingJob = userSettingRepository.getUserSettingFlow()
+            .execute { copy(userSetting = it) }
+    }
+
+    fun onIntervalClick(interval: TimeInterval) {
+        setState { copy(selectedInterval = interval) }
     }
 
 

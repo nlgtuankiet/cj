@@ -29,9 +29,17 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
 
     @Inject
     lateinit var viewModelFactory: CoinDetailViewModel.Factory
+
+    @Inject
+    lateinit var controllerFactory: CoinDetailController.Factory
+
     lateinit var binding: FragmentCoinDetailBinding
 
     private val viewModel: CoinDetailViewModel by fragmentViewModel()
+
+    private val controller: CoinDetailController by lazy {
+        controllerFactory.create(viewModel)
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -42,9 +50,10 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentCoinDetailBinding.bind(view)
         bindingHeader()
+        binding.contentRecyclerView.setController(controller)
     }
 
-    fun bindingHeader() {
+    private fun bindingHeader() {
         binding.backButton.setOnClickListener {
             findNavController().navigateUp()
         }
@@ -65,6 +74,7 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
     }
 
     override fun invalidate() {
+        controller.requestModelBuild()
     }
 
 }
