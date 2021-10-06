@@ -147,6 +147,12 @@ class WatchListViewModel @AssistedInject constructor(
         }
     }
 
+    fun onRemoveClick(id: String) {
+        viewModelScope.launch {
+            watchListRepository.remove(id)
+        }
+    }
+
     fun onAddClick(id: String) {
         withState { state ->
             if (state.addTasks[id] is Loading) {

@@ -94,5 +94,7 @@
 
     <string name="watch_list_header">Watch list</string>
     <string name="watch_list_symbol_header">Symbols</string>
+    <string name="watch_list_menu_remove">Remove from watch list</string>
+    <string name="watch_list_menu_add">Add to watch list</string>
 
 </resources>

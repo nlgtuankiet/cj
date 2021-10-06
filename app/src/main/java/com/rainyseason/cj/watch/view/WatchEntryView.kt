@@ -6,6 +6,7 @@ import android.widget.FrameLayout
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
+import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.rainyseason.cj.R
@@ -105,6 +106,11 @@ class WatchEntryView @JvmOverloads constructor(
             binding.changePercent.text = "--"
             binding.changePercent.setBackgroundResource(R.drawable.watch_change_background_none)
         }
+    }
+
+    @CallbackProp
+    override fun setOnLongClickListener(l: OnLongClickListener?) {
+        super.setOnLongClickListener(l)
     }
 
     data class PriceModel(

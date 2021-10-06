@@ -1,5 +1,8 @@
 package com.rainyseason.cj.watch
 
+import android.view.Gravity
+import android.view.View
+import androidx.appcompat.widget.PopupMenu
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
@@ -75,6 +78,10 @@ class WatchListController @AssistedInject constructor(
                 )
                 price(priceModel)
                 graph(null)
+                onLongClickListener { view ->
+                    showPopup(view, coinListEntry.id)
+                    true
+                }
             }
         }
 
@@ -108,10 +115,37 @@ class WatchListController @AssistedInject constructor(
                 name(coinListEntry.name)
                 price(null)
                 graph(null)
+                onLongClickListener { view ->
+                    showPopup(view, coinListEntry.id)
+                    true
+                }
             }
         }
 
         return BuildState.Next
+    }
+
+    private fun showPopup(view: View, coinId: String) {
+        val state = withState(viewModel) { it }
+        val inWatchList = coinId in state.watchList.invoke().orEmpty()
+        view.createPopupMenuCenterEnd().apply {
+            if (inWatchList) {
+                inflate(R.menu.watch_list_watch_item)
+            } else {
+                inflate(R.menu.watch_list_search_result_item)
+            }
+            setOnMenuItemClickListener { menu ->
+                when (menu.itemId) {
+                    R.id.add -> viewModel.onAddClick(coinId)
+                    R.id.remove -> viewModel.onRemoveClick(coinId)
+                }
+                true
+            }
+        }.show()
+    }
+
+    private fun View.createPopupMenuCenterEnd(): PopupMenu {
+        return PopupMenu(context, this, Gravity.CENTER_VERTICAL or Gravity.END)
     }
 
     private fun calculateRatio(keyword: String, value: String): Double {
@@ -159,6 +193,10 @@ class WatchListController @AssistedInject constructor(
                 }
                 price(priceModel)
                 graph(coinMarket?.prices?.filter { it.size == 2 })
+                onLongClickListener { view ->
+                    showPopup(view, coinId)
+                    true
+                }
             }
         }
 
