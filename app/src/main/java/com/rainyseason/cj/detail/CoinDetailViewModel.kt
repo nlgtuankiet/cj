@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 data class CoinDetailState(
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
     val userSetting: Async<UserSetting> = Uninitialized,
-    val marketChartResponse: Map<Int, Async<MarketChartResponse>> = emptyMap(),
+    val marketChartResponse: Map<TimeInterval, Async<MarketChartResponse>> = emptyMap(),
     val selectedInterval: TimeInterval = TimeInterval.I_24H,
 ) : MavericksState
 
@@ -36,7 +36,7 @@ class CoinDetailViewModel @AssistedInject constructor(
 ) : MavericksViewModel<CoinDetailState>(initState) {
 
     private var coinDetailJob: Job? = null
-    private val loadGraphJobs = mutableMapOf<Int, Job>()
+    private val loadGraphJobs = mutableMapOf<TimeInterval, Job>()
     private var userSettingJob: Job? = null
 
     init {
@@ -51,12 +51,19 @@ class CoinDetailViewModel @AssistedInject constructor(
 
         viewModelScope.launch {
             val currencyCode = userSettingRepository.getUserSetting().currencyCode
-            listOf(1, 90, 365).forEach { interval ->
+
+            listOf(
+                TimeInterval.I_24H to 1,
+                TimeInterval.I_30D to 30,
+                TimeInterval.I_1Y to 365,
+            ).forEach { (interval, days) ->
                 loadGraphJobs[interval]?.cancel()
                 loadGraphJobs[interval] = suspend {
-                    coinGeckoService.getMarketChart(id = args.coinId,
+                    coinGeckoService.getMarketChart(
+                        id = args.coinId,
                         vsCurrency = currencyCode,
-                        interval)
+                        day = days
+                    )
                 }.execute {
                     copy(marketChartResponse = marketChartResponse.update { set(interval, it) })
                 }

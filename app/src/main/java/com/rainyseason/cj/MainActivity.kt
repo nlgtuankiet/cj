@@ -7,8 +7,10 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.fragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.contact.ContactFragment
 import com.rainyseason.cj.common.home.HomeFragment
+import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.detail.CoinDetailFragment
 import com.rainyseason.cj.featureflag.FeatureFlag
 import com.rainyseason.cj.featureflag.isEnable
@@ -57,5 +59,11 @@ class MainActivity : AppCompatActivity() {
         }
         bottomNav.setupWithNavController(navController)
 
+        if (savedInstanceState == null) {
+            val coinId = intent.extras?.getString("coinId")
+            if (coinId != null) {
+                navController.navigate(R.id.detail, CoinDetailArgs(coinId).asArgs())
+            }
+        }
     }
 }
