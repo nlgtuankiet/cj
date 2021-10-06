@@ -22,7 +22,12 @@ import com.rainyseason.cj.data.coingecko.MarketsResponseEntry
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.launch
 import java.util.Collections
 
 private typealias State = WatchListState
@@ -40,6 +45,7 @@ data class WatchListState(
 ) : MavericksState
 
 
+@OptIn(FlowPreview::class)
 class WatchListViewModel @AssistedInject constructor(
     @Assisted state: WatchListState,
     private val coinGeckoService: CoinGeckoService,
@@ -157,6 +163,20 @@ class WatchListViewModel @AssistedInject constructor(
             }.execute { copy(addTasks = addTasks.update { put(id, it) }) }
         }
 
+    }
+
+
+    private val keywordDeboucer = MutableStateFlow("")
+
+    init {
+        viewModelScope.launch {
+            keywordDeboucer.debounce(300)
+                .collect { setState { copy(keyword = it) } }
+        }
+    }
+
+    fun onKeywordChange(value: String) {
+        keywordDeboucer.value = value.trim()
     }
 
     @AssistedFactory

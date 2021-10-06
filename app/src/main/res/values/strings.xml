@@ -91,4 +91,8 @@
     <string name="watch_added">Added</string>
 
     <string name="coin_ticker_preview_amount">Amount</string>
+
+    <string name="watch_list_header">Watch list</string>
+    <string name="watch_list_symbol_header">Symbols</string>
+
 </resources>
