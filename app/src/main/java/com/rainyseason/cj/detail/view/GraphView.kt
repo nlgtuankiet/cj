@@ -3,8 +3,10 @@ package com.rainyseason.cj.detail.view
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.DashPathEffect
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
@@ -17,6 +19,7 @@ import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.dpToPx
+import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import kotlin.math.abs
 
@@ -63,6 +66,8 @@ class GraphView @JvmOverloads constructor(
         invalidate()
     }
 
+    val tmpPoint = PointF()
+
     val linePath = Path()
     val lineTop = Path()
     val lineBottom = Path()
@@ -72,6 +77,54 @@ class GraphView @JvmOverloads constructor(
     val redDrawable = GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, intArrayOf(0, 0))
     val lineBackgroundColorGreen = context.getColorCompat(R.color.ticket_line_green_background)
     val lineBackgroundColorRed = context.getColorCompat(R.color.ticket_line_red_background)
+
+    // line
+    private val dashPaint = Paint().apply {
+        color = context.getColorCompat(R.color.gray_500)
+        style = Paint.Style.STROKE
+        strokeWidth = context.dpToPxF(1f)
+        pathEffect = DashPathEffect(
+            floatArrayOf(
+                context.dpToPxF(1f),
+                context.dpToPxF(4f),
+            ),
+            0f,
+        )
+    }
+
+    // circle
+    private val innerCircleRadius = context.dpToPxF(4f)
+    private val innerCirclePaint = Paint().apply {
+        color = context.getColorCompat(R.color.gray_500)
+        style = Paint.Style.FILL
+    }
+
+    private val outterCircleRadius = context.dpToPxF(8f)
+    private val outterCirclePaint = Paint().apply {
+        color = context.getColorCompat(R.color.gray_700)
+        style = Paint.Style.FILL
+    }
+
+    private fun calPoint(
+        outPoint: PointF,
+        data: List<Double>,
+        minTime: Double,
+        timeRange: Double,
+        spaceStart: Float,
+        avaWidth: Float,
+        minPrice: Double,
+        priceRange: Double,
+        spaceTop: Float,
+        avaHeight: Float,
+    ) {
+        val time = data[0]
+        val price = data[1]
+        val xPercent = (time - minTime) / timeRange
+        val x = spaceStart + xPercent * avaWidth
+        val yPercent = 1 - (price - minPrice) / priceRange
+        val y = spaceTop + yPercent * avaHeight
+        outPoint.set(x.toFloat(), y.toFloat())
+    }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -96,20 +149,30 @@ class GraphView @JvmOverloads constructor(
         val maxPrice = graphData.maxOf { it[1] }
         val priceRange = maxPrice - minPrice
         val avaWidth = widthF - spaceStart - spaceEnd
-        val avaHeight = heightF - spaceTop - paddingBottom
+        val avaHeight = heightF - spaceTop - spaceBottom
+
+        val drawEnd = widthF - spaceEnd
+        val drawBottom = heightF - spaceBottom
+
         var started = false
         graphData.forEach { data ->
-            val time = data[0]
-            val price = data[1]
-            val xPercent = (time - minTime) / timeRange
-            val x = spaceStart + xPercent * avaWidth
-            val yPercent = 1 - (price - minPrice) / priceRange
-            val y = spaceTop + yPercent * avaHeight
+            calPoint(
+                outPoint = tmpPoint,
+                data = data,
+                minTime = minTime,
+                timeRange = timeRange,
+                spaceStart = spaceStart,
+                avaWidth = avaWidth,
+                minPrice = minPrice,
+                priceRange = priceRange,
+                spaceTop = spaceTop,
+                avaHeight = avaHeight,
+            )
             if (started) {
-                linePath.lineTo(x.toFloat(), y.toFloat())
+                linePath.lineTo(tmpPoint.x, tmpPoint.y)
             } else {
                 started = true
-                linePath.moveTo(x.toFloat(), y.toFloat())
+                linePath.moveTo(tmpPoint.x, tmpPoint.y)
             }
         }
 
@@ -117,7 +180,7 @@ class GraphView @JvmOverloads constructor(
         val startPricePercent = 1 - (graphData.first()[1] - minPrice) / priceRange
         val middleY = spaceTop + (startPricePercent * avaHeight).toInt()
         clipTop.set(spaceStart, spaceTop, width - spaceEnd, middleY)
-        clipBottom.set(spaceStart, middleY, width - spaceEnd, spaceTop + avaHeight.toInt())
+        clipBottom.set(spaceStart, middleY, width - spaceEnd, drawBottom)
         println("clipTop: $clipTop clipBottom: $clipBottom, startPricePercent: $startPricePercent")
 
         val greenAlpha = (0.5 * startPricePercent).coerceAtLeast(0.25) * 255
@@ -129,8 +192,8 @@ class GraphView @JvmOverloads constructor(
         )
 
         lineBottom.set(linePath)
-        lineBottom.lineTo(clipTop.right.toFloat(), clipTop.bottom.toFloat()) // end bottom
-        lineBottom.lineTo(clipTop.left.toFloat(), clipTop.bottom.toFloat()) // start bottom
+        lineBottom.lineTo(clipTop.right, clipTop.bottom) // end bottom
+        lineBottom.lineTo(clipTop.left, clipTop.bottom) // start bottom
         lineBottom.close()
         canvas.withClip(clipTop) {
             drawPath(linePath, greenLinePaint)
@@ -150,8 +213,8 @@ class GraphView @JvmOverloads constructor(
         )
 
         lineTop.set(linePath)
-        lineTop.lineTo(clipBottom.right.toFloat(), clipBottom.bottom.toFloat()) // end bottom
-        lineTop.lineTo(clipBottom.left.toFloat(), clipBottom.bottom.toFloat()) // start bottom
+        lineTop.lineTo(clipBottom.right, clipBottom.bottom) // end bottom
+        lineTop.lineTo(clipBottom.left, clipBottom.bottom) // start bottom
         lineTop.close()
         canvas.withClip(clipBottom) {
             drawPath(linePath, redLinePaint)
@@ -162,30 +225,42 @@ class GraphView @JvmOverloads constructor(
             }
         }
 
+        // horizontal line
+        canvas.drawLine(spaceStart, middleY, drawEnd, middleY, dashPaint)
 
         if (!drawTouchUI) {
             return
         }
 
+        // vertial line
         val touchX = touchEvent.x
             .coerceAtLeast(spaceStart)
-            .coerceAtMost(widthF - spaceEnd)
+            .coerceAtMost(drawEnd)
         val deltaTouchX = touchX - spaceStart
         val percentTouchX = deltaTouchX / avaWidth
         val touchTime = minTime + percentTouchX * timeRange
         val touchIndex = findTouchTimeIndex(touchTime)
         val touchData = graphData[touchIndex]
-        val actualTouchTime = touchData[0]
-        val actualTouchXPercent = (actualTouchTime - minTime) / timeRange
-        val actualTouchX = spaceStart + actualTouchXPercent * avaWidth
 
-        canvas.drawLine(
-            actualTouchX.toFloat(),
-            spaceTop,
-            actualTouchX.toFloat(),
-            heightF - spaceBottom,
-            greenLinePaint,
+        calPoint(
+            outPoint = tmpPoint,
+            data = touchData,
+            minTime = minTime,
+            timeRange = timeRange,
+            spaceStart = spaceStart,
+            avaWidth = avaWidth,
+            minPrice = minPrice,
+            priceRange = priceRange,
+            spaceTop = spaceTop,
+            avaHeight = avaHeight,
         )
+
+        canvas.drawLine(tmpPoint.x, spaceTop, tmpPoint.x, drawBottom, dashPaint)
+
+        // circle
+        canvas.drawCircle(tmpPoint.x, tmpPoint.y, outterCircleRadius, outterCirclePaint)
+        canvas.drawCircle(tmpPoint.x, tmpPoint.y, innerCircleRadius, innerCirclePaint)
+
     }
 
     private fun findTouchTimeIndex(touchTime: Double): Int {
