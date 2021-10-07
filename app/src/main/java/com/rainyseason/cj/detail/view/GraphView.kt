@@ -173,7 +173,9 @@ class GraphView @JvmOverloads constructor(
         val deltaTouchX = touchX - spaceStart
         val percentTouchX = deltaTouchX / avaWidth
         val touchTime = minTime + percentTouchX * timeRange
-        val actualTouchTime = findTouchTime(touchTime)
+        val touchIndex = findTouchTimeIndex(touchTime)
+        val touchData = graphData[touchIndex]
+        val actualTouchTime = touchData[0]
         val actualTouchXPercent = (actualTouchTime - minTime) / timeRange
         val actualTouchX = spaceStart + actualTouchXPercent * avaWidth
 
@@ -186,12 +188,31 @@ class GraphView @JvmOverloads constructor(
         )
     }
 
-    // TODO use binary search
-    fun findTouchTime(touchTime: Double): Double {
-        if (graphData.isEmpty()) {
-            return touchTime
+    private fun findTouchTimeIndex(touchTime: Double): Int {
+        var low = 0
+        var high = graphData.size - 1
+        var minDelta = Double.MAX_VALUE
+        var minIndex = 0
+
+        while (low <= high) {
+            val mid = (low + high).ushr(1) // safe from overflows
+            val midVal = graphData[mid]
+            val time = midVal[0]
+            val delta = abs(time - touchTime)
+            if (delta < minDelta) {
+                minIndex = mid
+                minDelta = delta
+            }
+
+            val cmp = time.compareTo(touchTime)
+
+            when {
+                cmp < 0 -> low = mid + 1
+                cmp > 0 -> high = mid - 1
+                else -> return mid
+            } // key found
         }
-        return graphData.minByOrNull { abs(touchTime - it[0]) }!![0]
+        return minIndex
     }
 
     private var drawTouchUI = false
