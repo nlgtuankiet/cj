@@ -21,17 +21,27 @@ class CoinDetailController @AssistedInject constructor(
     private val numberFormater: NumberFormater,
 ) : AsyncEpoxyController() {
 
+    private val builders = listOf(
+        ::buildNamePrice,
+        ::buildIntervalegment,
+        ::buildGraph,
+        ::buildLowHigh,
+    )
+
     override fun buildModels() {
         val state = withState(viewModel) { it }
-        buildNamePrice(state)
-        buildIntervalegment(state)
-        buildGraph(state)
-        buildLowHigh(state)
+
+        builders.forEach {
+            val buildResult = it.invoke(state)
+            if (buildResult == BuildState.Stop) {
+                return
+            }
+        }
     }
 
-    private fun buildLowHigh(state: CoinDetailState) {
-        val userSetting = state.userSetting.invoke() ?: return
-        val coinDetail = state.coinDetailResponse.invoke() ?: return
+    private fun buildLowHigh(state: CoinDetailState): BuildState {
+        val userSetting = state.userSetting.invoke() ?: return BuildState.Stop
+        val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Stop
         val lowHigh = state.lowHighPrice
         val lowPrice = lowHigh?.first?.let {
             numberFormater.formatAmount(
@@ -73,12 +83,13 @@ class CoinDetailController @AssistedInject constructor(
             startPrice(lowPrice)
             endPrice(highPrice)
         }
+        return BuildState.Next
     }
 
-    private fun buildGraph(state: CoinDetailState) {
+    private fun buildGraph(state: CoinDetailState): BuildState {
         val graphData = state.graphData
 
-        val userSetting = state.userSetting.invoke() ?: return
+        val userSetting = state.userSetting.invoke() ?: return BuildState.Stop
         graphView {
             id("graph")
             graph(graphData)
@@ -101,9 +112,10 @@ class CoinDetailController @AssistedInject constructor(
                 viewModel.setDataTouchIndex(index)
             }
         }
+        return BuildState.Next
     }
 
-    private fun buildIntervalegment(state: CoinDetailState) {
+    private fun buildIntervalegment(state: CoinDetailState): BuildState {
 
         intervalSegmentedView {
             id("interval")
@@ -113,11 +125,12 @@ class CoinDetailController @AssistedInject constructor(
             }
         }
 
+        return BuildState.Next
     }
 
     private fun buildNamePrice(state: CoinDetailState): BuildState {
-        val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Next
-        val userSetting = state.userSetting.invoke() ?: return BuildState.Next
+        val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Stop
+        val userSetting = state.userSetting.invoke() ?: return BuildState.Stop
         val graphData = state.graphData
 
         val selectedData = if (state.selectedIndex != null) {
