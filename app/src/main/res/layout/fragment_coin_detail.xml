@@ -66,14 +66,36 @@
         app:layout_constraintTop_toTopOf="@id/toolbar_frame"
         tools:text="#1" />
 
+    <ImageView
+        android:id="@+id/start_icon"
+        android:layout_marginEnd="8dp"
+        android:scaleType="center"
+        android:src="@drawable/ic_baseline_star_outline_24"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar_frame"
+        app:layout_constraintTop_toTopOf="@id/toolbar_frame"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="48dp"
+        android:layout_height="48dp"/>
 
     <com.airbnb.epoxy.EpoxyRecyclerView
         android:id="@+id/content_recycler_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/add_to_watch_list"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar_frame" />
 
+    <com.google.android.material.button.MaterialButton
+        app:iconGravity="textStart"
+        android:id="@+id/add_to_watch_list"
+        android:text=""
+        android:layout_marginBottom="8dp"
+        android:layout_marginHorizontal="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText" />
 </androidx.constraintlayout.widget.ConstraintLayout>

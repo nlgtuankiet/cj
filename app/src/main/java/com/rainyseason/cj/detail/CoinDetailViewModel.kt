@@ -1,12 +1,15 @@
 package com.rainyseason.cj.detail
 
+import android.icu.util.UniversalTimeScale
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.FragmentViewModelContext
+import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSetting
@@ -31,6 +34,9 @@ data class CoinDetailState(
     val selectedLowHighInterval: TimeInterval = TimeInterval.I_24H,
     val lowHighPrice: Pair<Double, Double>? = null,
 
+    val watchList: Async<List<String>> = Uninitialized,
+    val addToWatchList: Async<Unit> = Uninitialized,
+
     val graphData: List<List<Double>> = emptyList(),
     val graphChangePercent: Double? = null,
 
@@ -42,6 +48,7 @@ class CoinDetailViewModel @AssistedInject constructor(
     @Assisted private val args: CoinDetailArgs,
     private val coinGeckoService: CoinGeckoService,
     private val userSettingRepository: UserSettingRepository,
+    private val watchListRepository: WatchListRepository,
 ) : MavericksViewModel<CoinDetailState>(initState) {
 
     private var coinDetailJob: Job? = null
@@ -156,6 +163,25 @@ class CoinDetailViewModel @AssistedInject constructor(
         userSettingJob?.cancel()
         userSettingJob = userSettingRepository.getUserSettingFlow()
             .execute { copy(userSetting = it) }
+
+        watchListRepository.getWatchList()
+            .execute { copy(watchList = it) }
+    }
+
+    fun onAddToWatchListClick() {
+        withState { state ->
+            val watchList = state.watchList.invoke() ?: return@withState
+            if (state.addToWatchList is Loading) {
+                return@withState
+            }
+            suspend {
+                if (watchList.contains(args.coinId)) {
+                    watchListRepository.remove(args.coinId)
+                } else {
+                    watchListRepository.add(args.coinId)
+                }
+            }.execute { copy(addToWatchList = it) }
+        }
     }
 
     fun onIntervalClick(interval: TimeInterval) {
