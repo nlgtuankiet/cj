@@ -3,6 +3,7 @@ package com.rainyseason.cj.detail.view
 import android.content.Context
 import android.util.AttributeSet
 import android.widget.FrameLayout
+import androidx.core.view.isInvisible
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.rainyseason.cj.R
@@ -30,6 +31,13 @@ class NamePriceChangeView @JvmOverloads constructor(
     @ModelProp
     fun setChangePercent(value: String) {
         binding.changePercent.text = value
+    }
+
+    @ModelProp
+    fun setDate(value: String?) {
+        binding.name.isInvisible = value != null
+        binding.date.isInvisible = value == null
+        binding.date.text = value
     }
 
     @ModelProp

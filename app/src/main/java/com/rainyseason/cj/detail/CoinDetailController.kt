@@ -5,14 +5,15 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
-import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.detail.view.graphView
 import com.rainyseason.cj.detail.view.intervalSegmentedView
 import com.rainyseason.cj.detail.view.namePriceChangeView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import java.util.concurrent.TimeUnit
+import org.threeten.bp.Instant
+import org.threeten.bp.ZoneId
+import org.threeten.bp.format.DateTimeFormatterBuilder
 
 class CoinDetailController @AssistedInject constructor(
     @Assisted val viewModel: CoinDetailViewModel,
@@ -27,47 +28,30 @@ class CoinDetailController @AssistedInject constructor(
     }
 
     private fun buildGraph(state: CoinDetailState) {
+        val graphData = state.graphData
 
-        /**
-         *                 TimeInterval.I_24H to 1,
-        TimeInterval.I_30D to 30,
-        TimeInterval.I_1Y to 365,
-         */
-        val responseInterval = when (state.selectedInterval) {
-            TimeInterval.I_1H -> TimeInterval.I_24H
-            TimeInterval.I_24H -> TimeInterval.I_24H
-            TimeInterval.I_7D -> TimeInterval.I_30D
-            TimeInterval.I_30D -> TimeInterval.I_30D
-            TimeInterval.I_90D -> TimeInterval.I_1Y
-            TimeInterval.I_1Y -> TimeInterval.I_1Y
-            TimeInterval.I_ALL -> TimeInterval.I_1Y
-        }
-
-        val priceGraph = state.marketChartResponse[responseInterval]?.invoke()
-            ?.prices?.filter { it.size == 2 }
-            ?: return
-
-        if (priceGraph.isEmpty()) {
-            return
-        }
-
-        // TODO fine better way to filter data
-        val currentTime = System.currentTimeMillis()
-        val graphData = when (state.selectedInterval) {
-            TimeInterval.I_1H -> priceGraph.filter { it[0] > currentTime - TimeUnit.HOURS.toMillis(1) }
-            TimeInterval.I_24H -> priceGraph
-            TimeInterval.I_7D -> priceGraph.filter { it[0] > currentTime - TimeUnit.DAYS.toMillis(7) }
-            TimeInterval.I_30D -> priceGraph
-            TimeInterval.I_90D -> priceGraph.filter {
-                it[0] > currentTime - TimeUnit.DAYS.toMillis(90)
-            }
-            TimeInterval.I_1Y -> priceGraph
-            TimeInterval.I_ALL -> priceGraph
-        }
-
+        val userSetting = state.userSetting.invoke() ?: return
         graphView {
             id("graph")
             graph(graphData)
+            startPrice(
+                if (graphData.isEmpty()) {
+                    ""
+                } else {
+                    numberFormater.formatAmount(
+                        amount = graphData[0][1],
+                        currencyCode = userSetting.currencyCode,
+                        roundToMillion = true,
+                        numberOfDecimal = 2,
+                        hideOnLargeAmount = true,
+                        showCurrencySymbol = true,
+                        showThousandsSeparator = true
+                    )
+                }
+            )
+            onDataTouchListener { index ->
+                viewModel.setDataTouchIndex(index)
+            }
         }
     }
 
@@ -86,13 +70,26 @@ class CoinDetailController @AssistedInject constructor(
     private fun buildNamePrice(state: CoinDetailState): BuildState {
         val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Next
         val userSetting = state.userSetting.invoke() ?: return BuildState.Next
+        val graphData = state.graphData
+
+        val selectedData = if (state.selectedIndex != null) {
+            graphData.getOrNull(state.selectedIndex)
+        } else {
+            null
+        }
+        val currencyInfo = SUPPORTED_CURRENCY[userSetting.currencyCode]!!
+
+        val coinPrice = coinDetail.marketData.currentPrice[userSetting.currencyCode]!!
+        val formater = DateTimeFormatterBuilder()
+            .appendPattern("d MMM YYYY, HH:mm")
+            .toFormatter(currencyInfo.locale)
 
         namePriceChangeView {
             id("name_price_change")
             name(coinDetail.name)
             price(
                 numberFormater.formatAmount(
-                    amount = coinDetail.marketData.currentPrice[userSetting.currencyCode]!!,
+                    amount = selectedData?.get(1) ?: coinPrice,
                     currencyCode = userSetting.currencyCode,
                     roundToMillion = true,
                     numberOfDecimal = 2,
@@ -107,6 +104,15 @@ class CoinDetailController @AssistedInject constructor(
                     locate = SUPPORTED_CURRENCY[userSetting.currencyCode]!!.locale,
                     numberOfDecimals = 2,
                 )
+            )
+            date(
+                if (selectedData != null) {
+                    val time = selectedData[0]
+                    formater.format(Instant.ofEpochMilli(time.toLong())
+                        .atZone(ZoneId.systemDefault()))
+                } else {
+                    null
+                }
             )
         }
 

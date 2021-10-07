@@ -19,13 +19,17 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
+private typealias State = CoinDetailState
 
 data class CoinDetailState(
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
     val userSetting: Async<UserSetting> = Uninitialized,
     val marketChartResponse: Map<TimeInterval, Async<MarketChartResponse>> = emptyMap(),
     val selectedInterval: TimeInterval = TimeInterval.I_24H,
+    val graphData: List<List<Double>> = emptyList(),
+    val selectedIndex: Int? = null,
 ) : MavericksState
 
 class CoinDetailViewModel @AssistedInject constructor(
@@ -41,7 +45,54 @@ class CoinDetailViewModel @AssistedInject constructor(
 
     init {
         reload()
+        onEach(
+            State::marketChartResponse,
+            State::selectedInterval,
+        ) { marketChartResponse, selectedInterval ->
+            setState {
+                copy(graphData = calculateGraphData(marketChartResponse, selectedInterval))
+            }
+        }
     }
+
+    private fun calculateGraphData(
+        marketChartResponse: Map<TimeInterval, Async<MarketChartResponse>>,
+        selectedInterval: TimeInterval,
+    ): List<List<Double>> {
+        val responseInterval = when (selectedInterval) {
+            TimeInterval.I_1H -> TimeInterval.I_24H
+            TimeInterval.I_24H -> TimeInterval.I_24H
+            TimeInterval.I_7D -> TimeInterval.I_30D
+            TimeInterval.I_30D -> TimeInterval.I_30D
+            TimeInterval.I_90D -> TimeInterval.I_1Y
+            TimeInterval.I_1Y -> TimeInterval.I_1Y
+            TimeInterval.I_ALL -> TimeInterval.I_1Y
+        }
+
+        val priceGraph = marketChartResponse[responseInterval]?.invoke()
+            ?.prices?.filter { it.size == 2 }
+            ?: return emptyList()
+
+        if (priceGraph.isEmpty()) {
+            return emptyList()
+        }
+
+        // TODO fine better way to filter data
+        val currentTime = System.currentTimeMillis()
+        val graphData = when (selectedInterval) {
+            TimeInterval.I_1H -> priceGraph.filter { it[0] > currentTime - TimeUnit.HOURS.toMillis(1) }
+            TimeInterval.I_24H -> priceGraph
+            TimeInterval.I_7D -> priceGraph.filter { it[0] > currentTime - TimeUnit.DAYS.toMillis(7) }
+            TimeInterval.I_30D -> priceGraph
+            TimeInterval.I_90D -> priceGraph.filter {
+                it[0] > currentTime - TimeUnit.DAYS.toMillis(90)
+            }
+            TimeInterval.I_1Y -> priceGraph
+            TimeInterval.I_ALL -> priceGraph
+        }
+        return graphData
+    }
+
 
     private fun reload() {
         coinDetailJob?.cancel()
@@ -77,6 +128,10 @@ class CoinDetailViewModel @AssistedInject constructor(
 
     fun onIntervalClick(interval: TimeInterval) {
         setState { copy(selectedInterval = interval) }
+    }
+
+    fun setDataTouchIndex(index: Int?) {
+        setState { copy(selectedIndex = index) }
     }
 
 

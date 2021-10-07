@@ -10,6 +10,7 @@ import com.airbnb.mvrx.MavericksViewModelConfigFactory
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
+import com.jakewharton.threetenabp.AndroidThreeTen
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
@@ -80,6 +81,8 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         )
 
         enqueueNoopWorker()
+
+        AndroidThreeTen.init(this)
 
         if (BuildConfig.DEBUG) {
             debugFlagProvider.get().awaitFirstValue()

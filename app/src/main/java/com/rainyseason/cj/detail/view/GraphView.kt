@@ -10,13 +10,18 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.graphics.toRect
 import androidx.core.graphics.withClip
+import androidx.core.graphics.withTranslation
 import androidx.core.view.updatePadding
+import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
+import com.google.android.material.textview.MaterialTextView
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.dpToPxF
@@ -56,7 +61,7 @@ class GraphView @JvmOverloads constructor(
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), context.dpToPx(heightDp))
         val dp16 = context.dpToPx(16)
-        updatePadding(left = dp16, right = dp16, top = dp16)
+        updatePadding(left = dp16, right = dp16, top = dp16, bottom = dp16)
     }
 
 
@@ -64,6 +69,39 @@ class GraphView @JvmOverloads constructor(
     fun setGraph(data: List<List<Double>>) {
         graphData = data
         invalidate()
+    }
+
+    @set:CallbackProp
+    var onDataTouchListener: ((Int?) -> Unit)? = null
+
+    private val startPriceMarginStart = context.dpToPx(8)
+    private val startPriceTextView = MaterialTextView(context).apply {
+        layoutParams = ViewGroup.MarginLayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+        )
+        setTextColor(Color.WHITE)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+        setBackgroundResource(R.drawable.detail_graph_start_price_background)
+        updatePadding(
+            left = context.dpToPx(8),
+            top = context.dpToPx(2),
+            right = context.dpToPx(8),
+            bottom = context.dpToPx(2),
+        )
+    }
+
+    @ModelProp
+    fun setStartPrice(value: String) {
+        startPriceTextView.text = value
+        val specs = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+        startPriceTextView.measure(specs, specs)
+        startPriceTextView.layout(
+            0,
+            0,
+            startPriceTextView.measuredWidth,
+            startPriceTextView.measuredHeight
+        )
     }
 
     val tmpPoint = PointF()
@@ -125,6 +163,7 @@ class GraphView @JvmOverloads constructor(
         val y = spaceTop + yPercent * avaHeight
         outPoint.set(x.toFloat(), y.toFloat())
     }
+
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
@@ -228,6 +267,15 @@ class GraphView @JvmOverloads constructor(
         // horizontal line
         canvas.drawLine(spaceStart, middleY, drawEnd, middleY, dashPaint)
 
+        if (!drawTouchUI && startPriceTextView.text.isNotEmpty()) {
+            val textY = (middleY - startPriceTextView.measuredHeight / 2)
+                .coerceAtMost(drawBottom - startPriceTextView.measuredHeight)
+            val textX = spaceStart + startPriceMarginStart
+            canvas.withTranslation(textX, textY) {
+                startPriceTextView.draw(this)
+            }
+        }
+
         if (!drawTouchUI) {
             return
         }
@@ -241,6 +289,8 @@ class GraphView @JvmOverloads constructor(
         val touchTime = minTime + percentTouchX * timeRange
         val touchIndex = findTouchTimeIndex(touchTime)
         val touchData = graphData[touchIndex]
+
+        onDataTouchListener?.invoke(touchIndex)
 
         calPoint(
             outPoint = tmpPoint,
@@ -299,6 +349,7 @@ class GraphView @JvmOverloads constructor(
         }
         if (event.action == MotionEvent.ACTION_UP) {
             drawTouchUI = false
+            onDataTouchListener?.invoke(null)
             invalidate()
         }
         if (event.action == MotionEvent.ACTION_MOVE) {
