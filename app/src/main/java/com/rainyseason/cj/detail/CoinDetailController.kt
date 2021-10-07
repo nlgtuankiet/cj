@@ -7,6 +7,7 @@ import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.detail.view.graphView
 import com.rainyseason.cj.detail.view.intervalSegmentedView
+import com.rainyseason.cj.detail.view.lowHighView
 import com.rainyseason.cj.detail.view.namePriceChangeView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -25,6 +26,53 @@ class CoinDetailController @AssistedInject constructor(
         buildNamePrice(state)
         buildIntervalegment(state)
         buildGraph(state)
+        buildLowHigh(state)
+    }
+
+    private fun buildLowHigh(state: CoinDetailState) {
+        val userSetting = state.userSetting.invoke() ?: return
+        val coinDetail = state.coinDetailResponse.invoke() ?: return
+        val lowHigh = state.lowHighPrice
+        val lowPrice = lowHigh?.first?.let {
+            numberFormater.formatAmount(
+                amount = lowHigh.first,
+                currencyCode = userSetting.currencyCode,
+                roundToMillion = true,
+                numberOfDecimal = 4,
+                hideOnLargeAmount = true,
+                showCurrencySymbol = true,
+                showThousandsSeparator = true
+            )
+        } ?: ""
+        val highPrice = lowHigh?.second?.let {
+            numberFormater.formatAmount(
+                amount = lowHigh.second,
+                currencyCode = userSetting.currencyCode,
+                roundToMillion = true,
+                numberOfDecimal = 4,
+                hideOnLargeAmount = true,
+                showCurrencySymbol = true,
+                showThousandsSeparator = true
+            )
+        } ?: ""
+
+        lowHighView {
+            id("low_high")
+            interval(state.selectedLowHighInterval)
+            onIntervalClickListener { interval ->
+                viewModel.onSelectLowHigh(interval)
+            }
+            val currentPrice = coinDetail.marketData.currentPrice[userSetting.currencyCode]!!
+            val maxPrice = lowHigh?.second
+            if (maxPrice == null) {
+                current(0)
+            } else {
+                current((100 * currentPrice / maxPrice).toInt())
+            }
+            max(100)
+            startPrice(lowPrice)
+            endPrice(highPrice)
+        }
     }
 
     private fun buildGraph(state: CoinDetailState) {
@@ -42,7 +90,7 @@ class CoinDetailController @AssistedInject constructor(
                         amount = graphData[0][1],
                         currencyCode = userSetting.currencyCode,
                         roundToMillion = true,
-                        numberOfDecimal = 2,
+                        numberOfDecimal = 4,
                         hideOnLargeAmount = true,
                         showCurrencySymbol = true,
                         showThousandsSeparator = true
@@ -84,6 +132,17 @@ class CoinDetailController @AssistedInject constructor(
             .appendPattern("d MMM YYYY, HH:mm")
             .toFormatter(currencyInfo.locale)
 
+        val changePercent = state.graphChangePercent
+        val changePercentText = if (changePercent != null) {
+            numberFormater.formatPercent(
+                amount = changePercent,
+                locate = SUPPORTED_CURRENCY[userSetting.currencyCode]!!.locale,
+                numberOfDecimals = 2,
+            )
+        } else {
+            "--"
+        }
+
         namePriceChangeView {
             id("name_price_change")
             name(coinDetail.name)
@@ -92,19 +151,14 @@ class CoinDetailController @AssistedInject constructor(
                     amount = selectedData?.get(1) ?: coinPrice,
                     currencyCode = userSetting.currencyCode,
                     roundToMillion = true,
-                    numberOfDecimal = 2,
+                    numberOfDecimal = 4,
                     hideOnLargeAmount = true,
                     showCurrencySymbol = true,
                     showThousandsSeparator = true
                 )
             )
-            changePercent(
-                numberFormater.formatPercent(
-                    amount = coinDetail.marketData.priceChangePercentage24hInCurrency[userSetting.currencyCode]!!,
-                    locate = SUPPORTED_CURRENCY[userSetting.currencyCode]!!.locale,
-                    numberOfDecimals = 2,
-                )
-            )
+            changePercent(changePercentText)
+            changePercentPositive(changePercent?.let { it > 0 })
             date(
                 if (selectedData != null) {
                     val time = selectedData[0]

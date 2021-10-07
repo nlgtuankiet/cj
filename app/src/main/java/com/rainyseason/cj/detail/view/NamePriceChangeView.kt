@@ -34,20 +34,19 @@ class NamePriceChangeView @JvmOverloads constructor(
     }
 
     @ModelProp
+    fun setChangePercentPositive(value: Boolean?) {
+        val baclgroundRes = when (value) {
+            true -> R.drawable.detail_change_green
+            false -> R.drawable.detail_change_red
+            null -> R.drawable.detail_change_unknown
+        }
+        binding.changePercent.setBackgroundResource(baclgroundRes)
+    }
+
+    @ModelProp
     fun setDate(value: String?) {
         binding.name.isInvisible = value != null
         binding.date.isInvisible = value == null
         binding.date.text = value
-    }
-
-    @ModelProp
-    fun setChangePercentPositive(value: Boolean) {
-        binding.changePercent.setBackgroundResource(
-            if (value) {
-                R.drawable.detail_change_green
-            } else {
-                R.drawable.detail_change_red
-            }
-        )
     }
 }

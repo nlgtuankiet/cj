@@ -28,7 +28,12 @@ data class CoinDetailState(
     val userSetting: Async<UserSetting> = Uninitialized,
     val marketChartResponse: Map<TimeInterval, Async<MarketChartResponse>> = emptyMap(),
     val selectedInterval: TimeInterval = TimeInterval.I_24H,
+    val selectedLowHighInterval: TimeInterval = TimeInterval.I_24H,
+    val lowHighPrice: Pair<Double, Double>? = null,
+
     val graphData: List<List<Double>> = emptyList(),
+    val graphChangePercent: Double? = null,
+
     val selectedIndex: Int? = null,
 ) : MavericksState
 
@@ -50,9 +55,36 @@ class CoinDetailViewModel @AssistedInject constructor(
             State::selectedInterval,
         ) { marketChartResponse, selectedInterval ->
             setState {
-                copy(graphData = calculateGraphData(marketChartResponse, selectedInterval))
+                val graph = calculateGraphData(marketChartResponse, selectedInterval)
+                val changePercent = if (graph.isEmpty()) {
+                    null
+                } else {
+                    val start = graph.first()[1]
+                    val end = graph.last()[1]
+                    val percent = 100 * (end - start) / start
+                    percent
+                }
+                copy(graphData = graph, graphChangePercent = changePercent)
             }
         }
+
+        onEach(
+            State::marketChartResponse,
+            State::selectedLowHighInterval
+        ) { marketChartResponse, selectedLowHighInterval ->
+            val graph = calculateGraphData(marketChartResponse, selectedLowHighInterval)
+            if (graph.isEmpty()) {
+                setState { copy(lowHighPrice = null) }
+            } else {
+                val low = graph.minOf { it[1] }
+                val high = graph.maxOf { it[1] }
+                setState { copy(lowHighPrice = low to high) }
+            }
+        }
+    }
+
+    fun onSelectLowHigh(interval: TimeInterval) {
+        setState { copy(selectedLowHighInterval = interval) }
     }
 
     private fun calculateGraphData(
