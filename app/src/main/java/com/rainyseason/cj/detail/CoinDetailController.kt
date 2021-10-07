@@ -52,8 +52,9 @@ class CoinDetailController @AssistedInject constructor(
         }
 
         val currentTime = System.currentTimeMillis()
+        // TODO fix bug and find better way
         val graphData = when (state.selectedInterval) {
-            TimeInterval.I_1H -> priceGraph.filter { it[0] > currentTime - TimeUnit.HOURS.toMillis(1) }
+            TimeInterval.I_1H -> priceGraph.takeLast(10)
             TimeInterval.I_24H -> priceGraph
             TimeInterval.I_7D -> priceGraph.filter { it[0] > currentTime - TimeUnit.DAYS.toMillis(7) }
             TimeInterval.I_30D -> priceGraph

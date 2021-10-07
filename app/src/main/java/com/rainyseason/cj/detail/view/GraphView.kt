@@ -5,10 +5,12 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
+import androidx.core.graphics.toRect
 import androidx.core.graphics.withClip
 import androidx.core.view.updatePadding
 import com.airbnb.epoxy.ModelProp
@@ -16,12 +18,17 @@ import com.airbnb.epoxy.ModelView
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getColorCompat
+import kotlin.math.abs
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
 class GraphView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
-) : View(context, attributeSet) {
+) : View(context, attributeSet), View.OnTouchListener {
+
+    init {
+        setOnTouchListener(this)
+    }
 
     private val heightDp = 240
     private var graphData: List<List<Double>> = emptyList()
@@ -59,8 +66,8 @@ class GraphView @JvmOverloads constructor(
     val linePath = Path()
     val lineTop = Path()
     val lineBottom = Path()
-    val clipTop = Rect()
-    val clipBottom = Rect()
+    val clipTop = RectF()
+    val clipBottom = RectF()
     val greenDrawable = GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, intArrayOf(0, 0))
     val redDrawable = GradientDrawable(GradientDrawable.Orientation.BOTTOM_TOP, intArrayOf(0, 0))
     val lineBackgroundColorGreen = context.getColorCompat(R.color.ticket_line_green_background)
@@ -72,6 +79,13 @@ class GraphView @JvmOverloads constructor(
             return
         }
         linePath.reset()
+
+
+        val spaceStart = paddingStart.toFloat()
+        val spaceEnd = paddingEnd.toFloat()
+        val spaceTop = paddingTop.toFloat()
+        val spaceBottom = paddingBottom.toFloat()
+
         val widthF = width.toFloat()
         val heightF = height.toFloat()
 
@@ -81,16 +95,16 @@ class GraphView @JvmOverloads constructor(
         val minPrice = graphData.minOf { it[1] }
         val maxPrice = graphData.maxOf { it[1] }
         val priceRange = maxPrice - minPrice
-        val avaWidth = widthF - paddingStart - paddingEnd
-        val avaHeight = heightF - paddingTop - paddingBottom
+        val avaWidth = widthF - spaceStart - spaceEnd
+        val avaHeight = heightF - spaceTop - paddingBottom
         var started = false
         graphData.forEach { data ->
             val time = data[0]
             val price = data[1]
             val xPercent = (time - minTime) / timeRange
-            val x = paddingStart + xPercent * avaWidth
+            val x = spaceStart + xPercent * avaWidth
             val yPercent = 1 - (price - minPrice) / priceRange
-            val y = paddingTop + yPercent * avaHeight
+            val y = spaceTop + yPercent * avaHeight
             if (started) {
                 linePath.lineTo(x.toFloat(), y.toFloat())
             } else {
@@ -101,9 +115,9 @@ class GraphView @JvmOverloads constructor(
 
 
         val startPricePercent = 1 - (graphData.first()[1] - minPrice) / priceRange
-        val middleY = paddingTop + (startPricePercent * avaHeight).toInt()
-        clipTop.set(paddingStart, paddingTop, width - paddingEnd, middleY)
-        clipBottom.set(paddingStart, middleY, width - paddingEnd, paddingTop + avaHeight.toInt())
+        val middleY = spaceTop + (startPricePercent * avaHeight).toInt()
+        clipTop.set(spaceStart, spaceTop, width - spaceEnd, middleY)
+        clipBottom.set(spaceStart, middleY, width - spaceEnd, spaceTop + avaHeight.toInt())
         println("clipTop: $clipTop clipBottom: $clipBottom, startPricePercent: $startPricePercent")
 
         val greenAlpha = (0.5 * startPricePercent).coerceAtLeast(0.25) * 255
@@ -122,7 +136,7 @@ class GraphView @JvmOverloads constructor(
             drawPath(linePath, greenLinePaint)
             withClip(lineBottom) {
                 greenDrawable.colors = intArrayOf(greenBackground, 0)
-                greenDrawable.bounds = clipTop
+                greenDrawable.bounds = clipTop.toRect()
                 greenDrawable.draw(this)
             }
         }
@@ -143,12 +157,65 @@ class GraphView @JvmOverloads constructor(
             drawPath(linePath, redLinePaint)
             withClip(lineBottom) {
                 redDrawable.colors = intArrayOf(redBackground, 0)
-                redDrawable.bounds = clipBottom
+                redDrawable.bounds = clipBottom.toRect()
                 redDrawable.draw(this)
             }
         }
 
 
+        if (!drawTouchUI) {
+            return
+        }
+
+        val touchX = touchEvent.x
+            .coerceAtLeast(spaceStart)
+            .coerceAtMost(widthF - spaceEnd)
+        val deltaTouchX = touchX - spaceStart
+        val percentTouchX = deltaTouchX / avaWidth
+        val touchTime = minTime + percentTouchX * timeRange
+        val actualTouchTime = findTouchTime(touchTime)
+        val actualTouchXPercent = (actualTouchTime - minTime) / timeRange
+        val actualTouchX = spaceStart + actualTouchXPercent * avaWidth
+
+        canvas.drawLine(
+            actualTouchX.toFloat(),
+            spaceTop,
+            actualTouchX.toFloat(),
+            heightF - spaceBottom,
+            greenLinePaint,
+        )
+    }
+
+    // TODO use binary search
+    fun findTouchTime(touchTime: Double): Double {
+        if (graphData.isEmpty()) {
+            return touchTime
+        }
+        return graphData.minByOrNull { abs(touchTime - it[0]) }!![0]
+    }
+
+    private var drawTouchUI = false
+    private lateinit var touchEvent: MotionEvent
+
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            return true
+        }
+        if (event.action == MotionEvent.ACTION_UP) {
+            drawTouchUI = false
+            invalidate()
+        }
+        if (event.action == MotionEvent.ACTION_MOVE) {
+            val time = event.eventTime - event.downTime
+            if (time > 350) {
+                parent.requestDisallowInterceptTouchEvent(true)
+                touchEvent = event
+                drawTouchUI = true
+                invalidate()
+                return true
+            }
+        }
+        return false
     }
 
 }
