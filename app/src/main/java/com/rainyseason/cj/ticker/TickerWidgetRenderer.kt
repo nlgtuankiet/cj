@@ -543,7 +543,6 @@ class TickerWidgetRenderer @Inject constructor(
         view: RemoteViews,
         inputParams: CoinTickerRenderParams,
     ) {
-        Timber.d("render showLoading: ${inputParams.showLoading}, isPreview: ${inputParams.isPreview}, config: ${inputParams.config}")
         val container = FrameLayout(context)
         container.mesureAndLayout(inputParams.config)
         val params = inputParams.maybePositive()

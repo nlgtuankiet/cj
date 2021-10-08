@@ -105,8 +105,8 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
                     appComponent.inject(this)
                     if (androidInjector == null) {
                         throw IllegalStateException(
-                            "The AndroidInjector returned from applicationInjector() did not inject the " +
-                                "DaggerApplication"
+                            "The AndroidInjector returned from applicationInjector() " +
+                                "did not inject the DaggerApplication"
                         )
                     }
                 }

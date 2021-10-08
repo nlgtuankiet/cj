@@ -107,7 +107,10 @@ object AppProvides {
             val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
             logging.level = HttpLoggingInterceptor.Level.BODY
 
-            val networkLogging = HttpLoggingInterceptor { message -> Timber.tag("OkHttpN").d(message) }
+            val networkLogging = HttpLoggingInterceptor {
+                message ->
+                Timber.tag("OkHttpN").d(message)
+            }
             networkLogging.level = HttpLoggingInterceptor.Level.HEADERS
 
             if (DebugFlag.SHOW_HTTP_LOG.isEnable) {

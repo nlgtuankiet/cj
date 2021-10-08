@@ -58,7 +58,8 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
     private fun bindButton() {
         val button = binding.addToWatchList
         val startIcon = binding.startIcon
-        val loadingDrawable = requireContext().getDrawableCompat(R.drawable.ic_baseline_hourglass_empty_24)
+        val loadingDrawable = requireContext()
+            .getDrawableCompat(R.drawable.ic_baseline_hourglass_empty_24)
         viewModel.onEach(
             CoinDetailState::watchList,
             CoinDetailState::addToWatchList,

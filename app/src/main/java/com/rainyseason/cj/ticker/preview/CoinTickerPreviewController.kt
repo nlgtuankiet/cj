@@ -355,7 +355,8 @@ class CoinTickerPreviewController(
                     .setSingleChoiceItems(
                         optionsString.toTypedArray(),
                         options.indexOfFirst {
-                            it.first == currentRefreshInterval && it.second == currentRefreshInternalUnit
+                            it.first == currentRefreshInterval &&
+                                it.second == currentRefreshInternalUnit
                         }
                     ) { dialog, which ->
                         val select = options[which]
@@ -409,9 +410,12 @@ class CoinTickerPreviewController(
     private fun buildClickAction(state: CoinTickerPreviewState) {
         val config = state.config ?: return
         val optionsToString = listOf(
-            CoinTickerConfig.ClickAction.REFRESH to R.string.coin_ticker_preview_setting_header_click_action_refresh,
-            CoinTickerConfig.ClickAction.SETTING to R.string.coin_ticker_preview_setting_header_click_action_setting,
-            CoinTickerConfig.ClickAction.SWITCH_PRICE_MARKET_CAP to R.string.coin_ticker_preview_setting_header_click_action_switch,
+            CoinTickerConfig.ClickAction.REFRESH
+                to R.string.coin_ticker_preview_setting_header_click_action_refresh,
+            CoinTickerConfig.ClickAction.SETTING
+                to R.string.coin_ticker_preview_setting_header_click_action_setting,
+            CoinTickerConfig.ClickAction.SWITCH_PRICE_MARKET_CAP
+                to R.string.coin_ticker_preview_setting_header_click_action_switch,
         ).map { it.first to context.getString(it.second) }
         val selectedOption = config.clickAction
         maybeBuildHorizontalSeparator(id = "setting_click_action_separator")
@@ -441,7 +445,8 @@ class CoinTickerPreviewController(
         val config = state.config ?: return
         val summary = when (val contentType = config.bottomContentType) {
             BottomContentType.PRICE -> R.string.coin_ticker_preview_setting_bottom_content_price
-            BottomContentType.MARKET_CAP -> R.string.coin_ticker_preview_setting_bottom_content_market_cap
+            BottomContentType.MARKET_CAP ->
+                R.string.coin_ticker_preview_setting_bottom_content_market_cap
             else -> error("contentType: $contentType")
         }
         maybeBuildHorizontalSeparator(id = "bottom_content_type_separator")
@@ -451,8 +456,10 @@ class CoinTickerPreviewController(
             summary(summary)
             onClickListener { _ ->
                 val options = listOf(
-                    BottomContentType.PRICE to R.string.coin_ticker_preview_setting_bottom_content_price,
-                    BottomContentType.MARKET_CAP to R.string.coin_ticker_preview_setting_bottom_content_market_cap,
+                    BottomContentType.PRICE
+                        to R.string.coin_ticker_preview_setting_bottom_content_price,
+                    BottomContentType.MARKET_CAP
+                        to R.string.coin_ticker_preview_setting_bottom_content_market_cap,
                 )
                 val currentState = withState(viewModel) { it }
                 val currentContentType = currentState.config!!.bottomContentType
@@ -474,11 +481,16 @@ class CoinTickerPreviewController(
     private fun buildChangePercentInternal(state: CoinTickerPreviewState) {
         val config = state.config ?: return
         val mapping = listOf(
-            ChangeInterval._24H to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
-            ChangeInterval._7D to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
-            ChangeInterval._14D to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_14d,
-            ChangeInterval._30D to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
-            ChangeInterval._1Y to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_1y,
+            ChangeInterval._24H
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
+            ChangeInterval._7D
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
+            ChangeInterval._14D
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_14d,
+            ChangeInterval._30D
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
+            ChangeInterval._1Y
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_1y,
         ).toMap()
 
         val interval = config.changeInterval
@@ -495,7 +507,9 @@ class CoinTickerPreviewController(
                 val options = ChangeInterval.ALL_PRICE_INTERVAL
                 val currentInterval = currentConfig.changeInterval
                 AlertDialog.Builder(context)
-                    .setTitle(R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header)
+                    .setTitle(
+                        R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header
+                    )
                     .setCancelButton()
                     .setSingleChoiceItems(
                         options.map { context.getString(mapping[it]!!) }.toTypedArray(),

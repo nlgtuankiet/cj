@@ -9,7 +9,8 @@ data class Model(
 )
 
 fun main(args: Array<String>) {
-    val url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=1000".toHttpUrl()
+    val url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=1000"
+        .toHttpUrl()
     val client = OkHttpClient()
     val response = client.newCall(Request.Builder().url(url).build()).execute()
 

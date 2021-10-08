@@ -118,9 +118,14 @@ class CoinDetailViewModel @AssistedInject constructor(
         // TODO fine better way to filter data
         val currentTime = System.currentTimeMillis()
         val graphData = when (selectedInterval) {
-            TimeInterval.I_1H -> priceGraph.filter { it[0] > currentTime - TimeUnit.HOURS.toMillis(1) }
+            TimeInterval.I_1H -> priceGraph.filter {
+                it[0] > currentTime - TimeUnit.HOURS.toMillis(1)
+            }
             TimeInterval.I_24H -> priceGraph
-            TimeInterval.I_7D -> priceGraph.filter { it[0] > currentTime - TimeUnit.DAYS.toMillis(7) }
+            TimeInterval.I_7D -> priceGraph.filter {
+                it[0] > currentTime - TimeUnit.DAYS.toMillis(7)
+            }
+
             TimeInterval.I_30D -> priceGraph
             TimeInterval.I_90D -> priceGraph.filter {
                 it[0] > currentTime - TimeUnit.DAYS.toMillis(90)
