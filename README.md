@@ -1,4 +1,5 @@
 # Cryoto Jet
+[![CircleCI](https://circleci.com/gh/nlgtuankiet/cj/tree/master.svg?style=svg)](https://circleci.com/gh/nlgtuankiet/cj/tree/master)
 
 Companion app for crypto holder.  
 - Trasparency
