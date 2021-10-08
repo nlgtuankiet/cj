@@ -8,7 +8,7 @@ Companion app for crypto holder.
 ![demo](https://imgur.com/DNn6tEe.jpg)
 
 This app is in early development. 
-Feel free to add anything you like.   
+Feel free to add anything you like. 😊  
 Not a programer? request a feature via our Telegram group: [https://t.me/bwpapp](https://t.me/bwpapp). 
 
 Get the app:  
