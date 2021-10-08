@@ -7,6 +7,8 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.airbnb.mvrx.Mavericks
 import com.airbnb.mvrx.MavericksViewModelConfigFactory
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
@@ -54,6 +56,9 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     override fun onCreate() {
         super.onCreate()
         appComponent = DaggerAppComponent.factory().create(this)
+
+        checkFirebaseApp()
+
         injectIfNecessary()
 
         if (!BuildConfig.IS_PLAY_STORE) {
@@ -121,4 +126,26 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
 
     override val coreComponent: CoreComponent
         get() = appComponent
+
+    /**
+     * In github we doesn't have google-services.json file, so initialize here
+     */
+    private fun checkFirebaseApp() {
+        if (!BuildConfig.DEBUG) {
+            return
+        }
+        val app = FirebaseApp.initializeApp(this)
+        if (app == null && BuildConfig.IS_PLAY_STORE) {
+            throw IllegalStateException("Invalid google play")
+        }
+        if (app == null) {
+            FirebaseApp.initializeApp(
+                this,
+                FirebaseOptions.Builder()
+                    .setApplicationId(packageName)
+                    .setApiKey("= )))")
+                    .build()
+            )
+        }
+    }
 }
