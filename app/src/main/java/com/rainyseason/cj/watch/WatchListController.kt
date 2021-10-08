@@ -55,8 +55,8 @@ class WatchListController @AssistedInject constructor(
         val coinMarketToRender = coinMarket
             .filter { it.id !in watchListIds }
             .filter {
-                it.name.contains(keyword, true)
-                        || it.symbol.contains(keyword, true)
+                it.name.contains(keyword, true) ||
+                    it.symbol.contains(keyword, true)
             }
 
         val coinMarketToRenderIds = coinMarketToRender.map { it.id }.toSet()
@@ -93,8 +93,8 @@ class WatchListController @AssistedInject constructor(
         val coinListToRender = coinList
             .filter { it.id !in watchListIds && it.id !in coinMarketToRenderIds }
             .filter {
-                it.name.contains(keyword, true)
-                        || it.symbol.contains(keyword, true)
+                it.name.contains(keyword, true) ||
+                    it.symbol.contains(keyword, true)
             }
             .sortedWith(
                 compareByDescending<CoinListEntry> {
@@ -218,7 +218,6 @@ class WatchListController @AssistedInject constructor(
 
         return BuildState.Next
     }
-
 
     @AssistedFactory
     interface Factory {

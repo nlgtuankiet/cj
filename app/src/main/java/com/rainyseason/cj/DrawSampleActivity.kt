@@ -12,9 +12,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import kotlin.system.measureTimeMillis
 
-
 class DrawSampleActivity : AppCompatActivity() {
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,8 +34,5 @@ class DrawSampleActivity : AppCompatActivity() {
                 Timber.d("cache: ${checkBox.isChecked} finish in $time")
             }
         }
-
     }
-
-
 }

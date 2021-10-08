@@ -23,7 +23,6 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 @JvmInline
 value class FeatureKey(override val value: String) : FlagKey
 
@@ -62,7 +61,6 @@ class DebugFlagProvider @Inject constructor(context: Context) : FlagValueProvide
                 }
         }
     }
-
 
     override fun get(flagKey: FlagKey): String? {
         val result = data.value[stringPreferencesKey(flagKey.value)] as? String

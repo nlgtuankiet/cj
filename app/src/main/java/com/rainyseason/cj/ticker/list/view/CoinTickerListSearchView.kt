@@ -34,7 +34,6 @@ class CoinTickerListSearchView @JvmOverloads constructor(
             }
         }
 
-
     @TextProp
     fun setHint(value: CharSequence) {
         textInputLayout.hint = value
@@ -47,7 +46,6 @@ class CoinTickerListSearchView @JvmOverloads constructor(
 
     private var textChangeListener: ((String) -> Unit)? = null
 
-
     private var intervalWatcher: TextWatcher = object : TextWatcher {
         override fun beforeTextChanged(
             s: CharSequence?,
@@ -58,7 +56,6 @@ class CoinTickerListSearchView @JvmOverloads constructor(
         }
 
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-
         }
 
         override fun afterTextChanged(s: Editable) {
@@ -66,7 +63,6 @@ class CoinTickerListSearchView @JvmOverloads constructor(
             textChangeListener?.invoke(s.toString())
         }
     }
-
 
     @CallbackProp
     fun setTextChangeListener(block: ((String) -> Unit)?) {

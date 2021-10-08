@@ -23,7 +23,7 @@ data class CoinDetailResponse(
     @Json(name = "market_cap_rank")
     val marketCapRank: Int,
 
-    ) {
+) {
 
     @JsonClass(generateAdapter = true)
     data class Image(

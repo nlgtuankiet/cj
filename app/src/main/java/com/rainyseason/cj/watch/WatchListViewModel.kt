@@ -44,7 +44,6 @@ data class WatchListState(
     val addTasks: Map<String, Async<*>> = emptyMap(),
 ) : MavericksState
 
-
 @OptIn(FlowPreview::class)
 class WatchListViewModel @AssistedInject constructor(
     @Assisted state: WatchListState,
@@ -52,7 +51,6 @@ class WatchListViewModel @AssistedInject constructor(
     private val userSettingRepository: UserSettingRepository,
     private val watchListRepository: WatchListRepository,
 ) : MavericksViewModel<WatchListState>(state) {
-
 
     init {
         reload()
@@ -85,7 +83,6 @@ class WatchListViewModel @AssistedInject constructor(
             copy(coinMarket = it)
         }
 
-
         userSettingJob?.cancel()
         userSettingJob = userSettingRepository.getUserSettingFlow()
             .execute {
@@ -116,9 +113,7 @@ class WatchListViewModel @AssistedInject constructor(
                         }
                     }
                 }
-
             }
-
         }
     }
 
@@ -168,9 +163,7 @@ class WatchListViewModel @AssistedInject constructor(
                 }
             }.execute { copy(addTasks = addTasks.update { put(id, it) }) }
         }
-
     }
-
 
     private val keywordDeboucer = MutableStateFlow("")
 

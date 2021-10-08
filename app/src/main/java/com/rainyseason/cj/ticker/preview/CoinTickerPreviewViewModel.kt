@@ -59,12 +59,9 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     init {
         loadDisplayData()
 
-
         onEach { state ->
             maybeSaveDisplayData(state)
         }
-
-
 
         reload()
     }
@@ -95,7 +92,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 }
         }
     }
-
 
     private suspend fun saveInitialConfig() {
         val lastConfig = coinTickerRepository.getConfig(widgetId = widgetId)
@@ -252,7 +248,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     fun switchThousandsSeparator() {
         updateConfig { copy(showThousandsSeparator = !showThousandsSeparator) }
     }
-
 
     private var fallbackPriceRecord = false
     private fun maybeSaveDisplayData(state: CoinTickerPreviewState) {

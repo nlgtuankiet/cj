@@ -24,7 +24,6 @@ class RetryView @JvmOverloads constructor(
     private val reasonText: TextView = findViewById(R.id.reason_text)
     private val retryButton: Button = findViewById(R.id.retry_button)
 
-
     @TextProp
     fun setReason(value: CharSequence?) {
         reasonText.text = value
@@ -39,6 +38,4 @@ class RetryView @JvmOverloads constructor(
     fun setOnRetryClickListener(l: OnClickListener?) {
         retryButton.setOnClickListener(l)
     }
-
-
 }

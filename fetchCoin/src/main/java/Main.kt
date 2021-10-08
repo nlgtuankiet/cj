@@ -3,13 +3,10 @@ import com.google.gson.reflect.TypeToken
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import org.jsoup.Jsoup
-
 
 data class Model(
     val name: String,
 )
-
 
 fun main(args: Array<String>) {
     val url = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&per_page=1000".toHttpUrl()

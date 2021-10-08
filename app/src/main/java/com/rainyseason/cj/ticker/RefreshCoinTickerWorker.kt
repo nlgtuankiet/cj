@@ -85,10 +85,8 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             }
         }
 
-
         return Result.success()
     }
-
 
     /**
      * TODO when user clear app data, the config is missing, so we just return?

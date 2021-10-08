@@ -26,7 +26,6 @@ interface WatchListFragmentModule {
     fun fragment(): WatchListFragment
 }
 
-
 class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView {
 
     @Inject
@@ -51,7 +50,6 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
         val binding = FragmentWatchListBinding.bind(view)
         setupSearchAnimation(binding)
         binding.contentRecyclerView.setController(controller)
-
     }
 
     private fun setupSearchAnimation(
@@ -85,7 +83,6 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
         searchEditText.doOnTextChanged { text, _, _, _ ->
             viewModel.onKeywordChange(text?.toString() ?: "")
         }
-
     }
 
     override fun invalidate() {

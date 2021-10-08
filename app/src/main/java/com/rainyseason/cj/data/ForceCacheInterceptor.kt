@@ -5,9 +5,7 @@ import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
 
-class ForceCacheInterceptor @Inject constructor(
-
-) : Interceptor {
+class ForceCacheInterceptor @Inject constructor() : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val url = chain.request().url
         val newUrl = url.newBuilder().removeAllQueryParameters(Signal.FORCE_CACHE).build()

@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 @JsonClass(generateAdapter = true)
 data class UserSetting(
     @Json(name = "currency_code")

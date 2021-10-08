@@ -44,7 +44,6 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs
 
-
 data class CoinTickerRenderParams(
     val config: CoinTickerConfig,
     val data: CoinTickerDisplayData,
@@ -151,7 +150,6 @@ class TickerWidgetRenderer @Inject constructor(
         }
         setOnClickPendingIntent(R.id.content, pendingIntent)
     }
-
 
     private fun renderCoin360(
         container: ViewGroup,
@@ -269,7 +267,6 @@ class TickerWidgetRenderer @Inject constructor(
             )
         )
 
-
         container.mesureAndLayout(config)
 
         run {
@@ -291,7 +288,6 @@ class TickerWidgetRenderer @Inject constructor(
                 updateMargins(top = -currentGap + context.dpToPx(12))
             }
         }
-
     }
 
     private fun renderMini(
@@ -344,7 +340,6 @@ class TickerWidgetRenderer @Inject constructor(
         // bind change percent
         binding.changePercent.text = formatChange(params)
         binding.changePercent.updateVertialFontMargin(updateBottom = true)
-
 
         drawGraph(container, binding.graph, params)
     }
@@ -625,6 +620,5 @@ class TickerWidgetRenderer @Inject constructor(
             showCurrencySymbol = config.showCurrencySymbol,
             showThousandsSeparator = config.showThousandsSeparator,
         )
-
     }
 }

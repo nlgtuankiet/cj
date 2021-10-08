@@ -25,7 +25,6 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 
-
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
 class CoinTickerPreviewView @JvmOverloads constructor(
     context: Context,
@@ -87,5 +86,4 @@ class CoinTickerPreviewView @JvmOverloads constructor(
         }
         renderer.render(remoteView!!, params)
     }
-
 }

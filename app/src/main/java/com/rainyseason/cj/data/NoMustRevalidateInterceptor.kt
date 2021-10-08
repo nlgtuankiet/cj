@@ -6,14 +6,11 @@ import okhttp3.Response
 import timber.log.Timber
 import javax.inject.Inject
 
-class NoMustRevalidateInterceptor @Inject constructor(
-
-) : Interceptor {
+class NoMustRevalidateInterceptor @Inject constructor() : Interceptor {
     private val removeUrls = listOf(
         "${CoinGeckoService.BASE_URL}coins/markets",
         "${CoinGeckoService.BASE_URL}coins/list"
     )
-
 
     /**
      * Remove must-revalidate header

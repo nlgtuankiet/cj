@@ -55,7 +55,6 @@ import javax.inject.Provider
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
-
 @Component(
     modules = [
         AndroidSupportInjectionModule::class,
@@ -70,7 +69,6 @@ import javax.inject.Singleton
 @Singleton
 interface AppComponent : AndroidInjector<CJApplication>, CoreComponent {
 
-
     @Component.Factory
     interface Factory {
         fun create(
@@ -84,7 +82,6 @@ interface AppBinds {
     @Binds
     fun tracker(appTracker: AppTracker): Tracker
 }
-
 
 @Module
 object AppProvides {
@@ -160,7 +157,6 @@ object AppProvides {
         checkNotMainThread()
         return builder.build()
     }
-
 
     @Provides
     @Singleton
@@ -282,7 +278,6 @@ object AppProvides {
         return context.getSystemService()!!
     }
 }
-
 
 fun checkNotMainThread() {
     check(Looper.myLooper() !== Looper.getMainLooper())

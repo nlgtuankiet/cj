@@ -10,7 +10,6 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.databinding.ViewDetailNamePriceChangeBinding
 
-
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
 class NamePriceChangeView @JvmOverloads constructor(
     context: Context,

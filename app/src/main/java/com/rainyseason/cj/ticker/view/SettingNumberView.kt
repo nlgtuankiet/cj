@@ -26,7 +26,6 @@ class SettingNumberView @JvmOverloads constructor(
     private val textInputLayout: TextInputLayout = findViewById(R.id.text_input_layout)
     private val editText: TextInputEditText = findViewById(R.id.edit_text)
 
-
     @TextProp
     fun setHint(value: CharSequence) {
         textInputLayout.hint = value

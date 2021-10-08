@@ -51,7 +51,9 @@ interface CoinTickerWidgetSaver {
     )
 }
 
-class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
+class CoinTickerSettingActivity :
+    AppCompatActivity(),
+    HasAndroidInjector,
     CoinTickerWidgetSaver {
     @Inject
     lateinit var androidInjector: DispatchingAndroidInjector<Any>
@@ -164,11 +166,9 @@ class CoinTickerSettingActivity : AppCompatActivity(), HasAndroidInjector,
         return androidInjector
     }
 
-
     companion object {
         const val COIN_ID_EXTRA = "coin_id"
     }
-
 }
 
 fun Activity.getWidgetId(): Int? {

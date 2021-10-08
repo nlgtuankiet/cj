@@ -44,7 +44,6 @@ import retrofit2.HttpException
 import java.net.UnknownHostException
 import kotlin.math.abs
 
-
 /**
  * Launches a new coroutine and repeats `block` every time the Fragment's viewLifecycleOwner
  * is in and out of `minActiveState` lifecycle state.
@@ -60,7 +59,6 @@ inline fun Fragment.launchAndRepeatWithViewLifecycle(
     }
 }
 
-
 inline fun ComponentActivity.launchAndRepeatWithLifecycle(
     minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
     crossinline block: suspend CoroutineScope.() -> Unit,
@@ -71,7 +69,6 @@ inline fun ComponentActivity.launchAndRepeatWithLifecycle(
         }
     }
 }
-
 
 fun Intent.logString(): String {
     val intent = this
@@ -90,14 +87,12 @@ fun Intent.logString(): String {
     return string
 }
 
-
 fun ViewGroup.inflateAndAdd(@LayoutRes layoutRes: Int): View {
     return LayoutInflater.from(context).inflate(layoutRes, this, true)
 }
 
 val View.inflater: LayoutInflater
     get() = LayoutInflater.from(context)
-
 
 fun Context.dpToPx(value: Int): Int {
     return TypedValue.applyDimension(
@@ -114,7 +109,6 @@ fun Context.dpToPxF(value: Float): Float {
         resources.displayMetrics
     )
 }
-
 
 fun <T : Parcelable> Fragment.requireArgs(): T {
     return arguments!!.getParcelable("args")!!
@@ -143,7 +137,6 @@ fun Context.getDrawableCompat(@DrawableRes id: Int): Drawable? {
     return ContextCompat.getDrawable(this, id)
 }
 
-
 fun AlertDialog.Builder.setCancelButton(): AlertDialog.Builder {
     setCancelable(true)
     setNegativeButton(android.R.string.cancel) { dialog, _ ->
@@ -157,7 +150,6 @@ fun <K, V> Map<K, V>.update(block: MutableMap<K, V>.() -> Unit): Map<K, V> {
     block.invoke(new)
     return new.toMap()
 }
-
 
 fun List<List<Double>>.changePercent(): Double? {
     val open = first()[1]

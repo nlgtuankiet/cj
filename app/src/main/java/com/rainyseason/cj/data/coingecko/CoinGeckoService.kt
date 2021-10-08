@@ -40,7 +40,6 @@ interface CoinGeckoService {
     }
 }
 
-
 private fun <T> fastResponseFlow(
     cacheProvider: suspend () -> T,
     networkProvider: suspend () -> T,

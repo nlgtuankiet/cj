@@ -148,7 +148,6 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
         } else {
             actualSave()
         }
-
     }
 
     override fun invalidate() {

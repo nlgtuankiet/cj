@@ -10,7 +10,6 @@ import com.airbnb.epoxy.TextProp
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.inflateAndAdd
 
-
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
 class CoinTickerListCoinView @JvmOverloads constructor(
     context: Context,

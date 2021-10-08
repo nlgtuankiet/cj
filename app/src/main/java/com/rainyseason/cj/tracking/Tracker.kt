@@ -61,9 +61,7 @@ class FirebaseTracker @Inject constructor(
     }
 }
 
-class DebugTracker @Inject constructor(
-
-) : Tracker {
+class DebugTracker @Inject constructor() : Tracker {
     override fun log(event: Event) {
         when (event) {
             is KeyParamsEvent -> logKeyParamsEvent(event)

@@ -72,5 +72,4 @@ class LocalRemoteViews(
     ) {
         containerRef.get()?.findViewById<Y>(viewId)?.let(block)
     }
-
 }

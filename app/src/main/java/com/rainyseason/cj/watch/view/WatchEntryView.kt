@@ -18,7 +18,6 @@ import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import kotlin.math.abs
 
-
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
 class WatchEntryView @JvmOverloads constructor(
     context: Context,
@@ -59,7 +58,6 @@ class WatchEntryView @JvmOverloads constructor(
                 )
                 binding.graph.setImageBitmap(bitmap)
             }
-
         }
     }
 

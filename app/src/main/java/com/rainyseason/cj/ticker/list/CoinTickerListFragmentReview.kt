@@ -81,9 +81,11 @@ fun CoinTickerListFragment.setupReview(
         rightButton.text = context.getString(R.string.inapp_review_submit_feedback)
         rightButton.setOnClickListener {
             moveToEndState()
-            Toast.makeText(context,
+            Toast.makeText(
+                context,
                 R.string.inapp_review_thank_you_for_feedback,
-                Toast.LENGTH_SHORT)
+                Toast.LENGTH_SHORT
+            )
                 .show()
             tracker.logKeyParamsEvent(
                 "app_review_negative_why",
@@ -117,7 +119,6 @@ fun CoinTickerListFragment.setupReview(
             maybeShowGoogleInAppReview()
             setUserLikeTheApp(true)
         }
-
     }
 
     if (DebugFlag.SHOW_TRIGGER_REVIEW_BUTTON.isEnable) {

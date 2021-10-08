@@ -7,7 +7,6 @@ plugins {
     id 'com.google.firebase.crashlytics'
 }
 
-
 def getBooleanProp(name) {
     if (project.hasProperty(name)) {
         try {

@@ -110,7 +110,6 @@ class CoinTickerListController constructor(
                     )
                     navigator.moveToPreview(coinId = entry.id)
                 }
-
             }
         }
 
@@ -132,8 +131,8 @@ class CoinTickerListController constructor(
 
         val marketEntries = async.invoke().orEmpty()
         val marketSearchResult = marketEntries.filter {
-            it.name.contains(keyword, true)
-                    || it.symbol.contains(keyword, true)
+            it.name.contains(keyword, true) ||
+                it.symbol.contains(keyword, true)
         }
 
         if (marketSearchResult.isEmpty()) {
@@ -207,8 +206,8 @@ class CoinTickerListController constructor(
 
         val showInMarket = state.markets.invoke().orEmpty()
             .filter {
-                it.name.contains(keyword, true)
-                        || it.symbol.contains(keyword, true)
+                it.name.contains(keyword, true) ||
+                    it.symbol.contains(keyword, true)
             }
             .map { it.id }
             .toSet()
@@ -259,5 +258,4 @@ class CoinTickerListController constructor(
 
         return BuildState.Next
     }
-
 }

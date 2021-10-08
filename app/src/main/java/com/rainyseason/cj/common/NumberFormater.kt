@@ -33,7 +33,7 @@ class NumberFormater @Inject constructor() {
         } else {
             ""
         }
-        return "${symbol}${formattedPercent}%"
+        return "${symbol}$formattedPercent%"
     }
 
     fun formatAmount(

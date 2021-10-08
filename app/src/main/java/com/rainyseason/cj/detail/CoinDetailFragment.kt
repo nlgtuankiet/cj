@@ -1,19 +1,15 @@
 package com.rainyseason.cj.detail
 
 import android.content.Context
-import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.R
-import com.rainyseason.cj.common.dpToPxF
-import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.getDrawableCompat
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.databinding.FragmentCoinDetailBinding
@@ -21,7 +17,6 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
-
 
 @Module
 interface CoinDetailModule {
@@ -72,10 +67,10 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
                 button.text = ""
                 button.icon = loadingDrawable
 
-                button.setOnClickListener {  }
+                button.setOnClickListener { }
 
                 startIcon.alpha = 0.5f
-                startIcon.setOnClickListener {  }
+                startIcon.setOnClickListener { }
             }
             if (watchList.invoke().orEmpty().contains(args.coinId)) {
                 button.setText(R.string.watch_list_menu_remove)
@@ -125,5 +120,4 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
     override fun invalidate() {
         controller.requestModelBuild()
     }
-
 }

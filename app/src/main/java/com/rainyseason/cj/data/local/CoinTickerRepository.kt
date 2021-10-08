@@ -79,12 +79,11 @@ class CoinTickerRepository @Inject constructor(
     }
 
     private fun displayDataKey(widgetId: Int): Preferences.Key<String> {
-        return stringPreferencesKey("ticker_widget_display_data_${widgetId}")
+        return stringPreferencesKey("ticker_widget_display_data_$widgetId")
     }
 
-
     private fun configKey(widgetId: Int): Preferences.Key<String> {
-        return stringPreferencesKey("ticker_widget_config_${widgetId}")
+        return stringPreferencesKey("ticker_widget_config_$widgetId")
     }
 
     suspend fun setConfig(widgetId: Int, widgetConfig: CoinTickerConfig) {

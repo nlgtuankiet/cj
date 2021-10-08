@@ -51,7 +51,6 @@ fun EditText.setTextIfDifferent(newText: CharSequence?): Boolean {
     return true
 }
 
-
 /**
  * Debounce the given block so that it is is delayed by the duration.
  * The duration timer is reset every time this is called, so that the block is only executed if this is not called for [durationMillis].

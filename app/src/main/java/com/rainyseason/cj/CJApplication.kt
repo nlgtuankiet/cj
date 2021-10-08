@@ -56,7 +56,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         appComponent = DaggerAppComponent.factory().create(this)
         injectIfNecessary()
 
-
         if (!BuildConfig.IS_PLAY_STORE) {
             Timber.plant(Timber.DebugTree())
             Timber.plant(ExceptionLoggerTree())
@@ -99,7 +98,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         workManager.enqueueUniquePeriodicWork("noop", ExistingPeriodicWorkPolicy.KEEP, request)
     }
 
-
     private fun injectIfNecessary() {
         if (androidInjector == null) {
             synchronized(this) {
@@ -107,8 +105,8 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
                     appComponent.inject(this)
                     if (androidInjector == null) {
                         throw IllegalStateException(
-                            "The AndroidInjector returned from applicationInjector() did not inject the "
-                                    + "DaggerApplication"
+                            "The AndroidInjector returned from applicationInjector() did not inject the " +
+                                "DaggerApplication"
                         )
                     }
                 }

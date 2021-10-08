@@ -19,7 +19,6 @@ class DemoView @JvmOverloads constructor(
         inflateAndAdd(R.layout.view_home_image)
     }
 
-
     private val imageView: ImageView = findViewById(R.id.image)
 
     @ModelProp

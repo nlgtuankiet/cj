@@ -19,7 +19,6 @@ import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.ContributesAndroidInjector
 
-
 @Module
 interface MainActivityModule {
     @Suppress("unused")

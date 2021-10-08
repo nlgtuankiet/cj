@@ -60,7 +60,6 @@ class IntervalSegmentedView @JvmOverloads constructor(
     @set:CallbackProp
     var onIntervalClickListener: ((TimeInterval) -> Unit)? = null
 
-
     companion object {
         val trasition = AutoTransition().apply {
             interpolator = FastOutSlowInInterpolator()

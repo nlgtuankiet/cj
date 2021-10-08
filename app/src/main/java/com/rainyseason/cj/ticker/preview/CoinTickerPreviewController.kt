@@ -31,7 +31,6 @@ import com.rainyseason.cj.ticker.view.CoinTickerPreviewViewModel_
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-
 class CoinTickerPreviewController(
     private val viewModel: CoinTickerPreviewViewModel,
     private val context: Context,
@@ -78,7 +77,6 @@ class CoinTickerPreviewController(
         }
         return BuildState.Stop
     }
-
 
     private fun buildCurrencyGroup(state: CoinTickerPreviewState) {
         settingHeaderView {
@@ -177,11 +175,9 @@ class CoinTickerPreviewController(
         }
     }
 
-
     private fun buildSizeAdjustment(state: CoinTickerPreviewState) {
         val config = state.config ?: return
         maybeBuildHorizontalSeparator(id = "size_adjustment_separator")
-
 
         settingSliderView {
             id("setting_size_adjustment")
@@ -255,7 +251,6 @@ class CoinTickerPreviewController(
         }
     }
 
-
     private fun buildShowCurrencySymbol(state: CoinTickerPreviewState) {
         val config = state.config ?: return
 
@@ -270,7 +265,6 @@ class CoinTickerPreviewController(
             }
         }
     }
-
 
     private fun buildShowThousandSeparator(state: CoinTickerPreviewState) {
         val config = state.config ?: return
@@ -373,7 +367,6 @@ class CoinTickerPreviewController(
         }
     }
 
-
     private fun buildBehaviorSetting(state: CoinTickerPreviewState) {
         settingHeaderView {
             id("behavior_header")
@@ -388,7 +381,6 @@ class CoinTickerPreviewController(
         val currencyCodeToString = SUPPORTED_CURRENCY.mapValues {
             it.value.name
         }.toList().sortedBy { it.first }
-
 
         val selectedOption = config.currency
         maybeBuildHorizontalSeparator(id = "setting_currency_separator")
@@ -477,7 +469,6 @@ class CoinTickerPreviewController(
                     .show()
             }
         }
-
     }
 
     private fun buildChangePercentInternal(state: CoinTickerPreviewState) {
@@ -528,7 +519,6 @@ class CoinTickerPreviewController(
         buildBottomContentType(state)
         buildPercentDecimal(state)
     }
-
 
     private fun buildRoundToMillion(state: CoinTickerPreviewState) {
         val config = state.config ?: return
@@ -587,5 +577,4 @@ class CoinTickerPreviewController(
     override fun isStickyHeader(position: Int): Boolean {
         return adapter.getModelAtPosition(position) is CoinTickerPreviewViewModel_
     }
-
 }

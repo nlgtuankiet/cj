@@ -35,7 +35,6 @@ abstract class CoinTickerProvider : AppWidgetProvider() {
             }
         }
 
-
         super.onReceive(context, intent)
     }
 
@@ -49,7 +48,6 @@ abstract class CoinTickerProvider : AppWidgetProvider() {
             coinTickerHandler.rerender(appWidgetId)
         }
     }
-
 
     override fun onUpdate(
         context: Context,

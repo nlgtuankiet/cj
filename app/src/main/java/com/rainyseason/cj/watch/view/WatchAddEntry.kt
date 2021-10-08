@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
-import androidx.core.view.isVisible
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
@@ -46,7 +45,7 @@ class WatchAddEntry @JvmOverloads constructor(
                 binding.addButton.isInvisible = false
                 binding.buttonLoading.isGone = true
             }
-            else ->  {
+            else -> {
                 binding.addedButton.text = ""
                 binding.addedButton.isInvisible = false
                 binding.addButton.isInvisible = true
@@ -60,6 +59,4 @@ class WatchAddEntry @JvmOverloads constructor(
         binding.addButton.setOnClickListener(l)
         binding.addedButton.setOnClickListener(l)
     }
-
-
 }

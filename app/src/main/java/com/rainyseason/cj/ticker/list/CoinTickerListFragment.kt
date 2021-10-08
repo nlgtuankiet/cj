@@ -97,23 +97,18 @@ class CoinTickerListFragment : Fragment(), MavericksView {
         val clearButton = view.findViewById<ImageView>(R.id.clear_button)
         clearButton.setOnClickListener { viewModel.submitNewKeyword("") }
 
-
         viewModel.onEach(CoinTickerListState::keyword) { keyword ->
             searchBox.setTextIfDifferent(keyword)
             clearButton.isVisible = keyword.isNotBlank()
         }
-
 
         recyclerView.setController(controller)
         EpoxyVisibilityTracker().attach(recyclerView)
         viewModel.onEach {
             controller.requestModelBuild()
         }
-
-
     }
 
     override fun invalidate() {
-
     }
 }

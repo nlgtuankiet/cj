@@ -64,7 +64,6 @@ class GraphView @JvmOverloads constructor(
         updatePadding(left = dp16, right = dp16, top = dp16, bottom = dp16)
     }
 
-
     @ModelProp
     fun setGraph(data: List<List<Double>>) {
         graphData = data
@@ -164,14 +163,12 @@ class GraphView @JvmOverloads constructor(
         outPoint.set(x.toFloat(), y.toFloat())
     }
 
-
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         if (graphData.isEmpty()) {
             return
         }
         linePath.reset()
-
 
         val spaceStart = paddingStart.toFloat()
         val spaceEnd = paddingEnd.toFloat()
@@ -214,7 +211,6 @@ class GraphView @JvmOverloads constructor(
                 linePath.moveTo(tmpPoint.x, tmpPoint.y)
             }
         }
-
 
         val startPricePercent = 1 - (graphData.first()[1] - minPrice) / priceRange
         val middleY = spaceTop + (startPricePercent * avaHeight).toInt()
@@ -310,7 +306,6 @@ class GraphView @JvmOverloads constructor(
         // circle
         canvas.drawCircle(tmpPoint.x, tmpPoint.y, outterCircleRadius, outterCirclePaint)
         canvas.drawCircle(tmpPoint.x, tmpPoint.y, innerCircleRadius, innerCirclePaint)
-
     }
 
     private fun findTouchTimeIndex(touchTime: Double): Int {
@@ -364,5 +359,4 @@ class GraphView @JvmOverloads constructor(
         }
         return false
     }
-
 }

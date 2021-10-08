@@ -2,7 +2,6 @@ package com.rainyseason.cj.common
 
 import java.util.Locale
 
-
 @Suppress("unused", "SpellCheckingInspection")
 val CURRENCY_TO_NAME = mapOf(
     "usd" to "US Dollar",

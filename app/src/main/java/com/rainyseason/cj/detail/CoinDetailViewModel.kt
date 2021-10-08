@@ -1,6 +1,5 @@
 package com.rainyseason.cj.detail
 
-import android.icu.util.UniversalTimeScale
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.Loading
@@ -132,7 +131,6 @@ class CoinDetailViewModel @AssistedInject constructor(
         return graphData
     }
 
-
     private fun reload() {
         coinDetailJob?.cancel()
         coinDetailJob = suspend {
@@ -191,7 +189,6 @@ class CoinDetailViewModel @AssistedInject constructor(
     fun setDataTouchIndex(index: Int?) {
         setState { copy(selectedIndex = index) }
     }
-
 
     @AssistedFactory
     interface Factory {

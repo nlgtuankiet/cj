@@ -175,18 +175,18 @@ class CoinDetailController @AssistedInject constructor(
             date(
                 if (selectedData != null) {
                     val time = selectedData[0]
-                    formater.format(Instant.ofEpochMilli(time.toLong())
-                        .atZone(ZoneId.systemDefault()))
+                    formater.format(
+                        Instant.ofEpochMilli(time.toLong())
+                            .atZone(ZoneId.systemDefault())
+                    )
                 } else {
                     null
                 }
             )
         }
 
-
         return BuildState.Next
     }
-
 
     @AssistedFactory
     interface Factory {

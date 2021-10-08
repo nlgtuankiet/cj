@@ -8,7 +8,6 @@ import com.rainyseason.cj.ticker.RefreshCoinTickerWorker
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 @Singleton
 class AppWorkerFactory @Inject constructor(
     private val refreshCoinTickerWorkerFactory: RefreshCoinTickerWorker.Factory

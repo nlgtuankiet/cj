@@ -12,7 +12,6 @@ import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.databinding.ViewDetailLowHighBinding
 
-
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
 class LowHighView @JvmOverloads constructor(
     context: Context,
@@ -75,5 +74,4 @@ class LowHighView @JvmOverloads constructor(
     fun setEndPrice(value: String) {
         binding.endPrice.text = value
     }
-
 }

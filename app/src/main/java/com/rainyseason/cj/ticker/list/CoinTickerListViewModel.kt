@@ -32,7 +32,6 @@ data class CoinTickerListState(
     val keyword: String = "",
 ) : MavericksState
 
-
 class CoinTickerListViewModel @Inject constructor(
     private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
@@ -51,7 +50,6 @@ class CoinTickerListViewModel @Inject constructor(
                 .collect { setState { copy(keyword = it) } }
         }
     }
-
 
     fun submitNewKeyword(newKeyword: String) {
         keywordDebound.value = newKeyword.trim()
@@ -90,7 +88,6 @@ class CoinTickerListViewModel @Inject constructor(
                 .execute { copy(markets = it) }
         }
     }
-
 
     companion object : MavericksViewModelFactory<CoinTickerListViewModel, CoinTickerListState> {
         override fun create(
