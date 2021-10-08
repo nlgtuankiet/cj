@@ -39,7 +39,6 @@ import com.rainyseason.cj.databinding.WidgetCoinTicker2x2GraphBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.tracking.Tracker
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.abs

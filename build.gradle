@@ -28,7 +28,9 @@ subprojects {
             // TODO apply max line
             def rules = [
                     'indent_size' : '4',
-                    'continuation_indent_size' : '8'
+                    'continuation_indent_size' : '8',
+                    'max_line_length' : '100',
+                    'ij_kotlin_imports_layout' : '*,java.**,javax.**,kotlin.**,^'
             ]
             target '**/*.kt'
             targetExclude("$buildDir/**/*.kt")
