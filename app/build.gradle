@@ -3,10 +3,12 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
-    if (System.getenv('CI') != 'true') {
-        id 'com.google.gms.google-services'
-    }
+
     id 'com.google.firebase.crashlytics'
+}
+
+if (System.getenv('CI') != 'true') {
+    apply plugin: 'com.google.gms.google-services'
 }
 
 def getBooleanProp(name) {
