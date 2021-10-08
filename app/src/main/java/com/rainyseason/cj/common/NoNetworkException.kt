@@ -8,7 +8,10 @@ import android.net.NetworkCapabilities
 import android.net.NetworkInfo
 import android.os.Build
 import androidx.core.content.getSystemService
+import java.net.ConnectException
 import java.net.SocketException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class NoNetworkException : Exception()
 
