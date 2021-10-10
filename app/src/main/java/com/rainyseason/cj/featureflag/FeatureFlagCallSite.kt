@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.google.firebase.auth.FirebaseAuth
 import com.rainyseason.cj.common.coreComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -102,6 +103,9 @@ class DebugFlagSetter : AppCompatActivity() {
         val key = intent.getStringExtra("key") ?: ""
         val value = intent.getStringExtra("value")
         Timber.d("set $key to $value")
+        if (key == "sign_out") {
+            FirebaseAuth.getInstance().signOut()
+        }
         runBlocking {
             coreComponent.debugFlagProvider.set(DebugKey(key), value)
         }

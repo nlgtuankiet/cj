@@ -1,5 +1,7 @@
 package com.rainyseason.cj.watch
 
+import android.content.Context
+import android.content.Intent
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.FragmentViewModelContext
@@ -10,6 +12,8 @@ import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.firebase.ui.auth.AuthUI
+import com.rainyseason.cj.R
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSetting
@@ -50,6 +54,7 @@ class WatchListViewModel @AssistedInject constructor(
     private val coinGeckoService: CoinGeckoService,
     private val userSettingRepository: UserSettingRepository,
     private val watchListRepository: WatchListRepository,
+    private val context: Context,
 ) : MavericksViewModel<WatchListState>(state) {
 
     init {
@@ -142,26 +147,76 @@ class WatchListViewModel @AssistedInject constructor(
         }
     }
 
+    suspend fun onAuth(action: suspend () -> Unit) {
+        // val currentUser = FirebaseAuth.getInstance().currentUser
+        // if (currentUser != null) {
+        //     action.invoke()
+        //     return
+        // }
+        //
+        val providers = listOf(
+            AuthUI.IdpConfig.GoogleBuilder().build(),
+            AuthUI.IdpConfig.EmailBuilder().build(),
+            AuthUI.IdpConfig.AnonymousBuilder().build(),
+        )
+        // val silentSignInResult = runCatching {
+        //     AuthUI.getInstance().silentSignIn(context, providers).await()
+        // }
+        // Timber.d("silentSignInResult: $silentSignInResult")
+        //
+        // if (silentSignInResult.isSuccess) {
+        //     action()
+        //     return
+        // }
+        // val signInAnonResult = runCatching {
+        //     FirebaseAuth.getInstance().signInAnonymously().await()
+        // }
+        //
+        // Timber.d("signInAnonResult: $signInAnonResult")
+        // if (signInAnonResult.isSuccess) {
+        //     action()
+        //     return
+        // }
+
+        val signInIntent = AuthUI.getInstance().createSignInIntentBuilder()
+            .setIsSmartLockEnabled(false)
+            .setLogo(R.drawable.sign_in_logo_small)
+            .enableAnonymousUsersAutoUpgrade()
+            .setAvailableProviders(providers)
+            .build()
+        signInIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+        context.startActivity(signInIntent)
+    }
+
     fun onRemoveClick(id: String) {
+
         viewModelScope.launch {
-            watchListRepository.remove(id)
+            onAuth {
+                watchListRepository.remove(id)
+            }
+
         }
     }
 
     fun onAddClick(id: String) {
-        withState { state ->
-            if (state.addTasks[id] is Loading) {
-                return@withState
-            }
+        viewModelScope.launch {
+            onAuth {
+                withState { state ->
+                    if (state.addTasks[id] is Loading) {
+                        return@withState
+                    }
 
-            val watchList = state.watchList.invoke() ?: return@withState
-            suspend {
-                if (watchList.contains(id)) {
-                    watchListRepository.remove(id)
-                } else {
-                    watchListRepository.add(id)
+                    val watchList = state.watchList.invoke() ?: return@withState
+                    suspend {
+                        if (watchList.contains(id)) {
+                            watchListRepository.remove(id)
+                        } else {
+                            watchListRepository.add(id)
+                        }
+                    }.execute { copy(addTasks = addTasks.update { put(id, it) }) }
                 }
-            }.execute { copy(addTasks = addTasks.update { put(id, it) }) }
+            }
         }
     }
 
