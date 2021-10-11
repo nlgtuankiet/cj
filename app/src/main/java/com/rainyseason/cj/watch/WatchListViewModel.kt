@@ -157,7 +157,6 @@ class WatchListViewModel @AssistedInject constructor(
         val providers = listOf(
             AuthUI.IdpConfig.GoogleBuilder().build(),
             AuthUI.IdpConfig.EmailBuilder().build(),
-            AuthUI.IdpConfig.AnonymousBuilder().build(),
         )
         // val silentSignInResult = runCatching {
         //     AuthUI.getInstance().silentSignIn(context, providers).await()
