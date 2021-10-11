@@ -46,6 +46,7 @@ data class WatchListState(
     val coinMarket: Async<List<MarketsResponseEntry>> = Uninitialized,
     val keyword: String = "",
     val addTasks: Map<String, Async<*>> = emptyMap(),
+    val isInEditMode: Boolean = false,
 ) : MavericksState
 
 @OptIn(FlowPreview::class)
@@ -231,6 +232,16 @@ class WatchListViewModel @AssistedInject constructor(
 
     fun onKeywordChange(value: String) {
         keywordDeboucer.value = value.trim()
+    }
+
+    fun switchEditMode() {
+        setState { copy(isInEditMode = !isInEditMode) }
+    }
+
+    fun swap(fromId: String, toId: String) {
+        viewModelScope.launch {
+            watchListRepository.swap(fromId, toId)
+        }
     }
 
     @AssistedFactory

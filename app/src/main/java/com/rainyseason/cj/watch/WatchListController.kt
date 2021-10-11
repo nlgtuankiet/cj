@@ -73,6 +73,7 @@ class WatchListController @AssistedInject constructor(
 
             watchEntryView {
                 id(coinListEntry.id)
+                coinId(coinListEntry.id)
                 symbol(coinListEntry.symbol)
                 name(coinListEntry.name)
                 val priceModel = WatchEntryView.PriceModel(
@@ -116,6 +117,7 @@ class WatchListController @AssistedInject constructor(
 
             watchEntryView {
                 id(coinListEntry.id)
+                coinId(coinListEntry.id)
                 symbol(coinListEntry.symbol)
                 name(coinListEntry.name)
                 price(null)
@@ -133,6 +135,9 @@ class WatchListController @AssistedInject constructor(
 
     private fun showPopup(view: View, coinId: String) {
         val state = withState(viewModel) { it }
+        if (state.isInEditMode) {
+            return
+        }
         val inWatchList = coinId in state.watchList.invoke().orEmpty()
         view.createPopupMenuCenterEnd().apply {
             if (inWatchList) {
@@ -175,6 +180,8 @@ class WatchListController @AssistedInject constructor(
         val watchList = state.watchList.invoke() ?: return BuildState.Next
         val currencyCode = userSetting.currencyCode
 
+        val keyword = state.keyword
+
         if (state.keyword.isNotEmpty()) {
             watchHeaderView {
                 id("header_watch_list")
@@ -182,8 +189,24 @@ class WatchListController @AssistedInject constructor(
             }
         }
 
-        watchList.forEachIndexed { index, coinId ->
-            if (index != 0) {
+        val filteredWatchList = if (keyword.isNotBlank()) {
+            watchList
+                .filter { symbol ->
+                    val detail = state.watchEntryDetail[symbol]?.invoke()
+                    if (detail == null) {
+                        return@filter true
+                    } else {
+                        detail.name.contains(keyword, true) ||
+                            detail.symbol.contains(keyword, true)
+                    }
+
+                }
+        } else {
+            watchList
+        }
+
+        filteredWatchList.forEachIndexed { index, coinId ->
+            if (index != 0 && !state.isInEditMode) {
                 watchEntrySeparatorView {
                     id("watch_list_separator_$coinId")
                 }
@@ -193,6 +216,7 @@ class WatchListController @AssistedInject constructor(
             val coinMarket = state.watchEntryMarket[coinId]?.invoke()
             watchEntryView {
                 id(coinId)
+                coinId(coinId)
                 symbol(coinDetail?.symbol)
                 name(coinDetail?.name)
                 val priceModel = if (coinDetail != null) {
@@ -213,6 +237,7 @@ class WatchListController @AssistedInject constructor(
                     showPopup(view, coinId)
                     true
                 }
+                editEnable(state.isInEditMode)
             }
         }
 

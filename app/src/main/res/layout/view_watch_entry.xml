@@ -8,26 +8,41 @@
     android:paddingVertical="16dp"
     tools:background="@color/black">
 
+    <ImageView
+        android:visibility="gone"
+        android:scaleType="centerInside"
+        android:id="@+id/delete_button"
+        android:src="@drawable/ic_baseline_delete_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="36dp"
+        android:layout_height="36dp" />
+
     <TextView
+        app:layout_goneMarginStart="0dp"
+        android:layout_marginStart="12dp"
+        style="@style/Theme.CryptoJet.Text.Medium"
         android:id="@+id/symbol"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/open_sans_medium"
         android:textAllCaps="true"
         android:textColor="@color/gray_50"
         android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/delete_button"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="BTC" />
 
     <TextView
+        app:layout_goneMarginStart="0dp"
+        android:layout_marginStart="12dp"
+        android:textColor="@color/text_secondary"
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/gray_500"
         android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@id/delete_button"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/symbol"
         tools:text="Bitcoin" />
 
@@ -105,4 +120,15 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/end_graph"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:scaleType="centerInside"
+        android:visibility="gone"
+        android:src="@drawable/ic_baseline_drag_handle_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:id="@+id/drag_handler"
+        android:layout_width="36dp"
+        android:layout_height="36dp" />
 </androidx.constraintlayout.widget.ConstraintLayout>

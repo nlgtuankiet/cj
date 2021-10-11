@@ -28,4 +28,17 @@ class WatchListRepository @Inject constructor() {
         state.remove(id)
         stateFlow.value = state.toList()
     }
+
+    suspend fun swap(fromId: String, toId: String) {
+        delay(500)
+        val currentList = stateFlow.value
+        val fromIndex = currentList.indexOf(fromId)
+        val toIndex = currentList.indexOf(toId)
+        val newList = currentList.toMutableList()
+        if (fromIndex != -1 && toIndex != -1) {
+            newList[fromIndex] = toId
+            newList[toIndex] = fromId
+            stateFlow.value = newList.toList()
+        }
+    }
 }

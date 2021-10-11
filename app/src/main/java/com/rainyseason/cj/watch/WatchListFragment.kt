@@ -3,6 +3,7 @@ package com.rainyseason.cj.watch
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -34,9 +35,9 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
     @Inject
     lateinit var controllerFactory: WatchListController.Factory
 
-    private val viewModel: WatchListViewModel by fragmentViewModel()
+    val viewModel: WatchListViewModel by fragmentViewModel()
 
-    private val controller: WatchListController by lazy {
+    val controller: WatchListController by lazy {
         controllerFactory.create(viewModel)
     }
 
@@ -50,6 +51,7 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
         val binding = FragmentWatchListBinding.bind(view)
         setupSearchAnimation(binding)
         binding.contentRecyclerView.setController(controller)
+        setUpEdit(binding)
     }
 
     private fun setupSearchAnimation(
@@ -62,14 +64,24 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
                 text = null
                 clearFocus()
                 dismissKeyboard()
+                searchGroup.transitionToStart()
             }
         }
+
         searchEditText.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
+            if (hasFocus || !searchEditText.text.isNullOrBlank()) {
                 searchGroup.transitionToEnd()
             } else {
                 searchGroup.transitionToStart()
             }
+        }
+        searchEditText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_GO) {
+                searchEditText.clearFocus()
+                searchEditText.dismissKeyboard()
+                return@setOnEditorActionListener true
+            }
+            false
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
