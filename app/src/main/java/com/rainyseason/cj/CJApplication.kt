@@ -2,6 +2,8 @@ package com.rainyseason.cj
 
 import android.app.Application
 import android.appwidget.AppWidgetManager
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -16,6 +18,7 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
+import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.featureflag.MainFlagValueProvider
 import com.rainyseason.cj.featureflag.NoopFlagValueProvider
@@ -28,6 +31,16 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
+import androidx.annotation.ColorInt
+
+import android.R
+
+import com.rainyseason.cj.AppProvides_ContextFactory.context
+
+import android.util.TypedValue
+
+
+
 
 class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
 
@@ -56,15 +69,20 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     override fun onCreate() {
         super.onCreate()
         appComponent = DaggerAppComponent.factory().create(this)
-
         checkFirebaseApp()
-
         injectIfNecessary()
+
+        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
 
         if (!BuildConfig.IS_PLAY_STORE) {
             Timber.plant(Timber.DebugTree())
             Timber.plant(ExceptionLoggerTree())
         }
+
+        val typedValue = TypedValue()
+        theme.resolveAttribute(R.attr.textColorTertiary, typedValue, false)
+        @ColorInt val colorInt = typedValue.data
+        Timber.d("color is ${Integer.toHexString(getColorCompat(colorInt))}")
 
         if (!BuildConfig.IS_PLAY_STORE) {
             MainFlagValueProvider.setDelegate(debugFlagProvider.get())

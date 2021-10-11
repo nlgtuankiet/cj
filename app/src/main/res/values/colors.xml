@@ -5,6 +5,11 @@
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
 
+    <color name="dark_background">#121212</color>
+    <color name="amber_200">#FFE082</color>
+    <color name="amber_700">#FFA000</color>
+
+
     <color name="teal_500">#009688</color>
     <color name="teal_700">#00796B</color>
 
@@ -17,6 +22,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="white_a50">#80FFFFFF</color>
+    <color name="white_a80">#80FFFFFF</color>
+    <color name="text_secondary">@color/white_a80</color>
 
     <color name="gray_50">#FAFAFAFA</color>
     <color name="gray_300">#E0E0E0</color>
