@@ -23,9 +23,11 @@ import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.google.android.material.textview.MaterialTextView
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.clearHapticFeedback
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
+import com.rainyseason.cj.common.hapticFeedbackIfChanged
 import kotlin.math.abs
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
@@ -273,6 +275,7 @@ class GraphView @JvmOverloads constructor(
         }
 
         if (!drawTouchUI) {
+            clearHapticFeedback()
             return
         }
 
@@ -285,6 +288,7 @@ class GraphView @JvmOverloads constructor(
         val touchTime = minTime + percentTouchX * timeRange
         val touchIndex = findTouchTimeIndex(touchTime)
         val touchData = graphData[touchIndex]
+        hapticFeedbackIfChanged(touchData[0])
 
         onDataTouchListener?.invoke(touchIndex)
 

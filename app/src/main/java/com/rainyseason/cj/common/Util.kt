@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.os.PowerManager
 import android.util.TypedValue
+import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -239,4 +240,26 @@ fun Context.isInBatteryOptimize(): Boolean {
     } else {
         powerManager.isPowerSaveMode
     }
+}
+
+fun View.clearHapticFeedback() {
+    setTag(R.id.haptic_feedback, null)
+}
+
+fun View.hapticFeedbackIfChanged(key: Any) {
+    val oldValue = getTag(R.id.haptic_feedback)
+    if (key != oldValue) {
+        setTag(R.id.haptic_feedback, key)
+        performHapticFeedback(
+            HapticFeedbackConstants.VIRTUAL_KEY,
+            HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+        )
+    }
+}
+
+fun View.hapticFeedback() {
+    performHapticFeedback(
+        HapticFeedbackConstants.VIRTUAL_KEY,
+        HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
+    )
 }

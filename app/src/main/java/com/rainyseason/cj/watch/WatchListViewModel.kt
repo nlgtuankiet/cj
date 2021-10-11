@@ -181,6 +181,7 @@ class WatchListViewModel @AssistedInject constructor(
         val signInIntent = AuthUI.getInstance().createSignInIntentBuilder()
             .setIsSmartLockEnabled(false)
             .setLogo(R.drawable.sign_in_logo_small)
+            .setTheme(R.style.Theme_CryptoJet)
             .enableAnonymousUsersAutoUpgrade()
             .setAvailableProviders(providers)
             .build()
