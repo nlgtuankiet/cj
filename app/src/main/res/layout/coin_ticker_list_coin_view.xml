@@ -20,6 +20,8 @@
         tools:text="Bitcoin" />
 
     <TextView
+        android:textColor="@color/text_secondary"
+        style="@style/Theme.CryptoJet.Text.Medium"
         android:id="@+id/symbol"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
