@@ -4,6 +4,6 @@
     android:layout_height="1dp"
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="Overdraw"
-    android:background="@color/gray_300">
+    android:background="@color/white_a80">
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -43,9 +43,10 @@ class CoinTickerPreviewController(
             addSeparator = true
             return
         }
-        horizontalSeparatorView {
-            id(id)
-        }
+        // temporary disable for dark mode
+        // horizontalSeparatorView {
+        //     id(id)
+        // }
     }
 
     override fun buildModels() {
