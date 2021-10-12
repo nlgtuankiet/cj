@@ -1,7 +1,6 @@
 package com.rainyseason.cj.watch
 
 import android.content.Context
-import android.content.Intent
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.FragmentViewModelContext
@@ -12,8 +11,6 @@ import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
-import com.firebase.ui.auth.AuthUI
-import com.rainyseason.cj.R
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSetting
@@ -148,75 +145,27 @@ class WatchListViewModel @AssistedInject constructor(
         }
     }
 
-    suspend fun onAuth(action: suspend () -> Unit) {
-        // val currentUser = FirebaseAuth.getInstance().currentUser
-        // if (currentUser != null) {
-        //     action.invoke()
-        //     return
-        // }
-        //
-        val providers = listOf(
-            AuthUI.IdpConfig.GoogleBuilder().build(),
-            AuthUI.IdpConfig.EmailBuilder().build(),
-        )
-        // val silentSignInResult = runCatching {
-        //     AuthUI.getInstance().silentSignIn(context, providers).await()
-        // }
-        // Timber.d("silentSignInResult: $silentSignInResult")
-        //
-        // if (silentSignInResult.isSuccess) {
-        //     action()
-        //     return
-        // }
-        // val signInAnonResult = runCatching {
-        //     FirebaseAuth.getInstance().signInAnonymously().await()
-        // }
-        //
-        // Timber.d("signInAnonResult: $signInAnonResult")
-        // if (signInAnonResult.isSuccess) {
-        //     action()
-        //     return
-        // }
-
-        val signInIntent = AuthUI.getInstance().createSignInIntentBuilder()
-            .setIsSmartLockEnabled(false)
-            .setLogo(R.drawable.sign_in_logo_small)
-            .setTheme(R.style.Theme_CryptoJet)
-            .enableAnonymousUsersAutoUpgrade()
-            .setAvailableProviders(providers)
-            .build()
-        signInIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-        context.startActivity(signInIntent)
-    }
-
     fun onRemoveClick(id: String) {
-
         viewModelScope.launch {
-            onAuth {
-                watchListRepository.remove(id)
-            }
-
+            watchListRepository.remove(id)
         }
     }
 
     fun onAddClick(id: String) {
         viewModelScope.launch {
-            onAuth {
-                withState { state ->
-                    if (state.addTasks[id] is Loading) {
-                        return@withState
-                    }
-
-                    val watchList = state.watchList.invoke() ?: return@withState
-                    suspend {
-                        if (watchList.contains(id)) {
-                            watchListRepository.remove(id)
-                        } else {
-                            watchListRepository.add(id)
-                        }
-                    }.execute { copy(addTasks = addTasks.update { put(id, it) }) }
+            withState { state ->
+                if (state.addTasks[id] is Loading) {
+                    return@withState
                 }
+
+                val watchList = state.watchList.invoke() ?: return@withState
+                suspend {
+                    if (watchList.contains(id)) {
+                        watchListRepository.remove(id)
+                    } else {
+                        watchListRepository.add(id)
+                    }
+                }.execute { copy(addTasks = addTasks.update { put(id, it) }) }
             }
         }
     }
