@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Collections
 
 private typealias State = WatchListState
@@ -126,6 +127,7 @@ class WatchListViewModel @AssistedInject constructor(
         Collections.synchronizedMap(mutableMapOf())
 
     private fun loadWatchEntry(id: String, currencyCode: String) {
+        Timber.d("loadWatchEntry $id")
         wachEntryDetailJob.remove(id)?.cancel()
         wachEntryDetailJob[id] = suspend {
             coinGeckoService.getCoinDetail(id)

@@ -255,7 +255,7 @@ class WatchListController @AssistedInject constructor(
                         price = coinMarket?.prices?.lastOrNull()?.get(1)
                             ?: coinDetail.marketData.currentPrice[currencyCode]!!,
                         changePercent = coinDetail.marketData
-                            .priceChangePercentage24hInCurrency[currencyCode]!!,
+                            .priceChangePercentage24hInCurrency[currencyCode],
                         currency = currencyCode
                     )
                 } else {

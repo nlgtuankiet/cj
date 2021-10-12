@@ -21,7 +21,7 @@ data class CoinDetailResponse(
     val marketData: MarketData,
 
     @Json(name = "market_cap_rank")
-    val marketCapRank: Int,
+    val marketCapRank: Int?,
 
 ) {
 
