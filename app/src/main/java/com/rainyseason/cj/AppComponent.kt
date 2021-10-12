@@ -16,8 +16,6 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
@@ -35,6 +33,7 @@ import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.rainyseason.cj.tracking.AppTracker
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.watch.WatchListFragmentModule
+import com.rainyseason.cj.widget.watch.WatchSettingActivityModule
 import com.squareup.moshi.Moshi
 import dagger.Binds
 import dagger.BindsInstance
@@ -67,6 +66,7 @@ import javax.inject.Singleton
         CoinDetailModule::class,
         AppProvides::class,
         AppBinds::class,
+        WatchSettingActivityModule::class,
     ]
 )
 @Singleton
