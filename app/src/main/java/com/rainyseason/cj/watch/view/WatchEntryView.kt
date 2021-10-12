@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.widget.FrameLayout
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isGone
-import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
@@ -51,7 +50,6 @@ class WatchEntryView @JvmOverloads constructor(
         if (!value.isNullOrEmpty()) {
             val start = value.first()[1]
             val end = value.last()[1]
-            val startIndex = value.size * 6 / 7
             binding.graph.doOnPreDraw {
                 val bitmap = graphRenderer.createGraphBitmap(
                     context = context,
@@ -118,31 +116,6 @@ class WatchEntryView @JvmOverloads constructor(
     @CallbackProp
     override fun setOnClickListener(l: OnClickListener?) {
         super.setOnClickListener(l)
-    }
-
-    @ModelProp
-    @JvmOverloads
-    fun setEditEnable(value: Boolean? = null) {
-        if (value != null) {
-            binding.dragHandler.isGone = !value
-            binding.deleteButton.isGone = !value
-
-            binding.price.isInvisible = value
-            binding.changePercent.isInvisible = value
-            binding.graph.isInvisible = value
-        } else {
-            binding.dragHandler.isGone = true
-            binding.deleteButton.isGone = true
-
-            binding.price.isVisible = true
-            binding.changePercent.isVisible = true
-            binding.graph.isVisible = true
-        }
-    }
-
-    @CallbackProp
-    fun setOnDeleteClickListener(l: OnClickListener?) {
-        binding.deleteButton.setOnClickListener(l)
     }
 
     data class PriceModel(

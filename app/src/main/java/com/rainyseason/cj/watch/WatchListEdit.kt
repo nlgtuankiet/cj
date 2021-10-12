@@ -6,7 +6,7 @@ import com.airbnb.epoxy.EpoxyTouchHelper
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.hapticFeedback
 import com.rainyseason.cj.databinding.FragmentWatchListBinding
-import com.rainyseason.cj.watch.view.WatchEntryViewModel_
+import com.rainyseason.cj.watch.view.WatchEditEntryViewModel_
 
 fun WatchListFragment.setUpEdit(
     binding: FragmentWatchListBinding,
@@ -21,10 +21,10 @@ fun WatchListFragment.setUpEdit(
     val helper = EpoxyTouchHelper.initDragging(controller)
         .withRecyclerView(recyclerView)
         .forVerticalList()
-        .withTarget(WatchEntryViewModel_::class.java)
-        .andCallbacks(object : EpoxyTouchHelper.DragCallbacks<WatchEntryViewModel_>() {
+        .withTarget(WatchEditEntryViewModel_::class.java)
+        .andCallbacks(object : EpoxyTouchHelper.DragCallbacks<WatchEditEntryViewModel_>() {
             override fun onDragStarted(
-                model: WatchEntryViewModel_,
+                model: WatchEditEntryViewModel_,
                 itemView: View,
                 adapterPosition: Int
             ) {
@@ -33,7 +33,8 @@ fun WatchListFragment.setUpEdit(
                 val adapter = recyclerView.adapter as EpoxyControllerAdapter
                 val count = adapter.itemCount
                 repeat(count) { position ->
-                    val entryModel = adapter.getModelAtPosition(position) as? WatchEntryViewModel_
+                    val entryModel =
+                        adapter.getModelAtPosition(position) as? WatchEditEntryViewModel_
                     if (entryModel != null) {
                         newMapping[position] = entryModel.coinId()
                     }
@@ -42,7 +43,7 @@ fun WatchListFragment.setUpEdit(
                 itemView.hapticFeedback()
             }
 
-            override fun onDragReleased(model: WatchEntryViewModel_, itemView: View) {
+            override fun onDragReleased(model: WatchEditEntryViewModel_, itemView: View) {
                 val currentMoveFrom = moveFrom
                 val currentMoveTo = moveTo
                 val currentMapping = mapping
@@ -61,7 +62,7 @@ fun WatchListFragment.setUpEdit(
             override fun onModelMoved(
                 fromPosition: Int,
                 toPosition: Int,
-                modelBeingMoved: WatchEntryViewModel_,
+                modelBeingMoved: WatchEditEntryViewModel_,
                 itemView: View
             ) {
                 if (toPosition != moveTo) {

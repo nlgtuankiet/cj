@@ -14,6 +14,7 @@ import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.watch.view.WatchEntryView
 import com.rainyseason.cj.watch.view.WatchEntryViewModelBuilder
+import com.rainyseason.cj.watch.view.watchEditEntryView
 import com.rainyseason.cj.watch.view.watchEntrySeparatorView
 import com.rainyseason.cj.watch.view.watchEntryView
 import com.rainyseason.cj.watch.view.watchHeaderView
@@ -31,9 +32,35 @@ class WatchListController @AssistedInject constructor(
 
         buildWatchList(state)
         buildSearchResult(state)
+        buildEditList(state)
+    }
+
+    private fun buildEditList(state: WatchListState): BuildState {
+        if (!state.isInEditMode) {
+            return BuildState.Next
+        }
+
+        val watchList = state.watchList.invoke() ?: return BuildState.Next
+
+        watchList.forEachIndexed { _, coinId ->
+
+            val coinDetail = state.watchEntryDetail[coinId]?.invoke()
+            val coinMarket = state.watchEntryMarket[coinId]?.invoke()
+            watchEditEntryView {
+                id(coinId)
+                coinId(coinId)
+                symbol(coinDetail?.symbol)
+                name(coinDetail?.name)
+            }
+        }
+
+        return BuildState.Next
     }
 
     private fun buildSearchResult(state: WatchListState): BuildState {
+        if (state.isInEditMode) {
+            return BuildState.Next
+        }
         val watchList = state.watchList.invoke() ?: return BuildState.Next
         val watchListIds = watchList.toSet()
         val coinMarket = state.coinMarket.invoke() ?: return BuildState.Next
@@ -59,6 +86,7 @@ class WatchListController @AssistedInject constructor(
                     it.symbol.contains(keyword, true)
             }
 
+        val coinMarketIds = coinMarket.map { it.id }.toSet()
         val coinMarketToRenderIds = coinMarketToRender.map { it.id }.toSet()
 
         coinMarketToRender.forEachIndexed { _, coinListEntry ->
@@ -101,7 +129,7 @@ class WatchListController @AssistedInject constructor(
                 compareByDescending<CoinListEntry> {
                     max(calculateRatio(keyword, it.name), calculateRatio(keyword, it.symbol))
                 }.thenByDescending {
-                    coinMarketToRenderIds.contains(it.id)
+                    coinMarketIds.contains(it.id)
                 }
             )
 
@@ -176,6 +204,9 @@ class WatchListController @AssistedInject constructor(
     }
 
     private fun buildWatchList(state: WatchListState): BuildState {
+        if (state.isInEditMode) {
+            return BuildState.Next
+        }
         val userSetting = state.userSetting.invoke() ?: return BuildState.Next
         val watchList = state.watchList.invoke() ?: return BuildState.Next
         val currencyCode = userSetting.currencyCode
@@ -206,7 +237,7 @@ class WatchListController @AssistedInject constructor(
         }
 
         filteredWatchList.forEachIndexed { index, coinId ->
-            if (index != 0 && !state.isInEditMode) {
+            if (index != 0) {
                 watchEntrySeparatorView {
                     id("watch_list_separator_$coinId")
                 }
@@ -237,7 +268,6 @@ class WatchListController @AssistedInject constructor(
                     showPopup(view, coinId)
                     true
                 }
-                editEnable(state.isInEditMode)
             }
         }
 
