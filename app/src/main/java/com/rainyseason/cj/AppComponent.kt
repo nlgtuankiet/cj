@@ -33,6 +33,7 @@ import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.rainyseason.cj.tracking.AppTracker
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.watch.WatchListFragmentModule
+import com.rainyseason.cj.widget.watch.WatchPreviewFragmentModule
 import com.rainyseason.cj.widget.watch.WatchSettingActivityModule
 import com.squareup.moshi.Moshi
 import dagger.Binds
@@ -67,6 +68,7 @@ import javax.inject.Singleton
         AppProvides::class,
         AppBinds::class,
         WatchSettingActivityModule::class,
+        WatchPreviewFragmentModule::class,
     ]
 )
 @Singleton

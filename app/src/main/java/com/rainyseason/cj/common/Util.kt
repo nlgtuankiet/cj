@@ -3,6 +3,7 @@
 package com.rainyseason.cj.common
 
 import android.app.Activity
+import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
@@ -262,4 +263,15 @@ fun View.hapticFeedback() {
         HapticFeedbackConstants.VIRTUAL_KEY,
         HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING
     )
+}
+
+fun Bundle.getWidgetId(): Int? {
+    val widgetId = getInt(
+        AppWidgetManager.EXTRA_APPWIDGET_ID,
+        AppWidgetManager.INVALID_APPWIDGET_ID
+    )
+    if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+        return null
+    }
+    return widgetId
 }
