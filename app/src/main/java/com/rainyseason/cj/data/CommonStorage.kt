@@ -9,10 +9,13 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.rainyseason.cj.ticker.CoinTickerProviderCoin360
 import com.rainyseason.cj.ticker.CoinTickerProviderDefault
 import com.rainyseason.cj.ticker.CoinTickerProviderGraph
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -31,6 +34,28 @@ class CommonRepository @Inject constructor(
     private val widgetsUsedKey = intPreferencesKey("widgets_used")
     private val userLikeAppKey = booleanPreferencesKey("user_like_app")
     private val lastDislikeKey = longPreferencesKey("last_dislike")
+    private val populateDefaultWatchList = booleanPreferencesKey("populate_default_watchlist")
+    private val watchListIds = stringPreferencesKey("watchlist_ids")
+
+    suspend fun populateDefaultWatchlist(): Boolean {
+        return storage.data.first()[populateDefaultWatchList] ?: false
+    }
+
+    suspend fun donePopulateDefaultWatchlist() {
+        storage.edit {
+            it[populateDefaultWatchList] = true
+        }
+    }
+
+    fun watchListIdsFlow(): Flow<List<String>> {
+        return storage.data.map { it[watchListIds].orEmpty().split(",") }
+    }
+
+    suspend fun setWatchListIds(ids: List<String>) {
+        storage.edit {
+            it[watchListIds] = ids.joinToString(separator = ",")
+        }
+    }
 
     suspend fun isUserLikeTheApp(): Boolean {
         return storage.data.first()[userLikeAppKey] ?: false

@@ -238,9 +238,9 @@ class WatchListViewModel @AssistedInject constructor(
         setState { copy(isInEditMode = !isInEditMode) }
     }
 
-    fun swap(fromId: String, toId: String) {
+    fun drag(fromId: String, toId: String) {
         viewModelScope.launch {
-            watchListRepository.swap(fromId, toId)
+            watchListRepository.drag(fromId, toId)
         }
     }
 

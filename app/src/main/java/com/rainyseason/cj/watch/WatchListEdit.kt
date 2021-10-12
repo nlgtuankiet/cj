@@ -50,7 +50,7 @@ fun WatchListFragment.setUpEdit(
                     val fromId = currentMapping[currentMoveFrom]
                     val toId = currentMapping[currentMoveTo]
                     if (fromId != null && toId != null) {
-                        viewModel.swap(fromId, toId)
+                        viewModel.drag(fromId, toId)
                     }
                 }
                 moveFrom = null
@@ -78,7 +78,9 @@ fun WatchListFragment.setUpEdit(
         editButton.setOnClickListener {
             viewModel.switchEditMode()
         }
+        binding.searchGroup.searchEditText.isEnabled = !isInEditMode
         if (isInEditMode) {
+            binding.searchGroup.cancelSearch.performClick()
             helper.attachToRecyclerView(recyclerView)
         } else {
             helper.attachToRecyclerView(null)

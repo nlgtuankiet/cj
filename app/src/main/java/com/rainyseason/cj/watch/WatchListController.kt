@@ -50,7 +50,7 @@ class WatchListController @AssistedInject constructor(
             header(R.string.watch_list_symbol_header)
         }
 
-        var shouldBuildSeparator: Boolean = false
+        var shouldBuildSeparator = false
 
         val coinMarketToRender = coinMarket
             .filter { it.id !in watchListIds }
