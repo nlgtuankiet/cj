@@ -33,6 +33,7 @@ import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.rainyseason.cj.tracking.AppTracker
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.watch.WatchListFragmentModule
+import com.rainyseason.cj.widget.watch.Watch
 import com.rainyseason.cj.widget.watch.WatchPreviewFragmentModule
 import com.rainyseason.cj.widget.watch.WatchSettingActivityModule
 import com.squareup.moshi.Moshi
@@ -207,28 +208,25 @@ object AppProvides {
     @Provides
     @Singleton
     fun provideCoinTickerStorage(context: Context): CoinTickerStorage {
-        val pref = PreferenceDataStoreFactory.create(
+        val pref = createStorage(context, "coin_ticker_storage")
+        return CoinTickerStorage(pref)
+    }
+
+    private fun createStorage(context: Context, name: String): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
             corruptionHandler = null,
             migrations = emptyList(),
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = {
-                context.preferencesDataStoreFile("coin_ticker_storage")
+                context.preferencesDataStoreFile(name)
             }
         )
-        return CoinTickerStorage(pref)
     }
 
     @Provides
     @Singleton
     fun provideUserSettingStorage(context: Context): UserSettingStorage {
-        val pref = PreferenceDataStoreFactory.create(
-            corruptionHandler = null,
-            migrations = emptyList(),
-            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            produceFile = {
-                context.preferencesDataStoreFile("user_setting_storage")
-            }
-        )
+        val pref = createStorage(context, "user_setting_storage")
         return UserSettingStorage(pref)
     }
 
@@ -236,28 +234,21 @@ object AppProvides {
     @CommonStorage
     @Singleton
     fun provideCommonStorage(context: Context): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create(
-            corruptionHandler = null,
-            migrations = emptyList(),
-            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            produceFile = {
-                context.preferencesDataStoreFile("common")
-            }
-        )
+        return createStorage(context, "common")
+    }
+
+    @Provides
+    @Watch
+    @Singleton
+    fun provideWatchStorage(context: Context): DataStore<Preferences> {
+        return createStorage(context, "watch_storage")
     }
 
     @Provides
     @CoinHistory
     @Singleton
     fun provideCoinHistoryStorage(context: Context): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create(
-            corruptionHandler = null,
-            migrations = emptyList(),
-            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            produceFile = {
-                context.preferencesDataStoreFile("coin_history")
-            }
-        )
+        return createStorage(context, "coin_history")
     }
 
     @Provides

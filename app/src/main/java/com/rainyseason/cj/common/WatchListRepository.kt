@@ -21,7 +21,7 @@ class WatchListRepository @Inject constructor(
     private val commonRepository: CommonRepository,
 ) {
 
-    val scope = CoroutineScope(Dispatchers.IO + Job())
+    private val scope = CoroutineScope(Dispatchers.IO + Job())
 
     private val stateFlow: MutableStateFlow<List<String>> by lazy {
         scope.launch {

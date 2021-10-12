@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.ActivityScope
-import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.getWidgetId
 import dagger.Module
 import dagger.android.AndroidInjection
@@ -26,7 +25,7 @@ class WatchSettingActivity : AppCompatActivity() {
     private var widgetSaved = false
 
     @Inject
-    lateinit var coinTickerRepository: CoinTickerRepository
+    lateinit var watchWidgetRepository: WatchWidgetRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -48,7 +47,7 @@ class WatchSettingActivity : AppCompatActivity() {
         }
         if (!widgetSaved) {
             runBlocking {
-                coinTickerRepository.clearAllData(getWidgetId() ?: 0)
+                watchWidgetRepository.clearAllData(getWidgetId() ?: 0)
             }
         }
     }

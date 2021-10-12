@@ -35,10 +35,8 @@ import java.util.concurrent.TimeUnit
 data class CoinTickerPreviewState(
     val savedDisplayData: Async<CoinTickerDisplayData> = Uninitialized,
     val savedConfig: Async<CoinTickerConfig> = Uninitialized,
-    val userCurrency: Async<String> = Uninitialized,
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
     val marketChartResponse: Map<String, Async<MarketChartResponse>> = emptyMap(),
-    val numberOfDecimal: Int? = null,
 ) : MavericksState {
     val config: CoinTickerConfig?
         get() = savedConfig.invoke()
