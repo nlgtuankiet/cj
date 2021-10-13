@@ -57,6 +57,12 @@ class WatchWidgetRepository @Inject constructor(
         }
     }
 
+    suspend fun setDisplayData(widgetId: Int, displayData: WatchDisplayData) {
+        storage.edit {
+            it[displayDataKey(widgetId)] = displayDataAdapter.toJson(displayData)
+        }
+    }
+
     suspend fun setConfig(widgetId: Int, config: WatchConfig) {
         storage.edit {
             it[configKey(widgetId)] = configAdapter.toJson(config)

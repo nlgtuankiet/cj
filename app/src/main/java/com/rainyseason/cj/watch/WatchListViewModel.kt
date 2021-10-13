@@ -139,7 +139,7 @@ class WatchListViewModel @AssistedInject constructor(
 
         wachEntryMarketlJob.remove(id)?.cancel()
         wachEntryMarketlJob[id] = suspend {
-            coinGeckoService.getMarketChart(id, currencyCode, 1)
+            coinGeckoService.getMarketChart(id, currencyCode, "1")
         }.execute {
             copy(
                 watchEntryMarket = watchEntryMarket.update { put(id, it) }

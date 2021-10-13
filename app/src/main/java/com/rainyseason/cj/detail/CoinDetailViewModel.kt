@@ -155,7 +155,7 @@ class CoinDetailViewModel @AssistedInject constructor(
                     coinGeckoService.getMarketChart(
                         id = args.coinId,
                         vsCurrency = currencyCode,
-                        day = days
+                        day = days.toString()
                     )
                 }.execute {
                     copy(marketChartResponse = marketChartResponse.update { set(interval, it) })

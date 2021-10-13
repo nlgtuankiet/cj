@@ -19,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
+import com.rainyseason.cj.common.model.TimeIntervalJsonAdapter
 import com.rainyseason.cj.data.CoinHistory
 import com.rainyseason.cj.data.CommonStorage
 import com.rainyseason.cj.data.ForceCacheInterceptor
@@ -37,6 +38,7 @@ import com.rainyseason.cj.widget.watch.Watch
 import com.rainyseason.cj.widget.watch.WatchPreviewFragmentModule
 import com.rainyseason.cj.widget.watch.WatchSettingActivityModule
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.addAdapter
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
@@ -173,10 +175,13 @@ object AppProvides {
         return Call.Factory { request -> clientProvider.get().newCall(request) }
     }
 
+    @ExperimentalStdlibApi
     @Provides
     @Singleton
     fun moshi(): Moshi {
-        return Moshi.Builder().build()
+        return Moshi.Builder()
+            .addAdapter(TimeIntervalJsonAdapter)
+            .build()
     }
 
     @Provides

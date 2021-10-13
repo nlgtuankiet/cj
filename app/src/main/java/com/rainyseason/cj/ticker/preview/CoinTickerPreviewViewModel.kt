@@ -211,7 +211,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
         loadGraphJobs[interval]?.cancel()
         loadGraphJobs[interval] = suspend {
-            coinGeckoService.getMarketChart(id = args.coinId, vsCurrency = currency, day)
+            coinGeckoService.getMarketChart(id = args.coinId, vsCurrency = currency, day.toString())
         }.execute {
             copy(marketChartResponse = marketChartResponse.update { set(interval, it) })
         }

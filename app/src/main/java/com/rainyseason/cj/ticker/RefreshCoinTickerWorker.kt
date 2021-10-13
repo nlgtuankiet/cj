@@ -151,7 +151,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
                 ChangeInterval._30D -> 30
                 ChangeInterval._1Y -> 365
                 else -> error("Unknown ${config.changeInterval}")
-            }
+            }.toString()
         )
 
         val marketPrice = if (config.changeInterval == ChangeInterval._24H) {
@@ -160,7 +160,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             coinGeckoService.getMarketChart(
                 id = config.coinId,
                 vsCurrency = configCurrency,
-                day = 1,
+                day = "1",
             ).currentPrice()
         }
 
