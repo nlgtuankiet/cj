@@ -19,6 +19,7 @@ import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.Theme
+import com.rainyseason.cj.databinding.WatchWidgetEntryDividerBinding
 import com.rainyseason.cj.databinding.WidgetWatch4x2Binding
 import com.rainyseason.cj.databinding.WidgetWatchEntryBinding
 import com.rainyseason.cj.featureflag.DebugFlag
@@ -198,10 +199,18 @@ class WatchWidgetRender @Inject constructor(
 
         val height = getWidgetSize(params.config).height / 3
 
-        renderData.entries.forEachIndexed { _, watchDisplayEntry ->
+        renderData.entries.forEachIndexed { index, watchDisplayEntry ->
             val view = createEntryView(params, container, height, watchDisplayEntry.content)
             Timber.d("add iew with height $height")
             binding.listContainer.addView(view)
+
+            if (index != renderData.entries.lastIndex) {
+                val dividerView = WatchWidgetEntryDividerBinding.inflate(view.inflater)
+                dividerView.divider.setBackgroundColor(
+                    context.getColorCompat(select(config.theme, R.color.gray_300, R.color.gray_700))
+                )
+                binding.listContainer.addView(dividerView.root)
+            }
         }
         container.measureAndLayout(config)
 
