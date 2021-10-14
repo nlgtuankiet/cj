@@ -6,17 +6,25 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class WatchDisplayData(
     @Json(name = "entries")
-    val entries: Map<String, WatchDisplayDataEntry>
+    val entries: List<WatchDisplayEntry>
 )
 
 @JsonClass(generateAdapter = true)
-data class WatchDisplayDataEntry(
+data class WatchDisplayEntry(
+    @Json(name = "coin_id")
+    val coinId: String,
+    @Json(name = "content")
+    val content: WatchDisplayEntryContent?
+)
+
+@JsonClass(generateAdapter = true)
+data class WatchDisplayEntryContent(
     @Json(name = "symbol")
     val symbol: String,
     @Json(name = "name")
     val name: String,
-    @Json(name = "chart")
-    val chart: List<List<Double>>?,
+    @Json(name = "graph")
+    val graph: List<List<Double>>?,
     @Json(name = "price")
     val price: Double,
     @Json(name = "change_percent")

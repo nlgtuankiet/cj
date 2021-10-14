@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="165dp">
+    android:layout_height="185dp">
 
     <ImageView
         android:id="@+id/preview_background"
@@ -19,8 +19,8 @@
 
     <FrameLayout
         android:id="@+id/preview_container"
-        android:layout_width="155dp"
-        android:layout_height="155dp"
+        android:layout_width="330dp"
+        android:layout_height="165dp"
         app:layout_constraintBottom_toBottomOf="@id/preview_background"
         app:layout_constraintEnd_toEndOf="@id/preview_background"
         app:layout_constraintStart_toStartOf="@id/preview_background"

@@ -41,7 +41,24 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
         val binding = WatchPreviewFragmentBinding.bind(view)
 
         binding.settingContent.setController(controller)
-        viewModel
+        viewModel.onEach(
+            WatchPreviewState::config,
+            WatchPreviewState::displayData,
+        ) { config, displayData ->
+            val params = if (config != null && displayData != null) {
+                WatchRenderParams(
+                    config = config,
+                    data = displayData,
+                    showLoading = false,
+                    isPreview = true
+                )
+            } else {
+                null
+            }
+            binding.previewView.setRenderParams(
+                params = params
+            )
+        }
     }
 
     override fun invalidate() {

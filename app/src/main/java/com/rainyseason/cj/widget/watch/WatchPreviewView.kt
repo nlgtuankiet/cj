@@ -8,6 +8,7 @@ import android.widget.RemoteViews
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isGone
 import com.rainyseason.cj.BuildConfig
+import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.databinding.WatchPreviewViewBinding
@@ -21,7 +22,7 @@ class WatchPreviewView @JvmOverloads constructor(
 
     private val binding = WatchPreviewViewBinding.inflate(inflater, this, true)
     private var remoteView: RemoteViews? = null
-    private val renderer = coreComponent.tickerWidgetRender
+    private val renderer = coreComponent.watchWidgetRenderer
     private val container = binding.previewContainer
     private val mainContainer = binding.container
     private val progressBar = binding.progressBar
@@ -53,12 +54,13 @@ class WatchPreviewView @JvmOverloads constructor(
         if (params == null) {
             return
         }
-        // val layout = renderer.selectLayout(params.config)
-        // remoteView = LocalRemoteViews(
-        //     context,
-        //     container,
-        //     layout
-        // )
+
+        remoteView = LocalRemoteViews(
+            context,
+            container,
+            params.config.layout.layout,
+        )
+
         // val widgetSize = renderer.getWidgetSize(params.config)
         // container.updateLayoutParams<MarginLayoutParams> {
         //     height = widgetSize.height
@@ -67,6 +69,7 @@ class WatchPreviewView @JvmOverloads constructor(
         // mainContainer.updateLayoutParams<MarginLayoutParams> {
         //     height = widgetSize.height + context.dpToPx(12 * 2)
         // }
-        // renderer.render(remoteView!!, params)
+
+        renderer.render(remoteView!!, params)
     }
 }

@@ -19,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
+import com.rainyseason.cj.common.model.ThemeJsonAdapter
 import com.rainyseason.cj.common.model.TimeIntervalJsonAdapter
 import com.rainyseason.cj.data.CoinHistory
 import com.rainyseason.cj.data.CommonStorage
@@ -37,6 +38,7 @@ import com.rainyseason.cj.watch.WatchListFragmentModule
 import com.rainyseason.cj.widget.watch.Watch
 import com.rainyseason.cj.widget.watch.WatchPreviewFragmentModule
 import com.rainyseason.cj.widget.watch.WatchSettingActivityModule
+import com.rainyseason.cj.widget.watch.WatchWidgetLayoutJsonAdapter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.addAdapter
 import dagger.Binds
@@ -181,6 +183,8 @@ object AppProvides {
     fun moshi(): Moshi {
         return Moshi.Builder()
             .addAdapter(TimeIntervalJsonAdapter)
+            .addAdapter(WatchWidgetLayoutJsonAdapter)
+            .addAdapter(ThemeJsonAdapter)
             .build()
     }
 
