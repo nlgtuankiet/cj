@@ -129,8 +129,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
                     if (userSetting == null || watchlist == null || config == null) {
                         null
                     } else {
-                        // TODO replace with widget type
-                        Triple(userSetting.currencyCode, config.interval, watchlist.take(3))
+                        Triple(userSetting.currencyCode, config.interval, watchlist)
                     }
                 }
                 .distinctUntilChanged()
