@@ -16,7 +16,7 @@ class SettingAdvanceView @JvmOverloads constructor(
     attributeSet: AttributeSet? = null
 ) : FrameLayout(context, attributeSet) {
     init {
-        inflateAndAdd(R.layout.setting_title_summary_view)
+        inflateAndAdd(R.layout.setting_advance_view)
     }
 
     private val titleView = findViewById<TextView>(R.id.title)

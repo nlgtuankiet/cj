@@ -7,11 +7,10 @@
     android:background="?selectableItemBackground"
     tools:ignore="Overdraw">
 
-
     <ImageView
+        android:scaleType="center"
         android:src="@drawable/ic_baseline_keyboard_arrow_down_24"
         android:id="@+id/icon"
-        android:layout_marginStart="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"

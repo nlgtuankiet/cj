@@ -102,6 +102,7 @@ class WatchWidgetRender @Inject constructor(
         height: Int,
         data: WatchDisplayEntryContent?
     ): View {
+        val config = params.config
         val binding = WidgetWatchEntryBinding.inflate(container.inflater, container, false)
         binding.root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
             this.height = height
@@ -111,7 +112,7 @@ class WatchWidgetRender @Inject constructor(
             View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY),
         )
         binding.root.layout(0, 0, container.width, height)
-        val theme = params.config.theme
+        val theme = config.theme
 
 
 
@@ -150,11 +151,11 @@ class WatchWidgetRender @Inject constructor(
             numberFormater.formatAmount(
                 price,
                 currencyCode = params.config.currency,
-                roundToMillion = true,
-                numberOfDecimal = 2,
-                hideOnLargeAmount = true,
-                showCurrencySymbol = true,
-                showThousandsSeparator = true
+                roundToMillion = config.roundToMillion,
+                numberOfDecimal = config.numberOfAmountDecimal,
+                hideOnLargeAmount = config.hideDecimalOnLargePrice,
+                showCurrencySymbol = config.showCurrencySymbol,
+                showThousandsSeparator = config.showThousandsSeparator
             )
         } else {
             ""

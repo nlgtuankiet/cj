@@ -38,6 +38,21 @@ data class WatchConfig(
     @Json(name = "background_transparency")
     val backgroundTransparency: Int = 0,
 
+    @Json(name = "number_of_price_decimal")
+    val numberOfAmountDecimal: Int = 2,
+
+    @Json(name = "round_to_million")
+    val roundToMillion: Boolean = true,
+
+    @Json(name = "show_currency_symbol")
+    val showCurrencySymbol: Boolean = true,
+
+    @Json(name = "show_thousands_separator")
+    val showThousandsSeparator: Boolean = true,
+
+    @Json(name = "hide_decimal_on_large_price")
+    val hideDecimalOnLargePrice: Boolean = true,
+
     ) {
     companion object {
         const val MIN_WIDGET_WIDTH = 330

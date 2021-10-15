@@ -98,6 +98,8 @@
     <string name="watch_list_menu_add">Add to watch list</string>
 
     <string name="setting_show_advance">Advanced</string>
-    <string name="setting_show_advance_summary">Price decimals, Change percent decimals, Change interval</string>
+    <string name="setting_show_advance_summary">Price format, Change percent, Behavior</string>
+
+    <string name="setting_price_format_title">Price format</string>
 
 </resources>

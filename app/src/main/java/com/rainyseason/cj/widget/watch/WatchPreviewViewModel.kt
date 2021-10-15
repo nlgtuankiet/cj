@@ -281,6 +281,22 @@ class WatchPreviewViewModel @AssistedInject constructor(
         setState { copy(showAdvanceSetting = true) }
     }
 
+    fun setNumberOfDecimal(value: Int) {
+        updateConfig { copy(numberOfAmountDecimal = value) }
+    }
+
+    fun switchRoundToMillion() {
+        updateConfig { copy(roundToMillion = !roundToMillion) }
+    }
+
+    fun switchShowThousandsSeparator() {
+        updateConfig { copy(showThousandsSeparator = !showThousandsSeparator) }
+    }
+
+    fun switchHideDecimalOnLargePrice() {
+        updateConfig { copy(hideDecimalOnLargePrice = !hideDecimalOnLargePrice) }
+    }
+
     @AssistedFactory
     interface Factory {
         fun create(

@@ -8,10 +8,13 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.setCancelButton
+import com.rainyseason.cj.common.view.IntLabelFormater
 import com.rainyseason.cj.common.view.PercentLabelFormatrer
 import com.rainyseason.cj.common.view.SizeLabelFormatter
 import com.rainyseason.cj.common.view.settingAdvanceView
+import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.common.view.settingSliderView
+import com.rainyseason.cj.common.view.settingSwitchView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -33,6 +36,91 @@ class WatchController @AssistedInject constructor(
         buildBackgroundTransparency(state)
 
         buildAdvanceSettingTitle(state)
+        buildAdvanceSettings(state)
+    }
+
+    private fun buildAdvanceSettings(state: WatchPreviewState) {
+        if (!state.showAdvanceSetting) {
+            return
+        }
+
+        buildPriceFormatGroup(state)
+    }
+
+    private fun buildPriceFormatGroup(state: WatchPreviewState) {
+
+        settingHeaderView {
+            id("setting_header_price_format")
+            content(R.string.setting_price_format_title)
+        }
+        buildAmountDecimal(state)
+        buildRoundToMillion(state)
+        buildShowThousandSeparator(state)
+        buildHideDecimalOnLargePrice(state)
+    }
+
+    private fun buildHideDecimalOnLargePrice(state: WatchPreviewState) {
+        val config = state.config ?: return
+        maybeBuildHorizontalSeparator(id = "hide_decimal_separator")
+
+        settingSwitchView {
+            id("hide_decimal")
+            title(R.string.coin_ticker_preview_setting_hide_decimal)
+            checked(config.hideDecimalOnLargePrice)
+            onClickListener { _ ->
+                viewModel.switchHideDecimalOnLargePrice()
+            }
+        }
+    }
+
+    private fun buildShowThousandSeparator(state: WatchPreviewState) {
+        val config = state.config ?: return
+
+        maybeBuildHorizontalSeparator(id = "show_thousand_separator_separator")
+
+        settingSwitchView {
+            id("show_thousand_separator")
+            title(R.string.coin_ticker_preview_setting_show_thousands_separator)
+            checked(config.showThousandsSeparator)
+            onClickListener { _ ->
+                viewModel.switchShowThousandsSeparator()
+            }
+        }
+    }
+
+    private fun buildRoundToMillion(state: WatchPreviewState) {
+        val config = state.config ?: return
+
+        maybeBuildHorizontalSeparator(id = "round_to_million_separator")
+
+        settingSwitchView {
+            id("round_to_million")
+            title(R.string.coin_ticker_preview_setting_round_to_million)
+            checked(config.roundToMillion)
+            onClickListener { _ ->
+                viewModel.switchRoundToMillion()
+            }
+        }
+    }
+
+    private fun buildAmountDecimal(state: WatchPreviewState) {
+        val config = state.config ?: return
+        val priceDecimal = config.numberOfAmountDecimal
+
+        maybeBuildHorizontalSeparator(id = "amount_decimal_separator")
+
+        settingSliderView {
+            id("amount_decimal")
+            title(R.string.number_of_price_decimal)
+            labelFormatter(IntLabelFormater)
+            valueFrom(0)
+            valueTo(15)
+            stepSize(1)
+            value(priceDecimal)
+            onChangeListener { value ->
+                viewModel.setNumberOfDecimal(value)
+            }
+        }
     }
 
     private fun buildAdvanceSettingTitle(state: WatchPreviewState) {
