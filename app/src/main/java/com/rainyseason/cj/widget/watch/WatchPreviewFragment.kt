@@ -7,7 +7,9 @@ import androidx.fragment.app.Fragment
 import androidx.transition.TransitionManager
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
+import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.saveOrShowBatteryOptimize
 import com.rainyseason.cj.databinding.WatchPreviewFragmentBinding
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -84,6 +86,23 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
 
         binding.previewView.setOnScaleClickListener {
             viewModel.switchScalePreview()
+        }
+        binding.saveButton.setOnClickListener {
+            save()
+        }
+    }
+
+    private fun save() {
+        fun actualSave() {
+            // viewModel.save()
+            val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
+            // TODO improve
+            val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
+            // (requireActivity() as CoinTickerWidgetSaver).saveWidget(config, displayData)
+        }
+
+        saveOrShowBatteryOptimize {
+            actualSave()
         }
     }
 

@@ -47,6 +47,30 @@ class WatchController @AssistedInject constructor(
 
         buildPriceFormatGroup(state)
         buildChangePercentGroup(state)
+        buildBehaviorGroup(state)
+    }
+
+    private fun buildBehaviorGroup(state: WatchPreviewState) {
+        settingHeaderView {
+            id("setting_header_behavior")
+            content(R.string.setting_behavior_title)
+        }
+
+        buildBatteryWarning(state)
+    }
+
+    private fun buildBatteryWarning(state: WatchPreviewState) {
+        val config = state.config ?: return
+        maybeBuildHorizontalSeparator(id = "show_battery_warning_separator")
+
+        settingSwitchView {
+            id("show_battery_warning")
+            title(R.string.coin_ticker_preview_setting_show_battery_warning)
+            checked(config.showBatteryWarning)
+            onClickListener { _ ->
+                viewModel.switchShowBatteryWarning()
+            }
+        }
     }
 
     private fun buildChangePercentGroup(state: WatchPreviewState) {

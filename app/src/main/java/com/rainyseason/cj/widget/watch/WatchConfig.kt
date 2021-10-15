@@ -53,6 +53,9 @@ data class WatchConfig(
     @Json(name = "number_of_change_percent_decimal")
     val numberOfChangePercentDecimal: Int = 1,
 
+    @Json(name = "show_battery_warning")
+    val showBatteryWarning: Boolean = true,
+
     ) {
     companion object {
         const val MIN_WIDGET_WIDTH = 330

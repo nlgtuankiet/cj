@@ -103,5 +103,6 @@
 
     <string name="setting_price_format_title">Price format</string>
     <string name="setting_price_change_percent_title">Price format</string>
+    <string name="setting_behavior_title">Behavior</string>
 
 </resources>

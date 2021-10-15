@@ -305,6 +305,10 @@ class WatchPreviewViewModel @AssistedInject constructor(
         updateConfig { copy(numberOfChangePercentDecimal = value) }
     }
 
+    fun switchShowBatteryWarning() {
+        updateConfig { copy(showBatteryWarning = !showBatteryWarning) }
+    }
+
     @AssistedFactory
     interface Factory {
         fun create(
