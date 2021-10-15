@@ -90,6 +90,9 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
         binding.saveButton.setOnClickListener {
             save()
         }
+        binding.backButton.setOnClickListener {
+            requireActivity().onBackPressed()
+        }
     }
 
     private fun save() {
