@@ -41,7 +41,6 @@ class WatchWidgetRender @Inject constructor(
 ) {
 
     private fun FrameLayout.measureAndLayout(config: WatchConfig) {
-        Timber.d("measureAndLayout: config: ${config.layout}")
         val size = getWidgetSize(config)
         val specsWidth = View.MeasureSpec.makeMeasureSpec(size.width, View.MeasureSpec.EXACTLY)
         val specsHeight = View.MeasureSpec.makeMeasureSpec(size.height, View.MeasureSpec.EXACTLY)
@@ -226,8 +225,27 @@ class WatchWidgetRender @Inject constructor(
             )
         )
 
+        val widgetSize = getWidgetSize(params.config)
+
+        run {
+            // constraint widget size
+            val specsWidth = View.MeasureSpec.makeMeasureSpec(
+                widgetSize.width,
+                View.MeasureSpec.EXACTLY
+            )
+            val specsHeight = View.MeasureSpec.makeMeasureSpec(
+                widgetSize.height,
+                View.MeasureSpec.EXACTLY
+            )
+            binding.root.apply {
+                layoutParams = FrameLayout.LayoutParams(widgetSize.width, widgetSize.height)
+                measure(specsWidth, specsHeight)
+                layout(0, 0, specsWidth, specsHeight)
+            }
+        }
+
         val entryLimit = params.config.layout.entryLimit
-        val widgetHeight = getWidgetSize(params.config).height.toDouble()
+        val widgetHeight = widgetSize.height.toDouble()
         val totalSeparatorHeight = context.dpToPxF((entryLimit - 1) * 1f)
         val height = ((widgetHeight - totalSeparatorHeight) / entryLimit).toInt()
 

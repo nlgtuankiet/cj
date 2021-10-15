@@ -29,6 +29,17 @@
                 android:resource="@xml/widget_watch_4x2_info" />
         </receiver>
 
+        <receiver
+            android:name=".widget.watch.WatchWidget4x4Provider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_watch_4x4_info" />
+        </receiver>
+
         <activity
             android:name=".widget.watch.WatchSettingActivity"
             android:exported="true">
