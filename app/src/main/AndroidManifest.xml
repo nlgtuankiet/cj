@@ -23,6 +23,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.rainyseason.cj.widget.watchlist.click" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -34,6 +35,7 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.rainyseason.cj.widget.watchlist.click" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -49,6 +51,7 @@
         </activity>
 
         <activity
+            android:launchMode="singleTask"
             android:name="com.rainyseason.cj.MainActivity"
             android:exported="true">
             <intent-filter>

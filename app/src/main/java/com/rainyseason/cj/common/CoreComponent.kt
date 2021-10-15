@@ -11,6 +11,7 @@ import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
 import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.widget.watch.WatchWidgetHandler
 import com.rainyseason.cj.widget.watch.WatchWidgetRender
 import com.squareup.moshi.Moshi
 import okhttp3.Call
@@ -21,6 +22,7 @@ interface CoreComponent {
     val watchWidgetRenderer: WatchWidgetRender
     val appWidgetManager: AppWidgetManager
     val coinTickerHandler: CoinTickerHandler
+    val watchWidgetHandler: WatchWidgetHandler
     val coinGeckoService: CoinGeckoService
     val moshi: Moshi
     val coinTickerRepository: CoinTickerRepository

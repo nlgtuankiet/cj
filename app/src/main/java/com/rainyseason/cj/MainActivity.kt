@@ -1,8 +1,10 @@
 package com.rainyseason.cj
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.createGraph
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.fragment
 import androidx.navigation.ui.setupWithNavController
@@ -18,6 +20,7 @@ import com.rainyseason.cj.watch.WatchListFragment
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.ContributesAndroidInjector
+import timber.log.Timber
 
 @Module
 interface MainActivityModule {
@@ -64,5 +67,19 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(R.id.detail, CoinDetailArgs(coinId).asArgs())
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        Timber.d("onNewIntent: $intent")
+        val screenId = intent.extras?.getInt(SCREEN_TO_OPEN_EXTRA)
+        if (screenId != null) {
+            findNavController(R.id.nav_host_fragment)
+                .navigate(screenId)
+        }
+    }
+
+    companion object {
+        const val SCREEN_TO_OPEN_EXTRA = "SCREEN_TO_OPEN"
     }
 }

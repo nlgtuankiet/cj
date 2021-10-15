@@ -57,6 +57,39 @@ class WatchController @AssistedInject constructor(
         }
 
         buildBatteryWarning(state)
+        buildClickAction(state)
+    }
+
+    private fun buildClickAction(state: WatchPreviewState) {
+        val config = state.config ?: return
+        val optionsToString = listOf(
+            WatchClickAction.OpenWatchlist
+                to R.string.watch_preview_click_action_open_watchlist,
+            WatchClickAction.Refresh
+                to R.string.coin_ticker_preview_setting_header_click_action_refresh,
+        ).map { it.first to context.getString(it.second) }
+        val selectedOption = config.clickAction
+        maybeBuildHorizontalSeparator(id = "setting_click_action_separator")
+        settingTitleSummaryView {
+            id("setting_click_action")
+            title(R.string.coin_ticker_preview_setting_header_click_action)
+            summary(optionsToString.toMap()[selectedOption]!!)
+            onClickListener { _ ->
+                val currentState = withState(viewModel) { it }
+                val currentOption = currentState.config!!.clickAction
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_setting_header_click_action)
+                    .setCancelButton()
+                    .setSingleChoiceItems(
+                        optionsToString.map { it.second }.toTypedArray(),
+                        optionsToString.indexOfFirst { it.first == currentOption }
+                    ) { dialog, which ->
+                        viewModel.setClickAction(optionsToString[which].first)
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
     }
 
     private fun buildBatteryWarning(state: WatchPreviewState) {

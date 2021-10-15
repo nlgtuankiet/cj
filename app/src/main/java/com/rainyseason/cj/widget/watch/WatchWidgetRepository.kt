@@ -43,6 +43,11 @@ class WatchWidgetRepository @Inject constructor(
             .distinctUntilChanged()
     }
 
+    suspend fun getDisplayData(widgetId: Int): WatchDisplayData? {
+        return storage.data.first()[displayDataKey(widgetId)]
+            ?.let { displayDataAdapter.fromJson(it) }
+    }
+
     fun getConfigStream(widgetId: Int): Flow<WatchConfig> {
         return storage.data.mapNotNull { it[configKey(widgetId)] }
             .map { configAdapter.fromJson(it)!! }

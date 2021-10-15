@@ -313,6 +313,10 @@ class WatchPreviewViewModel @AssistedInject constructor(
         saved = true
     }
 
+    fun setClickAction(action: WatchClickAction) {
+        updateConfig { copy(clickAction = action) }
+    }
+
     @AssistedFactory
     interface Factory {
         fun create(

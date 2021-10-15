@@ -36,6 +36,7 @@ import com.rainyseason.cj.tracking.AppTracker
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.watch.WatchListFragmentModule
 import com.rainyseason.cj.widget.watch.Watch
+import com.rainyseason.cj.widget.watch.WatchClickActionJsonAdapter
 import com.rainyseason.cj.widget.watch.WatchPreviewFragmentModule
 import com.rainyseason.cj.widget.watch.WatchSettingActivityModule
 import com.rainyseason.cj.widget.watch.WatchWidgetLayoutJsonAdapter
@@ -185,6 +186,7 @@ object AppProvides {
             .addAdapter(TimeIntervalJsonAdapter)
             .addAdapter(WatchWidgetLayoutJsonAdapter)
             .addAdapter(ThemeJsonAdapter)
+            .addAdapter(WatchClickActionJsonAdapter)
             .build()
     }
 

@@ -56,7 +56,10 @@ data class WatchConfig(
     @Json(name = "show_battery_warning")
     val showBatteryWarning: Boolean = true,
 
-    ) {
+    @Json(name = "click_action")
+    val clickAction: WatchClickAction = WatchClickAction.OpenWatchlist
+
+) {
     fun getTrackingParams(): Map<String, Any?> {
         // TODO
         return emptyMap()

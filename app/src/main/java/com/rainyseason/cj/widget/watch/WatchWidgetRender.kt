@@ -1,7 +1,10 @@
 package com.rainyseason.cj.widget.watch
 
+import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -272,7 +275,38 @@ class WatchWidgetRender @Inject constructor(
 
         applyBackgroundTransparency(binding.container, config)
 
-        // TODO remoteViews.applyClickAction(params)
+        remoteViews.applyClickAction(params)
+    }
+
+    /**
+     * Start activity from background?
+     * We will test this because our case may fall into:
+     *
+     * The app receives a notification PendingIntent from the system. In the case of pending
+     * intents for services and broadcast receivers, the app can start activities for a few seconds
+     * after the pending intent is sent.
+     */
+    private fun RemoteViews.applyClickAction(params: WatchWidgetRenderParams) {
+        if (params.isPreview) {
+            return
+        }
+
+        val clazz = when (params.config.layout) {
+            WatchWidgetLayout.Watch4x2 -> WatchWidget4x2Provider::class.java
+            WatchWidgetLayout.Watch4x4 -> WatchWidget4x4Provider::class.java
+        }
+
+        val intent = Intent(context, clazz)
+        intent.action = WatchClickAction.NAME
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, params.config.widgetId)
+        @SuppressLint("UnspecifiedImmutableFlag")
+        val pendingIntent = PendingIntent.getBroadcast(
+            context,
+            params.config.widgetId,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+        setOnClickPendingIntent(R.id.widget_container, pendingIntent)
     }
 
     private fun applyBackgroundTransparency(
