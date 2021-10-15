@@ -35,6 +35,9 @@ data class WatchConfig(
     @Json(name = "size_adjustment")
     val sizeAdjustment: Int = 0,
 
+    @Json(name = "background_transparency")
+    val backgroundTransparency: Int = 0,
+
     ) {
     companion object {
         const val MIN_WIDGET_WIDTH = 330

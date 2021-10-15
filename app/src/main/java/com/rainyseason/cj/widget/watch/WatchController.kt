@@ -8,6 +8,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.setCancelButton
+import com.rainyseason.cj.common.view.PercentLabelFormatrer
 import com.rainyseason.cj.common.view.SizeLabelFormatter
 import com.rainyseason.cj.common.view.settingSliderView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
@@ -28,6 +29,25 @@ class WatchController @AssistedInject constructor(
         buildCurrency(state)
         buildTheme(state)
         buildSizeAdjustment(state)
+        buildBackgroundTransparency(state)
+    }
+
+    private fun buildBackgroundTransparency(state: WatchPreviewState) {
+        val config = state.config ?: return
+        maybeBuildHorizontalSeparator(id = "separator_background_transparency")
+
+        settingSliderView {
+            id("setting_background_transparency")
+            title(R.string.coin_ticker_preview_setting_background_transparency)
+            valueFrom(0)
+            valueTo(100)
+            stepSize(5)
+            value(config.backgroundTransparency)
+            labelFormatter(PercentLabelFormatrer)
+            onChangeListener { newValue ->
+                viewModel.setBackgroundTransparency(newValue)
+            }
+        }
     }
 
     private fun buildSizeAdjustment(state: WatchPreviewState) {

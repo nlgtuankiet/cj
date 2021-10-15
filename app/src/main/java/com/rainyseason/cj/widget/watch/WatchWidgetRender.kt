@@ -269,9 +269,18 @@ class WatchWidgetRender @Inject constructor(
         }
         container.measureAndLayout(config)
 
-        // TODO applyBackgroundTransparency(binding.container, config)
+        applyBackgroundTransparency(binding.container, config)
 
         // TODO remoteViews.applyClickAction(params)
+    }
+
+    private fun applyBackgroundTransparency(
+        background: View,
+        config: WatchConfig,
+    ) {
+        background.background?.mutate()?.apply {
+            alpha = ((100 - config.backgroundTransparency.toDouble()) / 100 * 255).toInt()
+        }
     }
 
     fun render(
