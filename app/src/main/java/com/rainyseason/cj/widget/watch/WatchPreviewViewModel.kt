@@ -44,6 +44,7 @@ data class WatchPreviewState(
     val coinMarket: Map<String, Async<MarketChartResponse>> = emptyMap(),
     val previewScale: Double? = null,
     val scalePreview: Boolean = false,
+    val showAdvanceSetting: Boolean = false,
 ) : MavericksState {
     val config: WatchConfig?
         get() = savedConfig.invoke()
@@ -274,6 +275,10 @@ class WatchPreviewViewModel @AssistedInject constructor(
 
     fun setBackgroundTransparency(value: Int) {
         updateConfig { copy(backgroundTransparency = value) }
+    }
+
+    fun showAdvanced() {
+        setState { copy(showAdvanceSetting = true) }
     }
 
     @AssistedFactory

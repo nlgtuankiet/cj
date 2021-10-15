@@ -97,4 +97,7 @@
     <string name="watch_list_menu_remove">Remove from watch list</string>
     <string name="watch_list_menu_add">Add to watch list</string>
 
+    <string name="setting_show_advance">Advanced</string>
+    <string name="setting_show_advance_summary">Price decimals, Change percent decimals, Change interval</string>
+
 </resources>

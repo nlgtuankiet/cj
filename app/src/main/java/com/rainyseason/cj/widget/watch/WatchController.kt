@@ -10,6 +10,7 @@ import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.setCancelButton
 import com.rainyseason.cj.common.view.PercentLabelFormatrer
 import com.rainyseason.cj.common.view.SizeLabelFormatter
+import com.rainyseason.cj.common.view.settingAdvanceView
 import com.rainyseason.cj.common.view.settingSliderView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
 import dagger.assisted.Assisted
@@ -30,6 +31,22 @@ class WatchController @AssistedInject constructor(
         buildTheme(state)
         buildSizeAdjustment(state)
         buildBackgroundTransparency(state)
+
+        buildAdvanceSettingTitle(state)
+    }
+
+    private fun buildAdvanceSettingTitle(state: WatchPreviewState) {
+        if (state.showAdvanceSetting) {
+            return
+        }
+        settingAdvanceView {
+            id("setting_advance_view")
+            title(R.string.setting_show_advance)
+            summary(R.string.setting_show_advance_summary)
+            onClickListener { _ ->
+                viewModel.showAdvanced()
+            }
+        }
     }
 
     private fun buildBackgroundTransparency(state: WatchPreviewState) {
