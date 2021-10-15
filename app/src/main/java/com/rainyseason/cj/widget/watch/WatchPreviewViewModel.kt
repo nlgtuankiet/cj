@@ -13,6 +13,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.getWidgetId
+import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.model.asDayString
 import com.rainyseason.cj.common.update
@@ -257,6 +258,18 @@ class WatchPreviewViewModel @AssistedInject constructor(
         viewModelScope.launch {
             watchWidgetRepository.setConfig(args.widgetId, config)
         }
+    }
+
+    fun setCurrency(value: String) {
+        updateConfig { copy(currency = value) }
+    }
+
+    fun setTheme(value: Theme) {
+        updateConfig { copy(theme = value) }
+    }
+
+    fun setAdjustment(value: Int) {
+        updateConfig { copy(sizeAdjustment = value) }
     }
 
     @AssistedFactory

@@ -32,6 +32,9 @@ data class WatchConfig(
     @Json(name = "refresh_interval_unit")
     val refreshIntervalUnit: TimeUnit = TimeUnit.HOURS,
 
+    @Json(name = "size_adjustment")
+    val sizeAdjustment: Int = 0,
+
     ) {
     companion object {
         const val MIN_WIDGET_WIDTH = 330

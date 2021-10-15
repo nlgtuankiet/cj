@@ -13,6 +13,7 @@ import android.widget.RemoteViews
 import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
+import androidx.core.view.updateLayoutParams
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.GraphRenderer
@@ -63,6 +64,8 @@ class WatchWidgetRender @Inject constructor(
             )
         val size = minHeight.coerceAtMost(minWidth)
             .coerceAtLeast(context.dpToPx(WatchConfig.MIN_WIDGET_WIDTH))
+            .plus(context.dpToPx(config.sizeAdjustment))
+
         val separatorCount = config.layout.entryLimit - 1
         val finalWidth = size + context.dpToPx(separatorCount * 1)
         val finalHeight = when (config.layout) {
@@ -100,7 +103,9 @@ class WatchWidgetRender @Inject constructor(
         data: WatchDisplayEntryContent?
     ): View {
         val binding = WidgetWatchEntryBinding.inflate(container.inflater, container, false)
-
+        binding.root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            this.height = height
+        }
         binding.root.measure(
             View.MeasureSpec.makeMeasureSpec(container.width, View.MeasureSpec.UNSPECIFIED),
             View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY),

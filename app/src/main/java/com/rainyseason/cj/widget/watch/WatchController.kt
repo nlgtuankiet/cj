@@ -5,7 +5,11 @@ import androidx.appcompat.app.AlertDialog
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.SUPPORTED_CURRENCY
+import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.setCancelButton
+import com.rainyseason.cj.common.view.SizeLabelFormatter
+import com.rainyseason.cj.common.view.settingSliderView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -18,9 +22,93 @@ class WatchController @AssistedInject constructor(
 ) : AsyncEpoxyController() {
 
     override fun buildModels() {
-        val state = withState(viewModel) { it }
+        val state: WatchPreviewState = withState(viewModel) { it }
 
         buildRefreshInternal(state)
+        buildCurrency(state)
+        buildTheme(state)
+        buildSizeAdjustment(state)
+    }
+
+    private fun buildSizeAdjustment(state: WatchPreviewState) {
+        val config = state.config ?: return
+        maybeBuildHorizontalSeparator(id = "size_adjustment_separator")
+
+        settingSliderView {
+            id("setting_size_adjustment")
+            title(R.string.coin_ticker_preview_setting_size_adjustment)
+            valueFrom(-24)
+            valueTo(24)
+            stepSize(4)
+            value(config.sizeAdjustment)
+            labelFormatter(SizeLabelFormatter)
+            onChangeListener { value ->
+                viewModel.setAdjustment(value)
+            }
+        }
+    }
+
+    private fun buildTheme(state: WatchPreviewState) {
+        val config = state.config ?: return
+        val theme = config.theme
+        val themeToSummary = mapOf(
+            Theme.Auto to R.string.coin_ticker_preview_setting_theme_default,
+            Theme.Light to R.string.coin_ticker_preview_setting_theme_light,
+            Theme.Dark to R.string.coin_ticker_preview_setting_theme_dark,
+        )
+        maybeBuildHorizontalSeparator(id = "setting_theme_separator")
+        settingTitleSummaryView {
+            id("setting-theme")
+            title(R.string.coin_ticker_preview_setting_theme)
+            summary(context.getString(themeToSummary[theme]!!))
+            onClickListener { _ ->
+                val currentConfig = withState(viewModel) { it.config } ?: return@onClickListener
+                val themeToSummaryString = themeToSummary.mapValues { context.getString(it.value) }
+                val selectedTheme = currentConfig.theme
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_setting_theme)
+                    .setCancelButton()
+                    .setSingleChoiceItems(
+                        themeToSummaryString.values.toTypedArray(),
+                        themeToSummaryString.keys.indexOfFirst { selectedTheme == it },
+                    ) { dialog, which ->
+                        val select = themeToSummaryString.keys.toList()[which]
+                        viewModel.setTheme(select)
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
+    }
+
+    private fun buildCurrency(state: WatchPreviewState) {
+        val config = state.config ?: return
+        val currencyCodeToString = SUPPORTED_CURRENCY.mapValues {
+            it.value.name
+        }.toList().sortedBy { it.first }
+
+        val selectedOption = config.currency
+        maybeBuildHorizontalSeparator(id = "setting_currency_separator")
+        settingTitleSummaryView {
+            id("setting_currency")
+            title(R.string.coin_ticker_preview_setting_header_currency)
+            summary(currencyCodeToString.toMap()[selectedOption]!!)
+            onClickListener { _ ->
+                val currentState = withState(viewModel) { it }
+                val currentOption = currentState.config!!.currency
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_setting_header_currency)
+                    .setCancelButton()
+                    .setSingleChoiceItems(
+                        currencyCodeToString.map { it.second }.toTypedArray(),
+                        currencyCodeToString.indexOfFirst { it.first == currentOption }
+                    ) { dialog, which ->
+                        viewModel.setCurrency(currencyCodeToString[which].first)
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
     }
 
     private var addSeparator = true

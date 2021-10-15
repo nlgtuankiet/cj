@@ -61,6 +61,7 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
             )
         }
 
+        var oldScale: Double? = null
         viewModel.onEach(
             WatchPreviewState::config,
             WatchPreviewState::previewScale,
@@ -75,7 +76,10 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
                 1.0
             }
             binding.previewView.setScale(actualScale, config)
-            TransitionManager.beginDelayedTransition(binding.root)
+            if (oldScale != actualScale) {
+                oldScale = actualScale
+                TransitionManager.beginDelayedTransition(binding.root)
+            }
         }
 
         binding.previewView.setOnScaleClickListener {
