@@ -32,6 +32,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import java.util.concurrent.TimeUnit
 
 data class WatchPreviewState(
     val savedDisplayData: Async<WatchDisplayData> = Uninitialized,
@@ -205,6 +206,9 @@ class WatchPreviewViewModel @AssistedInject constructor(
             widgetId = args.widgetId,
             interval = TimeInterval.I_24H,
             currency = userSetting.currencyCode,
+            refreshInterval = userSetting.refreshInterval,
+            refreshIntervalUnit = userSetting.refreshIntervalUnit,
+            changePercentDecimal = userSetting.numberOfChangePercentDecimal ?: 1,
             layout = layout
         )
         watchWidgetRepository.setConfig(args.widgetId, config)
@@ -231,6 +235,28 @@ class WatchPreviewViewModel @AssistedInject constructor(
             }
         }
         super.onCleared()
+    }
+
+    fun setRefreshInternal(interval: Long, unit: TimeUnit) {
+        updateConfig {
+            copy(refreshInterval = interval, refreshIntervalUnit = unit)
+        }
+    }
+
+    private fun updateConfig(block: WatchConfig.() -> WatchConfig) {
+        withState { state ->
+            val config = state.savedConfig.invoke()
+            if (config != null) {
+                val newConfig = block.invoke(config)
+                maybeSaveConfig(newConfig)
+            }
+        }
+    }
+
+    private fun maybeSaveConfig(config: WatchConfig) {
+        viewModelScope.launch {
+            watchWidgetRepository.setConfig(args.widgetId, config)
+        }
     }
 
     @AssistedFactory

@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.transition.TransitionManager
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
@@ -29,7 +30,7 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
 
     val viewModel: WatchPreviewViewModel by fragmentViewModel()
 
-    private val controller by lazy { controllerFactory.create(viewModel) }
+    private val controller by lazy { controllerFactory.create(viewModel, requireContext()) }
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
@@ -74,6 +75,7 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
                 1.0
             }
             binding.previewView.setScale(actualScale, config)
+            TransitionManager.beginDelayedTransition(binding.root)
         }
 
         binding.previewView.setOnScaleClickListener {

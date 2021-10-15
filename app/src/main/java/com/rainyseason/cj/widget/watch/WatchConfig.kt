@@ -4,6 +4,7 @@ import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.util.concurrent.TimeUnit
 
 @JsonClass(generateAdapter = true)
 data class WatchConfig(
@@ -24,7 +25,14 @@ data class WatchConfig(
 
     @Json(name = "change_percent_decimal")
     val changePercentDecimal: Int = 1,
-) {
+
+    @Json(name = "refresh_interval")
+    val refreshInterval: Long = 1,
+
+    @Json(name = "refresh_interval_unit")
+    val refreshIntervalUnit: TimeUnit = TimeUnit.HOURS,
+
+    ) {
     companion object {
         const val MIN_WIDGET_WIDTH = 330
     }

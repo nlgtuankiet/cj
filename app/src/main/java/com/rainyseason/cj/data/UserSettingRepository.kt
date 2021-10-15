@@ -20,9 +20,9 @@ data class UserSetting(
     @Json(name = "currency_code")
     val currencyCode: String = "usd",
     @Json(name = "refresh_interval")
-    val refreshInterval: Long = 60,
+    val refreshInterval: Long = 1,
     @Json(name = "refresh_interval_unit")
-    val refreshIntervalUnit: TimeUnit = TimeUnit.MINUTES,
+    val refreshIntervalUnit: TimeUnit = TimeUnit.HOURS,
     @Json(name = "amount_decimals")
     val amountDecimals: Int? = 2,
     @Json(name = "round_to_million")
