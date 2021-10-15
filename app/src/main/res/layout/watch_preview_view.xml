@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="185dp">
+    android:layout_height="281dp">
 
     <ImageView
         android:id="@+id/preview_background"
@@ -31,12 +31,13 @@
         android:id="@+id/progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="@id/preview_container"
+        app:layout_constraintEnd_toEndOf="@id/preview_container"
+        app:layout_constraintStart_toStartOf="@id/preview_container"
+        app:layout_constraintTop_toTopOf="@id/preview_container" />
 
     <ImageView
+        android:visibility="gone"
         android:id="@+id/capture"
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -48,4 +49,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription" />
+
+    <TextView
+        android:textColor="@color/white"
+        style="@style/Theme.CryptoJet.Text.Medium"
+        android:gravity="center"
+        android:textAlignment="gravity"
+        android:text="1:1"
+        android:id="@+id/scale"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/watch_one_to_one_background"
+        android:scaleType="centerInside"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription,HardcodedText" />
 </androidx.constraintlayout.widget.ConstraintLayout>

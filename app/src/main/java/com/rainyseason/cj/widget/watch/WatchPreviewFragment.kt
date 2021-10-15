@@ -59,6 +59,26 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
                 params = params
             )
         }
+
+        viewModel.onEach(
+            WatchPreviewState::config,
+            WatchPreviewState::previewScale,
+            WatchPreviewState::scalePreview,
+        ) { config, previewScale, scalePreview ->
+            if (config == null || previewScale == null) {
+                return@onEach
+            }
+            val actualScale = if (scalePreview) {
+                previewScale
+            } else {
+                1.0
+            }
+            binding.previewView.setScale(actualScale, config)
+        }
+
+        binding.previewView.setOnScaleClickListener {
+            viewModel.switchScalePreview()
+        }
     }
 
     override fun invalidate() {

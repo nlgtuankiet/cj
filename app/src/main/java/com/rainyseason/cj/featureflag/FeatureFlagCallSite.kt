@@ -94,6 +94,7 @@ object DebugFlag {
     val SHOW_NETWORK_LOG = DebugKey("show_network_log").withDefault("false")
     val SHOW_TRIGGER_REVIEW_BUTTON = DebugKey("show_trigger_review_button")
         .withDefault("false")
+    val SHOW_CAPTURE_BUTTON = DebugKey("show_capture_button")
 }
 
 class DebugFlagSetter : AppCompatActivity() {

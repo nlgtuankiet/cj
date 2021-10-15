@@ -5,9 +5,13 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 
-enum class WatchWidgetLayout(val id: String, val layout: Int) {
-    Watch4x2("watch_4x2", R.layout.widget_watch_4x2_frame),
-    Watch4x4("watch_4x4", R.layout.widget_watch_4x2_frame),
+enum class WatchWidgetLayout(
+    val id: String,
+    val layout: Int,
+    val previewScale: Double,
+) {
+    Watch4x2("watch_4x2", R.layout.widget_watch_4x2_frame, 0.75),
+    Watch4x4("watch_4x4", R.layout.widget_watch_4x2_frame, 0.75),
     ;
 
     companion object {

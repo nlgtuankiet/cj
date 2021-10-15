@@ -39,6 +39,8 @@ data class WatchPreviewState(
     val userSetting: Async<UserSetting> = Uninitialized,
     val coinDetail: Map<String, Async<CoinDetailResponse>> = emptyMap(),
     val coinMarket: Map<String, Async<MarketChartResponse>> = emptyMap(),
+    val previewScale: Double? = null,
+    val scalePreview: Boolean = true,
 ) : MavericksState {
     val config: WatchConfig?
         get() = savedConfig.invoke()
@@ -181,17 +183,23 @@ class WatchPreviewViewModel @AssistedInject constructor(
             .execute { copy(watchlist = it) }
     }
 
+    fun switchScalePreview() {
+        setState { copy(scalePreview = !scalePreview) }
+    }
+
     private suspend fun saveInitialConfig() {
         val userSetting = userSettingRepository.getUserSetting()
         val defaultLayout = appWidgetManager.getAppWidgetInfo(args.widgetId)?.initialLayout
             ?: R.layout.widget_watch_4x2_frame
+        val layout = WatchWidgetLayout.fromDefaultLayout(defaultLayout)
         val config = WatchConfig(
             widgetId = args.widgetId,
             interval = TimeInterval.I_24H,
             currency = userSetting.currencyCode,
-            layout = WatchWidgetLayout.fromDefaultLayout(defaultLayout)
+            layout = layout
         )
         watchWidgetRepository.setConfig(args.widgetId, config)
+        setState { copy(previewScale = layout.previewScale) }
         loadConfig()
     }
 
