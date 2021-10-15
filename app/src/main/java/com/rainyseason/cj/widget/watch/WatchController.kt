@@ -1,9 +1,11 @@
 package com.rainyseason.cj.widget.watch
 
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AlertDialog
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
+import com.rainyseason.cj.MainActivity
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.model.Theme
@@ -29,7 +31,7 @@ class WatchController @AssistedInject constructor(
 
     override fun buildModels() {
         val state: WatchPreviewState = withState(viewModel) { it }
-
+        buildEditWatchList(state)
         buildRefreshInternal(state)
         buildCurrency(state)
         buildTheme(state)
@@ -38,6 +40,23 @@ class WatchController @AssistedInject constructor(
 
         buildAdvanceSettingTitle(state)
         buildAdvanceSettings(state)
+    }
+
+    private fun buildEditWatchList(state: WatchPreviewState) {
+        maybeBuildHorizontalSeparator(id = "edit_watchlist_separator")
+
+        settingTitleSummaryView {
+            id("amount_decimal")
+            title(R.string.watch_edit_watch_list)
+            summary(R.string.watch_edit_watch_list_summary)
+            onClickListener { _ ->
+                context.startActivity(
+                    Intent(context, MainActivity::class.java).apply {
+                        putExtra(MainActivity.SCREEN_TO_OPEN_EXTRA, R.id.watch_list_screen)
+                    }
+                )
+            }
+        }
     }
 
     private fun buildAdvanceSettings(state: WatchPreviewState) {

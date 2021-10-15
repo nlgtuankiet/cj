@@ -106,5 +106,7 @@
     <string name="setting_behavior_title">Behavior</string>
 
     <string name="watch_preview_click_action_open_watchlist">Open watchlist</string>
+    <string name="watch_edit_watch_list">Edit watchlist</string>
+    <string name="watch_edit_watch_list_summary">Add or remove coin, rearrange items</string>
 
 </resources>
