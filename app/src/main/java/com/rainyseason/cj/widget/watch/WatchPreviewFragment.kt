@@ -6,7 +6,6 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.transition.TransitionManager
 import com.airbnb.mvrx.MavericksView
-import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
@@ -99,8 +98,6 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
             val state = withState(viewModel) { it }
             val config = state.savedConfig.invoke() ?: return
             val displayData = state.savedDisplayData.invoke() ?: return
-            val allDone = state.coinMarket.values.all { it is Success }
-            if (!allDone) return
             (requireActivity() as WatchWidgetSaver).saveWidget(config, displayData)
         }
 
