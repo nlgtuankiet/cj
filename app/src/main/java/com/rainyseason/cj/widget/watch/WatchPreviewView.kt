@@ -4,12 +4,15 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.util.AttributeSet
 import android.util.Size
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import androidx.core.view.doOnPreDraw
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
+import androidx.transition.ChangeBounds
+import androidx.transition.TransitionManager
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.common.coreComponent
@@ -18,6 +21,7 @@ import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.databinding.WatchPreviewViewBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 
@@ -109,5 +113,10 @@ class WatchPreviewView @JvmOverloads constructor(
         }
 
         binding.scale.isSelected = scaled
+        Timber.d("beginDelayedTransition")
+        TransitionManager.beginDelayedTransition(
+            binding.container.parent as ViewGroup,
+            ChangeBounds()
+        )
     }
 }

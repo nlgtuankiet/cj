@@ -19,11 +19,12 @@ import com.rainyseason.cj.common.GraphRenderer
 import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.dpToPx
+import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.databinding.WatchWidgetEntryDividerBinding
-import com.rainyseason.cj.databinding.WidgetWatch4x2Binding
+import com.rainyseason.cj.databinding.WidgetWatchBinding
 import com.rainyseason.cj.databinding.WidgetWatchEntryBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
@@ -40,6 +41,7 @@ class WatchWidgetRender @Inject constructor(
 ) {
 
     private fun FrameLayout.measureAndLayout(config: WatchConfig) {
+        Timber.d("measureAndLayout: config: ${config.layout}")
         val size = getWidgetSize(config)
         val specsWidth = View.MeasureSpec.makeMeasureSpec(size.width, View.MeasureSpec.EXACTLY)
         val specsHeight = View.MeasureSpec.makeMeasureSpec(size.height, View.MeasureSpec.EXACTLY)
@@ -62,7 +64,8 @@ class WatchWidgetRender @Inject constructor(
             )
         val size = minHeight.coerceAtMost(minWidth)
             .coerceAtLeast(context.dpToPx(WatchConfig.MIN_WIDGET_WIDTH))
-        val finalWidth = size + 0 // TODO context.dpToPx(config.sizeAdjustment)
+        val separatorCount = config.layout.entryLimit - 1
+        val finalWidth = size + context.dpToPx(separatorCount * 1)
         val finalHeight = when (config.layout) {
             WatchWidgetLayout.Watch4x2 -> finalWidth / 2
             WatchWidgetLayout.Watch4x4 -> finalWidth
@@ -206,13 +209,11 @@ class WatchWidgetRender @Inject constructor(
         remoteViews: RemoteViews,
         params: WatchRenderParams
     ) {
-        val binding = WidgetWatch4x2Binding
+        val binding = WidgetWatchBinding
             .inflate(context.inflater(), container, true)
         val config = params.config
         val theme = config.theme
         val renderData = params.data
-
-
 
         remoteViews.bindLoading(params)
 
@@ -225,7 +226,10 @@ class WatchWidgetRender @Inject constructor(
             )
         )
 
-        val height = getWidgetSize(params.config).height / 3
+        val entryLimit = params.config.layout.entryLimit
+        val widgetHeight = getWidgetSize(params.config).height.toDouble()
+        val totalSeparatorHeight = context.dpToPxF((entryLimit - 1) * 1f)
+        val height = ((widgetHeight - totalSeparatorHeight) / entryLimit).toInt()
 
         renderData.entries.forEachIndexed { index, watchDisplayEntry ->
             val view = createEntryView(params, container, height, watchDisplayEntry.content)
@@ -256,6 +260,7 @@ class WatchWidgetRender @Inject constructor(
         val params = inputParams.maybePositive()
         when (inputParams.config.layout) {
             WatchWidgetLayout.Watch4x2 -> render4x2(container, remoteView, params)
+            WatchWidgetLayout.Watch4x4 -> render4x2(container, remoteView, params)
             else -> error("Unknown layout: ${params.config.layout}")
         }
         container.measureAndLayout(params.config)

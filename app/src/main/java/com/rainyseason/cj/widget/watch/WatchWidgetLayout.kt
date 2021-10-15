@@ -9,16 +9,17 @@ enum class WatchWidgetLayout(
     val id: String,
     val layout: Int,
     val previewScale: Double,
+    val entryLimit: Int,
 ) {
-    Watch4x2("watch_4x2", R.layout.widget_watch_4x2_frame, 0.75),
-    Watch4x4("watch_4x4", R.layout.widget_watch_4x2_frame, 0.75),
+    Watch4x2("watch_4x2", R.layout.widget_watch_4x2_frame, 0.75, 3),
+    Watch4x4("watch_4x4", R.layout.widget_watch_4x2_frame, 0.75, 6),
     ;
 
     companion object {
-        // TODO rewrite
         fun fromDefaultLayout(id: Int): WatchWidgetLayout {
             return when (id) {
                 R.layout.widget_watch_4x2_frame -> Watch4x2
+                R.layout.widget_watch_4x4_frame -> Watch4x4
                 else -> error("?")
             }
         }

@@ -17,7 +17,7 @@ data class WatchConfig(
     val currency: String = "usd",
 
     @Json(name = "type")
-    val layout: WatchWidgetLayout = WatchWidgetLayout.Watch4x2,
+    val layout: WatchWidgetLayout,
 
     @Json(name = "theme")
     val theme: Theme = Theme.Auto,

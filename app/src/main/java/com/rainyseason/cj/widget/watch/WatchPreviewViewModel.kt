@@ -28,6 +28,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
@@ -52,6 +53,7 @@ data class WatchPreviewState(
 @Parcelize
 data class WatchPreviewArgs(
     val widgetId: Int,
+    val debugLayout: String?,
 ) : Parcelable
 
 // for each coinid we need to load
@@ -87,10 +89,9 @@ class WatchPreviewViewModel @AssistedInject constructor(
         viewModelScope.launch {
             saveInitialConfig()
         }
-        loadCoinDetail()
         loadEachEntryData()
+        loadCoinDetail()
     }
-
 
     private fun loadCoinDetail() {
         loadCoinDetailJob?.cancel()
@@ -100,7 +101,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
             loadCoinDetailJobs.values.forEach { it.cancel() }
             setState { copy(coinDetail = emptyMap()) }
             // TODO replace with widget type
-            watchlist.take(3).forEach { coinId ->
+            watchlist.forEach { coinId ->
                 loadCoinDetailJobs[coinId] = suspend {
                     coinGeckoService.getCoinDetail(coinId)
                 }.execute { copy(coinDetail = coinDetail.update { put(coinId, it) }) }
@@ -178,8 +179,18 @@ class WatchPreviewViewModel @AssistedInject constructor(
         watchWidgetRepository.setDisplayData(args.widgetId, data)
     }
 
+    private fun getLayout(): WatchWidgetLayout {
+        if (args.debugLayout != null) {
+            return WatchWidgetLayout.values().first { it.id == args.debugLayout }
+        }
+        val defaultLayout = appWidgetManager.getAppWidgetInfo(args.widgetId)?.initialLayout
+            ?: R.layout.widget_watch_4x2_frame
+        return WatchWidgetLayout.fromDefaultLayout(defaultLayout)
+    }
+
     private fun loadWatchList() {
         watchListRepository.getWatchList()
+            .map { it.take(getLayout().entryLimit) }
             .execute { copy(watchlist = it) }
     }
 
@@ -189,9 +200,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
 
     private suspend fun saveInitialConfig() {
         val userSetting = userSettingRepository.getUserSetting()
-        val defaultLayout = appWidgetManager.getAppWidgetInfo(args.widgetId)?.initialLayout
-            ?: R.layout.widget_watch_4x2_frame
-        val layout = WatchWidgetLayout.fromDefaultLayout(defaultLayout)
+        val layout = getLayout()
         val config = WatchConfig(
             widgetId = args.widgetId,
             interval = TimeInterval.I_24H,
@@ -240,9 +249,12 @@ class WatchPreviewViewModel @AssistedInject constructor(
             val fragment = (viewModelContext as FragmentViewModelContext)
                 .fragment<WatchPreviewFragment>()
             val factory = fragment.viewModelFactory
-            val widgetId = fragment.requireActivity().intent.extras?.getWidgetId()
+            val extra = fragment.requireActivity().intent.extras
+            val widgetId = extra?.getWidgetId()
                 ?: throw IllegalArgumentException("missing widget id")
-            return factory.create(state, WatchPreviewArgs(widgetId))
+            val debugLayout = extra.getString("debug_layout")
+
+            return factory.create(state, WatchPreviewArgs(widgetId, debugLayout))
         }
     }
 }
