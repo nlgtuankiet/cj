@@ -80,12 +80,12 @@ class WatchWidgetRepository @Inject constructor(
             currencyCode = config.currency,
             refreshInterval = config.refreshInterval,
             refreshIntervalUnit = config.refreshIntervalUnit,
-            // amountDecimals = config.numberOfAmountDecimal,
-            // roundToMillion = config.roundToMillion,
-            // showCurrencySymbol = config.showCurrencySymbol,
-            // showThousandsSeparator = config.showThousandsSeparator,
-            // numberOfChangePercentDecimal = config.numberOfChangePercentDecimal,
-            // sizeAdjustment = config.sizeAdjustment,
+            amountDecimals = config.numberOfAmountDecimal,
+            roundToMillion = config.roundToMillion,
+            showCurrencySymbol = config.showCurrencySymbol,
+            showThousandsSeparator = config.showThousandsSeparator,
+            numberOfChangePercentDecimal = config.numberOfChangePercentDecimal,
+            sizeAdjustment = config.sizeAdjustment,
         )
         userSettingRepository.setUserSetting(userSetting)
     }
