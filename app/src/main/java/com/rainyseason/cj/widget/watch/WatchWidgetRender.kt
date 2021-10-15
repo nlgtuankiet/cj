@@ -190,7 +190,7 @@ class WatchWidgetRender @Inject constructor(
                 val content = numberFormater.formatPercent(
                     amount = amount,
                     locate = locate,
-                    numberOfDecimals = config.changePercentDecimal
+                    numberOfDecimals = config.numberOfChangePercentDecimal
                 )
 
                 color(color) {

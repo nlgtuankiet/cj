@@ -23,9 +23,6 @@ data class WatchConfig(
     @Json(name = "theme")
     val theme: Theme = Theme.Auto,
 
-    @Json(name = "change_percent_decimal")
-    val changePercentDecimal: Int = 1,
-
     @Json(name = "refresh_interval")
     val refreshInterval: Long = 1,
 
@@ -52,6 +49,9 @@ data class WatchConfig(
 
     @Json(name = "hide_decimal_on_large_price")
     val hideDecimalOnLargePrice: Boolean = true,
+
+    @Json(name = "number_of_change_percent_decimal")
+    val numberOfChangePercentDecimal: Int = 1,
 
     ) {
     companion object {

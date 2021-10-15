@@ -210,7 +210,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
             currency = userSetting.currencyCode,
             refreshInterval = userSetting.refreshInterval,
             refreshIntervalUnit = userSetting.refreshIntervalUnit,
-            changePercentDecimal = userSetting.numberOfChangePercentDecimal ?: 1,
+            numberOfChangePercentDecimal = userSetting.numberOfChangePercentDecimal ?: 1,
             layout = layout
         )
         watchWidgetRepository.setConfig(args.widgetId, config)
@@ -295,6 +295,14 @@ class WatchPreviewViewModel @AssistedInject constructor(
 
     fun switchHideDecimalOnLargePrice() {
         updateConfig { copy(hideDecimalOnLargePrice = !hideDecimalOnLargePrice) }
+    }
+
+    fun setPriceChangeInterval(selectedInterval: TimeInterval) {
+        updateConfig { copy(interval = selectedInterval) }
+    }
+
+    fun setNumberOfChangePercentDecimal(value: Int) {
+        updateConfig { copy(numberOfChangePercentDecimal = value) }
     }
 
     @AssistedFactory

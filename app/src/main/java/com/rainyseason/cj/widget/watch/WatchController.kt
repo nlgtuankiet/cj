@@ -7,6 +7,7 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.model.Theme
+import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.setCancelButton
 import com.rainyseason.cj.common.view.IntLabelFormater
 import com.rainyseason.cj.common.view.PercentLabelFormatrer
@@ -45,6 +46,89 @@ class WatchController @AssistedInject constructor(
         }
 
         buildPriceFormatGroup(state)
+        buildChangePercentGroup(state)
+    }
+
+    private fun buildChangePercentGroup(state: WatchPreviewState) {
+
+        settingHeaderView {
+            id("setting_header_change_percent")
+            content(R.string.setting_price_change_percent_title)
+        }
+
+        buildChangePercentInterval(state)
+        buildPercentDecimal(state)
+    }
+
+    private fun buildPercentDecimal(state: WatchPreviewState) {
+        val config = state.config ?: return
+        val percentDecimal = config.numberOfChangePercentDecimal
+        maybeBuildHorizontalSeparator(id = "percent_decimal_separator")
+
+        settingSliderView {
+            id("percent_decimal")
+            title(R.string.number_of_change_percent_decimal)
+            valueFrom(0)
+            valueTo(5)
+            value(percentDecimal)
+            stepSize(1)
+            labelFormatter(IntLabelFormater)
+            onChangeListener { value ->
+                viewModel.setNumberOfChangePercentDecimal(value)
+            }
+        }
+    }
+
+    private fun buildChangePercentInterval(state: WatchPreviewState) {
+        val config = state.config ?: return
+        val mapping = listOf(
+            TimeInterval.I_24H
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
+            TimeInterval.I_7D
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
+            TimeInterval.I_30D
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
+            TimeInterval.I_90D
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_90d,
+            TimeInterval.I_1Y
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_1y,
+        ).toMap()
+
+        val interval = config.interval
+
+        maybeBuildHorizontalSeparator(id = "change_interval_separator")
+
+        settingTitleSummaryView {
+            id("change_interval")
+            title(R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header)
+            summary(context.getString(mapping[interval]!!))
+            onClickListener { _ ->
+                val currentState = withState(viewModel) { it }
+                val currentConfig = currentState.config!!
+                val options = listOf(
+                    TimeInterval.I_24H,
+                    TimeInterval.I_7D,
+                    TimeInterval.I_30D,
+                    TimeInterval.I_90D,
+                    TimeInterval.I_1Y,
+                )
+                val currentInterval = currentConfig.interval
+                AlertDialog.Builder(context)
+                    .setTitle(
+                        R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header
+                    )
+                    .setCancelButton()
+                    .setSingleChoiceItems(
+                        options.map { context.getString(mapping[it]!!) }.toTypedArray(),
+                        options.indexOfFirst { it == currentInterval }
+                    ) { dialog, which ->
+                        val selectedInterval = options[which]
+                        viewModel.setPriceChangeInterval(selectedInterval)
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
     }
 
     private fun buildPriceFormatGroup(state: WatchPreviewState) {
