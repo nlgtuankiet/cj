@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.rainyseason.cj.data.UserSettingRepository
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -23,6 +24,7 @@ class WatchWidgetRepository @Inject constructor(
     @Watch
     private val storage: DataStore<Preferences>,
     private val moshi: Moshi,
+    private val userSettingRepository: UserSettingRepository,
 ) {
     private fun configKey(widgetId: Int): Preferences.Key<String> {
         return stringPreferencesKey("config_$widgetId")
@@ -67,6 +69,20 @@ class WatchWidgetRepository @Inject constructor(
         storage.edit {
             it[configKey(widgetId)] = configAdapter.toJson(config)
         }
+
+        val currentSetting = userSettingRepository.getUserSetting()
+        val userSetting = currentSetting.copy(
+            currencyCode = config.currency,
+            refreshInterval = config.refreshInterval,
+            refreshIntervalUnit = config.refreshIntervalUnit,
+            // amountDecimals = config.numberOfAmountDecimal,
+            // roundToMillion = config.roundToMillion,
+            // showCurrencySymbol = config.showCurrencySymbol,
+            // showThousandsSeparator = config.showThousandsSeparator,
+            // numberOfChangePercentDecimal = config.numberOfChangePercentDecimal,
+            // sizeAdjustment = config.sizeAdjustment,
+        )
+        userSettingRepository.setUserSetting(userSetting)
     }
 
     suspend fun clearAllData(widgetId: Int) {
