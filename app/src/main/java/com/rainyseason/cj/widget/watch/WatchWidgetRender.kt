@@ -10,6 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.RemoteViews
+import androidx.core.content.ContextCompat
+import androidx.core.text.buildSpannedString
+import androidx.core.text.color
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.GraphRenderer
@@ -159,18 +162,43 @@ class WatchWidgetRender @Inject constructor(
             )
         )
 
-        val changePercent = data?.changePercent
-        val changePercentContent = if (changePercent != null) {
-            numberFormater.formatPercent(
-                changePercent,
-                SUPPORTED_CURRENCY[params.config.currency]!!.locale,
-                numberOfDecimals = 1,
-            )
-        } else {
-            "-"
-        }
+        val changePercentContent = formatChangePercent(data?.changePercent, params.config)
         binding.changePercent.text = changePercentContent
         return binding.root
+    }
+
+    private fun formatChangePercent(
+        amount: Double?,
+        config: WatchConfig,
+    ): CharSequence {
+        return buildSpannedString {
+            if (amount != null) {
+                val color = if (amount > 0) {
+                    ContextCompat.getColor(context, R.color.green_700)
+                } else {
+                    ContextCompat.getColor(context, R.color.red_600)
+                }
+                val locate = SUPPORTED_CURRENCY[config.currency]!!.locale
+                val content = numberFormater.formatPercent(
+                    amount = amount,
+                    locate = locate,
+                    numberOfDecimals = config.changePercentDecimal
+                )
+
+                color(color) {
+                    append(content)
+                }
+            } else {
+                val color = select(
+                    config.theme,
+                    context.getColorCompat(R.color.gray_500),
+                    context.getColorCompat(R.color.text_secondary),
+                )
+                color(color) {
+                    append("--")
+                }
+            }
+        }
     }
 
     private fun render4x2(

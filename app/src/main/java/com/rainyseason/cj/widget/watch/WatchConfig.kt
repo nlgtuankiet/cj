@@ -20,7 +20,10 @@ data class WatchConfig(
     val layout: WatchWidgetLayout = WatchWidgetLayout.Watch4x2,
 
     @Json(name = "theme")
-    val theme: Theme = Theme.Dark,
+    val theme: Theme = Theme.Auto,
+
+    @Json(name = "change_percent_decimal")
+    val changePercentDecimal: Int = 1,
 ) {
     companion object {
         const val MIN_WIDGET_WIDTH = 330
