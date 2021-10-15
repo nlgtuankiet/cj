@@ -1,6 +1,6 @@
 package com.rainyseason.cj.widget.watch
 
-data class WatchRenderParams(
+data class WatchWidgetRenderParams(
     val config: WatchConfig,
     val data: WatchDisplayData,
     val showLoading: Boolean = false,

@@ -50,7 +50,7 @@ class WatchPreviewView @JvmOverloads constructor(
         }
     }
 
-    fun setRenderParams(params: WatchRenderParams?) {
+    fun setRenderParams(params: WatchWidgetRenderParams?) {
         if (params != null) {
             mainContainer.doOnPreDraw {
                 // coreComponent.traceManager.endTrace(CoinTickerPreviewTTI(params.config.widgetId))

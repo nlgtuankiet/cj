@@ -309,6 +309,10 @@ class WatchPreviewViewModel @AssistedInject constructor(
         updateConfig { copy(showBatteryWarning = !showBatteryWarning) }
     }
 
+    fun save() {
+        saved = true
+    }
+
     @AssistedFactory
     interface Factory {
         fun create(

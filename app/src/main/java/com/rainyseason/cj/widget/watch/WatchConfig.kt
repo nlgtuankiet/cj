@@ -57,6 +57,11 @@ data class WatchConfig(
     val showBatteryWarning: Boolean = true,
 
     ) {
+    fun getTrackingParams(): Map<String, Any?> {
+        // TODO
+        return emptyMap()
+    }
+
     companion object {
         const val MIN_WIDGET_WIDTH = 330
     }

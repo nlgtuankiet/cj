@@ -75,7 +75,7 @@ class WatchWidgetRender @Inject constructor(
         return Size(finalWidth, finalHeight)
     }
 
-    private fun WatchRenderParams.maybePositive(): WatchRenderParams {
+    private fun WatchWidgetRenderParams.maybePositive(): WatchWidgetRenderParams {
         // TODO
         // if (DebugFlag.POSITIVE_WIDGET.isEnable) {
         //     return this.copy(
@@ -89,7 +89,7 @@ class WatchWidgetRender @Inject constructor(
         return this
     }
 
-    private fun RemoteViews.bindLoading(params: WatchRenderParams) {
+    private fun RemoteViews.bindLoading(params: WatchWidgetRenderParams) {
         setViewVisibility(
             R.id.progress_bar,
             if (params.showLoading) View.VISIBLE else View.INVISIBLE
@@ -97,7 +97,7 @@ class WatchWidgetRender @Inject constructor(
     }
 
     private fun createEntryView(
-        params: WatchRenderParams,
+        params: WatchWidgetRenderParams,
         container: ViewGroup,
         height: Int,
         data: WatchDisplayEntryContent?
@@ -212,7 +212,7 @@ class WatchWidgetRender @Inject constructor(
     private fun render4x2(
         container: FrameLayout,
         remoteViews: RemoteViews,
-        params: WatchRenderParams
+        params: WatchWidgetRenderParams
     ) {
         val binding = WidgetWatchBinding
             .inflate(context.inflater(), container, true)
@@ -286,7 +286,7 @@ class WatchWidgetRender @Inject constructor(
 
     fun render(
         remoteView: RemoteViews,
-        inputParams: WatchRenderParams
+        inputParams: WatchWidgetRenderParams
     ) {
         val container = FrameLayout(context)
         container.measureAndLayout(inputParams.config)

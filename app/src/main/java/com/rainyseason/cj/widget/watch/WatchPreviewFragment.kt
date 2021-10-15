@@ -6,6 +6,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.transition.TransitionManager
 import com.airbnb.mvrx.MavericksView
+import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
@@ -49,7 +50,7 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
             WatchPreviewState::displayData,
         ) { config, displayData ->
             val params = if (config != null && displayData != null) {
-                WatchRenderParams(
+                WatchWidgetRenderParams(
                     config = config,
                     data = displayData,
                     showLoading = false,
@@ -94,11 +95,13 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
 
     private fun save() {
         fun actualSave() {
-            // viewModel.save()
-            val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
-            // TODO improve
-            val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
-            // (requireActivity() as CoinTickerWidgetSaver).saveWidget(config, displayData)
+            viewModel.save()
+            val state = withState(viewModel) { it }
+            val config = state.savedConfig.invoke() ?: return
+            val displayData = state.savedDisplayData.invoke() ?: return
+            val allDone = state.coinMarket.values.all { it is Success }
+            if (!allDone) return
+            (requireActivity() as WatchWidgetSaver).saveWidget(config, displayData)
         }
 
         saveOrShowBatteryOptimize {
@@ -109,4 +112,11 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
     override fun invalidate() {
         controller.requestModelBuild()
     }
+}
+
+interface WatchWidgetSaver {
+    fun saveWidget(
+        config: WatchConfig,
+        data: WatchDisplayData,
+    )
 }
