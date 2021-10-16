@@ -125,6 +125,6 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
     }
 
     companion object {
-        const val SCREEN_NAME = "watch_list"
+        const val SCREEN_NAME = "watchlist"
     }
 }
