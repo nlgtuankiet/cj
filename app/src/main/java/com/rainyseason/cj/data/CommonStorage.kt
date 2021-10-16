@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.ticker.CoinTickerProviderCoin360
 import com.rainyseason.cj.ticker.CoinTickerProviderDefault
 import com.rainyseason.cj.ticker.CoinTickerProviderGraph
@@ -36,6 +37,23 @@ class CommonRepository @Inject constructor(
     private val lastDislikeKey = longPreferencesKey("last_dislike")
     private val populateDefaultWatchList = booleanPreferencesKey("populate_default_watchlist")
     private val watchListIds = stringPreferencesKey("watchlist_ids")
+    private val readReleaseNoteVersion = stringPreferencesKey("release_note")
+
+    suspend fun hasUnreadReleaseNote(): Boolean {
+        val currentVersion = BuildConfig.VERSION_NAME
+        val readVersion: String? = storage.data.first()[readReleaseNoteVersion]
+        return currentVersion != readVersion
+    }
+
+    fun hasUnreadReleaseNoteFlow(): Flow<Boolean> {
+        return storage.data.map { it[readReleaseNoteVersion] != BuildConfig.VERSION_NAME }
+    }
+
+    suspend fun setReadReleaseNote() {
+        storage.edit {
+            it[readReleaseNoteVersion] = BuildConfig.VERSION_NAME
+        }
+    }
 
     suspend fun populateDefaultWatchlist(): Boolean {
         return storage.data.first()[populateDefaultWatchList] ?: false

@@ -3,6 +3,7 @@ package com.rainyseason.cj
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.createGraph
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
@@ -12,13 +13,19 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.contact.ContactFragment
 import com.rainyseason.cj.common.home.HomeFragment
+import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.detail.CoinDetailFragment
 import com.rainyseason.cj.watch.WatchListFragment
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.ContributesAndroidInjector
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @Module
 interface MainActivityModule {
@@ -28,6 +35,9 @@ interface MainActivityModule {
 }
 
 class MainActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var commonRepository: CommonRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -56,6 +66,16 @@ class MainActivity : AppCompatActivity() {
             if (coinId != null) {
                 navController.navigate(R.id.detail, CoinDetailArgs(coinId).asArgs())
             }
+        }
+
+        lifecycleScope.launch {
+            commonRepository.hasUnreadReleaseNoteFlow()
+                .flowOn(Dispatchers.IO)
+                .collect {
+                    Timber.d("hasUnreadReleaseNoteFlow: $it")
+                    val badge = bottomNav.getOrCreateBadge(R.id.release_note_screen)
+                    badge.isVisible = it
+                }
         }
     }
 
