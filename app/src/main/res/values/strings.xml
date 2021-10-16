@@ -102,8 +102,9 @@
     <string name="setting_show_advance_summary">Price format, Change percent, Behavior</string>
 
     <string name="setting_price_format_title">Price format</string>
-    <string name="setting_price_change_percent_title">Price format</string>
+    <string name="setting_price_change_percent_title">Change percent</string>
     <string name="setting_behavior_title">Behavior</string>
+    <string name="setting_content_title">Content</string>
 
     <string name="watch_preview_click_action_open_watchlist">Open watchlist</string>
     <string name="watch_edit_watch_list">Edit watchlist</string>

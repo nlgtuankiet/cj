@@ -37,6 +37,7 @@ data class CoinTickerPreviewState(
     val savedConfig: Async<CoinTickerConfig> = Uninitialized,
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
     val marketChartResponse: Map<String, Async<MarketChartResponse>> = emptyMap(),
+    val showAdvanceSetting: Boolean = false,
 ) : MavericksState {
     val config: CoinTickerConfig?
         get() = savedConfig.invoke()
@@ -310,6 +311,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     fun setAmount(value: String?) {
         updateConfig { copy(amount = value?.toDoubleOrNull() ?: 1.0) }
+    }
+
+    fun showAdvanced() {
+        setState { copy(showAdvanceSetting = true) }
     }
 
     @AssistedFactory
