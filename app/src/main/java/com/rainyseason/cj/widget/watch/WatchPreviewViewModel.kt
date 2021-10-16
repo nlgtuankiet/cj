@@ -316,6 +316,10 @@ class WatchPreviewViewModel @AssistedInject constructor(
         updateConfig { copy(clickAction = action) }
     }
 
+    fun switchShowCurrency() {
+        updateConfig { copy(showCurrencySymbol = !showCurrencySymbol) }
+    }
+
     @AssistedFactory
     interface Factory {
         fun create(

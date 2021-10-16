@@ -217,6 +217,22 @@ class WatchController @AssistedInject constructor(
         buildRoundToMillion(state)
         buildShowThousandSeparator(state)
         buildHideDecimalOnLargePrice(state)
+        buildShowCurrencySymbol(state)
+    }
+
+    private fun buildShowCurrencySymbol(state: WatchPreviewState) {
+        val config = state.config ?: return
+
+        maybeBuildHorizontalSeparator(id = "show_currency_separator")
+
+        settingSwitchView {
+            id("setting_show_currency")
+            title(R.string.coin_ticker_preview_setting_show_currency_symbol)
+            checked(config.showCurrencySymbol)
+            onClickListener { _ ->
+                viewModel.switchShowCurrency()
+            }
+        }
     }
 
     private fun buildHideDecimalOnLargePrice(state: WatchPreviewState) {
