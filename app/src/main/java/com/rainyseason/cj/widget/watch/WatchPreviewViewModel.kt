@@ -75,6 +75,8 @@ class WatchPreviewViewModel @AssistedInject constructor(
 
     private var loadCoinDetailJob: Job? = null
     private val loadCoinDetailJobs = mutableMapOf<String, Job>()
+    private var loadEachEntryDataJob: Job? = null
+    private val loadCoinMarketJobs = mutableMapOf<String, Job>()
 
     init {
         loadDisplayData()
@@ -117,7 +119,6 @@ class WatchPreviewViewModel @AssistedInject constructor(
             .execute { copy(userSetting = it) }
     }
 
-    private var loadEachEntryDataJob: Job? = null
     private fun loadEachEntryData() {
         loadEachEntryDataJob?.cancel()
         loadEachEntryDataJob = viewModelScope.launch {
@@ -139,7 +140,6 @@ class WatchPreviewViewModel @AssistedInject constructor(
         }
     }
 
-    private val loadCoinMarketJobs = mutableMapOf<String, Job>()
     private fun loadCoinMarket(
         currencyCode: String,
         interval: TimeInterval,

@@ -1,10 +1,7 @@
 package com.rainyseason.cj
 
-import android.R
 import android.app.Application
 import android.appwidget.AppWidgetManager
-import android.util.TypedValue
-import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -18,11 +15,9 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 import com.jakewharton.threetenabp.AndroidThreeTen
-import com.rainyseason.cj.AppProvides_ContextFactory.context
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
-import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.featureflag.MainFlagValueProvider
 import com.rainyseason.cj.featureflag.NoopFlagValueProvider
@@ -72,11 +67,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
             Timber.plant(Timber.DebugTree())
             Timber.plant(ExceptionLoggerTree())
         }
-
-        val typedValue = TypedValue()
-        theme.resolveAttribute(R.attr.textColorTertiary, typedValue, false)
-        @ColorInt val colorInt = typedValue.data
-        Timber.d("color is ${Integer.toHexString(getColorCompat(colorInt))}")
 
         if (!BuildConfig.IS_PLAY_STORE) {
             MainFlagValueProvider.setDelegate(debugFlagProvider.get())
