@@ -44,7 +44,6 @@ class ContactFragment : Fragment(R.layout.fragment_contact) {
                     target = "open_reddit"
                 )
             } catch (ex: ActivityNotFoundException) {
-
             }
         }
 
@@ -60,7 +59,6 @@ class ContactFragment : Fragment(R.layout.fragment_contact) {
                     target = "open_email"
                 )
             } catch (ignored: Exception) {
-
             }
         }
 

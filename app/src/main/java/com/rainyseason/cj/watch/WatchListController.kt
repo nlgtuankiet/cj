@@ -263,7 +263,6 @@ class WatchListController @AssistedInject constructor(
                         detail.name.contains(keyword, true) ||
                             detail.symbol.contains(keyword, true)
                     }
-
                 }
         } else {
             watchList

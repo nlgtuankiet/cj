@@ -1,7 +1,10 @@
 package com.rainyseason.cj
 
+import android.R
 import android.app.Application
 import android.appwidget.AppWidgetManager
+import android.util.TypedValue
+import androidx.annotation.ColorInt
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -15,6 +18,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 import com.jakewharton.threetenabp.AndroidThreeTen
+import com.rainyseason.cj.AppProvides_ContextFactory.context
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
@@ -31,16 +35,6 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Provider
-import androidx.annotation.ColorInt
-
-import android.R
-
-import com.rainyseason.cj.AppProvides_ContextFactory.context
-
-import android.util.TypedValue
-
-
-
 
 class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
 

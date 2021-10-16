@@ -117,8 +117,6 @@ class WatchWidgetRender @Inject constructor(
         binding.root.layout(0, 0, container.width, height)
         val theme = config.theme
 
-
-
         binding.symbol.text = data?.symbol
         binding.symbol.setTextColor(
             select(
