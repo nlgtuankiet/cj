@@ -204,13 +204,7 @@ dependencies {
 
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
-    implementation 'com.google.firebase:firebase-auth-ktx'
-    implementation 'com.firebaseui:firebase-ui-auth:8.0.0'
-
-    implementation 'com.google.firebase:firebase-firestore-ktx'
-
     implementation "io.noties.markwon:core:4.6.2"
-    implementation "io.noties.markwon:image-glide:4.6.2"
 
     implementation 'androidx.lifecycle:lifecycle-process:2.3.1'
 

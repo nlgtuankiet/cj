@@ -7,7 +7,6 @@ import androidx.lifecycle.lifecycleScope
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.databinding.FragmentReleaseNoteBinding
 import io.noties.markwon.Markwon
-import io.noties.markwon.image.glide.GlideImagesPlugin
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okio.buffer
@@ -21,7 +20,6 @@ class ReleaseNoteFragment : Fragment(R.layout.fragment_release_note) {
 
         val content = resources.openRawResource(R.raw.release_note).source().buffer().readUtf8()
         val markwon = Markwon.builder(requireContext())
-            .usePlugin(GlideImagesPlugin.create(GlideApp.with(binding.content)))
             .build()
 
         markwon.setMarkdown(binding.content, content)
@@ -31,5 +29,4 @@ class ReleaseNoteFragment : Fragment(R.layout.fragment_release_note) {
                 .setReadReleaseNote()
         }
     }
-
 }

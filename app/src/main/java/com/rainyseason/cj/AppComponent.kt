@@ -15,7 +15,6 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
@@ -118,8 +117,7 @@ object AppProvides {
             val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
             logging.level = HttpLoggingInterceptor.Level.BODY
 
-            val networkLogging = HttpLoggingInterceptor {
-                message ->
+            val networkLogging = HttpLoggingInterceptor { message ->
                 Timber.tag("OkHttpN").d(message)
             }
             networkLogging.level = HttpLoggingInterceptor.Level.HEADERS
@@ -260,12 +258,6 @@ object AppProvides {
     @Singleton
     fun provideCoinHistoryStorage(context: Context): DataStore<Preferences> {
         return createStorage(context, "coin_history")
-    }
-
-    @Provides
-    @Singleton
-    fun provideFirebaseFirestore(): FirebaseFirestore {
-        return FirebaseFirestore.getInstance()
     }
 
     @Provides
