@@ -45,11 +45,12 @@ class MainActivity : AppCompatActivity() {
             fragment<ContactFragment>(R.id.contact_screen)
             fragment<WatchListFragment>(R.id.watch_list_screen)
             fragment<CoinDetailFragment>(R.id.detail)
+            fragment<ReleaseNoteFragment>(R.id.release_note_screen)
         }
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         bottomNav.setupWithNavController(navController)
-
+        bottomNav.labelVisibilityMode = BottomNavigationView.LABEL_VISIBILITY_LABELED
         if (savedInstanceState == null) {
             val coinId = intent.extras?.getString("coinId")
             if (coinId != null) {
