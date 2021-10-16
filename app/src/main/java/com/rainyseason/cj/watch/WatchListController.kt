@@ -12,6 +12,8 @@ import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.view.emptyView
 import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.detail.CoinDetailArgs
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logClick
 import com.rainyseason.cj.watch.view.WatchEntryView
 import com.rainyseason.cj.watch.view.WatchEntryViewModelBuilder
 import com.rainyseason.cj.watch.view.watchEditEntryView
@@ -25,6 +27,7 @@ import kotlin.math.max
 
 class WatchListController @AssistedInject constructor(
     @Assisted val viewModel: WatchListViewModel,
+    private val tracker: Tracker,
 ) : AsyncEpoxyController() {
     override fun buildModels() {
         emptyView { id("holder") }
@@ -50,6 +53,14 @@ class WatchListController @AssistedInject constructor(
                 symbol(coinDetail?.symbol)
                 name(coinDetail?.name)
                 onDeleteClickListener { _ ->
+                    tracker.logClick(
+                        screenName = WatchListFragment.SCREEN_NAME,
+                        target = "entry",
+                        params = mapOf(
+                            "action" to "delete",
+                            "coin_id" to coinId
+                        )
+                    )
                     viewModel.onRemoveClick(coinId)
                 }
             }
@@ -168,6 +179,12 @@ class WatchListController @AssistedInject constructor(
             return
         }
         val inWatchList = coinId in state.watchList.invoke().orEmpty()
+        val action = if (inWatchList) {
+            "remove"
+        } else {
+            "add"
+        }
+
         view.createPopupMenuCenterEnd().apply {
             if (inWatchList) {
                 inflate(R.menu.watch_list_watch_item)
@@ -175,6 +192,13 @@ class WatchListController @AssistedInject constructor(
                 inflate(R.menu.watch_list_search_result_item)
             }
             setOnMenuItemClickListener { menu ->
+                tracker.logClick(
+                    screenName = WatchListFragment.SCREEN_NAME,
+                    target = "entry_popup",
+                    params = mapOf(
+                        "action" to action
+                    )
+                )
                 when (menu.itemId) {
                     R.id.add -> viewModel.onAddClick(coinId)
                     R.id.remove -> viewModel.onRemoveClick(coinId)
@@ -200,6 +224,14 @@ class WatchListController @AssistedInject constructor(
         symbol: String? = null,
     ) {
         onClickListener { view ->
+            tracker.logClick(
+                screenName = WatchListFragment.SCREEN_NAME,
+                target = "entry",
+                params = mapOf(
+                    "action" to "open_coin_detail",
+                    "coin_id" to coinId
+                )
+            )
             view.findNavController().navigate(R.id.detail, CoinDetailArgs(coinId, symbol).asArgs())
         }
     }

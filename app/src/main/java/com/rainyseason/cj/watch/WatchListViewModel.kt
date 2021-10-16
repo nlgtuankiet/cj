@@ -182,6 +182,10 @@ class WatchListViewModel @AssistedInject constructor(
         keywordDeboucer.value = value.trim()
     }
 
+    fun exitEditMode() {
+        setState { copy(isInEditMode = false) }
+    }
+
     fun switchEditMode() {
         setState { copy(isInEditMode = !isInEditMode) }
     }

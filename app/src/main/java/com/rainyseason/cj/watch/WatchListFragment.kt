@@ -11,11 +11,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
+import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.dismissKeyboard
 import com.rainyseason.cj.common.setTextIfDifferent
 import com.rainyseason.cj.databinding.FragmentWatchListBinding
 import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logClick
 import com.rainyseason.cj.tracking.logScreenEnter
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -57,7 +59,7 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
         setupSearchAnimation(binding)
         binding.contentRecyclerView.setController(controller)
         setUpEdit(binding)
-        tracker.logScreenEnter("watch_list")
+        tracker.logScreenEnter(SCREEN_NAME)
     }
 
     private fun setupSearchAnimation(
@@ -66,6 +68,10 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
         val searchGroup = binding.searchGroup.searchGroup
         val searchEditText = binding.searchGroup.searchEditText
         binding.searchGroup.cancelSearch.setOnClickListener {
+            tracker.logClick(
+                screenName = SCREEN_NAME,
+                target = "cancel",
+            )
             searchEditText.apply {
                 text = null
                 clearFocus()
@@ -75,6 +81,17 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
         }
 
         searchEditText.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                val isInEditMode = withState(viewModel) { it.isInEditMode }
+                tracker.logClick(
+                    screenName = SCREEN_NAME,
+                    target = "search_box",
+                    params = mapOf("is_in_edit_mode" to isInEditMode)
+                )
+            }
+            if (hasFocus) {
+                viewModel.exitEditMode()
+            }
             if (hasFocus || !searchEditText.text.isNullOrBlank()) {
                 searchGroup.transitionToEnd()
             } else {
@@ -105,5 +122,9 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
 
     override fun invalidate() {
         controller.requestModelBuild()
+    }
+
+    companion object {
+        const val SCREEN_NAME = "watch_list"
     }
 }

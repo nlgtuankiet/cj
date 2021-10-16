@@ -6,6 +6,7 @@ import com.airbnb.epoxy.EpoxyTouchHelper
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.hapticFeedback
 import com.rainyseason.cj.databinding.FragmentWatchListBinding
+import com.rainyseason.cj.tracking.logClick
 import com.rainyseason.cj.watch.view.WatchEditEntryViewModel_
 
 fun WatchListFragment.setUpEdit(
@@ -52,6 +53,13 @@ fun WatchListFragment.setUpEdit(
                     val toId = currentMapping[currentMoveTo]
                     if (fromId != null && toId != null) {
                         viewModel.drag(fromId, toId)
+                        tracker.logClick(
+                            screenName = WatchListFragment.SCREEN_NAME,
+                            target = "entry",
+                            params = mapOf(
+                                "action" to "drag",
+                            )
+                        )
                     }
                 }
                 moveFrom = null
@@ -77,9 +85,13 @@ fun WatchListFragment.setUpEdit(
             if (isInEditMode) R.drawable.ic_baseline_done_24 else R.drawable.ic_baseline_edit_24
         )
         editButton.setOnClickListener {
+            tracker.logClick(
+                screenName = WatchListFragment.SCREEN_NAME,
+                target = "edit_button",
+                params = mapOf("is_in_edit_mode" to isInEditMode)
+            )
             viewModel.switchEditMode()
         }
-        binding.searchGroup.searchEditText.isEnabled = !isInEditMode
         if (isInEditMode) {
             binding.searchGroup.cancelSearch.performClick()
             helper.attachToRecyclerView(recyclerView)
