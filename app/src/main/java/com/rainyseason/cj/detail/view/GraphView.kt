@@ -24,10 +24,13 @@ import com.airbnb.epoxy.ModelView
 import com.google.android.material.textview.MaterialTextView
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.clearHapticFeedback
+import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.hapticFeedbackIfChanged
+import com.rainyseason.cj.detail.CoinDetailFragment
+import com.rainyseason.cj.tracking.logClick
 import kotlin.math.abs
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
@@ -341,9 +344,13 @@ class GraphView @JvmOverloads constructor(
 
     private var drawTouchUI = false
     private lateinit var touchEvent: MotionEvent
+    private val tracker = coreComponent.tracker
 
+    private var trackMove = false
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         if (event.action == MotionEvent.ACTION_DOWN) {
+
+            trackMove = true
             return true
         }
         if (event.action == MotionEvent.ACTION_UP) {
@@ -358,6 +365,13 @@ class GraphView @JvmOverloads constructor(
                 touchEvent = event
                 drawTouchUI = true
                 invalidate()
+                if (trackMove) {
+                    tracker.logClick(
+                        screenName = CoinDetailFragment.SCREEN_NAME,
+                        target = "graph",
+                    )
+                    trackMove = false
+                }
                 return true
             }
         }

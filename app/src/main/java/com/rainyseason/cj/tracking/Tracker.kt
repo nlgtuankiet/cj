@@ -30,8 +30,14 @@ fun Tracker.logKeyParamsEvent(
     log(event = event)
 }
 
-fun Tracker.logScreenEnter(name: String) {
-    val event = KeyParamsEvent("screen_enter", mapOf("name" to name))
+fun Tracker.logScreenEnter(
+    name: String,
+    params: Map<String, Any?> = emptyMap()
+) {
+    val event = KeyParamsEvent(
+        "screen_enter",
+        mapOf("name" to name) + params
+    )
     log(event = event)
 }
 

@@ -13,6 +13,9 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.getDrawableCompat
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.databinding.FragmentCoinDetailBinding
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logClick
+import com.rainyseason.cj.tracking.logScreenEnter
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
@@ -34,6 +37,9 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
     @Inject
     lateinit var controllerFactory: CoinDetailController.Factory
 
+    @Inject
+    lateinit var tracker: Tracker
+
     lateinit var binding: FragmentCoinDetailBinding
 
     private val viewModel: CoinDetailViewModel by fragmentViewModel()
@@ -53,6 +59,10 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
         bindingHeader()
         binding.contentRecyclerView.setController(controller)
         bindButton()
+        tracker.logScreenEnter(
+            SCREEN_NAME,
+            mapOf("coin_id" to args.coinId)
+        )
     }
 
     private fun bindButton() {
@@ -79,7 +89,13 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
                 button.setText(R.string.watch_list_menu_add)
             }
 
-            button.setOnClickListener { viewModel.onAddToWatchListClick() }
+            button.setOnClickListener {
+                tracker.logClick(
+                    screenName = SCREEN_NAME,
+                    target = "add_to_watchlist",
+                )
+                viewModel.onAddToWatchListClick()
+            }
             button.icon = if (addToWatchList is Loading) {
                 loadingDrawable
             } else {
@@ -93,6 +109,10 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
                 startIcon.setImageResource(R.drawable.ic_baseline_star_outline_24)
             }
             startIcon.setOnClickListener {
+                tracker.logClick(
+                    screenName = SCREEN_NAME,
+                    target = "star_button"
+                )
                 viewModel.onAddToWatchListClick()
             }
         }
@@ -100,6 +120,10 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
 
     private fun bindingHeader() {
         binding.backButton.setOnClickListener {
+            tracker.logClick(
+                screenName = SCREEN_NAME,
+                target = "back_button"
+            )
             findNavController().navigateUp()
         }
 
@@ -120,5 +144,9 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
 
     override fun invalidate() {
         controller.requestModelBuild()
+    }
+
+    companion object {
+        const val SCREEN_NAME = "coin_detail"
     }
 }
