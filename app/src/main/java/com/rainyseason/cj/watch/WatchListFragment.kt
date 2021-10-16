@@ -15,6 +15,8 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.dismissKeyboard
 import com.rainyseason.cj.common.setTextIfDifferent
 import com.rainyseason.cj.databinding.FragmentWatchListBinding
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logScreenEnter
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
@@ -35,6 +37,9 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
     @Inject
     lateinit var controllerFactory: WatchListController.Factory
 
+    @Inject
+    lateinit var tracker: Tracker
+
     val viewModel: WatchListViewModel by fragmentViewModel()
 
     val controller: WatchListController by lazy {
@@ -52,6 +57,7 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
         setupSearchAnimation(binding)
         binding.contentRecyclerView.setController(controller)
         setUpEdit(binding)
+        tracker.logScreenEnter("watch_list")
     }
 
     private fun setupSearchAnimation(

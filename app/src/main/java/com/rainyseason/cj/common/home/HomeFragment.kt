@@ -9,7 +9,9 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.buildModels
+import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.databinding.FragmentHomeBinding
+import com.rainyseason.cj.tracking.logScreenEnter
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -52,5 +54,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 Toast.LENGTH_SHORT
             ).show()
         }
+
+        requireContext().coreComponent.tracker
+            .logScreenEnter("tutorial")
     }
 }

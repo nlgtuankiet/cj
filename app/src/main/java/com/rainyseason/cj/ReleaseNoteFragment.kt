@@ -6,6 +6,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.databinding.FragmentReleaseNoteBinding
+import com.rainyseason.cj.tracking.logScreenEnter
 import io.noties.markwon.Markwon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,5 +29,8 @@ class ReleaseNoteFragment : Fragment(R.layout.fragment_release_note) {
             requireContext().coreComponent.commonRepository
                 .setReadReleaseNote()
         }
+
+        requireContext().coreComponent.tracker
+            .logScreenEnter("release_note")
     }
 }

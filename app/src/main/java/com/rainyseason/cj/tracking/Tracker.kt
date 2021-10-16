@@ -30,6 +30,24 @@ fun Tracker.logKeyParamsEvent(
     log(event = event)
 }
 
+fun Tracker.logScreenEnter(name: String) {
+    val event = KeyParamsEvent("screen_enter", mapOf("name" to name))
+    log(event = event)
+}
+
+fun Tracker.logClick(
+    screenName: String,
+    target: String,
+    params: Map<String, Any?> = emptyMap(),
+) {
+    val finalParams = mapOf(
+        "screen_name" to screenName,
+        "target" to target
+    ) + params
+    val event = KeyParamsEvent("click", finalParams)
+    log(event = event)
+}
+
 // call site
 
 @Singleton

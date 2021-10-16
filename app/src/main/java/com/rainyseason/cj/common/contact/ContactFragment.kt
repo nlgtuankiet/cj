@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.databinding.FragmentContactBinding
+import com.rainyseason.cj.tracking.logScreenEnter
 
 class ContactFragment : Fragment(R.layout.fragment_contact) {
 
@@ -48,5 +50,8 @@ class ContactFragment : Fragment(R.layout.fragment_contact) {
             }
 
         }
+
+        requireContext().coreComponent.tracker
+            .logScreenEnter("contact")
     }
 }
