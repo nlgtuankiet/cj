@@ -51,8 +51,17 @@
         app:layout_constraintTop_toTopOf="@id/name" />
 
     <TextView
+        android:gravity="center|end"
+        android:textAlignment="gravity"
+        android:layout_marginStart="4dp"
+        app:autoSizeStepGranularity="1sp"
+        app:autoSizeMinTextSize="1sp"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMaxTextSize="18sp"
+        android:maxLines="1"
+        app:layout_constraintStart_toEndOf="@id/standard_end"
         android:id="@+id/price"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:fontFamily="@font/open_sans_medium"
         android:textColor="@color/gray_50"

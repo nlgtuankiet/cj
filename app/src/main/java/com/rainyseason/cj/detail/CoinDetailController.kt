@@ -23,7 +23,7 @@ class CoinDetailController @AssistedInject constructor(
 
     private val builders = listOf(
         ::buildNamePrice,
-        ::buildIntervalegment,
+        ::buildIntervalSegment,
         ::buildGraph,
         ::buildLowHigh,
     )
@@ -115,7 +115,7 @@ class CoinDetailController @AssistedInject constructor(
         return BuildState.Next
     }
 
-    private fun buildIntervalegment(state: CoinDetailState): BuildState {
+    private fun buildIntervalSegment(state: CoinDetailState): BuildState {
 
         intervalSegmentedView {
             id("interval")

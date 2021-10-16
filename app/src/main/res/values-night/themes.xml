@@ -4,20 +4,20 @@
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/amber_200</item>
         <item name="colorPrimaryVariant">@color/amber_700</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/gray_900</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/amber_200</item>
         <item name="colorSecondaryVariant">@color/amber_700</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorOnSecondary">@color/gray_900</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/gray_900</item>
         <!-- Customize your theme here. -->
         <item name="android:textViewStyle">@style/TextViewStyle</item>
         <item name="buttonStyle">@style/ButtonStyle</item>
 
         <!--text color-->
         <item name="android:textColorTertiary">@color/white</item>
-        <item name="android:windowBackground">@color/black</item>
+        <item name="android:windowBackground">@color/gray_900</item>
     </style>
     <style name="ButtonStyle" parent="android:Widget.Holo.Button">
         <item name="android:fontFamily">@font/open_sans_medium</item>

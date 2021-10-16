@@ -74,8 +74,7 @@
     <string name="inapp_review_submit_feedback">Submit</string>
     <string name="inapp_review_cancel_feedback">Maybe later</string>
 
-
-    <string name="bottom_nav_home">Home</string>
+    <string name="bottom_nav_home">Tutorial</string>
     <string name="bottom_nav_watch_list">Watch list</string>
     <string name="bottom_nav_contact">Contact</string>
     <string name="home_add_widget">Add widget</string>
