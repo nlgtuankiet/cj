@@ -67,6 +67,7 @@ class CommonRepository @Inject constructor(
 
     fun watchListIdsFlow(): Flow<List<String>> {
         return storage.data.map { it[watchListIds].orEmpty().split(",") }
+            .map { it.filter { id -> id.isNotBlank() } }
     }
 
     suspend fun setWatchListIds(ids: List<String>) {
