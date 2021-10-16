@@ -9,6 +9,8 @@ import com.rainyseason.cj.detail.view.graphView
 import com.rainyseason.cj.detail.view.intervalSegmentedView
 import com.rainyseason.cj.detail.view.lowHighView
 import com.rainyseason.cj.detail.view.namePriceChangeView
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logClick
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -19,11 +21,12 @@ import org.threeten.bp.format.DateTimeFormatterBuilder
 class CoinDetailController @AssistedInject constructor(
     @Assisted val viewModel: CoinDetailViewModel,
     private val numberFormater: NumberFormater,
+    private val tracker: Tracker,
 ) : AsyncEpoxyController() {
 
     private val builders = listOf(
         ::buildNamePrice,
-        ::buildIntervalegment,
+        ::buildIntervalSegment,
         ::buildGraph,
         ::buildLowHigh,
     )
@@ -70,6 +73,11 @@ class CoinDetailController @AssistedInject constructor(
             id("low_high")
             interval(state.selectedLowHighInterval)
             onIntervalClickListener { interval ->
+                tracker.logClick(
+                    screenName = CoinDetailFragment.SCREEN_NAME,
+                    target = "low_high_interval",
+                    mapOf("interval" to interval.id)
+                )
                 viewModel.onSelectLowHigh(interval)
             }
             val currentPrice = coinDetail.marketData.currentPrice[userSetting.currencyCode]!!
@@ -115,13 +123,18 @@ class CoinDetailController @AssistedInject constructor(
         return BuildState.Next
     }
 
-    private fun buildIntervalegment(state: CoinDetailState): BuildState {
+    private fun buildIntervalSegment(state: CoinDetailState): BuildState {
 
         intervalSegmentedView {
             id("interval")
             interval(state.selectedInterval)
             onIntervalClickListener {
                 viewModel.onIntervalClick(it)
+                tracker.logClick(
+                    screenName = CoinDetailFragment.SCREEN_NAME,
+                    target = "time_interval",
+                    mapOf("interval" to it.id)
+                )
             }
         }
 

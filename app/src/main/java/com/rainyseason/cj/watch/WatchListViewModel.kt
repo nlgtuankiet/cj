@@ -1,5 +1,6 @@
 package com.rainyseason.cj.watch
 
+import android.content.Context
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.FragmentViewModelContext
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Collections
 
 private typealias State = WatchListState
@@ -42,6 +44,7 @@ data class WatchListState(
     val coinMarket: Async<List<MarketsResponseEntry>> = Uninitialized,
     val keyword: String = "",
     val addTasks: Map<String, Async<*>> = emptyMap(),
+    val isInEditMode: Boolean = false,
 ) : MavericksState
 
 @OptIn(FlowPreview::class)
@@ -50,17 +53,22 @@ class WatchListViewModel @AssistedInject constructor(
     private val coinGeckoService: CoinGeckoService,
     private val userSettingRepository: UserSettingRepository,
     private val watchListRepository: WatchListRepository,
+    private val context: Context,
 ) : MavericksViewModel<WatchListState>(state) {
-
-    init {
-        reload()
-    }
-
+    private val wachEntryDetailJob: MutableMap<String, Job> =
+        Collections.synchronizedMap(mutableMapOf())
+    private val wachEntryMarketlJob: MutableMap<String, Job> =
+        Collections.synchronizedMap(mutableMapOf())
     private var coinListJob: Job? = null
     private var userSettingJob: Job? = null
     private var watchListJob: Job? = null
     private var loadWatchListEntriesJob: Job? = null
     private var marketJob: Job? = null
+    private val keywordDeboucer = MutableStateFlow("")
+
+    init {
+        reload()
+    }
 
     private fun reload() {
         coinListJob?.cancel()
@@ -117,12 +125,8 @@ class WatchListViewModel @AssistedInject constructor(
         }
     }
 
-    private val wachEntryDetailJob: MutableMap<String, Job> =
-        Collections.synchronizedMap(mutableMapOf())
-    private val wachEntryMarketlJob: MutableMap<String, Job> =
-        Collections.synchronizedMap(mutableMapOf())
-
     private fun loadWatchEntry(id: String, currencyCode: String) {
+        Timber.d("loadWatchEntry $id")
         wachEntryDetailJob.remove(id)?.cancel()
         wachEntryDetailJob[id] = suspend {
             coinGeckoService.getCoinDetail(id)
@@ -134,7 +138,7 @@ class WatchListViewModel @AssistedInject constructor(
 
         wachEntryMarketlJob.remove(id)?.cancel()
         wachEntryMarketlJob[id] = suspend {
-            coinGeckoService.getMarketChart(id, currencyCode, 1)
+            coinGeckoService.getMarketChart(id, currencyCode, "1")
         }.execute {
             copy(
                 watchEntryMarket = watchEntryMarket.update { put(id, it) }
@@ -149,23 +153,23 @@ class WatchListViewModel @AssistedInject constructor(
     }
 
     fun onAddClick(id: String) {
-        withState { state ->
-            if (state.addTasks[id] is Loading) {
-                return@withState
-            }
-
-            val watchList = state.watchList.invoke() ?: return@withState
-            suspend {
-                if (watchList.contains(id)) {
-                    watchListRepository.remove(id)
-                } else {
-                    watchListRepository.add(id)
+        viewModelScope.launch {
+            withState { state ->
+                if (state.addTasks[id] is Loading) {
+                    return@withState
                 }
-            }.execute { copy(addTasks = addTasks.update { put(id, it) }) }
+
+                val watchList = state.watchList.invoke() ?: return@withState
+                suspend {
+                    if (watchList.contains(id)) {
+                        watchListRepository.remove(id)
+                    } else {
+                        watchListRepository.add(id)
+                    }
+                }.execute { copy(addTasks = addTasks.update { put(id, it) }) }
+            }
         }
     }
-
-    private val keywordDeboucer = MutableStateFlow("")
 
     init {
         viewModelScope.launch {
@@ -176,6 +180,20 @@ class WatchListViewModel @AssistedInject constructor(
 
     fun onKeywordChange(value: String) {
         keywordDeboucer.value = value.trim()
+    }
+
+    fun exitEditMode() {
+        setState { copy(isInEditMode = false) }
+    }
+
+    fun switchEditMode() {
+        setState { copy(isInEditMode = !isInEditMode) }
+    }
+
+    fun drag(fromId: String, toId: String) {
+        viewModelScope.launch {
+            watchListRepository.drag(fromId, toId)
+        }
     }
 
     @AssistedFactory

@@ -1,5 +1,6 @@
 package com.rainyseason.cj.ticker
 
+// TODO remove 14 day support
 @Suppress("ObjectPropertyName")
 object ChangeInterval {
     const val _24H = "24h"

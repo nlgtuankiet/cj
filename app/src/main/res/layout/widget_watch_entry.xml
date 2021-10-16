@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:id="@+id/container"
+    android:paddingHorizontal="12dp"
+    android:layout_height="55dp">
+
+    <com.google.android.material.textview.MaterialTextView
+        style="@style/Theme.CryptoJet.Text.Medium"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintEnd_toStartOf="@id/graph"
+        app:layout_constraintVertical_chainStyle="packed"
+        android:id="@+id/symbol"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAllCaps="true"
+        android:textColor="@color/gray_50"
+        android:textSize="14sp"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="1sp"
+        app:autoSizeMaxTextSize="14sp"
+        app:autoSizeStepGranularity="1sp"
+        app:layout_constraintBottom_toTopOf="@id/name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="BTC" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:textColor="@color/text_secondary"
+        android:layout_marginEnd="4dp"
+        android:id="@+id/name"
+        android:layout_width="0dp"
+        app:layout_constraintEnd_toStartOf="@id/graph"
+        android:layout_height="wrap_content"
+        android:textSize="14sp"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="1sp"
+        app:autoSizeMaxTextSize="14sp"
+        app:autoSizeStepGranularity="1sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/symbol"
+        tools:text="Bitcoin" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/price"
+        style="@style/Theme.CryptoJet.Text.Medium"
+        app:layout_constraintVertical_chainStyle="packed"
+        tools:text="14 334,34$"
+        android:textSize="14sp"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="1sp"
+        app:autoSizeMaxTextSize="14sp"
+        app:autoSizeStepGranularity="1sp"
+        app:layout_constraintBottom_toTopOf="@id/change_percent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <com.google.android.material.textview.MaterialTextView
+        tools:text="+2,43"
+        android:textSize="14sp"
+        android:id="@+id/change_percent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/price"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/standard_end"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintGuide_end="80dp" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/end_graph"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:barrierDirection="start"
+        app:constraint_referenced_ids="price,change_percent,standard_end"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/graph"
+        android:layout_width="55dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/end_graph"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -18,6 +18,8 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
+import com.rainyseason.cj.common.model.ThemeJsonAdapter
+import com.rainyseason.cj.common.model.TimeIntervalJsonAdapter
 import com.rainyseason.cj.data.CoinHistory
 import com.rainyseason.cj.data.CommonStorage
 import com.rainyseason.cj.data.ForceCacheInterceptor
@@ -32,7 +34,13 @@ import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.rainyseason.cj.tracking.AppTracker
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.watch.WatchListFragmentModule
+import com.rainyseason.cj.widget.watch.Watch
+import com.rainyseason.cj.widget.watch.WatchClickActionJsonAdapter
+import com.rainyseason.cj.widget.watch.WatchPreviewFragmentModule
+import com.rainyseason.cj.widget.watch.WatchSettingActivityModule
+import com.rainyseason.cj.widget.watch.WatchWidgetLayoutJsonAdapter
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.addAdapter
 import dagger.Binds
 import dagger.BindsInstance
 import dagger.Component
@@ -64,6 +72,8 @@ import javax.inject.Singleton
         CoinDetailModule::class,
         AppProvides::class,
         AppBinds::class,
+        WatchSettingActivityModule::class,
+        WatchPreviewFragmentModule::class,
     ]
 )
 @Singleton
@@ -107,8 +117,7 @@ object AppProvides {
             val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
             logging.level = HttpLoggingInterceptor.Level.BODY
 
-            val networkLogging = HttpLoggingInterceptor {
-                message ->
+            val networkLogging = HttpLoggingInterceptor { message ->
                 Timber.tag("OkHttpN").d(message)
             }
             networkLogging.level = HttpLoggingInterceptor.Level.HEADERS
@@ -167,10 +176,16 @@ object AppProvides {
         return Call.Factory { request -> clientProvider.get().newCall(request) }
     }
 
+    @ExperimentalStdlibApi
     @Provides
     @Singleton
     fun moshi(): Moshi {
-        return Moshi.Builder().build()
+        return Moshi.Builder()
+            .addAdapter(TimeIntervalJsonAdapter)
+            .addAdapter(WatchWidgetLayoutJsonAdapter)
+            .addAdapter(ThemeJsonAdapter)
+            .addAdapter(WatchClickActionJsonAdapter)
+            .build()
     }
 
     @Provides
@@ -202,28 +217,25 @@ object AppProvides {
     @Provides
     @Singleton
     fun provideCoinTickerStorage(context: Context): CoinTickerStorage {
-        val pref = PreferenceDataStoreFactory.create(
+        val pref = createStorage(context, "coin_ticker_storage")
+        return CoinTickerStorage(pref)
+    }
+
+    private fun createStorage(context: Context, name: String): DataStore<Preferences> {
+        return PreferenceDataStoreFactory.create(
             corruptionHandler = null,
             migrations = emptyList(),
             scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
             produceFile = {
-                context.preferencesDataStoreFile("coin_ticker_storage")
+                context.preferencesDataStoreFile(name)
             }
         )
-        return CoinTickerStorage(pref)
     }
 
     @Provides
     @Singleton
     fun provideUserSettingStorage(context: Context): UserSettingStorage {
-        val pref = PreferenceDataStoreFactory.create(
-            corruptionHandler = null,
-            migrations = emptyList(),
-            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            produceFile = {
-                context.preferencesDataStoreFile("user_setting_storage")
-            }
-        )
+        val pref = createStorage(context, "user_setting_storage")
         return UserSettingStorage(pref)
     }
 
@@ -231,28 +243,21 @@ object AppProvides {
     @CommonStorage
     @Singleton
     fun provideCommonStorage(context: Context): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create(
-            corruptionHandler = null,
-            migrations = emptyList(),
-            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            produceFile = {
-                context.preferencesDataStoreFile("common")
-            }
-        )
+        return createStorage(context, "common")
+    }
+
+    @Provides
+    @Watch
+    @Singleton
+    fun provideWatchStorage(context: Context): DataStore<Preferences> {
+        return createStorage(context, "watch_storage")
     }
 
     @Provides
     @CoinHistory
     @Singleton
     fun provideCoinHistoryStorage(context: Context): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create(
-            corruptionHandler = null,
-            migrations = emptyList(),
-            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            produceFile = {
-                context.preferencesDataStoreFile("coin_history")
-            }
-        )
+        return createStorage(context, "coin_history")
     }
 
     @Provides

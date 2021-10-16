@@ -9,7 +9,6 @@
         android:id="@+id/toolbar_container"
         android:layout_width="0dp"
         android:layout_height="52dp"
-        android:background="?colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -35,8 +34,6 @@
         android:background="@null"
         android:hint="@string/search_hint"
         android:inputType="text"
-        android:textColor="?colorOnPrimary"
-        android:textColorHint="@color/white_a50"
         android:textCursorDrawable="@null"
         app:layout_constraintBottom_toBottomOf="@id/toolbar_container"
         app:layout_constraintEnd_toEndOf="parent"

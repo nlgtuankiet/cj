@@ -7,21 +7,17 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.buildModels
+import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.databinding.FragmentHomeBinding
+import com.rainyseason.cj.tracking.logScreenEnter
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val binding = FragmentHomeBinding.bind(view)
-        GlideApp.with(binding.background)
-            .load(R.drawable.main_background)
-            .centerCrop()
-            .into(binding.background)
-
         val models = buildModels {
             listOf(
                 R.drawable.step_1,
@@ -58,5 +54,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 Toast.LENGTH_SHORT
             ).show()
         }
+
+        requireContext().coreComponent.tracker
+            .logScreenEnter("tutorial")
     }
 }

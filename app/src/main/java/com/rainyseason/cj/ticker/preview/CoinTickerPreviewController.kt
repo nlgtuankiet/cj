@@ -18,8 +18,8 @@ import com.rainyseason.cj.common.showKeyboard
 import com.rainyseason.cj.common.view.IntLabelFormater
 import com.rainyseason.cj.common.view.PercentLabelFormatrer
 import com.rainyseason.cj.common.view.SizeLabelFormatter
-import com.rainyseason.cj.common.view.horizontalSeparatorView
 import com.rainyseason.cj.common.view.retryView
+import com.rainyseason.cj.common.view.settingAdvanceView
 import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.common.view.settingSliderView
 import com.rainyseason.cj.common.view.settingSwitchView
@@ -43,9 +43,10 @@ class CoinTickerPreviewController(
             addSeparator = true
             return
         }
-        horizontalSeparatorView {
-            id(id)
-        }
+        // temporary disable for dark mode
+        // horizontalSeparatorView {
+        //     id(id)
+        // }
     }
 
     override fun buildModels() {
@@ -54,10 +55,82 @@ class CoinTickerPreviewController(
         if (buildRetryResult == BuildState.Stop) {
             return
         }
-        buildStyle(state)
-        buildCurrencyGroup(state)
-        buildBottomSetting(state)
-        buildBehaviorSetting(state)
+
+        buildLayout(state)
+        buildRefreshInternal(state)
+        buildCurrency(state)
+        buildTheme(state)
+        buildSizeAdjustment(state)
+        buildBackgroundTransparency(state)
+
+        buildAdvanceHeader(state)
+        buildAdvanceSettings(state)
+    }
+
+    private fun buildAdvanceSettings(state: CoinTickerPreviewState) {
+        if (!state.showAdvanceSetting) {
+            return
+        }
+        buildPriceFormatGroup(state)
+        buildChangePercentGroup(state)
+        buildBehaviorGroup(state)
+        buildContentGroup(state)
+    }
+
+    private fun buildContentGroup(state: CoinTickerPreviewState) {
+        settingHeaderView {
+            id("setting_header_content")
+            content(R.string.setting_content_title)
+        }
+
+        buildAmount(state)
+        buildBottomContentType(state)
+    }
+
+    private fun buildChangePercentGroup(state: CoinTickerPreviewState) {
+        settingHeaderView {
+            id("setting_header_change_percent")
+            content(R.string.setting_price_change_percent_title)
+        }
+
+        buildChangePercentInternal(state)
+        buildPercentDecimal(state)
+    }
+
+    private fun buildBehaviorGroup(state: CoinTickerPreviewState) {
+        settingHeaderView {
+            id("setting_header_behavior")
+            content(R.string.setting_behavior_title)
+        }
+
+        buildBatteryWarning(state)
+        buildClickAction(state)
+    }
+
+    private fun buildPriceFormatGroup(state: CoinTickerPreviewState) {
+        settingHeaderView {
+            id("setting_header_price_format")
+            content(R.string.setting_price_format_title)
+        }
+        buildAmountDecimal(state)
+        buildRoundToMillion(state)
+        buildShowThousandSeparator(state)
+        buildHideDecimalOnLargePrice(state)
+        buildShowCurrencySymbol(state)
+    }
+
+    private fun buildAdvanceHeader(state: CoinTickerPreviewState) {
+        if (state.showAdvanceSetting) {
+            return
+        }
+        settingAdvanceView {
+            id("setting_advance_view")
+            title(R.string.setting_show_advance)
+            summary(R.string.setting_show_advance_summary)
+            onClickListener { _ ->
+                viewModel.showAdvanced()
+            }
+        }
     }
 
     private fun buildRetry(state: CoinTickerPreviewState): BuildState {
@@ -78,20 +151,6 @@ class CoinTickerPreviewController(
         return BuildState.Stop
     }
 
-    private fun buildCurrencyGroup(state: CoinTickerPreviewState) {
-        settingHeaderView {
-            id("header_currency_group")
-            content(R.string.coin_ticker_preview_setting_header_currency_group)
-        }
-        addSeparator = false
-        buildCurrency(state)
-        buildAmountDecimal(state)
-        buildHideDecimalOnLargePrice(state)
-        buildRoundToMillion(state)
-        buildShowCurrencySymbol(state)
-        buildShowThousandSeparator(state)
-    }
-
     private fun buildHideDecimalOnLargePrice(state: CoinTickerPreviewState) {
         val config = state.config ?: return
         maybeBuildHorizontalSeparator(id = "hide_decimal_separator")
@@ -104,22 +163,6 @@ class CoinTickerPreviewController(
                 viewModel.switchHideDecimal()
             }
         }
-    }
-
-    private fun buildStyle(state: CoinTickerPreviewState) {
-        settingHeaderView {
-            id("header_style")
-            content(R.string.coin_ticker_preview_setting_header_style)
-        }
-        addSeparator = false
-        buildLayout(state)
-        buildTheme(state)
-        buildChangePercentInternal(state)
-        buildRefreshInternal(state)
-        buildAmount(state)
-        buildBatteryWarning(state)
-        buildSizeAdjustment(state)
-        buildBackgroundTransparency(state)
     }
 
     private fun buildAmount(state: CoinTickerPreviewState) {
@@ -368,15 +411,6 @@ class CoinTickerPreviewController(
         }
     }
 
-    private fun buildBehaviorSetting(state: CoinTickerPreviewState) {
-        settingHeaderView {
-            id("behavior_header")
-            content(R.string.coin_ticker_preview_setting_header_behavior)
-        }
-        addSeparator = false
-        buildClickAction(state)
-    }
-
     private fun buildCurrency(state: CoinTickerPreviewState) {
         val config = state.config ?: return
         val currencyCodeToString = SUPPORTED_CURRENCY.mapValues {
@@ -522,16 +556,6 @@ class CoinTickerPreviewController(
                     .show()
             }
         }
-    }
-
-    private fun buildBottomSetting(state: CoinTickerPreviewState) {
-        settingHeaderView {
-            id("bottom-header")
-            content(R.string.coin_ticker_preview_setting_header_bottom)
-        }
-        addSeparator = false
-        buildBottomContentType(state)
-        buildPercentDecimal(state)
     }
 
     private fun buildRoundToMillion(state: CoinTickerPreviewState) {

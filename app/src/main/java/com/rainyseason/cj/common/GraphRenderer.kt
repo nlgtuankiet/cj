@@ -28,7 +28,7 @@ class GraphRenderer @Inject constructor() {
         val bitmap = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         val paint = Paint()
-        paint.strokeWidth = context.dpToPxF(2f)
+        paint.strokeWidth = context.dpToPxF(1.5f)
         paint.style = Paint.Style.STROKE
         paint.isAntiAlias = true
         paint.strokeCap = Paint.Cap.ROUND

@@ -35,10 +35,9 @@ import java.util.concurrent.TimeUnit
 data class CoinTickerPreviewState(
     val savedDisplayData: Async<CoinTickerDisplayData> = Uninitialized,
     val savedConfig: Async<CoinTickerConfig> = Uninitialized,
-    val userCurrency: Async<String> = Uninitialized,
     val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
     val marketChartResponse: Map<String, Async<MarketChartResponse>> = emptyMap(),
-    val numberOfDecimal: Int? = null,
+    val showAdvanceSetting: Boolean = false,
 ) : MavericksState {
     val config: CoinTickerConfig?
         get() = savedConfig.invoke()
@@ -213,7 +212,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
         loadGraphJobs[interval]?.cancel()
         loadGraphJobs[interval] = suspend {
-            coinGeckoService.getMarketChart(id = args.coinId, vsCurrency = currency, day)
+            coinGeckoService.getMarketChart(id = args.coinId, vsCurrency = currency, day.toString())
         }.execute {
             copy(marketChartResponse = marketChartResponse.update { set(interval, it) })
         }
@@ -312,6 +311,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     fun setAmount(value: String?) {
         updateConfig { copy(amount = value?.toDoubleOrNull() ?: 1.0) }
+    }
+
+    fun showAdvanced() {
+        setState { copy(showAdvanceSetting = true) }
     }
 
     @AssistedFactory

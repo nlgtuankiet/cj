@@ -29,6 +29,7 @@
     <string name="coin_ticker_preview_setting_bottom_change_percent_interval_7d">7 days</string>
     <string name="coin_ticker_preview_setting_bottom_change_percent_interval_14d">14 days</string>
     <string name="coin_ticker_preview_setting_bottom_change_percent_interval_30d">30 days</string>
+    <string name="coin_ticker_preview_setting_bottom_change_percent_interval_90d">90 days</string>
     <string name="coin_ticker_preview_setting_bottom_change_percent_interval_1y">1 year</string>
     <string name="search_hint">Search…</string>
     <string name="search_result_other_coin_header">Other result</string>
@@ -73,8 +74,7 @@
     <string name="inapp_review_submit_feedback">Submit</string>
     <string name="inapp_review_cancel_feedback">Maybe later</string>
 
-
-    <string name="bottom_nav_home">Home</string>
+    <string name="bottom_nav_home">Tutorial</string>
     <string name="bottom_nav_watch_list">Watch list</string>
     <string name="bottom_nav_contact">Contact</string>
     <string name="home_add_widget">Add widget</string>
@@ -96,5 +96,17 @@
     <string name="watch_list_symbol_header">Symbols</string>
     <string name="watch_list_menu_remove">Remove from watch list</string>
     <string name="watch_list_menu_add">Add to watch list</string>
+
+    <string name="setting_show_advance">Advanced</string>
+    <string name="setting_show_advance_summary">Price format, Change percent, Behavior</string>
+
+    <string name="setting_price_format_title">Price format</string>
+    <string name="setting_price_change_percent_title">Change percent</string>
+    <string name="setting_behavior_title">Behavior</string>
+    <string name="setting_content_title">Content</string>
+
+    <string name="watch_preview_click_action_open_watchlist">Open watchlist</string>
+    <string name="watch_edit_watch_list">Edit watchlist</string>
+    <string name="watch_edit_watch_list_summary">Add or remove coin, rearrange items</string>
 
 </resources>

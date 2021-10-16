@@ -4,6 +4,7 @@
     package="com.rainyseason.cj">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:name=".CJApplication"
         android:allowBackup="true"
@@ -17,7 +18,40 @@
             android:name="firebase_performance_logcat_enabled"
             android:value="@bool/firebase_performance_logcat_enabled" />
 
+        <receiver
+            android:name=".widget.watch.WatchWidget4x2Provider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.rainyseason.cj.widget.watchlist.click" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_watch_4x2_info" />
+        </receiver>
+
+        <receiver
+            android:name=".widget.watch.WatchWidget4x4Provider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.rainyseason.cj.widget.watchlist.click" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_watch_4x4_info" />
+        </receiver>
+
         <activity
+            android:name=".widget.watch.WatchSettingActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:launchMode="singleTask"
             android:name="com.rainyseason.cj.MainActivity"
             android:exported="true">
             <intent-filter>

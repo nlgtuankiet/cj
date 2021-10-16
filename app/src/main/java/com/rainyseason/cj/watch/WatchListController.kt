@@ -12,8 +12,11 @@ import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.view.emptyView
 import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.detail.CoinDetailArgs
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logClick
 import com.rainyseason.cj.watch.view.WatchEntryView
 import com.rainyseason.cj.watch.view.WatchEntryViewModelBuilder
+import com.rainyseason.cj.watch.view.watchEditEntryView
 import com.rainyseason.cj.watch.view.watchEntrySeparatorView
 import com.rainyseason.cj.watch.view.watchEntryView
 import com.rainyseason.cj.watch.view.watchHeaderView
@@ -24,6 +27,7 @@ import kotlin.math.max
 
 class WatchListController @AssistedInject constructor(
     @Assisted val viewModel: WatchListViewModel,
+    private val tracker: Tracker,
 ) : AsyncEpoxyController() {
     override fun buildModels() {
         emptyView { id("holder") }
@@ -31,9 +35,44 @@ class WatchListController @AssistedInject constructor(
 
         buildWatchList(state)
         buildSearchResult(state)
+        buildEditList(state)
+    }
+
+    private fun buildEditList(state: WatchListState): BuildState {
+        if (!state.isInEditMode) {
+            return BuildState.Next
+        }
+
+        val watchList = state.watchList.invoke() ?: return BuildState.Next
+
+        watchList.forEachIndexed { _, coinId ->
+            val coinDetail = state.watchEntryDetail[coinId]?.invoke()
+            watchEditEntryView {
+                id(coinId)
+                coinId(coinId)
+                symbol(coinDetail?.symbol)
+                name(coinDetail?.name)
+                onDeleteClickListener { _ ->
+                    tracker.logClick(
+                        screenName = WatchListFragment.SCREEN_NAME,
+                        target = "entry",
+                        params = mapOf(
+                            "action" to "delete",
+                            "coin_id" to coinId
+                        )
+                    )
+                    viewModel.onRemoveClick(coinId)
+                }
+            }
+        }
+
+        return BuildState.Next
     }
 
     private fun buildSearchResult(state: WatchListState): BuildState {
+        if (state.isInEditMode) {
+            return BuildState.Next
+        }
         val watchList = state.watchList.invoke() ?: return BuildState.Next
         val watchListIds = watchList.toSet()
         val coinMarket = state.coinMarket.invoke() ?: return BuildState.Next
@@ -50,7 +89,7 @@ class WatchListController @AssistedInject constructor(
             header(R.string.watch_list_symbol_header)
         }
 
-        var shouldBuildSeparator: Boolean = false
+        var shouldBuildSeparator = false
 
         val coinMarketToRender = coinMarket
             .filter { it.id !in watchListIds }
@@ -59,6 +98,7 @@ class WatchListController @AssistedInject constructor(
                     it.symbol.contains(keyword, true)
             }
 
+        val coinMarketIds = coinMarket.map { it.id }.toSet()
         val coinMarketToRenderIds = coinMarketToRender.map { it.id }.toSet()
 
         coinMarketToRender.forEachIndexed { _, coinListEntry ->
@@ -73,6 +113,7 @@ class WatchListController @AssistedInject constructor(
 
             watchEntryView {
                 id(coinListEntry.id)
+                coinId(coinListEntry.id)
                 symbol(coinListEntry.symbol)
                 name(coinListEntry.name)
                 val priceModel = WatchEntryView.PriceModel(
@@ -100,7 +141,7 @@ class WatchListController @AssistedInject constructor(
                 compareByDescending<CoinListEntry> {
                     max(calculateRatio(keyword, it.name), calculateRatio(keyword, it.symbol))
                 }.thenByDescending {
-                    coinMarketToRenderIds.contains(it.id)
+                    coinMarketIds.contains(it.id)
                 }
             )
 
@@ -116,6 +157,7 @@ class WatchListController @AssistedInject constructor(
 
             watchEntryView {
                 id(coinListEntry.id)
+                coinId(coinListEntry.id)
                 symbol(coinListEntry.symbol)
                 name(coinListEntry.name)
                 price(null)
@@ -133,7 +175,16 @@ class WatchListController @AssistedInject constructor(
 
     private fun showPopup(view: View, coinId: String) {
         val state = withState(viewModel) { it }
+        if (state.isInEditMode) {
+            return
+        }
         val inWatchList = coinId in state.watchList.invoke().orEmpty()
+        val action = if (inWatchList) {
+            "remove"
+        } else {
+            "add"
+        }
+
         view.createPopupMenuCenterEnd().apply {
             if (inWatchList) {
                 inflate(R.menu.watch_list_watch_item)
@@ -141,6 +192,13 @@ class WatchListController @AssistedInject constructor(
                 inflate(R.menu.watch_list_search_result_item)
             }
             setOnMenuItemClickListener { menu ->
+                tracker.logClick(
+                    screenName = WatchListFragment.SCREEN_NAME,
+                    target = "entry_popup",
+                    params = mapOf(
+                        "action" to action
+                    )
+                )
                 when (menu.itemId) {
                     R.id.add -> viewModel.onAddClick(coinId)
                     R.id.remove -> viewModel.onRemoveClick(coinId)
@@ -166,14 +224,27 @@ class WatchListController @AssistedInject constructor(
         symbol: String? = null,
     ) {
         onClickListener { view ->
+            tracker.logClick(
+                screenName = WatchListFragment.SCREEN_NAME,
+                target = "entry",
+                params = mapOf(
+                    "action" to "open_coin_detail",
+                    "coin_id" to coinId
+                )
+            )
             view.findNavController().navigate(R.id.detail, CoinDetailArgs(coinId, symbol).asArgs())
         }
     }
 
     private fun buildWatchList(state: WatchListState): BuildState {
+        if (state.isInEditMode) {
+            return BuildState.Next
+        }
         val userSetting = state.userSetting.invoke() ?: return BuildState.Next
         val watchList = state.watchList.invoke() ?: return BuildState.Next
         val currencyCode = userSetting.currencyCode
+
+        val keyword = state.keyword
 
         if (state.keyword.isNotEmpty()) {
             watchHeaderView {
@@ -182,7 +253,22 @@ class WatchListController @AssistedInject constructor(
             }
         }
 
-        watchList.forEachIndexed { index, coinId ->
+        val filteredWatchList = if (keyword.isNotBlank()) {
+            watchList
+                .filter { symbol ->
+                    val detail = state.watchEntryDetail[symbol]?.invoke()
+                    if (detail == null) {
+                        return@filter true
+                    } else {
+                        detail.name.contains(keyword, true) ||
+                            detail.symbol.contains(keyword, true)
+                    }
+                }
+        } else {
+            watchList
+        }
+
+        filteredWatchList.forEachIndexed { index, coinId ->
             if (index != 0) {
                 watchEntrySeparatorView {
                     id("watch_list_separator_$coinId")
@@ -193,6 +279,7 @@ class WatchListController @AssistedInject constructor(
             val coinMarket = state.watchEntryMarket[coinId]?.invoke()
             watchEntryView {
                 id(coinId)
+                coinId(coinId)
                 symbol(coinDetail?.symbol)
                 name(coinDetail?.name)
                 val priceModel = if (coinDetail != null) {
@@ -200,7 +287,7 @@ class WatchListController @AssistedInject constructor(
                         price = coinMarket?.prices?.lastOrNull()?.get(1)
                             ?: coinDetail.marketData.currentPrice[currencyCode]!!,
                         changePercent = coinDetail.marketData
-                            .priceChangePercentage24hInCurrency[currencyCode]!!,
+                            .priceChangePercentage24hInCurrency[currencyCode],
                         currency = currencyCode
                     )
                 } else {

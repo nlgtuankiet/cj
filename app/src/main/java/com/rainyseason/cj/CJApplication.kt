@@ -2,6 +2,8 @@ package com.rainyseason.cj
 
 import android.app.Application
 import android.appwidget.AppWidgetManager
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -56,10 +58,10 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     override fun onCreate() {
         super.onCreate()
         appComponent = DaggerAppComponent.factory().create(this)
-
         checkFirebaseApp()
-
         injectIfNecessary()
+
+        AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
 
         if (!BuildConfig.IS_PLAY_STORE) {
             Timber.plant(Timber.DebugTree())

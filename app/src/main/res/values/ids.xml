@@ -3,6 +3,9 @@
     <item name="default_debounce_key" type="id" />
     <item name="watch_list_screen" type="id" />
     <item name="home_screen" type="id" />
+    <item name="release_note_screen" type="id" />
     <item name="contact_screen" type="id" />
     <item name="main_nav_graph" type="id" />
+
+    <item name="haptic_feedback" type="id" />
 </resources>

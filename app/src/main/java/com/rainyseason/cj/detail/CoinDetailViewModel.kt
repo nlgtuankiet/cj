@@ -10,6 +10,7 @@ import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.model.TimeInterval
+import com.rainyseason.cj.common.model.asDayString
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSetting
 import com.rainyseason.cj.data.UserSettingRepository
@@ -104,7 +105,7 @@ class CoinDetailViewModel @AssistedInject constructor(
             TimeInterval.I_30D -> TimeInterval.I_30D
             TimeInterval.I_90D -> TimeInterval.I_1Y
             TimeInterval.I_1Y -> TimeInterval.I_1Y
-            TimeInterval.I_ALL -> TimeInterval.I_1Y
+            TimeInterval.I_ALL -> TimeInterval.I_ALL
         }
 
         val priceGraph = marketChartResponse[responseInterval]?.invoke()
@@ -146,16 +147,17 @@ class CoinDetailViewModel @AssistedInject constructor(
             val currencyCode = userSettingRepository.getUserSetting().currencyCode
 
             listOf(
-                TimeInterval.I_24H to 1,
-                TimeInterval.I_30D to 30,
-                TimeInterval.I_1Y to 365,
-            ).forEach { (interval, days) ->
+                TimeInterval.I_24H,
+                TimeInterval.I_30D,
+                TimeInterval.I_1Y,
+                TimeInterval.I_ALL,
+            ).forEach { interval ->
                 loadGraphJobs[interval]?.cancel()
                 loadGraphJobs[interval] = suspend {
                     coinGeckoService.getMarketChart(
                         id = args.coinId,
                         vsCurrency = currencyCode,
-                        day = days
+                        day = interval.asDayString()!!
                     )
                 }.execute {
                     copy(marketChartResponse = marketChartResponse.update { set(interval, it) })

@@ -49,10 +49,10 @@ class NumberFormater @Inject constructor() {
 
         val roundToM = roundToMillion && tmpAmount > 1_000_000
         var roundSymbol = ""
-        if (tmpAmount >= 1_000_000_000) {
+        if (roundToM && tmpAmount >= 1_000_000_000) {
             roundSymbol = "B"
             tmpAmount /= 1_000_000_000
-        } else if (tmpAmount >= 1_000_000) {
+        } else if (roundToM && tmpAmount >= 1_000_000) {
             roundSymbol = "M"
             tmpAmount /= 1_000_000
         }
@@ -89,7 +89,7 @@ class NumberFormater @Inject constructor() {
      * 0.001234
      * -> 4
      */
-    fun getSmartNumberOfDecimal(
+    private fun getSmartNumberOfDecimal(
         amount: Double,
         configNumberOfDecimal: Int?,
         hideOnLargeAmount: Boolean = false,

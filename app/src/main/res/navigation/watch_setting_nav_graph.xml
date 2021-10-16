@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/coin_ticker_nav_graph"
+    app:startDestination="@id/preview">
+
+    <fragment
+        android:id="@+id/preview"
+        android:name="com.rainyseason.cj.widget.watch.WatchPreviewFragment"
+        android:label="Preview" />
+</navigation>

@@ -10,6 +10,7 @@ import androidx.transition.TransitionManager
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
+import com.rainyseason.cj.common.hapticFeedback
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.databinding.ViewDetailIntervalSegmentViewBinding
@@ -42,6 +43,7 @@ class IntervalSegmentedView @JvmOverloads constructor(
 
     @ModelProp
     fun setInterval(interval: TimeInterval) {
+        hapticFeedback()
         val focusView = intervalToView[interval]!!
         val currentSet = ConstraintSet()
         currentSet.clone(container)

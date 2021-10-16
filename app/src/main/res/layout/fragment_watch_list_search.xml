@@ -5,8 +5,7 @@
     android:id="@+id/search_group"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:layoutDescription="@xml/fragment_watch_list_search_scene"
-    tools:background="@color/black">
+    app:layoutDescription="@xml/fragment_watch_list_search_scene">
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/title"
@@ -14,10 +13,21 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/open_sans_medium"
         android:text="@string/watch_list_header"
-        android:textColor="@color/gray_50"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:alpha="1"
+        tools:src="@drawable/ic_baseline_edit_24"
+        android:scaleType="centerInside"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:id="@+id/edit_button"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="36dp"
+        android:layout_height="36dp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/search_container"
@@ -43,6 +53,9 @@
             app:tint="@color/gray_500" />
 
         <EditText
+            android:imeOptions="actionGo"
+            android:inputType="text"
+            android:maxLines="1"
             android:id="@+id/search_edit_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

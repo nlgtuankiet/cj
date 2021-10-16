@@ -83,7 +83,6 @@ class DebugFlagProvider @Inject constructor(context: Context) : FlagValueProvide
 @Suppress("unused")
 object FeatureFlag {
     val HOME_V2 = FeatureKey("home_v2").withDefault("false")
-    val WATCH_LIST = FeatureKey("watch_list").withDefault("false")
 }
 
 object DebugFlag {
@@ -93,6 +92,7 @@ object DebugFlag {
     val SHOW_NETWORK_LOG = DebugKey("show_network_log").withDefault("false")
     val SHOW_TRIGGER_REVIEW_BUTTON = DebugKey("show_trigger_review_button")
         .withDefault("false")
+    val SHOW_CAPTURE_BUTTON = DebugKey("show_capture_button")
 }
 
 class DebugFlagSetter : AppCompatActivity() {

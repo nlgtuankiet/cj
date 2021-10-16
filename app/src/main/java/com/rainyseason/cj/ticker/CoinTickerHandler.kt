@@ -44,7 +44,7 @@ class CoinTickerHandler @Inject constructor(
             "refresh_$widgetId",
             ExistingPeriodicWorkPolicy.REPLACE,
             request
-        )
+        ).await()
     }
 
     suspend fun removeRefreshWork(widgetId: Int) {

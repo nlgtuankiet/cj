@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.rainyseason.cj.common.CoinTickerStorage
-import com.rainyseason.cj.data.UserSetting
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
@@ -90,7 +89,8 @@ class CoinTickerRepository @Inject constructor(
         val key = configKey(widgetId)
         val data = configAdapter.toJson(widgetConfig)
         dataStore.edit { it[key] = data }
-        val userSetting = UserSetting(
+        val currentSetting = userSettingRepository.getUserSetting()
+        val userSetting = currentSetting.copy(
             currencyCode = widgetConfig.currency,
             refreshInterval = widgetConfig.refreshInterval,
             refreshIntervalUnit = widgetConfig.refreshIntervalUnit,

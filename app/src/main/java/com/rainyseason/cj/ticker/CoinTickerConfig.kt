@@ -23,10 +23,10 @@ data class CoinTickerConfig(
     val numberOfChangePercentDecimal: Int? = 1,
 
     @Json(name = "refresh_interval")
-    val refreshInterval: Long = 60,
+    val refreshInterval: Long = 1,
 
     @Json(name = "refresh_interval_unit")
-    val refreshIntervalUnit: TimeUnit = TimeUnit.MINUTES,
+    val refreshIntervalUnit: TimeUnit = TimeUnit.HOURS,
 
     @Json(name = "theme")
     val theme: String = Theme.AUTO,

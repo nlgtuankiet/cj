@@ -9,10 +9,10 @@
     tools:background="@color/black">
 
     <TextView
+        style="@style/Theme.CryptoJet.Text.Medium"
         android:id="@+id/symbol"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="@font/open_sans_medium"
         android:textAllCaps="true"
         android:textColor="@color/gray_50"
         android:textSize="18sp"
@@ -21,13 +21,13 @@
         tools:text="BTC" />
 
     <TextView
+        android:textColor="@color/text_secondary"
         android:id="@+id/name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/gray_500"
         android:textSize="14sp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/symbol"
         tools:text="Bitcoin" />
 
@@ -51,8 +51,17 @@
         app:layout_constraintTop_toTopOf="@id/name" />
 
     <TextView
+        android:gravity="center|end"
+        android:textAlignment="gravity"
+        android:layout_marginStart="4dp"
+        app:autoSizeStepGranularity="1sp"
+        app:autoSizeMinTextSize="1sp"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMaxTextSize="18sp"
+        android:maxLines="1"
+        app:layout_constraintStart_toEndOf="@id/standard_end"
         android:id="@+id/price"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:fontFamily="@font/open_sans_medium"
         android:textColor="@color/gray_50"
@@ -105,4 +114,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@id/end_graph"
         app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
