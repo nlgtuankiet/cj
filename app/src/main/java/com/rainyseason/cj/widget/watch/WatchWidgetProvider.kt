@@ -4,6 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.goBackground
 
@@ -32,6 +33,26 @@ abstract class WatchWidgetProvider : AppWidgetProvider() {
         goBackground {
             appWidgetIds.forEach { widgetId ->
                 handler.enqueueRefreshWidget(widgetId)
+            }
+        }
+    }
+
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle,
+    ) {
+        goBackground {
+            handler.rerender(appWidgetId)
+        }
+    }
+
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        super.onDeleted(context, appWidgetIds)
+        goBackground {
+            appWidgetIds.forEach { widgetId ->
+                handler.onWidgetDelete(widgetId)
             }
         }
     }

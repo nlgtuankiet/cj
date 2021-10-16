@@ -3,6 +3,7 @@ package com.rainyseason.cj.widget.watch
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
+import android.widget.RemoteViews
 import androidx.work.BackoffPolicy
 import androidx.work.Constraints
 import androidx.work.Data
@@ -22,8 +23,16 @@ import javax.inject.Singleton
 @Singleton
 class WatchWidgetHandler @Inject constructor(
     private val watchWidgetRepository: WatchWidgetRepository,
-    private val workManager: WorkManager
+    private val workManager: WorkManager,
+    private val context: Context,
+    private val watchWidgetRender: WatchWidgetRender,
+    private val appWidgetManager: AppWidgetManager,
 ) {
+
+    suspend fun onWidgetDelete(widgetId: Int) {
+        watchWidgetRepository.clearAllData(widgetId = widgetId)
+        removeRefreshWork(widgetId = widgetId)
+    }
 
     suspend fun enqueueRefreshWidget(widgetId: Int, config: WatchConfig? = null) {
         val latestConfig = config ?: watchWidgetRepository.getConfig(widgetId = widgetId) ?: return
@@ -68,5 +77,20 @@ class WatchWidgetHandler @Inject constructor(
 
     suspend fun removeRefreshWork(widgetId: Int) {
         workManager.cancelUniqueWork("refresh_watch_$widgetId").await()
+    }
+
+    suspend fun rerender(widgetId: Int) {
+        val config = watchWidgetRepository.getConfig(widgetId = widgetId) ?: return
+        val displayData = watchWidgetRepository.getDisplayData(widgetId = widgetId) ?: return
+
+        val params = WatchWidgetRenderParams(
+            config = config,
+            data = displayData,
+            showLoading = false,
+            isPreview = false,
+        )
+        val view = RemoteViews(context.packageName, config.layout.layout)
+        watchWidgetRender.render(view, params)
+        appWidgetManager.updateAppWidget(widgetId, view)
     }
 }
