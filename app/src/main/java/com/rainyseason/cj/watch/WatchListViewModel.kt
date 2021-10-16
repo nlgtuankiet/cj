@@ -55,16 +55,20 @@ class WatchListViewModel @AssistedInject constructor(
     private val watchListRepository: WatchListRepository,
     private val context: Context,
 ) : MavericksViewModel<WatchListState>(state) {
-
-    init {
-        reload()
-    }
-
+    private val wachEntryDetailJob: MutableMap<String, Job> =
+        Collections.synchronizedMap(mutableMapOf())
+    private val wachEntryMarketlJob: MutableMap<String, Job> =
+        Collections.synchronizedMap(mutableMapOf())
     private var coinListJob: Job? = null
     private var userSettingJob: Job? = null
     private var watchListJob: Job? = null
     private var loadWatchListEntriesJob: Job? = null
     private var marketJob: Job? = null
+    private val keywordDeboucer = MutableStateFlow("")
+
+    init {
+        reload()
+    }
 
     private fun reload() {
         coinListJob?.cancel()
@@ -121,11 +125,6 @@ class WatchListViewModel @AssistedInject constructor(
         }
     }
 
-    private val wachEntryDetailJob: MutableMap<String, Job> =
-        Collections.synchronizedMap(mutableMapOf())
-    private val wachEntryMarketlJob: MutableMap<String, Job> =
-        Collections.synchronizedMap(mutableMapOf())
-
     private fun loadWatchEntry(id: String, currencyCode: String) {
         Timber.d("loadWatchEntry $id")
         wachEntryDetailJob.remove(id)?.cancel()
@@ -171,8 +170,6 @@ class WatchListViewModel @AssistedInject constructor(
             }
         }
     }
-
-    private val keywordDeboucer = MutableStateFlow("")
 
     init {
         viewModelScope.launch {

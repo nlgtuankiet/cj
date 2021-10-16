@@ -1,6 +1,16 @@
 package com.rainyseason.cj.common
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Context
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.rainyseason.cj.data.CommonRepository
+import com.rainyseason.cj.widget.watch.WatchWidget4x2Provider
+import com.rainyseason.cj.widget.watch.WatchWidget4x4Provider
+import com.rainyseason.cj.widget.watch.WatchWidgetHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -9,7 +19,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -19,7 +31,10 @@ import javax.inject.Singleton
 @Singleton
 class WatchListRepository @Inject constructor(
     private val commonRepository: CommonRepository,
-) {
+    private val appWidgetManager: AppWidgetManager,
+    private val context: Context,
+    private val watchWidgetHandler: WatchWidgetHandler,
+) : LifecycleObserver {
 
     private val scope = CoroutineScope(Dispatchers.IO + Job())
 
@@ -75,5 +90,42 @@ class WatchListRepository @Inject constructor(
             stateFlow.emit(newList.toList()) // instant reflex the change
             commonRepository.setWatchListIds(newList.toList())
         }
+    }
+
+    private var shouldRefreshWatchListWidgets = false
+
+    init {
+        scope.launch(Dispatchers.Main) {
+            getWatchList()
+                .drop(1)
+                .flowOn(Dispatchers.IO)
+                .collect {
+                    shouldRefreshWatchListWidgets = true
+                }
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    fun onAppBackground() {
+        if (shouldRefreshWatchListWidgets) {
+            shouldRefreshWatchListWidgets = false
+            Timber.d("refresh watch widgets")
+            val widgetIds = listOf(
+                WatchWidget4x2Provider::class.java,
+                WatchWidget4x4Provider::class.java,
+            ).flatMap {
+                appWidgetManager.getAppWidgetIds(ComponentName(context, it)).toList()
+            }
+
+            widgetIds.forEach { widgetId ->
+                scope.launch {
+                    watchWidgetHandler.enqueueRefreshWidget(widgetId)
+                }
+            }
+        }
+    }
+
+    init {
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
     }
 }
