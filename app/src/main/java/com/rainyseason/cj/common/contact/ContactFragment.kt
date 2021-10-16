@@ -7,12 +7,13 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import com.rainyseason.cj.R
+import com.rainyseason.cj.databinding.FragmentContactBinding
 
 class ContactFragment : Fragment(R.layout.fragment_contact) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val binding = FrlagmentContactBinding.bind(view)
+        val binding = FragmentContactBinding.bind(view)
         binding.openTelegram.setOnClickListener {
             try {
                 val intent = Intent(Intent.ACTION_VIEW)
