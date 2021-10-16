@@ -43,14 +43,15 @@ class WatchListController @AssistedInject constructor(
         val watchList = state.watchList.invoke() ?: return BuildState.Next
 
         watchList.forEachIndexed { _, coinId ->
-
             val coinDetail = state.watchEntryDetail[coinId]?.invoke()
-            val coinMarket = state.watchEntryMarket[coinId]?.invoke()
             watchEditEntryView {
                 id(coinId)
                 coinId(coinId)
                 symbol(coinDetail?.symbol)
                 name(coinDetail?.name)
+                onDeleteClickListener { _ ->
+                    viewModel.onRemoveClick(coinId)
+                }
             }
         }
 
