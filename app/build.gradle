@@ -3,8 +3,6 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
-
-    id 'com.google.firebase.crashlytics'
 }
 
 if (System.getenv('CI') != 'true') {
@@ -13,6 +11,7 @@ if (System.getenv('CI') != 'true') {
 } else {
     println "Disable google services plugin"
 }
+apply plugin: 'com.google.firebase.crashlytics'
 
 def getBooleanProp(name) {
     if (project.hasProperty(name)) {
