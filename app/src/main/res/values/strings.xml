@@ -109,4 +109,7 @@
     <string name="watch_edit_watch_list">Edit watchlist</string>
     <string name="watch_edit_watch_list_summary">Add or remove coin, rearrange items</string>
 
+
+    <string name="coin_stat_title">%s Statistics</string>
+
 </resources>

@@ -68,8 +68,12 @@ class CoinDetailController @AssistedInject constructor(
             id("stat_more")
             title("Statistics")
             onClickListener { view ->
+                val args = CoinStatArgs(
+                    coinId = args.coinId,
+                    symbol = state.coinDetailResponse.invoke()?.symbol
+                ).asArgs()
                 view.findNavController()
-                    .navigate(R.id.coin_stat_screen, CoinStatArgs(args.coinId).asArgs())
+                    .navigate(R.id.coin_stat_screen, args)
             }
         }
 

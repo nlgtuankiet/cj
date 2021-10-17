@@ -6,4 +6,5 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class CoinStatArgs(
     val coinId: String,
+    val symbol: String? = null
 ): Parcelable
