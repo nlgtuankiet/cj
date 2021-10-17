@@ -5,10 +5,12 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
+import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.detail.view.graphView
 import com.rainyseason.cj.detail.view.intervalSegmentedView
 import com.rainyseason.cj.detail.view.lowHighView
 import com.rainyseason.cj.detail.view.namePriceChangeView
+import com.rainyseason.cj.detail.view.statSummaryView
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logClick
 import dagger.assisted.Assisted
@@ -20,7 +22,7 @@ import org.threeten.bp.format.DateTimeFormatterBuilder
 
 class CoinDetailController @AssistedInject constructor(
     @Assisted val viewModel: CoinDetailViewModel,
-    private val numberFormater: NumberFormater,
+    private val numberFormatter: NumberFormater,
     private val tracker: Tracker,
 ) : AsyncEpoxyController() {
 
@@ -29,6 +31,7 @@ class CoinDetailController @AssistedInject constructor(
         ::buildIntervalSegment,
         ::buildGraph,
         ::buildLowHigh,
+        ::buildStatSummary,
     )
 
     override fun buildModels() {
@@ -42,12 +45,90 @@ class CoinDetailController @AssistedInject constructor(
         }
     }
 
+    private fun buildStatSummary(state: CoinDetailState): BuildState {
+        val userSetting = state.userSetting.invoke() ?: return BuildState.Stop
+        val currencyCode = userSetting.currencyCode
+        val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Stop
+
+        statSummaryView {
+            id("stat_summary")
+
+            val marketCapValue = numberFormatter.formatAmount(
+                amount = coinDetail.marketData.marketCap[currencyCode]!!,
+                currencyCode = currencyCode,
+            )
+            marketCap(marketCapValue)
+
+            val circulatingSupplyValue = numberFormatter.formatAmount(
+                amount = coinDetail.marketData.circulatingSupply,
+                currencyCode = currencyCode,
+                showCurrencySymbol = false
+            )
+            circulatingSupply(circulatingSupplyValue)
+
+            val totalSupply = coinDetail.marketData.totalSupply
+            if (totalSupply == null) {
+                totalSupply("-")
+            } else {
+                val totalSupplyValue = numberFormatter.formatAmount(
+                    amount = coinDetail.marketData.totalSupply,
+                    currencyCode = currencyCode,
+                    showCurrencySymbol = false
+                )
+                totalSupply(totalSupplyValue)
+            }
+
+            val allTimeHighValue = numberFormatter.formatAmount(
+                amount = coinDetail.marketData.ath[currencyCode]!!,
+                currencyCode = currencyCode,
+            )
+            allTimeHigh(allTimeHighValue)
+
+            // val volumn24hValue =
+
+            val marketResponse24h = state.marketChartResponse[TimeInterval.I_24H]?.invoke()
+            if (marketResponse24h == null) {
+                volume24h("--")
+            } else {
+                val value = marketResponse24h.totalVolumes.last()[1]
+                val volume24hValue = numberFormatter.formatAmount(
+                    amount = value,
+                    currencyCode = currencyCode,
+                )
+                volume24h(volume24hValue)
+            }
+
+            val maxSupply = coinDetail.marketData.maxSupply
+            if (maxSupply == null) {
+                maxSupply("-")
+            } else {
+                val maxSupplyValue = numberFormatter.formatAmount(
+                    amount = maxSupply,
+                    currencyCode = currencyCode,
+                    showCurrencySymbol = false
+                )
+                maxSupply(maxSupplyValue)
+            }
+
+            val rank = coinDetail.marketCapRank
+            if (rank == null) {
+                rank("-")
+            } else {
+                rank("#${rank}")
+            }
+
+            hashingAlgorithm(coinDetail.hashingAlgorithm)
+        }
+
+        return BuildState.Next
+    }
+
     private fun buildLowHigh(state: CoinDetailState): BuildState {
         val userSetting = state.userSetting.invoke() ?: return BuildState.Stop
         val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Stop
         val lowHigh = state.lowHighPrice
         val lowPrice = lowHigh?.first?.let {
-            numberFormater.formatAmount(
+            numberFormatter.formatAmount(
                 amount = lowHigh.first,
                 currencyCode = userSetting.currencyCode,
                 roundToMillion = true,
@@ -58,7 +139,7 @@ class CoinDetailController @AssistedInject constructor(
             )
         } ?: ""
         val highPrice = lowHigh?.second?.let {
-            numberFormater.formatAmount(
+            numberFormatter.formatAmount(
                 amount = lowHigh.second,
                 currencyCode = userSetting.currencyCode,
                 roundToMillion = true,
@@ -105,7 +186,7 @@ class CoinDetailController @AssistedInject constructor(
                 if (graphData.isEmpty()) {
                     ""
                 } else {
-                    numberFormater.formatAmount(
+                    numberFormatter.formatAmount(
                         amount = graphData[0][1],
                         currencyCode = userSetting.currencyCode,
                         roundToMillion = true,
@@ -160,7 +241,7 @@ class CoinDetailController @AssistedInject constructor(
 
         val changePercent = state.graphChangePercent
         val changePercentText = if (changePercent != null) {
-            numberFormater.formatPercent(
+            numberFormatter.formatPercent(
                 amount = changePercent,
                 locate = SUPPORTED_CURRENCY[userSetting.currencyCode]!!.locale,
                 numberOfDecimals = 2,
@@ -173,7 +254,7 @@ class CoinDetailController @AssistedInject constructor(
             id("name_price_change")
             name(coinDetail.name)
             price(
-                numberFormater.formatAmount(
+                numberFormatter.formatAmount(
                     amount = selectedData?.get(1) ?: coinPrice,
                     currencyCode = userSetting.currencyCode,
                     roundToMillion = true,

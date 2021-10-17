@@ -40,16 +40,19 @@ class NumberFormater @Inject constructor() {
         amount: Double,
         currencyCode: String,
         roundToMillion: Boolean = true,
-        numberOfDecimal: Int,
-        hideOnLargeAmount: Boolean,
+        numberOfDecimal: Int = 2,
+        hideOnLargeAmount: Boolean = true,
         showCurrencySymbol: Boolean = true,
-        showThousandsSeparator: Boolean,
+        showThousandsSeparator: Boolean = true,
     ): String {
         var tmpAmount = amount
 
         val roundToM = roundToMillion && tmpAmount > 1_000_000
         var roundSymbol = ""
-        if (roundToM && tmpAmount >= 1_000_000_000) {
+        if (roundToM && tmpAmount >= 1_000_000_000_000) {
+            roundSymbol = "T"
+            tmpAmount /= 1_000_000_000_000
+        } else if (roundToM && tmpAmount >= 1_000_000_000) {
             roundSymbol = "B"
             tmpAmount /= 1_000_000_000
         } else if (roundToM && tmpAmount >= 1_000_000) {

@@ -10,6 +10,9 @@ data class MarketChartResponse(
 
     @Json(name = "market_caps")
     val marketCaps: List<List<Double>>,
+
+    @Json(name = "total_volumes")
+    val totalVolumes: List<List<Double>>,
 )
 
 fun MarketChartResponse.currentPrice(): Double? {

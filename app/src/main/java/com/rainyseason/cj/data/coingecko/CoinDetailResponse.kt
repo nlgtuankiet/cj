@@ -23,7 +23,10 @@ data class CoinDetailResponse(
     @Json(name = "market_cap_rank")
     val marketCapRank: Int?,
 
-) {
+    @Json(name = "hashing_algorithm")
+    val hashingAlgorithm: String,
+
+    ) {
 
     @JsonClass(generateAdapter = true)
     data class Image(
@@ -59,5 +62,17 @@ data class CoinDetailResponse(
 
         @Json(name = "market_cap_change_percentage_24h_in_currency")
         val marketCapChangePercentage24hInCurrency: Map<String, Double>,
+
+        @Json(name = "circulating_supply")
+        val circulatingSupply: Double,
+
+        @Json(name = "total_supply")
+        val totalSupply: Double?,
+
+        @Json(name = "max_supply")
+        val maxSupply: Double?,
+
+        @Json(name = "ath")
+        val ath: Map<String, Double>,
     )
 }
