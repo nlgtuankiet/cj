@@ -10,6 +10,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.fragment
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.rainyseason.cj.coinstat.CoinStatFragment
 import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.contact.ContactFragment
 import com.rainyseason.cj.common.home.HomeFragment
@@ -55,9 +56,10 @@ class MainActivity : AppCompatActivity() {
             fragment<HomeFragment>(R.id.home_screen)
             fragment<ContactFragment>(R.id.contact_screen)
             fragment<WatchListFragment>(R.id.watch_list_screen)
-            fragment<CoinDetailFragment>(R.id.detail)
+            fragment<CoinDetailFragment>(R.id.detail_screen)
             fragment<ReleaseNoteFragment>(R.id.release_note_screen)
             fragment<SettingFragment>(R.id.setting_screen)
+            fragment<CoinStatFragment>(R.id.coin_stat_screen)
         }
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
@@ -65,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             val coinId = intent.extras?.getString("coinId")
             if (coinId != null) {
-                navController.navigate(R.id.detail, CoinDetailArgs(coinId).asArgs())
+                navController.navigate(R.id.detail_screen, CoinDetailArgs(coinId).asArgs())
             }
         }
 

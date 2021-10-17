@@ -1,14 +1,20 @@
 package com.rainyseason.cj.detail
 
+import androidx.navigation.findNavController
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
+import com.rainyseason.cj.R
+import com.rainyseason.cj.coinstat.CoinStatArgs
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
+import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.model.TimeInterval
+import com.rainyseason.cj.common.view.horizontalSeparatorView
 import com.rainyseason.cj.detail.view.graphView
 import com.rainyseason.cj.detail.view.intervalSegmentedView
 import com.rainyseason.cj.detail.view.lowHighView
+import com.rainyseason.cj.detail.view.moreLabelView
 import com.rainyseason.cj.detail.view.namePriceChangeView
 import com.rainyseason.cj.detail.view.statSummaryView
 import com.rainyseason.cj.tracking.Tracker
@@ -22,6 +28,7 @@ import org.threeten.bp.format.DateTimeFormatterBuilder
 
 class CoinDetailController @AssistedInject constructor(
     @Assisted val viewModel: CoinDetailViewModel,
+    @Assisted val args: CoinDetailArgs,
     private val numberFormatter: NumberFormater,
     private val tracker: Tracker,
 ) : AsyncEpoxyController() {
@@ -30,6 +37,7 @@ class CoinDetailController @AssistedInject constructor(
         ::buildNamePrice,
         ::buildIntervalSegment,
         ::buildGraph,
+        ::buildStatLabel,
         ::buildLowHigh,
         ::buildStatSummary,
     )
@@ -43,6 +51,29 @@ class CoinDetailController @AssistedInject constructor(
                 return
             }
         }
+    }
+
+    private fun buildSeparator(id: String) {
+        horizontalSeparatorView {
+            id(id)
+            margin(16)
+        }
+    }
+
+    private fun buildStatLabel(state: CoinDetailState): BuildState {
+
+        buildSeparator("stat_more_separator")
+
+        moreLabelView {
+            id("stat_more")
+            title("Statistics")
+            onClickListener { view ->
+                view.findNavController()
+                    .navigate(R.id.coin_stat_screen, CoinStatArgs(args.coinId).asArgs())
+            }
+        }
+
+        return BuildState.Next
     }
 
     private fun buildStatSummary(state: CoinDetailState): BuildState {
@@ -126,6 +157,9 @@ class CoinDetailController @AssistedInject constructor(
     private fun buildLowHigh(state: CoinDetailState): BuildState {
         val userSetting = state.userSetting.invoke() ?: return BuildState.Stop
         val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Stop
+
+        buildSeparator("low_high_separator")
+
         val lowHigh = state.lowHighPrice
         val lowPrice = lowHigh?.first?.let {
             numberFormatter.formatAmount(
@@ -284,6 +318,9 @@ class CoinDetailController @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(viewModel: CoinDetailViewModel): CoinDetailController
+        fun create(
+            viewModel: CoinDetailViewModel,
+            args: CoinDetailArgs,
+        ): CoinDetailController
     }
 }

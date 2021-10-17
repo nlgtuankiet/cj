@@ -6,6 +6,7 @@
 
 
     <TextView
+        android:text="Stat page"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_width="wrap_content"

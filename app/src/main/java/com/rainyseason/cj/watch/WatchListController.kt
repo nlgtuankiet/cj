@@ -232,7 +232,8 @@ class WatchListController @AssistedInject constructor(
                     "coin_id" to coinId
                 )
             )
-            view.findNavController().navigate(R.id.detail, CoinDetailArgs(coinId, symbol).asArgs())
+            view.findNavController()
+                .navigate(R.id.detail_screen, CoinDetailArgs(coinId, symbol).asArgs())
         }
     }
 

@@ -45,7 +45,7 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
     private val viewModel: CoinDetailViewModel by fragmentViewModel()
 
     private val controller: CoinDetailController by lazy {
-        controllerFactory.create(viewModel)
+        controllerFactory.create(viewModel, args)
     }
 
     override fun onAttach(context: Context) {

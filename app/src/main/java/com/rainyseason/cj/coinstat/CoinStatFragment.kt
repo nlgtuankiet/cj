@@ -1,9 +1,7 @@
 package com.rainyseason.cj.coinstat
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.rainyseason.cj.R
 import com.rainyseason.cj.databinding.CoinStatFragmentBinding
