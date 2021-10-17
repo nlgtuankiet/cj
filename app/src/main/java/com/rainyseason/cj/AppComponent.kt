@@ -16,6 +16,7 @@ import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
+import com.rainyseason.cj.coinstat.CoinStatFragmentModule
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.model.ThemeJsonAdapter
@@ -73,6 +74,7 @@ import javax.inject.Singleton
         CoinDetailModule::class,
         AppProvides::class,
         AppBinds::class,
+        CoinStatFragmentModule::class,
         SettingFragmentModule::class,
         WatchSettingActivityModule::class,
         WatchPreviewFragmentModule::class,
