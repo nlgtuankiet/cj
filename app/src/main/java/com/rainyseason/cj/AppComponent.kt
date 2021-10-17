@@ -30,6 +30,7 @@ import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.detail.CoinDetailModule
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
+import com.rainyseason.cj.setting.SettingFragmentModule
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.rainyseason.cj.tracking.AppTracker
 import com.rainyseason.cj.tracking.Tracker
@@ -72,6 +73,7 @@ import javax.inject.Singleton
         CoinDetailModule::class,
         AppProvides::class,
         AppBinds::class,
+        SettingFragmentModule::class,
         WatchSettingActivityModule::class,
         WatchPreviewFragmentModule::class,
     ]

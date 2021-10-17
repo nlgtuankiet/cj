@@ -20,6 +20,7 @@
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"
+        app:labelVisibilityMode="labeled"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
