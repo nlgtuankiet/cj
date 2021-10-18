@@ -168,7 +168,6 @@ class CoinDetailController @AssistedInject constructor(
             } else {
                 hashingAlgorithm(hashingAlgorithm)
             }
-
         }
 
         return BuildState.Next
