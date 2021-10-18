@@ -39,7 +39,7 @@ class EntryView @JvmOverloads constructor(
     @ModelProp
     @JvmOverloads
     fun setHasInfo(value: Boolean = false) {
-        binding.timeBadge.isGone = !value
+        binding.infoImageView.isGone = !value
     }
 
     @CallbackProp

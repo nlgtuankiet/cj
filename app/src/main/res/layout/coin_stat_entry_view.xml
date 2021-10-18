@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="12dp">
+    android:paddingVertical="16dp"
+    android:paddingHorizontal="12dp">
 
     <TextView
-        android:textColor="@color/gray_300"
+        android:textColor="@color/gray_500"
         android:id="@+id/title"
         tools:text="Current Price"
-        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,6 +19,7 @@
 
 
     <TextView
+        android:textSize="12sp"
         android:paddingHorizontal="4dp"
         android:layout_marginStart="6dp"
         android:textColor="@color/gray_500"
@@ -44,6 +45,7 @@
         android:layout_height="16dp" />
 
     <TextView
+        style="@style/Theme.CryptoJet.Text.Medium"
         android:id="@+id/value_text_view"
         tools:text="sample data"
         app:layout_constraintEnd_toEndOf="parent"

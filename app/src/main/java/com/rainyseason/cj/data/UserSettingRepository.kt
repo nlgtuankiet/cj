@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,6 +38,9 @@ data class UserSetting(
     @Json(name = "size_adjustment")
     val sizeAdjustment: Int = 0,
 )
+
+val UserSetting.locale: Locale
+    get() = SUPPORTED_CURRENCY[currencyCode]!!.locale
 
 @Suppress("MemberVisibilityCanBePrivate")
 @Singleton

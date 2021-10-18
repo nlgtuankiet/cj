@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingVertical="16dp"
+
+    tools:ignore="HardcodedText">
+
+    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/segment_container"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:background="@drawable/detail_interval_segment_background"
+        android:padding="2dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <View
+            android:id="@+id/moving_cursor"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/coin_stat_price_range_segment_entry_background"
+            app:layout_constraintBottom_toBottomOf="@id/i24h"
+            app:layout_constraintEnd_toEndOf="@id/i24h"
+            app:layout_constraintStart_toStartOf="@id/i24h"
+            app:layout_constraintTop_toTopOf="@id/i24h" />
+
+        <TextView
+            android:id="@+id/i24h"
+            android:layout_width="44dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:text="24h"
+            android:textSize="12sp"
+            android:textAlignment="gravity"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/i30d"
+            app:layout_constraintHorizontal_chainStyle="spread"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/i30d"
+            android:layout_width="44dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:text="30d"
+            android:textAlignment="gravity"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/i1y"
+            app:layout_constraintStart_toEndOf="@id/i24h"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <TextView
+            android:id="@+id/i1y"
+            android:layout_width="44dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:text="1y"
+            android:textAlignment="gravity"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/i30d"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Price Range"
+        android:textColor="@color/gray_500"
+        app:layout_constraintBottom_toBottomOf="@id/segment_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/segment_container" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress"
+        android:layout_width="0dp"
+        android:layout_height="16dp"
+        android:layout_marginTop="8dp"
+        android:indeterminate="false"
+        android:max="10"
+        android:progress="5"
+        app:indicatorColor="@color/gray_700"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/segment_container"
+        app:trackColor="@color/gray_800"
+        app:trackCornerRadius="8dp"
+        app:trackThickness="8dp" />
+
+    <TextView
+        style="@style/Theme.CryptoJet.Text.Medium"
+        android:id="@+id/start_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progress"
+        tools:text="123,123$" />
+
+    <TextView
+        style="@style/Theme.CryptoJet.Text.Medium"
+        android:id="@+id/end_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/progress"
+        tools:text="123,123$" />
+</androidx.constraintlayout.widget.ConstraintLayout>

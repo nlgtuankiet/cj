@@ -26,7 +26,7 @@ data class CoinDetailResponse(
     @Json(name = "hashing_algorithm")
     val hashingAlgorithm: String?,
 
-) {
+    ) {
 
     @JsonClass(generateAdapter = true)
     data class Image(
@@ -74,5 +74,8 @@ data class CoinDetailResponse(
 
         @Json(name = "ath")
         val ath: Map<String, Double>?,
+
+        @Json(name = "price_change_24h_in_currency")
+        val priceChange24hInCurrency: Map<String, Double>,
     )
 }

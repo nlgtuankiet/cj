@@ -14,7 +14,7 @@ class NumberFormater @Inject constructor() {
     fun formatPercent(
         amount: Double,
         locate: Locale,
-        numberOfDecimals: Int,
+        numberOfDecimals: Int = 1,
     ): String {
         val formatter: DecimalFormat =
             NumberFormat.getCurrencyInstance(locate) as DecimalFormat
