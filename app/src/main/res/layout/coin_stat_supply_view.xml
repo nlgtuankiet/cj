@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="16dp"
+    tools:ignore="HardcodedText">
+
+    <TextView
+        android:textColor="@color/gray_500"
+        android:id="@+id/circulating_supply"
+        android:text="Circulating Supply"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/circulating_supply_info"
+        app:tint="@color/gray_300"
+        android:src="@drawable/ic_baseline_info_24"
+        android:layout_marginStart="4dp"
+        app:layout_constraintStart_toEndOf="@id/circulating_supply"
+        app:layout_constraintTop_toTopOf="@id/circulating_supply"
+        app:layout_constraintBottom_toBottomOf="@id/circulating_supply"
+        android:scaleType="fitCenter"
+        android:layout_width="16dp"
+        android:layout_height="16dp" />
+
+    <TextView
+        style="@style/Theme.CryptoJet.Text.Medium"
+        android:id="@+id/circulating_supply_value"
+        tools:text="sample data"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/circulating_supply"
+        app:layout_constraintTop_toTopOf="@id/circulating_supply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progress"
+        android:layout_width="0dp"
+        android:layout_height="16dp"
+        android:layout_marginTop="12dp"
+        android:indeterminate="false"
+        android:max="10"
+        android:progress="5"
+        app:indicatorColor="@color/gray_700"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/circulating_supply"
+        app:trackColor="@color/gray_800"
+        app:trackCornerRadius="8dp"
+        app:trackThickness="8dp" />
+
+
+    <TextView
+        android:layout_marginTop="12dp"
+        android:textColor="@color/gray_500"
+        android:id="@+id/max_supply"
+        android:text="Max Supply"
+        app:layout_constraintTop_toBottomOf="@id/progress"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/max_supply_info"
+        app:tint="@color/gray_300"
+        android:src="@drawable/ic_baseline_info_24"
+        android:layout_marginStart="4dp"
+        app:layout_constraintStart_toEndOf="@id/max_supply"
+        app:layout_constraintTop_toTopOf="@id/max_supply"
+        app:layout_constraintBottom_toBottomOf="@id/max_supply"
+        android:scaleType="fitCenter"
+        android:layout_width="16dp"
+        android:layout_height="16dp" />
+
+    <TextView
+        style="@style/Theme.CryptoJet.Text.Medium"
+        android:id="@+id/max_supply_value"
+        tools:text="sample data"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/max_supply"
+        app:layout_constraintTop_toTopOf="@id/max_supply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:layout_marginTop="12dp"
+        android:textColor="@color/gray_500"
+        android:id="@+id/total_supply"
+        android:text="Total Supply"
+        app:layout_constraintTop_toBottomOf="@id/max_supply"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/total_supply_info"
+        app:tint="@color/gray_300"
+        android:src="@drawable/ic_baseline_info_24"
+        android:layout_marginStart="4dp"
+        app:layout_constraintStart_toEndOf="@id/total_supply"
+        app:layout_constraintTop_toTopOf="@id/total_supply"
+        app:layout_constraintBottom_toBottomOf="@id/total_supply"
+        android:scaleType="fitCenter"
+        android:layout_width="16dp"
+        android:layout_height="16dp" />
+
+    <TextView
+        style="@style/Theme.CryptoJet.Text.Medium"
+        android:id="@+id/total_supply_value"
+        tools:text="sample data"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/total_supply"
+        app:layout_constraintTop_toTopOf="@id/total_supply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

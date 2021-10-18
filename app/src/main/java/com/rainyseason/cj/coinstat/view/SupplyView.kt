@@ -7,15 +7,15 @@ import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.airbnb.epoxy.TextProp
 import com.rainyseason.cj.common.inflater
-import com.rainyseason.cj.databinding.CoinStatAllTimeViewBinding
+import com.rainyseason.cj.databinding.CoinStatSupplyViewBinding
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
-class AllTimeView @JvmOverloads constructor(
+class SupplyView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null,
 ) : FrameLayout(context, attributeSet) {
 
-    private val binding = CoinStatAllTimeViewBinding
+    private val binding = CoinStatSupplyViewBinding
         .inflate(inflater, this, true)
 
     @ModelProp
@@ -29,22 +29,17 @@ class AllTimeView @JvmOverloads constructor(
     }
 
     @TextProp
-    fun setStartPrice(value: CharSequence) {
-        binding.startPrice.text = value
+    fun setCirculatingSupply(value: CharSequence) {
+        binding.circulatingSupplyValue.text = value
     }
 
     @TextProp
-    fun setEndPrice(value: CharSequence) {
-        binding.endPrice.text = value
+    fun setMaxSupply(value: CharSequence) {
+        binding.maxSupplyValue.text = value
     }
 
     @TextProp
-    fun setStartDate(value: CharSequence) {
-        binding.startDate.text = value
-    }
-
-    @TextProp
-    fun setEndDate(value: CharSequence) {
-        binding.endDate.text = value
+    fun setTotalSupply(value: CharSequence) {
+        binding.totalSupplyValue.text = value
     }
 }

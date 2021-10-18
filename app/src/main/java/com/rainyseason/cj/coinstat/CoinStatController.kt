@@ -9,10 +9,12 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.coinstat.view.allTimeView
 import com.rainyseason.cj.coinstat.view.entryView
 import com.rainyseason.cj.coinstat.view.priceRangeView
+import com.rainyseason.cj.coinstat.view.supplyView
 import com.rainyseason.cj.coinstat.view.titleView
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.getColorCompat
+import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.view.horizontalSeparatorView
 import com.rainyseason.cj.data.locale
 import dagger.assisted.Assisted
@@ -31,6 +33,243 @@ class CoinStatController @AssistedInject constructor(
     override fun buildModels() {
         val state = withState(viewModel) { it }
         buildPriceGroup(state)
+        buildDetails(state)
+        buildOthers(state)
+    }
+
+    private fun buildOthers(state: CoinStatState): BuildState {
+        buildSeparator("other_separator")
+
+        titleView {
+            id("other")
+            title("Others")
+            marginTop(24)
+        }
+
+        // TODO build market dominance
+        buildMarketRank(state)
+
+        return BuildState.Next
+    }
+
+    private fun buildMarketRank(state: CoinStatState): BuildState {
+        val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Stop
+        val rank = coinDetail.marketCapRank
+
+        buildSeparator("rank_separator")
+        entryView {
+            id("rank")
+            title("Market Rank")
+            if (rank == null) {
+                value("--")
+            } else {
+                value("#$rank")
+            }
+        }
+
+        return BuildState.Next
+    }
+
+    private fun buildDetails(state: CoinStatState): BuildState {
+        buildSeparator("detail_separator")
+
+        titleView {
+            id("detail")
+            title("Detail")
+            marginTop(24)
+        }
+
+        buildMarketCap(state)
+        // TODO build fully diluted market cap
+        buildTradingVolume24h(state)
+        buildVolumeMarketCapRatio(state)
+        // TODO build holders
+        buildSupply(state)
+
+        return BuildState.Next
+    }
+
+    private fun buildSupply(state: CoinStatState): BuildState {
+        val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Stop
+        val userSetting = state.userSetting.invoke() ?: return BuildState.Stop
+        val circulatingSupply = coinDetail.marketData.circulatingSupply
+        val maxSupply = coinDetail.marketData.maxSupply
+        val totalSupply = coinDetail.marketData.totalSupply
+
+        val circulatingSupplyValue = if (circulatingSupply == null) {
+            "--"
+        } else {
+            numberFormatter.formatAmount(
+                amount = circulatingSupply,
+                currencyCode = userSetting.currencyCode,
+                numberOfDecimal = 2,
+                showCurrencySymbol = false
+            )
+        }
+
+        val maxSupplyValue = if (maxSupply == null) {
+            "--"
+        } else {
+            numberFormatter.formatAmount(
+                amount = maxSupply,
+                currencyCode = userSetting.currencyCode,
+                numberOfDecimal = 2,
+                showCurrencySymbol = false
+            )
+        }
+
+        val totalSupplyValue = if (totalSupply == null) {
+            "--"
+        } else {
+            numberFormatter.formatAmount(
+                amount = totalSupply,
+                currencyCode = userSetting.currencyCode,
+                numberOfDecimal = 2,
+                showCurrencySymbol = false
+            )
+        }
+
+        val percent = if (circulatingSupply != null && maxSupply != null && maxSupply != 0.0) {
+            100 * circulatingSupply / maxSupply
+        } else {
+            null
+        }
+
+        buildSeparator("supply_separator")
+        supplyView {
+            id("supply")
+            circulatingSupply(circulatingSupplyValue)
+            maxSupply(maxSupplyValue)
+            totalSupply(totalSupplyValue)
+            max(100)
+            if (percent == null) {
+                current(0)
+            } else {
+                current(percent.toInt())
+            }
+        }
+
+        return BuildState.Next
+    }
+
+    private fun buildVolumeMarketCapRatio(state: CoinStatState): BuildState {
+        val marketChart24h = state.marketChartResponse[TimeInterval.I_24H]?.invoke()
+            ?: return BuildState.Stop
+        val userSetting = state.userSetting.invoke() ?: return BuildState.Stop
+        val volume = marketChart24h.totalVolumes.last()[1]
+        val marketCap = marketChart24h.marketCaps.last()[1]
+        val ratio = volume / marketCap
+
+        val content = numberFormatter.formatAmount(
+            amount = ratio,
+            currencyCode = userSetting.currencyCode,
+            numberOfDecimal = 2,
+            showCurrencySymbol = false,
+        )
+
+        buildSeparator("volume_to_market_cap_separator")
+
+        entryView {
+            id("volume_to_market_cap")
+            title("Volume / Market Cap")
+            value(content)
+        }
+
+        return BuildState.Next
+    }
+
+    private fun buildTradingVolume24h(state: CoinStatState): BuildState {
+        val marketChart24h = state.marketChartResponse[TimeInterval.I_24H]?.invoke()
+            ?: return BuildState.Stop
+        val userSetting = state.userSetting.invoke() ?: return BuildState.Stop
+
+        val volumeStart = marketChart24h.totalVolumes.first()[1]
+        val volumeEnd = marketChart24h.totalVolumes.last()[1]
+        val volumeChangePercent = 100 * (volumeEnd - volumeStart) / volumeStart
+        val volumeContent = numberFormatter.formatAmount(
+            amount = volumeEnd,
+            currencyCode = userSetting.currencyCode,
+            numberOfDecimal = 2,
+            hideOnLargeAmount = false,
+        )
+        buildSeparator("volume_24h_separator")
+
+        val change24hColor = if (volumeChangePercent > 0) {
+            R.color.green_700
+        } else {
+            R.color.red_600
+        }
+
+        val change24hPercentContent = numberFormatter.formatPercent(
+            amount = volumeChangePercent,
+            locate = userSetting.locale,
+        )
+
+        entryView {
+            id("volume_24h")
+            title("Trading Volume")
+            timeBadge("24h")
+            hasInfo(true)
+
+            value(
+                buildSpannedString {
+                    append(volumeContent)
+                    append("   ")
+
+                    color(context.getColorCompat(change24hColor)) {
+                        append(change24hPercentContent)
+                    }
+                }
+            )
+        }
+
+        return BuildState.Next
+    }
+
+    private fun buildMarketCap(state: CoinStatState): BuildState {
+        val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Stop
+        val userSetting = state.userSetting.invoke() ?: return BuildState.Stop
+
+        buildSeparator("market_cap_separator")
+
+        val marketCap = coinDetail.marketData.marketCap[userSetting.currencyCode]!!
+        val marketCapChangePercent = coinDetail.marketData
+            .marketCapChangePercentage24hInCurrency[userSetting.currencyCode]!!
+
+        val marketCapContent = numberFormatter.formatAmount(
+            amount = marketCap,
+            currencyCode = userSetting.currencyCode,
+            numberOfDecimal = 2,
+            hideOnLargeAmount = false,
+        )
+
+        val change24hPercentContent = numberFormatter.formatPercent(
+            amount = marketCapChangePercent,
+            locate = userSetting.locale,
+        )
+        val change24hColor = if (marketCapChangePercent > 0) {
+            R.color.green_700
+        } else {
+            R.color.red_600
+        }
+
+        entryView {
+            id("market_cap")
+            title("Market Cap")
+            hasInfo(true)
+            value(
+                buildSpannedString {
+                    append(marketCapContent)
+                    append("   ")
+
+                    color(context.getColorCompat(change24hColor)) {
+                        append(change24hPercentContent)
+                    }
+                }
+            )
+        }
+
+        return BuildState.Next
     }
 
     private fun buildAllTime(state: CoinStatState): BuildState {
@@ -221,6 +460,7 @@ class CoinStatController @AssistedInject constructor(
         titleView {
             id("price_title")
             title("Price")
+            marginTop(12)
         }
 
         buildCurrentPrice(state)
