@@ -24,7 +24,7 @@ data class CoinDetailResponse(
     val marketCapRank: Int?,
 
     @Json(name = "hashing_algorithm")
-    val hashingAlgorithm: String,
+    val hashingAlgorithm: String?,
 
 ) {
 

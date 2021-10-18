@@ -162,7 +162,13 @@ class CoinDetailController @AssistedInject constructor(
                 rank("#$rank")
             }
 
-            hashingAlgorithm(coinDetail.hashingAlgorithm)
+            val hashingAlgorithm = coinDetail.hashingAlgorithm
+            if (hashingAlgorithm == null) {
+                hashingAlgorithm("--")
+            } else {
+                hashingAlgorithm(hashingAlgorithm)
+            }
+
         }
 
         return BuildState.Next
