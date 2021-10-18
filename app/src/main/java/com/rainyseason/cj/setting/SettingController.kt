@@ -16,7 +16,7 @@ class SettingController @AssistedInject constructor(
     @Assisted private val viewModel: SettingViewModel,
     @Assisted private val context: Context,
 
-    ) : AsyncEpoxyController() {
+) : AsyncEpoxyController() {
 
     @AssistedFactory
     interface Factory {

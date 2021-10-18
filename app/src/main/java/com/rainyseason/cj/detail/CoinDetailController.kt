@@ -94,12 +94,17 @@ class CoinDetailController @AssistedInject constructor(
             )
             marketCap(marketCapValue)
 
-            val circulatingSupplyValue = numberFormatter.formatAmount(
-                amount = coinDetail.marketData.circulatingSupply,
-                currencyCode = currencyCode,
-                showCurrencySymbol = false
-            )
-            circulatingSupply(circulatingSupplyValue)
+            val circulatingSupply = coinDetail.marketData.circulatingSupply
+            if (circulatingSupply == null) {
+                circulatingSupply("--")
+            } else {
+                val circulatingSupplyValue = numberFormatter.formatAmount(
+                    amount = coinDetail.marketData.circulatingSupply,
+                    currencyCode = currencyCode,
+                    showCurrencySymbol = false
+                )
+                circulatingSupply(circulatingSupplyValue)
+            }
 
             val totalSupply = coinDetail.marketData.totalSupply
             if (totalSupply == null) {
@@ -113,11 +118,16 @@ class CoinDetailController @AssistedInject constructor(
                 totalSupply(totalSupplyValue)
             }
 
-            val allTimeHighValue = numberFormatter.formatAmount(
-                amount = coinDetail.marketData.ath[currencyCode]!!,
-                currencyCode = currencyCode,
-            )
-            allTimeHigh(allTimeHighValue)
+            val ath = coinDetail.marketData.ath?.get(currencyCode)
+            if (ath == null) {
+                allTimeHigh("--")
+            } else {
+                val allTimeHighValue = numberFormatter.formatAmount(
+                    amount = ath,
+                    currencyCode = currencyCode,
+                )
+                allTimeHigh(allTimeHighValue)
+            }
 
             // val volumn24hValue =
 
@@ -149,7 +159,7 @@ class CoinDetailController @AssistedInject constructor(
             if (rank == null) {
                 rank("-")
             } else {
-                rank("#${rank}")
+                rank("#$rank")
             }
 
             hashingAlgorithm(coinDetail.hashingAlgorithm)
