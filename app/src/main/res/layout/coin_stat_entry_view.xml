@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp">
+
+    <TextView
+        android:textColor="@color/gray_300"
+        android:id="@+id/title"
+        tools:text="Current Price"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
+    <TextView
+        android:paddingHorizontal="4dp"
+        android:layout_marginStart="6dp"
+        android:textColor="@color/gray_500"
+        android:background="@drawable/coin_stat_time_badge_background"
+        app:layout_constraintStart_toEndOf="@id/title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="24h"
+        android:id="@+id/time_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/info_image_view"
+        app:tint="@color/gray_300"
+        android:src="@drawable/ic_baseline_info_24"
+        android:layout_marginStart="4dp"
+        app:layout_constraintStart_toEndOf="@id/time_badge"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:scaleType="fitCenter"
+        android:layout_width="16dp"
+        android:layout_height="16dp" />
+
+    <TextView
+        android:id="@+id/value_text_view"
+        tools:text="sample data"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

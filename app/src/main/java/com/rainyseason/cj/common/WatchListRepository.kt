@@ -126,6 +126,9 @@ class WatchListRepository @Inject constructor(
     }
 
     init {
-        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+        // avoid called from background thread
+        scope.launch(Dispatchers.Main) {
+            ProcessLifecycleOwner.get().lifecycle.addObserver(this@WatchListRepository)
+        }
     }
 }
