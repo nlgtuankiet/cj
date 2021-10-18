@@ -3,6 +3,7 @@ package com.rainyseason.cj.detail
 import androidx.navigation.findNavController
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.coinstat.CoinStatArgs
 import com.rainyseason.cj.common.BuildState
@@ -61,6 +62,9 @@ class CoinDetailController @AssistedInject constructor(
     }
 
     private fun buildStatLabel(state: CoinDetailState): BuildState {
+        if (!BuildConfig.DEBUG) {
+            return BuildState.Next
+        }
 
         buildSeparator("stat_more_separator")
 
