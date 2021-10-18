@@ -77,5 +77,14 @@ data class CoinDetailResponse(
 
         @Json(name = "price_change_24h_in_currency")
         val priceChange24hInCurrency: Map<String, Double>,
+
+        @Json(name = "ath_date")
+        val athDate: Map<String, String>?,
+
+        @Json(name = "atl")
+        val atl: Map<String, Double>?,
+
+        @Json(name = "atl_date")
+        val atlDate: Map<String, String>?,
     )
 }

@@ -6,6 +6,7 @@ import androidx.core.text.color
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.coinstat.view.allTimeView
 import com.rainyseason.cj.coinstat.view.entryView
 import com.rainyseason.cj.coinstat.view.priceRangeView
 import com.rainyseason.cj.coinstat.view.titleView
@@ -17,6 +18,8 @@ import com.rainyseason.cj.data.locale
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import org.threeten.bp.ZonedDateTime
+import org.threeten.bp.format.DateTimeFormatterBuilder
 import kotlin.math.abs
 
 class CoinStatController @AssistedInject constructor(
@@ -28,8 +31,78 @@ class CoinStatController @AssistedInject constructor(
     override fun buildModels() {
         val state = withState(viewModel) { it }
         buildPriceGroup(state)
-        buildPriceChange24h(state)
-        buildPriceRange(state)
+    }
+
+    private fun buildAllTime(state: CoinStatState): BuildState {
+        val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Stop
+        val userSetting = state.userSetting.invoke() ?: return BuildState.Stop
+        val ath = coinDetail.marketData.ath?.get(userSetting.currencyCode)
+        val athDate = coinDetail.marketData.athDate?.get(userSetting.currencyCode)
+        val atl = coinDetail.marketData.atl?.get(userSetting.currencyCode)
+        val atlDate = coinDetail.marketData.atlDate?.get(userSetting.currencyCode)
+        val currentPrice = coinDetail.marketData.currentPrice[userSetting.currencyCode]!!
+
+
+        buildSeparator("price_range_separator")
+        allTimeView {
+            id("all_time")
+
+            if (atl != null) {
+                startPrice(
+                    numberFormatter.formatAmount(
+                        amount = atl,
+                        currencyCode = userSetting.currencyCode,
+                        numberOfDecimal = if (atl > 0) 2 else 4,
+                        hideOnLargeAmount = false,
+                    )
+                )
+            } else {
+                startPrice("--")
+            }
+
+
+            if (ath != null) {
+                endPrice(
+                    numberFormatter.formatAmount(
+                        amount = ath,
+                        currencyCode = userSetting.currencyCode,
+                        numberOfDecimal = if (ath > 0) 2 else 4,
+                        hideOnLargeAmount = false,
+                    )
+                )
+            } else {
+                endPrice("--")
+            }
+
+
+            if (ath != null && atl != null) {
+                val percent = 100 * (currentPrice - atl) / (ath - atl)
+                max(100)
+                current(percent.toInt())
+            } else {
+                max(100)
+                current(0)
+            }
+
+            val formatter = DateTimeFormatterBuilder()
+                .appendPattern("d MMM YYYY")
+                .toFormatter(userSetting.locale)
+            if (atlDate != null) {
+                val time = ZonedDateTime.parse(atlDate)
+                startDate(formatter.format(time))
+            } else {
+                startDate("--")
+            }
+
+            if (athDate != null) {
+                val time = ZonedDateTime.parse(athDate)
+                endDate(formatter.format(time))
+            } else {
+                endDate("--")
+            }
+        }
+
+        return BuildState.Next
     }
 
     private fun buildPriceRange(state: CoinStatState): BuildState {
@@ -73,6 +146,7 @@ class CoinStatController @AssistedInject constructor(
             if (maxPrice == null) {
                 current(0)
             } else {
+
                 current((100 * currentPrice / maxPrice).toInt())
             }
             max(100)
@@ -150,6 +224,10 @@ class CoinStatController @AssistedInject constructor(
         }
 
         buildCurrentPrice(state)
+        buildPriceChange24h(state)
+        buildPriceRange(state)
+        buildAllTime(state)
+        // TODO ROI
     }
 
     private fun buildSeparator(id: String) {
