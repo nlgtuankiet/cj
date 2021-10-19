@@ -26,7 +26,10 @@ data class CoinDetailResponse(
     @Json(name = "hashing_algorithm")
     val hashingAlgorithm: String?,
 
-    ) {
+    @Json(name = "description")
+    val description: Map<String, String>?
+
+) {
 
     @JsonClass(generateAdapter = true)
     data class Image(

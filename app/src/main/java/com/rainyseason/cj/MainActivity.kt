@@ -18,6 +18,7 @@ import com.rainyseason.cj.common.home.HomeFragment
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.detail.CoinDetailFragment
+import com.rainyseason.cj.detail.about.CoinDetailAboutFragment
 import com.rainyseason.cj.setting.SettingFragment
 import com.rainyseason.cj.watch.WatchListFragment
 import dagger.Module
@@ -61,6 +62,7 @@ class MainActivity : AppCompatActivity() {
             fragment<ReleaseNoteFragment>(R.id.release_note_screen)
             fragment<SettingFragment>(R.id.setting_screen)
             fragment<CoinStatFragment>(R.id.coin_stat_screen)
+            fragment<CoinDetailAboutFragment>(R.id.detail_about_screen)
         }
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)

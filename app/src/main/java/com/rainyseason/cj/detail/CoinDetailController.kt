@@ -12,6 +12,8 @@ import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.view.horizontalSeparatorView
+import com.rainyseason.cj.detail.about.CoinDetailAboutArgs
+import com.rainyseason.cj.detail.view.aboutView
 import com.rainyseason.cj.detail.view.graphView
 import com.rainyseason.cj.detail.view.intervalSegmentedView
 import com.rainyseason.cj.detail.view.lowHighView
@@ -41,6 +43,7 @@ class CoinDetailController @AssistedInject constructor(
         ::buildStatLabel,
         ::buildLowHigh,
         ::buildStatSummary,
+        ::buildAbout,
     )
 
     override fun buildModels() {
@@ -52,6 +55,44 @@ class CoinDetailController @AssistedInject constructor(
                 return
             }
         }
+    }
+
+    private fun buildAbout(state: CoinDetailState): BuildState {
+        val coinDetail = state.coinDetailResponse.invoke() ?: return BuildState.Stop
+        val rawDescription = coinDetail.description?.get("en") ?: return BuildState.Next
+        val description = rawDescription.replace("\n", "<br>")
+        buildSeparator("about_label_separator")
+        moreLabelView {
+            id("about_label")
+            title("About ${coinDetail.name}")
+            onClickListener { view ->
+                val args = CoinDetailAboutArgs(
+                    coinName = coinDetail.name,
+                    content = description
+                )
+                view.findNavController().navigate(
+                    R.id.detail_about_screen,
+                    args.asArgs()
+                )
+            }
+        }
+        buildSeparator("about_separator")
+        aboutView {
+            id("about")
+            content(description)
+            onClickListener { view ->
+                val args = CoinDetailAboutArgs(
+                    coinName = coinDetail.name,
+                    content = description
+                )
+                view.findNavController().navigate(
+                    R.id.detail_about_screen,
+                    args.asArgs()
+                )
+            }
+        }
+
+        return BuildState.Next
     }
 
     private fun buildSeparator(id: String) {

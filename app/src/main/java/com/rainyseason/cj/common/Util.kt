@@ -37,6 +37,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.findNavController
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.ModelCollector
 import com.rainyseason.cj.R
@@ -274,4 +275,10 @@ fun Bundle.getWidgetId(): Int? {
         return null
     }
     return widgetId
+}
+
+fun View.setOnClickToNavigateBack() {
+    setOnClickListener { view ->
+        view.findNavController().navigateUp()
+    }
 }

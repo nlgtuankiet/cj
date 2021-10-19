@@ -4,6 +4,7 @@
     <item name="watch_list_screen" type="id" />
     <item name="home_screen" type="id" />
     <item name="detail_screen" type="id" />
+    <item name="detail_about_screen" type="id" />
     <item name="coin_stat_screen" type="id" />
     <item name="release_note_screen" type="id" />
     <item name="setting_screen" type="id" />
