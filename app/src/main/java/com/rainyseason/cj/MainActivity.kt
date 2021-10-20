@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
         Timber.d("onNewIntent: $intent")
         val screenId = intent.extras?.getInt(SCREEN_TO_OPEN_EXTRA)
-        if (screenId != null) {
+        if (screenId != null && screenId != 0) {
             findNavController(R.id.nav_host_fragment)
                 .navigate(screenId)
         }
