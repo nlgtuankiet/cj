@@ -2,11 +2,11 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coin_ticker_nav_graph"
-    app:startDestination="@id/coin_list">
+    app:startDestination="@id/preview">
 
     <fragment
         android:id="@+id/coin_list"
-        android:name="com.rainyseason.cj.ticker.list.CoinTickerListFragment"
+        android:name="com.rainyseason.cj.coinselect.CoinSelectFragment"
         android:label="List" />
 
     <fragment

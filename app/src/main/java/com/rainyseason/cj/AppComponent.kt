@@ -19,6 +19,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.rainyseason.cj.coinselect.CoinSelectFragmentModule
 import com.rainyseason.cj.coinstat.CoinStatFragmentModule
 import com.rainyseason.cj.common.AppDnsSelector
 import com.rainyseason.cj.common.CoinTickerStorage
@@ -41,6 +42,7 @@ import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.setting.SettingFragmentModule
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
+import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
 import com.rainyseason.cj.tracking.AppTracker
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.watch.WatchListFragmentModule
@@ -87,6 +89,8 @@ import javax.inject.Singleton
         SettingFragmentModule::class,
         WatchSettingActivityModule::class,
         WatchPreviewFragmentModule::class,
+        CoinTickerPreviewFragmentModule::class,
+        CoinSelectFragmentModule::class,
     ]
 )
 @Singleton

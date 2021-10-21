@@ -1,7 +1,9 @@
-package com.rainyseason.cj.ticker.list
+package com.rainyseason.cj.coinselect
 
 import android.content.Context
-import androidx.core.view.doOnPreDraw
+import android.os.Bundle
+import android.view.View
+import androidx.navigation.findNavController
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.epoxy.VisibilityState
 import com.airbnb.mvrx.Fail
@@ -9,9 +11,12 @@ import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
+import com.rainyseason.cj.coinselect.view.coinView
+import com.rainyseason.cj.coinselect.view.historyView
+import com.rainyseason.cj.coinselect.view.marketView
 import com.rainyseason.cj.common.BuildState
-import com.rainyseason.cj.common.CoinTickerListTTI
 import com.rainyseason.cj.common.TraceManager
+import com.rainyseason.cj.common.dismissKeyboard
 import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.loadingView
 import com.rainyseason.cj.common.view.emptyView
@@ -19,19 +24,26 @@ import com.rainyseason.cj.common.view.retryView
 import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.data.CoinHistoryEntry
 import com.rainyseason.cj.data.coingecko.CoinListEntry
-import com.rainyseason.cj.ticker.CoinTickerNavigator
-import com.rainyseason.cj.ticker.list.view.coinTickerListCoinView
-import com.rainyseason.cj.ticker.list.view.coinTickerListHistoryView
-import com.rainyseason.cj.ticker.list.view.coinTickerListMarketView
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlin.math.max
 
-class CoinTickerListController constructor(
+class CoinSelectController @AssistedInject constructor(
+    @Assisted private val viewModel: CoinSelectViewModel,
+    @Assisted private val resultDestination: Int,
     private val context: Context,
-    private val viewModel: CoinTickerListViewModel,
-    private val navigator: CoinTickerNavigator,
     private val traceManager: TraceManager,
-    private val widgetId: Int,
 ) : AsyncEpoxyController() {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(
+            viewModel: CoinSelectViewModel,
+            resultDestination: Int,
+        ): CoinSelectController
+    }
+
     override fun buildModels() {
         val state = withState(viewModel) { it }
         emptyView {
@@ -55,7 +67,7 @@ class CoinTickerListController constructor(
         }
     }
 
-    private fun buildRetryButton(state: CoinTickerListState): BuildState {
+    private fun buildRetryButton(state: CoinSelectState): BuildState {
         val async = state.markets
         if (async is Fail) {
             if (BuildConfig.DEBUG) {
@@ -75,7 +87,7 @@ class CoinTickerListController constructor(
         return BuildState.Next
     }
 
-    private fun buildHistory(state: CoinTickerListState): BuildState {
+    private fun buildHistory(state: CoinSelectState): BuildState {
         val historyEntries = state.history.invoke().orEmpty()
         if (historyEntries.isEmpty()) {
             return BuildState.Next
@@ -91,7 +103,7 @@ class CoinTickerListController constructor(
         }
 
         historyEntries.forEach { entry ->
-            coinTickerListHistoryView {
+            historyView {
                 id("history_${entry.id}")
                 name(entry.name)
                 symbol(entry.symbol)
@@ -99,7 +111,7 @@ class CoinTickerListController constructor(
                 onCancelClickListener { _ ->
                     viewModel.removeHistory(id = entry.id)
                 }
-                onClickListener { _ ->
+                onClickListener { view ->
                     viewModel.addToHistory(
                         CoinHistoryEntry(
                             id = entry.id,
@@ -108,7 +120,7 @@ class CoinTickerListController constructor(
                             iconUrl = entry.iconUrl,
                         )
                     )
-                    navigator.moveToPreview(coinId = entry.id)
+                    moveToResult(view, coinId = entry.id)
                 }
             }
         }
@@ -116,7 +128,7 @@ class CoinTickerListController constructor(
         return BuildState.Next
     }
 
-    private fun buildMarket(state: CoinTickerListState): BuildState {
+    private fun buildMarket(state: CoinSelectState): BuildState {
         val keyword = state.keyword
 
         val async = state.markets
@@ -145,7 +157,7 @@ class CoinTickerListController constructor(
         }
 
         marketSearchResult.forEachIndexed { index, entry ->
-            coinTickerListMarketView {
+            marketView {
                 id(entry.id)
                 name(entry.name)
                 symbol(entry.symbol)
@@ -153,13 +165,13 @@ class CoinTickerListController constructor(
                 if (index == 0) {
                     onVisibilityStateChanged { _, view, visibilityState ->
                         if (visibilityState == VisibilityState.VISIBLE) {
-                            view.doOnPreDraw {
-                                traceManager.endTrace(CoinTickerListTTI(widgetId))
-                            }
+                            // view.doOnPreDraw {
+                            //     traceManager.endTrace(CoinTickerListTTI(widgetId))
+                            // }
                         }
                     }
                 }
-                onClickListener { _ ->
+                onClickListener { view ->
                     viewModel.addToHistory(
                         CoinHistoryEntry(
                             id = entry.id,
@@ -168,12 +180,23 @@ class CoinTickerListController constructor(
                             name = entry.name,
                         )
                     )
-                    navigator.moveToPreview(coinId = entry.id)
+                    moveToResult(view, coinId = entry.id)
                 }
             }
         }
 
         return BuildState.Next
+    }
+
+    private fun moveToResult(view: View, coinId: String) {
+        view.dismissKeyboard()
+        val controller = view.findNavController()
+        controller.navigate(
+            resultDestination,
+            Bundle().apply {
+                putString("coin_id", coinId)
+            }
+        )
     }
 
     private fun calculateRatio(keyword: String, value: String): Double {
@@ -183,7 +206,7 @@ class CoinTickerListController constructor(
         return 0.0
     }
 
-    private fun buildSearchResult(state: CoinTickerListState): BuildState {
+    private fun buildSearchResult(state: CoinSelectState): BuildState {
         val keyword = state.keyword
         if (keyword.isEmpty()) {
             // hide search result when keyword is empty
@@ -238,11 +261,11 @@ class CoinTickerListController constructor(
         }
 
         orderedList.forEach { entry ->
-            coinTickerListCoinView {
+            coinView {
                 id(entry.id)
                 name(entry.name)
                 symbol(entry.symbol)
-                onClickListener { _ ->
+                onClickListener { view ->
                     viewModel.addToHistory(
                         CoinHistoryEntry(
                             id = entry.id,
@@ -251,7 +274,7 @@ class CoinTickerListController constructor(
                             iconUrl = null,
                         )
                     )
-                    navigator.moveToPreview(coinId = entry.id)
+                    moveToResult(view, coinId = entry.id)
                 }
             }
         }

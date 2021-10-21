@@ -1,10 +1,9 @@
-package com.rainyseason.cj.ticker.list.view
+package com.rainyseason.cj.coinselect.view
 
 import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
-import android.view.LayoutInflater
 import android.widget.FrameLayout
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
@@ -14,16 +13,17 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.debounced
+import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.setTextIfDifferent
 import timber.log.Timber
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
-class CoinTickerListSearchView @JvmOverloads constructor(
+class SearchView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
 ) : FrameLayout(context, attributeSet) {
     init {
-        LayoutInflater.from(context).inflate(R.layout.coin_ticker_list_search_view, this, true)
+        inflater.inflate(R.layout.coin_select_search_view, this, true)
     }
 
     private val textInputLayout: TextInputLayout = findViewById(R.id.text_input_layout)

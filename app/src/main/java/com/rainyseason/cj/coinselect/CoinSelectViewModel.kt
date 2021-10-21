@@ -1,4 +1,4 @@
-package com.rainyseason.cj.ticker.list
+package com.rainyseason.cj.coinselect
 
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.FragmentViewModelContext
@@ -15,6 +15,9 @@ import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.data.coingecko.MarketsResponseEntry
 import com.rainyseason.cj.data.coingecko.getCoinListFlow
 import com.rainyseason.cj.data.coingecko.getCoinMarketsFlow
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,20 +26,25 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-data class CoinTickerListState(
+data class CoinSelectState(
     val markets: Async<List<MarketsResponseEntry>> = Uninitialized,
     val list: Async<List<CoinListEntry>> = Uninitialized,
     val history: Async<List<CoinHistoryEntry>> = Uninitialized,
     val keyword: String = "",
 ) : MavericksState
 
-class CoinTickerListViewModel @Inject constructor(
+class CoinSelectViewModel @AssistedInject constructor(
+    @Assisted private val initState: CoinSelectState,
     private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
     private val coinHistoryRepository: CoinHistoryRepository,
-) : MavericksViewModel<CoinTickerListState>(CoinTickerListState()) {
+) : MavericksViewModel<CoinSelectState>(initState) {
+
+    @AssistedFactory
+    interface Factory {
+        fun create(initState: CoinSelectState): CoinSelectViewModel
+    }
 
     private val keywordDebound = MutableStateFlow("")
 
@@ -89,18 +97,18 @@ class CoinTickerListViewModel @Inject constructor(
         }
     }
 
-    companion object : MavericksViewModelFactory<CoinTickerListViewModel, CoinTickerListState> {
+    companion object : MavericksViewModelFactory<CoinSelectViewModel, CoinSelectState> {
         override fun create(
             viewModelContext: ViewModelContext,
-            state: CoinTickerListState,
-        ): CoinTickerListViewModel? {
+            state: CoinSelectState,
+        ): CoinSelectViewModel {
             val fragment =
-                (viewModelContext as FragmentViewModelContext).fragment<CoinTickerListFragment>()
-            return fragment.viewModelProvider.get()
+                (viewModelContext as FragmentViewModelContext).fragment<CoinSelectFragment>()
+            return fragment.viewModelFactory.create(state)
         }
 
-        override fun initialState(viewModelContext: ViewModelContext): CoinTickerListState {
-            return CoinTickerListState()
+        override fun initialState(viewModelContext: ViewModelContext): CoinSelectState {
+            return CoinSelectState()
         }
     }
 }

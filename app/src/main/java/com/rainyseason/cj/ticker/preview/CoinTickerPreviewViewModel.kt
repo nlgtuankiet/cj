@@ -1,5 +1,6 @@
 package com.rainyseason.cj.ticker.preview
 
+import android.appwidget.AppWidgetManager
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.Loading
@@ -44,8 +45,10 @@ data class CoinTickerPreviewState(
 }
 
 class CoinTickerPreviewViewModel @AssistedInject constructor(
+    @Assisted private val initState: CoinTickerPreviewState,
     @Assisted private val args: CoinTickerPreviewArgs,
     private val coinTickerRepository: CoinTickerRepository,
+    private val appWidgetManager: AppWidgetManager,
     private val userSettingRepository: UserSettingRepository,
     private val getDisplayData: GetDisplayData,
 ) : MavericksViewModel<CoinTickerPreviewState>(CoinTickerPreviewState()) {
@@ -63,6 +66,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
         reload()
     }
+
 
     fun reload() {
         loadData()
@@ -101,11 +105,20 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     }
 
     private suspend fun saveInitialConfig() {
-        val lastConfig = coinTickerRepository.getConfig(widgetId = widgetId)
+        val lastConfig = coinTickerRepository.getConfig(widgetId = args.widgetId)
+        val layoutRes = appWidgetManager.getAppWidgetInfo(args.widgetId)?.initialLayout
+            ?: R.layout.widget_coin_ticker_2x2_default
+        val layout = when (layoutRes) {
+            R.layout.widget_coin_ticker_2x2_default -> CoinTickerConfig.Layout.DEFAULT
+            R.layout.widget_coin_ticker_2x2_graph -> CoinTickerConfig.Layout.GRAPH
+            R.layout.widget_coin_ticker_2x2_coin360 -> CoinTickerConfig.Layout.COIN360
+            R.layout.widget_coin_ticker_2x1_mini -> CoinTickerConfig.Layout.MINI
+            else -> error("Unknown layout for $layoutRes")
+        }
         if (lastConfig == null) {
             val userSetting = userSettingRepository.getUserSetting()
             val config = CoinTickerConfig(
-                widgetId = widgetId,
+                widgetId = args.widgetId,
                 coinId = args.coinId,
                 layout = args.layout,
                 backend = args.backend,
@@ -128,7 +141,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                     CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL
                 }
             )
-            coinTickerRepository.setConfig(widgetId, config)
+            coinTickerRepository.setConfig(args.widgetId, config)
         } else {
             val newConfig = lastConfig.copy(
                 coinId = args.coinId,
@@ -213,7 +226,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     }
 
     private fun loadDisplayData() {
-        coinTickerRepository.getDisplayDataStream(widgetId)
+        coinTickerRepository.getDisplayDataStream(args.widgetId)
             .execute { copy(savedDisplayData = it) }
     }
 
@@ -222,14 +235,14 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             return
         }
         viewModelScope.launch {
-            coinTickerRepository.setConfig(widgetId, config)
+            coinTickerRepository.setConfig(args.widgetId, config)
         }
     }
 
     private var loadConfigJob: Job? = null
     private fun loadConfig() {
         loadConfigJob?.cancel()
-        loadConfigJob = coinTickerRepository.getConfigStream(widgetId)
+        loadConfigJob = coinTickerRepository.getConfigStream(args.widgetId)
             .execute { copy(savedConfig = it) }
     }
 
@@ -269,7 +282,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     override fun onCleared() {
         if (!saved) {
             viewModelScope.launch(NonCancellable) {
-                coinTickerRepository.clearDisplayData(widgetId)
+                coinTickerRepository.clearDisplayData(args.widgetId)
             }
         }
         super.onCleared()
@@ -285,7 +298,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(args: CoinTickerPreviewArgs): CoinTickerPreviewViewModel
+        fun create(
+            initState: CoinTickerPreviewState,
+            args: CoinTickerPreviewArgs,
+        ): CoinTickerPreviewViewModel
     }
 
     companion object :
@@ -298,10 +314,9 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             viewModelContext: ViewModelContext,
             state: CoinTickerPreviewState,
         ): CoinTickerPreviewViewModel {
-            val fragment =
-                (viewModelContext as FragmentViewModelContext).fragment<CoinTickerPreviewFragment>()
-            val args = fragment.requireArgs<CoinTickerPreviewArgs>()
-            return fragment.viewModelFactory.create(args)
+            val fragment = (viewModelContext as FragmentViewModelContext)
+                .fragment<CoinTickerPreviewFragment>()
+            return fragment.viewModelFactory.create(state, fragment.args)
         }
     }
 }

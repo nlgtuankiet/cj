@@ -1,4 +1,4 @@
-package com.rainyseason.cj.ticker.list
+package com.rainyseason.cj.coinselect
 
 import android.widget.Toast
 import androidx.core.view.isGone
@@ -10,7 +10,7 @@ import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.dismissKeyboard
-import com.rainyseason.cj.databinding.CoinTickerListFragmentBinding
+import com.rainyseason.cj.databinding.CoinSelectFragmentBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.tracking.logKeyParamsEvent
@@ -23,8 +23,8 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 @Suppress("UNREACHABLE_CODE", "unused")
-fun CoinTickerListFragment.setupReview(
-    binding: CoinTickerListFragmentBinding,
+fun CoinSelectFragment.setupReview(
+    binding: CoinSelectFragmentBinding,
     scope: CoroutineScope,
 ) {
     return

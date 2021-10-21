@@ -9,7 +9,12 @@
     <item name="release_note_screen" type="id" />
     <item name="setting_screen" type="id" />
     <item name="contact_screen" type="id" />
+
     <item name="main_nav_graph" type="id" />
+
+    <item name="coin_ticker_nav_graph" type="id" />
+    <item name="coin_select_screen" type="id" />
+    <item name="coin_ticker_preview_screen" type="id" />
 
     <item name="haptic_feedback" type="id" />
 </resources>

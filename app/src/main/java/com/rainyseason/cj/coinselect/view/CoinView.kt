@@ -1,4 +1,4 @@
-package com.rainyseason.cj.ticker.list.view
+package com.rainyseason.cj.coinselect.view
 
 import android.content.Context
 import android.util.AttributeSet
@@ -11,12 +11,12 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.inflateAndAdd
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
-class CoinTickerListCoinView @JvmOverloads constructor(
+class CoinView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
 ) : FrameLayout(context, attributeSet) {
     init {
-        inflateAndAdd(R.layout.coin_ticker_list_coin_view)
+        inflateAndAdd(R.layout.coin_select_coin_view)
     }
 
     private val nameTextView = findViewById<TextView>(R.id.name)

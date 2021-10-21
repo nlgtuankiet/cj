@@ -1,14 +1,13 @@
-package com.rainyseason.cj.ticker.list
+package com.rainyseason.cj.coinselect
 
 import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.annotation.IdRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import com.airbnb.epoxy.EpoxyRecyclerView
@@ -16,44 +15,34 @@ import com.airbnb.epoxy.EpoxyVisibilityTracker
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
-import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.setTextIfDifferent
-import com.rainyseason.cj.databinding.CoinTickerListFragmentBinding
-import com.rainyseason.cj.ticker.CoinTickerNavigator
-import com.rainyseason.cj.ticker.getWidgetId
+import com.rainyseason.cj.databinding.CoinSelectFragmentBinding
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
-import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Provider
 
 @Module
-interface CoinTickerListFragmentModule {
+interface CoinSelectFragmentModule {
     @ContributesAndroidInjector
-    fun fragment(): CoinTickerListFragment
+    fun fragment(): CoinSelectFragment
 }
 
-class CoinTickerListFragment : Fragment(), MavericksView {
+class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksView {
     @Inject
-    lateinit var viewModelProvider: Provider<CoinTickerListViewModel>
-
-    @Inject
-    lateinit var navigator: CoinTickerNavigator
+    lateinit var viewModelFactory: CoinSelectViewModel.Factory
 
     @Inject
-    lateinit var traceManager: TraceManager
+    lateinit var controllerFactory: CoinSelectController.Factory
 
-    private val viewModel: CoinTickerListViewModel by fragmentViewModel()
+    private val viewModel: CoinSelectViewModel by fragmentViewModel()
 
-    private val controller: CoinTickerListController by lazy {
-        CoinTickerListController(
-            context = requireContext(),
-            viewModel = viewModel,
-            navigator = navigator,
-            traceManager = traceManager,
-            widgetId = requireActivity().getWidgetId()!!
-        )
+    private val controller: CoinSelectController by lazy {
+        val resultDestination = arguments?.getInt("result_destination")
+        if (resultDestination == null || resultDestination == 0) {
+            error("Invalid result_destination: $resultDestination")
+        }
+        controllerFactory.create(viewModel, resultDestination)
     }
 
     override fun onAttach(context: Context) {
@@ -61,22 +50,8 @@ class CoinTickerListFragment : Fragment(), MavericksView {
         AndroidSupportInjection.inject(this)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?,
-    ): View? {
-        Timber.d("onCreateView")
-        return inflater.inflate(R.layout.coin_ticker_list_fragment, container, false)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        Timber.d("onDestroyView")
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val binding = CoinTickerListFragmentBinding.bind(view)
+        val binding = CoinSelectFragmentBinding.bind(view)
         setupReview(binding, viewModel.viewModelScope)
         val recyclerView = view.findViewById<EpoxyRecyclerView>(R.id.content_recycler_view)
         val backButton = view.findViewById<ImageView>(R.id.back_button)
@@ -97,18 +72,27 @@ class CoinTickerListFragment : Fragment(), MavericksView {
         val clearButton = view.findViewById<ImageView>(R.id.clear_button)
         clearButton.setOnClickListener { viewModel.submitNewKeyword("") }
 
-        viewModel.onEach(CoinTickerListState::keyword) { keyword ->
+        viewModel.onEach(CoinSelectState::keyword) { keyword ->
             searchBox.setTextIfDifferent(keyword)
             clearButton.isVisible = keyword.isNotBlank()
         }
 
         recyclerView.setController(controller)
         EpoxyVisibilityTracker().attach(recyclerView)
-        viewModel.onEach {
-            controller.requestModelBuild()
-        }
     }
 
     override fun invalidate() {
+        controller.requestModelBuild()
+    }
+
+    companion object {
+        @JvmStatic
+        fun createArgs(
+            @IdRes resultDestination: Int
+        ): Bundle {
+            return Bundle().apply {
+                putInt("result_destination", resultDestination)
+            }
+        }
     }
 }

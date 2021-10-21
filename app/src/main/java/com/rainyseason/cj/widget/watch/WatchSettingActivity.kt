@@ -8,7 +8,6 @@ import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.rainyseason.cj.R
-import com.rainyseason.cj.common.ActivityScope
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.ticker.getWidgetId
 import com.rainyseason.cj.tracking.Tracker
@@ -27,7 +26,6 @@ import javax.inject.Inject
 interface WatchSettingActivityModule {
 
     @ContributesAndroidInjector
-    @ActivityScope
     fun activity(): WatchSettingActivity
 }
 

@@ -8,7 +8,6 @@ import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
-import com.rainyseason.cj.ticker.addBitmap
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -56,8 +55,7 @@ class CoinTickerRepository @Inject constructor(
     suspend fun getDisplayData(widgetId: Int): CoinTickerDisplayData? {
         val key = displayDataKey(widgetId)
         val data = dataStore.data.first()[key] ?: return null
-        val entity = displayAdapter.fromJson(data)!!
-        return entity.addBitmap(context)
+        return displayAdapter.fromJson(data)!!
     }
 
     suspend fun setDisplayData(widgetId: Int, data: CoinTickerDisplayData) {
@@ -73,7 +71,7 @@ class CoinTickerRepository @Inject constructor(
                 prefs[key]
             }
             .map {
-                displayAdapter.fromJson(it)!!.addBitmap(context)
+                displayAdapter.fromJson(it)!!
             }
     }
 

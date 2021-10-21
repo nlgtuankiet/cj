@@ -7,15 +7,15 @@ import android.os.Bundle
 import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.rainyseason.cj.BuildConfig
+import androidx.navigation.createGraph
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.fragment
 import com.rainyseason.cj.R
-import com.rainyseason.cj.common.ActivityScope
-import com.rainyseason.cj.common.CoinTickerListTTI
+import com.rainyseason.cj.coinselect.CoinSelectFragment
 import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.data.local.CoinTickerRepository
-import com.rainyseason.cj.ticker.list.CoinTickerListFragmentModule
-import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
+import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragment
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.Module
@@ -33,14 +33,7 @@ import javax.inject.Inject
 
 @Module
 interface CoinTickerSettingActivityModule {
-    @Suppress("unused")
-    @ContributesAndroidInjector(
-        modules = [
-            CoinTickerPreviewFragmentModule::class,
-            CoinTickerListFragmentModule::class,
-        ]
-    )
-    @ActivityScope
+    @ContributesAndroidInjector
     fun activity(): CoinTickerSettingActivity
 }
 
@@ -71,9 +64,6 @@ class CoinTickerSettingActivity :
     lateinit var coinTickerRepository: CoinTickerRepository
 
     @Inject
-    lateinit var navigator: CoinTickerNavigator
-
-    @Inject
     lateinit var tracker: Tracker
 
     @Inject
@@ -95,9 +85,24 @@ class CoinTickerSettingActivity :
         }
         setContentView(R.layout.activity_coin_ticker_setting)
         Timber.d("widgetId: $widgetId")
+        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)!!
+        val navController = navHostFragment.findNavController()
+        val graph = navController.createGraph(
+            R.id.coin_ticker_nav_graph,
+            R.id.coin_select_screen,
+        ) {
+            fragment<CoinSelectFragment>(R.id.coin_select_screen)
+            fragment<CoinTickerPreviewFragment>(R.id.coin_ticker_preview_screen)
+        }
+        navController.setGraph(
+            graph,
+            CoinSelectFragment.createArgs(R.id.coin_ticker_preview_screen)
+        )
+
         val coinId = intent.extras?.getString(COIN_ID_EXTRA)
         val exchangeId = intent.extras?.getString("exchange_id")
         if (coinId != null) {
+            widgetSaved = true
             if (savedInstanceState == null) {
                 // on recreate we are already at preview screen
                 navigator.moveToPreview(coinId, exchangeId)
