@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 data class CoinSelectState(
     val markets: Async<List<MarketsResponseEntry>> = Uninitialized,
@@ -40,6 +41,8 @@ class CoinSelectViewModel @AssistedInject constructor(
     private val coinGeckoService: CoinGeckoService,
     private val coinHistoryRepository: CoinHistoryRepository,
 ) : MavericksViewModel<CoinSelectState>(initState) {
+
+    val id = UUID.randomUUID().toString()
 
     @AssistedFactory
     interface Factory {

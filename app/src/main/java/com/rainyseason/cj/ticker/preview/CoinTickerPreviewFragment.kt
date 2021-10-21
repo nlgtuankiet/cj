@@ -3,6 +3,7 @@ package com.rainyseason.cj.ticker.preview
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -13,6 +14,7 @@ import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.CoinTickerPreviewTTI
 import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.saveOrShowWarning
 import com.rainyseason.cj.databinding.CoinTickerPreviewFragmentBinding
@@ -70,6 +72,13 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
         AndroidSupportInjection.inject(this)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            traceManager.beginTrace(CoinTickerPreviewTTI(viewModel.id))
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -109,9 +118,19 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
                     .flowOn(Dispatchers.IO)
                     .collect {
                         previewView.setRenderParams(it)
+                        if (it != null) {
+                            previewView.doOnPreDraw {
+                                traceManager.endTrace(CoinTickerPreviewTTI(viewModel.id))
+                            }
+                        }
                     }
             }
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        traceManager.cancelTrace(CoinTickerPreviewTTI(viewModel.id))
     }
 
     private fun save() {

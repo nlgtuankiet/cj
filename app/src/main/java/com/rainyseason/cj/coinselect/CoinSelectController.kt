@@ -3,6 +3,7 @@ package com.rainyseason.cj.coinselect
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.doOnPreDraw
 import androidx.navigation.findNavController
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.epoxy.VisibilityState
@@ -15,6 +16,7 @@ import com.rainyseason.cj.coinselect.view.coinView
 import com.rainyseason.cj.coinselect.view.historyView
 import com.rainyseason.cj.coinselect.view.marketView
 import com.rainyseason.cj.common.BuildState
+import com.rainyseason.cj.common.CoinSelectTTI
 import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.dismissKeyboard
 import com.rainyseason.cj.common.getUserErrorMessage
@@ -165,9 +167,9 @@ class CoinSelectController @AssistedInject constructor(
                 if (index == 0) {
                     onVisibilityStateChanged { _, view, visibilityState ->
                         if (visibilityState == VisibilityState.VISIBLE) {
-                            // view.doOnPreDraw {
-                            //     traceManager.endTrace(CoinTickerListTTI(widgetId))
-                            // }
+                            view.doOnPreDraw {
+                                traceManager.endTrace(CoinSelectTTI(viewModel.id))
+                            }
                         }
                     }
                 }

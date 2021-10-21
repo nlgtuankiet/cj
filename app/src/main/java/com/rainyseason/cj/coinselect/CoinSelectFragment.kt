@@ -10,11 +10,16 @@ import android.widget.ImageView
 import androidx.annotation.IdRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.fragment.findNavController
 import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.epoxy.EpoxyVisibilityTracker
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.CoinSelectTTI
+import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.setTextIfDifferent
 import com.rainyseason.cj.databinding.CoinSelectFragmentBinding
 import dagger.Module
@@ -37,12 +42,35 @@ class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksVie
 
     private val viewModel: CoinSelectViewModel by fragmentViewModel()
 
+    @Inject
+    lateinit var traceManager: TraceManager
+
     private val controller: CoinSelectController by lazy {
         val resultDestination = arguments?.getInt("result_destination")
         if (resultDestination == null || resultDestination == 0) {
             error("Invalid result_destination: $resultDestination")
         }
         controllerFactory.create(viewModel, resultDestination)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            traceManager.beginTrace(CoinSelectTTI(viewModel.id))
+            findNavController().addOnDestinationChangedListener(object :
+                NavController.OnDestinationChangedListener {
+                override fun onDestinationChanged(
+                    controller: NavController,
+                    destination: NavDestination,
+                    arguments: Bundle?
+                ) {
+                    if (destination.id != R.id.coin_select_screen) {
+                        controller.removeOnDestinationChangedListener(this)
+                        traceManager.cancelTrace(CoinSelectTTI(viewModel.id))
+                    }
+                }
+            })
+        }
     }
 
     override fun onAttach(context: Context) {

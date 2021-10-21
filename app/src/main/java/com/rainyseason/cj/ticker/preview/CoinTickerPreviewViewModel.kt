@@ -25,6 +25,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import java.util.UUID
 import java.util.Collections
 import java.util.concurrent.TimeUnit
 
@@ -54,8 +55,8 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 ) : MavericksViewModel<CoinTickerPreviewState>(CoinTickerPreviewState()) {
 
     private val widgetId = args.widgetId
-    private val loadGraphJobs = mutableMapOf<TimeInterval, Job>()
     private var saved = false
+    val id = UUID.randomUUID().toString()
 
     init {
         loadDisplayData()

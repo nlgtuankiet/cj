@@ -16,41 +16,44 @@ class TraceManager @Inject constructor(
     private val debugTraces = mutableMapOf<TraceParam, Long>()
     private val debug = BuildConfig.DEBUG
 
-    fun beginTrace(key: String, name: String) {
-        val trace = firebasePerformance.newTrace(name)
-        trace.start()
-        traces[key] = trace
-    }
-
     fun beginTrace(params: TraceParam) {
-        beginTrace(key = params.key, name = params.name)
+        val trace = firebasePerformance.newTrace(params.name)
+        trace.start()
+        traces[params.key] = trace
         if (debug) {
+            Timber.d("Trace debug begin $params")
             debugTraces[params] = System.currentTimeMillis()
         }
     }
 
-    fun endTrace(key: String) {
-        val trace = traces.remove(key)
-        trace?.stop()
+    fun cancelTrace(params: TraceParam) {
+        val trace = traces.remove(params.key)
+        if (debug) {
+            if (trace != null) {
+                Timber.d("Trace debug canceled $params")
+            }
+            debugTraces.remove(params)
+        }
     }
 
     fun endTrace(params: TraceParam) {
-        endTrace(key = params.key)
+        val trace = traces.remove(params.key)
+        trace?.stop()
         if (debug) {
             val startTime = debugTraces.remove(params)
             if (startTime != null) {
-                Timber.d("Trace debug ${params.name} ${System.currentTimeMillis() - startTime}ms")
+                Timber.d("Trace debug end ${params.name} ${System.currentTimeMillis() - startTime}ms")
             }
         }
     }
 }
 
-data class CoinTickerListTTI(
-    val widgetId: Int,
-) : TraceParam(key = "coin_ticker_list_tti_$widgetId", name = "coin_ticker_list_tti")
+data class CoinSelectTTI(
+    override val key: String,
+) : TraceParam(key = key, name = "coin_select_tti")
 
 data class CoinTickerPreviewTTI(
-    val widgetId: Int,
-) : TraceParam(key = "coin_ticker_preview_tti_$widgetId", name = "coin_ticker_preview_tti")
+    override val key: String,
+) : TraceParam(key = "key", name = "coin_ticker_preview_tti")
 
-open class TraceParam(val key: String, val name: String)
+open class TraceParam(open val key: String, val name: String)
