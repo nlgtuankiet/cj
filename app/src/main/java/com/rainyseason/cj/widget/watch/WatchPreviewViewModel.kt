@@ -173,7 +173,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
                     name = coinDetail.name,
                     graph = priceChart,
                     price = coinDetail.marketData.currentPrice[currencyCode]!!,
-                    changePercent = priceChart?.changePercent()
+                    changePercent = priceChart?.changePercent()?.let { it * 100 }
                 )
             )
         }

@@ -6,6 +6,7 @@ import java.util.Currency
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 import kotlin.math.floor
 
 @Singleton
@@ -19,7 +20,7 @@ class NumberFormater @Inject constructor() {
         val formatter: DecimalFormat =
             NumberFormat.getCurrencyInstance(locate) as DecimalFormat
         val smartNumberOfDecimals = getSmartNumberOfDecimal(
-            amount = amount,
+            inputAmount = amount,
             configNumberOfDecimal = numberOfDecimals
         )
         formatter.maximumFractionDigits = smartNumberOfDecimals
@@ -72,7 +73,7 @@ class NumberFormater @Inject constructor() {
             formatter.decimalFormatSymbols = symbol
         }
         val numberOfDecimals = getSmartNumberOfDecimal(
-            amount = tmpAmount,
+            inputAmount = tmpAmount,
             configNumberOfDecimal = numberOfDecimal,
             hideOnLargeAmount = hideOnLargeAmount
         )
@@ -93,10 +94,12 @@ class NumberFormater @Inject constructor() {
      * -> 4
      */
     private fun getSmartNumberOfDecimal(
-        amount: Double,
+        inputAmount: Double,
         configNumberOfDecimal: Int?,
         hideOnLargeAmount: Boolean = false,
     ): Int {
+        val amount = abs(inputAmount)
+
         if (configNumberOfDecimal == null) {
             return Int.MAX_VALUE
         }
