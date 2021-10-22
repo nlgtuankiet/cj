@@ -31,6 +31,7 @@ import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
+import com.rainyseason.cj.common.reverseValue
 import com.rainyseason.cj.common.verticalPadding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x1MiniBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2Coin360Binding
@@ -358,9 +359,7 @@ class TickerWidgetRenderer @Inject constructor(
             val height = imageView.measuredHeight.toFloat()
             val isPositive = filteredData.last()[1] > filteredData.first()[1]
             val renderData = if (!isPositive && DebugFlag.POSITIVE_WIDGET.isEnable) {
-                filteredData.mapIndexed { index, point ->
-                    listOf(point[0], filteredData[filteredData.size - 1 - index][1])
-                }
+                filteredData.reverseValue()
             } else {
                 filteredData
             }

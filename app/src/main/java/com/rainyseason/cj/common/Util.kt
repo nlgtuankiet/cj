@@ -282,3 +282,9 @@ fun View.setOnClickToNavigateBack() {
         view.findNavController().navigateUp()
     }
 }
+
+fun List<List<Double>>.reverseValue(): List<List<Double>> {
+    return mapIndexed { index, point ->
+        listOf(point[0], this[this.size - 1 - index][1])
+    }
+}

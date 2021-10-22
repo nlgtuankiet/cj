@@ -20,6 +20,8 @@ import com.rainyseason.cj.detail.view.lowHighView
 import com.rainyseason.cj.detail.view.moreLabelView
 import com.rainyseason.cj.detail.view.namePriceChangeView
 import com.rainyseason.cj.detail.view.statSummaryView
+import com.rainyseason.cj.featureflag.DebugFlag
+import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logClick
 import dagger.assisted.Assisted
@@ -28,6 +30,7 @@ import dagger.assisted.AssistedInject
 import org.threeten.bp.Instant
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatterBuilder
+import kotlin.math.abs
 
 class CoinDetailController @AssistedInject constructor(
     @Assisted val viewModel: CoinDetailViewModel,
@@ -338,9 +341,18 @@ class CoinDetailController @AssistedInject constructor(
             .toFormatter(currencyInfo.locale)
 
         val changePercent = state.graphChangePercent
-        val changePercentText = if (changePercent != null) {
+        val actualChangePercent = if (
+            changePercent != null &&
+            changePercent < 0 &&
+            DebugFlag.POSITIVE_WIDGET.isEnable
+        ) {
+            abs(changePercent)
+        } else {
+            changePercent
+        }
+        val changePercentText = if (actualChangePercent != null) {
             numberFormatter.formatPercent(
-                amount = changePercent,
+                amount = actualChangePercent,
                 locate = SUPPORTED_CURRENCY[userSetting.currencyCode]!!.locale,
                 numberOfDecimals = 2,
             )
