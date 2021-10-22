@@ -16,7 +16,6 @@ import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.databinding.ViewWatchEntryBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
-import kotlin.math.abs
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
 class WatchEntryView @JvmOverloads constructor(
@@ -91,7 +90,7 @@ class WatchEntryView @JvmOverloads constructor(
         val changePercent = model.changePercent
         if (changePercent != null) {
             binding.changePercent.text = numberFormater.formatPercent(
-                amount = abs(changePercent),
+                amount = changePercent,
                 locate = locale,
                 numberOfDecimals = 1
             )
