@@ -27,6 +27,7 @@ import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.Theme
+import com.rainyseason.cj.common.reverseValue
 import com.rainyseason.cj.databinding.WatchWidgetEntryDividerBinding
 import com.rainyseason.cj.databinding.WidgetWatchBinding
 import com.rainyseason.cj.databinding.WidgetWatchEntryBinding
@@ -35,6 +36,7 @@ import com.rainyseason.cj.featureflag.isEnable
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.abs
 
 @Singleton
 class WatchWidgetRender @Inject constructor(
@@ -76,20 +78,6 @@ class WatchWidgetRender @Inject constructor(
             WatchWidgetLayout.Watch4x4 -> finalWidth
         }
         return Size(finalWidth, finalHeight)
-    }
-
-    private fun WatchWidgetRenderParams.maybePositive(): WatchWidgetRenderParams {
-        // TODO
-        // if (DebugFlag.POSITIVE_WIDGET.isEnable) {
-        //     return this.copy(
-        //         data = this.data.copy(
-        //             entries = this.data.entries.mapValues { entry ->
-        //                 entry.value.copy(changePercent = entry.value.changePercent?.let { abs(it) })
-        //             },
-        //         )
-        //     )
-        // }
-        return this
     }
 
     private fun RemoteViews.bindLoading(params: WatchWidgetRenderParams) {
@@ -136,13 +124,20 @@ class WatchWidgetRender @Inject constructor(
         )
 
         val graph = data?.graph
-        if (graph != null) {
+        if (graph != null && graph.size >= 2) {
+            val isNegative = graph.first()[1] > graph.last()[1]
+            Timber.d("isNegative: $isNegative")
+            val actualGraph = if (isNegative && DebugFlag.POSITIVE_WIDGET.isEnable) {
+                graph.reverseValue()
+            } else {
+                graph
+            }
             val bitmap = graphRenderer.createGraphBitmap(
                 context,
                 binding.graph.width.toFloat(),
                 binding.graph.height.toFloat(),
-                (data.changePercent ?: 0.0 > 0.0),
-                graph,
+                !isNegative || DebugFlag.POSITIVE_WIDGET.isEnable,
+                actualGraph,
             )
             binding.graph.setImageBitmap(bitmap)
         }
@@ -182,14 +177,19 @@ class WatchWidgetRender @Inject constructor(
     ): CharSequence {
         return buildSpannedString {
             if (amount != null) {
-                val color = if (amount > 0) {
+                val actualAmount = if (amount < 0 && DebugFlag.POSITIVE_WIDGET.isEnable) {
+                    abs(amount)
+                } else {
+                    amount
+                }
+                val color = if (actualAmount > 0) {
                     ContextCompat.getColor(context, R.color.green_700)
                 } else {
                     ContextCompat.getColor(context, R.color.red_600)
                 }
                 val locate = SUPPORTED_CURRENCY[config.currency]!!.locale
                 val content = numberFormater.formatPercent(
-                    amount = amount,
+                    amount = actualAmount,
                     locate = locate,
                     numberOfDecimals = config.numberOfChangePercentDecimal
                 )
@@ -322,16 +322,14 @@ class WatchWidgetRender @Inject constructor(
     ) {
         val container = FrameLayout(context)
         container.measureAndLayout(inputParams.config)
-        val params = inputParams.maybePositive()
         when (inputParams.config.layout) {
-            WatchWidgetLayout.Watch4x2 -> render4x2(container, remoteView, params)
-            WatchWidgetLayout.Watch4x4 -> render4x2(container, remoteView, params)
-            else -> error("Unknown layout: ${params.config.layout}")
+            WatchWidgetLayout.Watch4x2 -> render4x2(container, remoteView, inputParams)
+            WatchWidgetLayout.Watch4x4 -> render4x2(container, remoteView, inputParams)
         }
-        container.measureAndLayout(params.config)
-        val size = getWidgetSize(params.config)
+        container.measureAndLayout(inputParams.config)
+        val size = getWidgetSize(inputParams.config)
 
-        if (params.isPreview && DebugFlag.SHOW_PREVIEW_LAYOUT_BOUNDS.isEnable) {
+        if (inputParams.isPreview && DebugFlag.SHOW_PREVIEW_LAYOUT_BOUNDS.isEnable) {
             remoteView as LocalRemoteViews
             remoteView.container.removeAllViews()
             remoteView.container.addView(container)
