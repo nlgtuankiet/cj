@@ -67,6 +67,7 @@ class MainActivity : AppCompatActivity() {
 
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
         bottomNav.setupWithNavController(navController)
+        bottomNav.setOnItemReselectedListener { }
         if (savedInstanceState == null) {
             val screen = intent.extras?.getString("screen")
             val coinId = intent.extras?.getString("coinId")
