@@ -281,7 +281,6 @@ class CoinStatController @AssistedInject constructor(
         val atlDate = coinDetail.marketData.atlDate?.get(userSetting.currencyCode)
         val currentPrice = coinDetail.marketData.currentPrice[userSetting.currencyCode]!!
 
-
         buildSeparator("price_range_separator")
         allTimeView {
             id("all_time")
@@ -299,7 +298,6 @@ class CoinStatController @AssistedInject constructor(
                 startPrice("--")
             }
 
-
             if (ath != null) {
                 endPrice(
                     numberFormatter.formatAmount(
@@ -312,7 +310,6 @@ class CoinStatController @AssistedInject constructor(
             } else {
                 endPrice("--")
             }
-
 
             if (ath != null && atl != null) {
                 val percent = 100 * (currentPrice - atl) / (ath - atl)
@@ -445,14 +442,16 @@ class CoinStatController @AssistedInject constructor(
         entryView {
             id("current_price")
             title("Current Price")
-            value(buildSpannedString {
-                append(priceContent)
-                append("   ")
+            value(
+                buildSpannedString {
+                    append(priceContent)
+                    append("   ")
 
-                color(context.getColorCompat(change24hColor)) {
-                    append(change24hPercentContent)
+                    color(context.getColorCompat(change24hColor)) {
+                        append(change24hPercentContent)
+                    }
                 }
-            })
+            )
         }
     }
 

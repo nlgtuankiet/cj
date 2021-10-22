@@ -60,9 +60,7 @@ class CoinStatViewModel @AssistedInject constructor(
                 }.execute {
                     copy(marketChartResponse = marketChartResponse.update { put(timeInterval, it) })
                 }
-
             }
-
         }
 
         onEach(
