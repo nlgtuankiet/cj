@@ -53,6 +53,11 @@ suspend fun CoinGeckoService.getMarketChartWithFilter(
     )
 }
 
+/**
+ * Filter out invalid value
+ * Ex: https://api.coingecko.com/api/v3/coins/bitcoin/market_chart/?vs_currency=brl&days=max
+ * Search for null
+ */
 @Suppress("NOTHING_TO_INLINE")
 private inline fun List<List<Double>>.filterValidValue(): List<List<Double>> {
     @Suppress("SENSELESS_COMPARISON")
