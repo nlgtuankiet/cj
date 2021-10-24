@@ -20,6 +20,7 @@ import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.data.coingecko.MarketChartResponse
 import com.rainyseason.cj.data.coingecko.MarketsResponseEntry
+import com.rainyseason.cj.data.coingecko.getMarketChartWithFilter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -138,7 +139,7 @@ class WatchListViewModel @AssistedInject constructor(
 
         wachEntryMarketlJob.remove(id)?.cancel()
         wachEntryMarketlJob[id] = suspend {
-            coinGeckoService.getMarketChart(id, currencyCode, "1")
+            coinGeckoService.getMarketChartWithFilter(id, currencyCode, "1")
         }.execute {
             copy(
                 watchEntryMarket = watchEntryMarket.update { put(id, it) }

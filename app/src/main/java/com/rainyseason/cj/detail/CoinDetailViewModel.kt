@@ -18,6 +18,7 @@ import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.MarketChartResponse
+import com.rainyseason.cj.data.coingecko.getMarketChartWithFilter
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import dagger.assisted.Assisted
@@ -112,8 +113,7 @@ class CoinDetailViewModel @AssistedInject constructor(
         }
 
         val priceGraph = marketChartResponse[responseInterval]?.invoke()
-            ?.prices?.filter { it.size == 2 }
-            ?: return emptyList()
+            ?.prices ?: return emptyList()
 
         if (priceGraph.isEmpty()) {
             return emptyList()
@@ -163,7 +163,7 @@ class CoinDetailViewModel @AssistedInject constructor(
             ).forEach { interval ->
                 loadGraphJobs[interval]?.cancel()
                 loadGraphJobs[interval] = suspend {
-                    coinGeckoService.getMarketChart(
+                    coinGeckoService.getMarketChartWithFilter(
                         id = args.coinId,
                         vsCurrency = currencyCode,
                         day = interval.asDayString()!!

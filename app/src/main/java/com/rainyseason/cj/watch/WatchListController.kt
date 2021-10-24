@@ -295,7 +295,7 @@ class WatchListController @AssistedInject constructor(
                     null
                 }
                 price(priceModel)
-                graph(coinMarket?.prices?.filter { it.size == 2 })
+                graph(coinMarket?.prices)
                 setupOnClick(coinId, coinDetail?.symbol)
                 onLongClickListener { view ->
                     showPopup(view, coinId)

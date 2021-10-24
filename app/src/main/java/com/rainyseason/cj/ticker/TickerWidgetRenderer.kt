@@ -352,16 +352,15 @@ class TickerWidgetRenderer @Inject constructor(
         val data = params.data
         val config = params.config
         val graphData = data.getGraphData(config).orEmpty()
-        val filteredData = graphData.filter { it.size == 2 && it[1] != 0.0 }
-        if (filteredData.size >= 2) {
+        if (graphData.size >= 2) {
             container.mesureAndLayout(config)
             val width = imageView.measuredWidth.toFloat()
             val height = imageView.measuredHeight.toFloat()
-            val isPositive = filteredData.last()[1] > filteredData.first()[1]
+            val isPositive = graphData.last()[1] > graphData.first()[1]
             val renderData = if (!isPositive && DebugFlag.POSITIVE_WIDGET.isEnable) {
-                filteredData.reverseValue()
+                graphData.reverseValue()
             } else {
-                filteredData
+                graphData
             }
             val bitmap = graphRenderer.createGraphBitmap(
                 context = context,

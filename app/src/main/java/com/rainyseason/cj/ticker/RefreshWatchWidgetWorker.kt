@@ -13,6 +13,7 @@ import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.model.asDayString
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
+import com.rainyseason.cj.data.coingecko.getMarketChartWithFilter
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
 import com.rainyseason.cj.widget.watch.WatchDisplayData
@@ -141,13 +142,13 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
             val entries = watchList.map { coinId ->
                 async {
                     val coinDetail = coinGeckoService.getCoinDetail(coinId)
-                    val coinMarket = coinGeckoService.getMarketChart(
+                    val coinMarket = coinGeckoService.getMarketChartWithFilter(
                         coinId,
                         configCurrency,
                         config.interval.asDayString()!!
                     )
                     val priceChart =
-                        coinMarket.prices.filter { it.size == 2 }.takeIf { it.size >= 2 }
+                        coinMarket.prices.takeIf { it.size >= 2 }
                     WatchDisplayEntry(
                         coinId = coinId,
                         content = WatchDisplayEntryContent(

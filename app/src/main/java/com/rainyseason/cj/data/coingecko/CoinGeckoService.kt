@@ -40,6 +40,25 @@ interface CoinGeckoService {
     }
 }
 
+suspend fun CoinGeckoService.getMarketChartWithFilter(
+    @Path("id") id: String,
+    @Query(value = "vs_currency") vsCurrency: String,
+    @Query(value = "days") day: String,
+): MarketChartResponse {
+    val raw = getMarketChart(id, vsCurrency, day)
+    return raw.copy(
+        prices = raw.prices.filterValidValue(),
+        marketCaps = raw.marketCaps.filterValidValue(),
+        totalVolumes = raw.totalVolumes.filterValidValue(),
+    )
+}
+
+@Suppress("NOTHING_TO_INLINE")
+private inline fun List<List<Double>>.filterValidValue(): List<List<Double>> {
+    @Suppress("SENSELESS_COMPARISON")
+    return filter { it.size == 2 && it[0] != null && it[1] != null && it[0] != 0.0 }
+}
+
 private fun <T> fastResponseFlow(
     cacheProvider: suspend () -> T,
     networkProvider: suspend () -> T,
