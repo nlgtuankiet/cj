@@ -88,12 +88,12 @@ class CoinTickerSettingActivity :
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setResult(RESULT_CANCELED)
-        setContentView(R.layout.activity_coin_ticker_setting)
         val widgetId = getWidgetId()
         if (widgetId == null) {
             finish()
             return
         }
+        setContentView(R.layout.activity_coin_ticker_setting)
 
         val coinId = intent.extras?.getString(COIN_ID_EXTRA)
         if (coinId != null) {

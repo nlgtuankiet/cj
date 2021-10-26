@@ -57,13 +57,13 @@ class WatchSettingActivity : AppCompatActivity(), WatchWidgetSaver {
         AndroidInjection.inject(this)
         setResult(RESULT_CANCELED)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_watch_setting)
         val widgetId = getWidgetId()
         Timber.d("widget id: $widgetId")
         if (widgetId == null) {
             finish()
             return
         }
+        setContentView(R.layout.activity_watch_setting)
     }
 
     override fun onDestroy() {
