@@ -1,6 +1,7 @@
 package com.rainyseason.cj.featureflag
 
 import java.util.Collections
+import java.util.regex.Pattern
 
 interface FlagKey {
     val value: String
@@ -46,18 +47,19 @@ object MainFlagValueProvider {
     }
 }
 
+val TRUE_REGEX = Pattern.compile("^(1|true|t|yes|y|on)$", Pattern.CASE_INSENSITIVE)
+
+val FALSE_REGEX = Pattern.compile("^(0|false|f|no|n|off|)$", Pattern.CASE_INSENSITIVE)
+
 val FlagKey.isEnable: Boolean
     get() {
         val string = MainFlagValueProvider.get(this) ?: DefaultValues.get(this)
-        val cleanString = string?.trim()
-        if (cleanString.isNullOrEmpty()) {
-            return false
+        if (string != null) {
+            if (TRUE_REGEX.matcher(string).matches()) {
+                return true
+            } else if (FALSE_REGEX.matcher(string).matches()) {
+                return false
+            }
         }
-        if (cleanString.equals("false", true)) {
-            return false
-        }
-        if (cleanString == "0") {
-            return false
-        }
-        return true
+        return false
     }

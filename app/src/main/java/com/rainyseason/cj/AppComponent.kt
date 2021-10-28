@@ -15,8 +15,12 @@ import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.rainyseason.cj.coinstat.CoinStatFragmentModule
+import com.rainyseason.cj.common.AppDnsSelector
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.model.ThemeJsonAdapter
@@ -108,15 +112,23 @@ object AppProvides {
 
     @Provides
     @Singleton
+    fun firebaseRemoteConfig(): FirebaseRemoteConfig {
+        return Firebase.remoteConfig
+    }
+
+    @Provides
+    @Singleton
     fun provideBaseClientBuilder(
         forceCacheInterceptor: ForceCacheInterceptor,
         networkUrlLoggerInterceptor: NetworkUrlLoggerInterceptor,
         noMustRevalidateInterceptor: NoMustRevalidateInterceptor,
+        appDnsSelector: AppDnsSelector,
     ): OkHttpClient.Builder {
         checkNotMainThread()
         val builder = OkHttpClient.Builder()
         builder.addNetworkInterceptor(noMustRevalidateInterceptor)
         builder.addInterceptor(forceCacheInterceptor)
+        builder.dns(appDnsSelector)
         if (BuildConfig.DEBUG) {
             val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
             logging.level = HttpLoggingInterceptor.Level.BODY

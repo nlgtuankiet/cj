@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.rainyseason.cj.common.coreComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,9 +81,21 @@ class DebugFlagProvider @Inject constructor(context: Context) : FlagValueProvide
     }
 }
 
+@Singleton
+class RemoteConfigFlagProvider @Inject constructor(
+    private val firebaseRemoteConfig: FirebaseRemoteConfig,
+) : FlagValueProvider {
+    override fun get(flagKey: FlagKey): String {
+        return firebaseRemoteConfig.getString(flagKey.value).also {
+            Timber.d("flag ${flagKey.value} return $it")
+        }
+    }
+}
+
 @Suppress("unused")
 object FeatureFlag {
     val HOME_V2 = FeatureKey("home_v2").withDefault("false")
+    val DISABLE_V4_ONLY = FeatureKey("disable_ipv4_only")
 }
 
 object DebugFlag {
@@ -93,6 +106,7 @@ object DebugFlag {
     val SHOW_TRIGGER_REVIEW_BUTTON = DebugKey("show_trigger_review_button")
         .withDefault("false")
     val SHOW_CAPTURE_BUTTON = DebugKey("show_capture_button")
+    val USE_REMOTE_CONFIG = DebugKey("use_remote_config")
 }
 
 class DebugFlagSetter : AppCompatActivity() {

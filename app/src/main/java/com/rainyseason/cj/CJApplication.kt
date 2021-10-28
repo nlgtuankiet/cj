@@ -14,18 +14,27 @@ import com.google.firebase.FirebaseOptions
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jakewharton.threetenabp.AndroidThreeTen
+import com.rainyseason.cj.common.AppDnsSelector
+import com.rainyseason.cj.common.ConfigChangeManager
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
+import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.featureflag.MainFlagValueProvider
-import com.rainyseason.cj.featureflag.NoopFlagValueProvider
+import com.rainyseason.cj.featureflag.RemoteConfigFlagProvider
+import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.util.ExceptionLoggerTree
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -48,18 +57,33 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     lateinit var debugFlagProvider: Provider<DebugFlagProvider>
 
     @Inject
+    lateinit var remoteConfigFlagProvider: RemoteConfigFlagProvider
+
+    @Inject
     lateinit var firebasePerformance: FirebasePerformance
 
     @Inject
     lateinit var firebaseAnalytics: FirebaseAnalytics
 
+    @Inject
+    lateinit var firebaseRemoteConfig: FirebaseRemoteConfig
+
+    @Inject
+    lateinit var configChangeManager: ConfigChangeManager
+
+    @Inject
+    lateinit var appDnsSelector: Provider<AppDnsSelector>
+
     private lateinit var appComponent: AppComponent
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
         appComponent = DaggerAppComponent.factory().create(this)
         checkFirebaseApp()
         injectIfNecessary()
+        initRemoteConfig()
 
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
 
@@ -70,9 +94,15 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
 
         if (!BuildConfig.IS_PLAY_STORE) {
             MainFlagValueProvider.setDelegate(debugFlagProvider.get())
+            debugFlagProvider.get().awaitFirstValue()
+            if (DebugFlag.USE_REMOTE_CONFIG.isEnable) {
+                MainFlagValueProvider.setDelegate(remoteConfigFlagProvider)
+            }
         } else {
-            MainFlagValueProvider.setDelegate(NoopFlagValueProvider)
+            MainFlagValueProvider.setDelegate(remoteConfigFlagProvider)
         }
+
+        initDns()
 
         firebasePerformance.isPerformanceCollectionEnabled = BuildConfig.IS_PLAY_STORE
 
@@ -96,6 +126,37 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
                 setCrashlyticsCollectionEnabled(false)
                 deleteUnsentReports()
             }
+        }
+    }
+
+    private fun initDns() {
+        // set mode before lookup
+        appDnsSelector.get()
+    }
+
+    private fun initRemoteConfig() {
+        scope.launch {
+            runCatching {
+                firebaseRemoteConfig.fetch(1).await()
+            }.onFailure {
+                if (BuildConfig.DEBUG) {
+                    throw it
+                } else {
+                    FirebaseCrashlytics.getInstance().recordException(it)
+                }
+            }
+
+            runCatching {
+                firebaseRemoteConfig.activate().await()
+                configChangeManager.notifyListeners()
+            }.onFailure {
+                if (BuildConfig.DEBUG) {
+                    throw it
+                } else {
+                    FirebaseCrashlytics.getInstance().recordException(it)
+                }
+            }
+
         }
     }
 
