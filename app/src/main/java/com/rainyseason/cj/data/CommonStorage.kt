@@ -17,6 +17,8 @@ import com.rainyseason.cj.ticker.CoinTickerProviderGraph
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -38,11 +40,17 @@ class CommonRepository @Inject constructor(
     private val populateDefaultWatchList = booleanPreferencesKey("populate_default_watchlist")
     private val watchListIds = stringPreferencesKey("watchlist_ids")
     private val readReleaseNoteVersion = stringPreferencesKey("release_note")
+    private val appHashKey = stringPreferencesKey("app_hash")
 
-    suspend fun hasUnreadReleaseNote(): Boolean {
-        val currentVersion = BuildConfig.VERSION_NAME
-        val readVersion: String? = storage.data.first()[readReleaseNoteVersion]
-        return currentVersion != readVersion
+    suspend fun getAppHash(): String {
+        val appHash: String? = storage.data.first()[appHashKey]
+        if (appHash.isNullOrBlank()) {
+            val newAppHash = UUID.randomUUID().toString().replace("-", "")
+            Timber.d("new app hash $newAppHash")
+            storage.edit { it[appHashKey] = newAppHash }
+            return newAppHash
+        }
+        return appHash
     }
 
     fun hasUnreadReleaseNoteFlow(): Flow<Boolean> {

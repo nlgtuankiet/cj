@@ -6,11 +6,15 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.databinding.FragmentContactBinding
 import com.rainyseason.cj.tracking.logClick
 import com.rainyseason.cj.tracking.logScreenEnter
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ContactFragment : Fragment(R.layout.fragment_contact) {
 
@@ -48,18 +52,25 @@ class ContactFragment : Fragment(R.layout.fragment_contact) {
         }
 
         binding.openMail.setOnClickListener {
-            try {
-                val intent = Intent(Intent.ACTION_SENDTO)
-                intent.data = Uri.parse("mailto:")
-                intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("nlg.tuan.kiet@gmail.com"))
-                intent.putExtra(Intent.EXTRA_SUBJECT, "Hello!")
-                startActivity(intent)
-                tracker.logClick(
-                    screenName = SCREEN_NAME,
-                    target = "open_email"
-                )
-            } catch (ignored: Exception) {
+            lifecycleScope.launch(Dispatchers.IO) {
+                val appHash = requireContext().coreComponent.commonRepository.getAppHash()
+                withContext(Dispatchers.Main) {
+                    try {
+                        val intent = Intent(Intent.ACTION_SENDTO)
+                        intent.data = Uri.parse("mailto:")
+                        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("nlg.tuan.kiet@gmail.com"))
+                        intent.putExtra(Intent.EXTRA_SUBJECT, "Hello!")
+                        intent.putExtra(Intent.EXTRA_TEXT, "App hash: $appHash \n")
+                        startActivity(intent)
+                        tracker.logClick(
+                            screenName = SCREEN_NAME,
+                            target = "open_email"
+                        )
+                    } catch (ignored: Exception) {
+                    }
+                }
             }
+
         }
 
         requireContext().coreComponent.tracker

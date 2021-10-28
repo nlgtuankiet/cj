@@ -21,6 +21,7 @@ import com.rainyseason.cj.common.ConfigChangeManager
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
+import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.featureflag.MainFlagValueProvider
@@ -74,6 +75,9 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     @Inject
     lateinit var appDnsSelector: Provider<AppDnsSelector>
 
+    @Inject
+    lateinit var commonRepository: Provider<CommonRepository>
+
     private lateinit var appComponent: AppComponent
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -84,7 +88,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         checkFirebaseApp()
         injectIfNecessary()
         initRemoteConfig()
-
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
 
         if (!BuildConfig.IS_PLAY_STORE) {
@@ -101,9 +104,8 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         } else {
             MainFlagValueProvider.setDelegate(remoteConfigFlagProvider)
         }
-
+        setAppHash()
         initDns()
-
         firebasePerformance.isPerformanceCollectionEnabled = BuildConfig.IS_PLAY_STORE
 
         firebaseAnalytics.setAnalyticsCollectionEnabled(BuildConfig.IS_PLAY_STORE)
@@ -156,7 +158,14 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
                     FirebaseCrashlytics.getInstance().recordException(it)
                 }
             }
+        }
+    }
 
+    private fun setAppHash() {
+        scope.launch {
+            val appHash = commonRepository.get().getAppHash()
+            FirebaseCrashlytics.getInstance().setUserId(appHash)
+            firebaseAnalytics.setUserId(appHash)
         }
     }
 
