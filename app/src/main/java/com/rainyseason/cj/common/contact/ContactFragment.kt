@@ -70,7 +70,6 @@ class ContactFragment : Fragment(R.layout.fragment_contact) {
                     }
                 }
             }
-
         }
 
         requireContext().coreComponent.tracker
