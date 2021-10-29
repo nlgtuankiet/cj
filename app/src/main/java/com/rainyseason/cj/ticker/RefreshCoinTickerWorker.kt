@@ -51,6 +51,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             CoinTickerProviderDefault::class.java,
             CoinTickerProviderGraph::class.java,
             CoinTickerProviderCoin360::class.java,
+            CoinTickerProviderCoin360Mini::class.java,
             CoinTickerProviderMini::class.java,
         ).map { appWidgetManager.getAppWidgetIds(ComponentName(appContext, it)).toList() }
             .flatten()

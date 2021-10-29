@@ -220,6 +220,9 @@ class CoinTickerPreviewController(
 
     private fun buildSizeAdjustment(state: CoinTickerPreviewState) {
         val config = state.config ?: return
+        if (config.layout == CoinTickerConfig.Layout.COIN360_MINI) {
+            return
+        }
         maybeBuildHorizontalSeparator(id = "size_adjustment_separator")
 
         settingSliderView {
@@ -263,9 +266,14 @@ class CoinTickerPreviewController(
             CoinTickerConfig.Layout.MINI to R.string.coin_ticket_style_mini,
         )
 
+        val layoutToString1x1 = listOf(
+            CoinTickerConfig.Layout.COIN360_MINI to R.string.coin_ticket_style_coin360_mini,
+        )
+
         val layoutToString = listOf(
             layoutToString2x2,
             layoutToString2x1,
+            layoutToString1x1,
         ).first { it.any { entry -> entry.first == config.layout } }
             .map { it.first to context.getString(it.second) }
 

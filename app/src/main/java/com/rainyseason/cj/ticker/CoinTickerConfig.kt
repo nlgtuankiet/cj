@@ -99,6 +99,7 @@ data class CoinTickerConfig(
         const val DEFAULT = "default"
         const val GRAPH = "graph"
         const val COIN360 = "coin360"
+        const val COIN360_MINI = "coin360_mini"
         const val MINI = "mini"
     }
 

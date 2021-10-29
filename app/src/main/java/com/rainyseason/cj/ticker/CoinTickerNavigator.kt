@@ -32,6 +32,7 @@ class CoinTickerNavigator @Inject constructor(
             R.layout.widget_coin_ticker_2x2_default -> CoinTickerConfig.Layout.DEFAULT
             R.layout.widget_coin_ticker_2x2_graph -> CoinTickerConfig.Layout.GRAPH
             R.layout.widget_coin_ticker_2x2_coin360 -> CoinTickerConfig.Layout.COIN360
+            R.layout.widget_coin_ticker_1x1_coin360_mini -> CoinTickerConfig.Layout.COIN360_MINI
             R.layout.widget_coin_ticker_2x1_mini -> CoinTickerConfig.Layout.MINI
             else -> error("Unknown layout for $layoutRes")
         }

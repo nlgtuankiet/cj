@@ -118,6 +118,18 @@
         </receiver>
 
         <receiver
+            android:name=".ticker.CoinTickerProviderCoin360Mini"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.rainyseason.cj.widget.cointicker.switch" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ticker_widget_info_coin360_mini" />
+        </receiver>
+
+        <receiver
             android:name=".RefreshReceiver"
             android:exported="true">
             <intent-filter>

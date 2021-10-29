@@ -33,6 +33,7 @@ import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.reverseValue
 import com.rainyseason.cj.common.verticalPadding
+import com.rainyseason.cj.databinding.WidgetCoinTicker1x1Coin360MiniBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x1MiniBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2Coin360Binding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2DefaultBinding
@@ -66,6 +67,7 @@ class TickerWidgetRenderer @Inject constructor(
             CoinTickerConfig.Layout.GRAPH -> R.layout.widget_coin_ticker_2x2
             CoinTickerConfig.Layout.DEFAULT -> R.layout.widget_coin_ticker_2x2
             CoinTickerConfig.Layout.COIN360 -> R.layout.widget_coin_ticker_2x2
+            CoinTickerConfig.Layout.COIN360_MINI -> R.layout.widget_coin_ticker_1x1
             CoinTickerConfig.Layout.MINI -> R.layout.widget_coin_ticker_2x1
             else -> error("not support ${config.layout}")
         }
@@ -97,6 +99,8 @@ class TickerWidgetRenderer @Inject constructor(
             R.layout.widget_coin_ticker_2x2_default -> CoinTickerProviderDefault::class.java
             R.layout.widget_coin_ticker_2x2_graph -> CoinTickerProviderGraph::class.java
             R.layout.widget_coin_ticker_2x2_coin360 -> CoinTickerProviderCoin360::class.java
+            R.layout.widget_coin_ticker_1x1_coin360_mini
+            -> CoinTickerProviderCoin360Mini::class.java
             R.layout.widget_coin_ticker_2x1_mini -> CoinTickerProviderMini::class.java
             else -> error("Unknown layout for $layoutRes")
         }
@@ -149,6 +153,48 @@ class TickerWidgetRenderer @Inject constructor(
             else -> error("Unknown action ${params.config.clickAction}")
         }
         setOnClickPendingIntent(R.id.content, pendingIntent)
+    }
+
+    private fun renderCoin360Mini(
+        container: ViewGroup,
+        remoteViews: RemoteViews,
+        params: CoinTickerRenderParams,
+    ) {
+        val binding = WidgetCoinTicker1x1Coin360MiniBinding
+            .inflate(context.inflater(), container, true)
+        val config = params.config
+        val renderData = params.data
+
+        container.mesureAndLayout(config)
+
+        // bind loading
+        remoteViews.bindLoading(params)
+
+        // bind container
+        val backgroundRes = if ((renderData.getChangePercent(config) ?: 0.0) > 0) {
+            select(
+                config.theme,
+                R.drawable.coin_ticker_background_positive_light,
+                R.drawable.coin_ticker_background_positive_dark
+            )
+        } else {
+            select(
+                config.theme,
+                R.drawable.coin_ticker_background_negative_light,
+                R.drawable.coin_ticker_background_negative_dark
+            )
+        }
+        binding.container.setBackgroundResource(backgroundRes)
+        applyBackgroundTransparency(binding.container, config)
+
+        // bind remote view
+        remoteViews.applyClickAction(params)
+
+        // bind symbol
+        binding.symbol.text = renderData.symbol
+
+        // bind amount
+        binding.amount.text = formatAmount(params)
     }
 
     private fun renderCoin360(
@@ -499,20 +545,32 @@ class TickerWidgetRenderer @Inject constructor(
         val options = appWidgetManager.getAppWidgetOptions(config.widgetId)
         val minWidth = context
             .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH] as? Int) ?: 155)
-        val minHegth = context
+        val minHeight = context
             .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT] as? Int) ?: 155)
-        val size = minHegth.coerceAtMost(minWidth)
+        val size = minHeight.coerceAtMost(minWidth)
             .coerceAtMost(context.dpToPx(155))
             .coerceAtLeast(context.dpToPx(145))
-        val finalWidth = size + context.dpToPx(config.sizeAdjustment)
-        val finalHeight = when (config.layout) {
-            CoinTickerConfig.Layout.MINI -> finalWidth / 2
-            CoinTickerConfig.Layout.DEFAULT -> finalWidth
-            CoinTickerConfig.Layout.GRAPH -> finalWidth
-            CoinTickerConfig.Layout.COIN360 -> finalWidth
-            else -> error("Unknown layout")
+        val finalSize = if (config.layout == CoinTickerConfig.Layout.COIN360_MINI) {
+            val height = context.dpToPx(75)
+            val width = if (minWidth / minHeight >= 2) {
+                height * 2
+            } else {
+                height
+            }
+            Size(width, height)
+        } else {
+            val finalWidth = size + context.dpToPx(config.sizeAdjustment)
+            val finalHeight = when (config.layout) {
+                CoinTickerConfig.Layout.MINI -> finalWidth / 2
+                CoinTickerConfig.Layout.DEFAULT -> finalWidth
+                CoinTickerConfig.Layout.GRAPH -> finalWidth
+                CoinTickerConfig.Layout.COIN360 -> finalWidth
+                else -> error("Unknown layout")
+            }
+            Size(finalWidth, finalHeight)
         }
-        return Size(finalWidth, finalHeight)
+
+        return finalSize
     }
 
     private fun TextView.updateVertialFontMargin(
@@ -547,6 +605,7 @@ class TickerWidgetRenderer @Inject constructor(
             CoinTickerConfig.Layout.DEFAULT -> renderDefault(container, view, params)
             CoinTickerConfig.Layout.GRAPH -> renderGraph(container, view, params)
             CoinTickerConfig.Layout.COIN360 -> renderCoin360(container, view, params)
+            CoinTickerConfig.Layout.COIN360_MINI -> renderCoin360Mini(container, view, params)
             CoinTickerConfig.Layout.MINI -> renderMini(container, view, params)
             else -> error("Unknown layout: ${params.config.layout}")
         }
