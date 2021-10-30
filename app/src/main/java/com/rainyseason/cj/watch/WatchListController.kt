@@ -286,7 +286,7 @@ class WatchListController @AssistedInject constructor(
                 val priceModel = if (coinDetail != null) {
                     WatchEntryView.PriceModel(
                         price = coinMarket?.prices?.lastOrNull()?.get(1)
-                            ?: coinDetail.marketData.currentPrice[currencyCode]!!,
+                            ?: coinDetail.marketData.currentPrice[currencyCode] ?: 0.0,
                         changePercent = coinDetail.marketData
                             .priceChangePercentage24hInCurrency[currencyCode],
                         currency = currencyCode

@@ -136,11 +136,16 @@ class CoinDetailController @AssistedInject constructor(
         statSummaryView {
             id("stat_summary")
 
-            val marketCapValue = numberFormatter.formatAmount(
-                amount = coinDetail.marketData.marketCap[currencyCode]!!,
-                currencyCode = currencyCode,
-            )
-            marketCap(marketCapValue)
+            val marketCap = coinDetail.marketData.marketCap[currencyCode]
+            if (marketCap != null) {
+                val marketCapValue = numberFormatter.formatAmount(
+                    amount = marketCap,
+                    currencyCode = currencyCode,
+                )
+                marketCap(marketCapValue)
+            } else {
+                marketCap("--")
+            }
 
             val circulatingSupply = coinDetail.marketData.circulatingSupply
             if (circulatingSupply == null) {
@@ -180,7 +185,7 @@ class CoinDetailController @AssistedInject constructor(
             // val volumn24hValue =
 
             val marketResponse24h = state.marketChartResponse[TimeInterval.I_24H]?.invoke()
-            if (marketResponse24h == null) {
+            if (marketResponse24h == null || marketResponse24h.totalVolumes.isEmpty()) {
                 volume24h("--")
             } else {
                 val value = marketResponse24h.totalVolumes.last()[1]
@@ -262,7 +267,7 @@ class CoinDetailController @AssistedInject constructor(
                 )
                 viewModel.onSelectLowHigh(interval)
             }
-            val currentPrice = coinDetail.marketData.currentPrice[userSetting.currencyCode]!!
+            val currentPrice = coinDetail.marketData.currentPrice[userSetting.currencyCode] ?: 0.0
             val maxPrice = lowHigh?.second
             if (maxPrice == null) {
                 current(0)
@@ -335,7 +340,8 @@ class CoinDetailController @AssistedInject constructor(
         }
         val currencyInfo = SUPPORTED_CURRENCY[userSetting.currencyCode]!!
 
-        val coinPrice = coinDetail.marketData.currentPrice[userSetting.currencyCode]!!
+        // price null on preview coin like terra-shiba
+        val coinPrice = coinDetail.marketData.currentPrice[userSetting.currencyCode]
         val formater = DateTimeFormatterBuilder()
             .appendPattern("d MMM YYYY, HH:mm")
             .toFormatter(currencyInfo.locale)
@@ -363,17 +369,23 @@ class CoinDetailController @AssistedInject constructor(
         namePriceChangeView {
             id("name_price_change")
             name(coinDetail.name)
-            price(
-                numberFormatter.formatAmount(
-                    amount = selectedData?.get(1) ?: coinPrice,
-                    currencyCode = userSetting.currencyCode,
-                    roundToMillion = true,
-                    numberOfDecimal = 4,
-                    hideOnLargeAmount = true,
-                    showCurrencySymbol = true,
-                    showThousandsSeparator = true
+            val displayPrice = selectedData?.get(1) ?: coinPrice
+            if (displayPrice != null) {
+                price(
+                    numberFormatter.formatAmount(
+                        amount = displayPrice,
+                        currencyCode = userSetting.currencyCode,
+                        roundToMillion = true,
+                        numberOfDecimal = 4,
+                        hideOnLargeAmount = true,
+                        showCurrencySymbol = true,
+                        showThousandsSeparator = true
+                    )
                 )
-            )
+            } else {
+                price("--")
+            }
+
             changePercent(changePercentText)
             changePercentPositive(changePercent?.let { it > 0 })
             date(
