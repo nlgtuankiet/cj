@@ -65,6 +65,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import timber.log.Timber
 import java.io.File
+import java.util.concurrent.TimeUnit
 import javax.inject.Provider
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -129,6 +130,9 @@ object AppProvides {
         builder.addNetworkInterceptor(noMustRevalidateInterceptor)
         builder.addInterceptor(forceCacheInterceptor)
         builder.dns(appDnsSelector)
+        builder.connectTimeout(1, TimeUnit.MINUTES)
+        builder.readTimeout(1, TimeUnit.MINUTES)
+        builder.writeTimeout(1, TimeUnit.MINUTES)
         if (BuildConfig.DEBUG) {
             val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
             logging.level = HttpLoggingInterceptor.Level.BODY
