@@ -46,7 +46,7 @@ class WatchController @AssistedInject constructor(
         maybeBuildHorizontalSeparator(id = "edit_watchlist_separator")
 
         settingTitleSummaryView {
-            id("amount_decimal")
+            id("edit_watchlist")
             title(R.string.watch_edit_watch_list)
             summary(R.string.watch_edit_watch_list_summary)
             onClickListener { _ ->
