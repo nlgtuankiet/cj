@@ -30,6 +30,8 @@
         android:layout_height="36dp" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:id="@+id/search_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
