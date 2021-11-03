@@ -8,7 +8,6 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.common.WatchListRepository
-import com.rainyseason.cj.common.asNoNetworkException
 import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.model.asDayString
@@ -93,11 +92,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
                     "message" to ex.message
                 )
             )
-            val networkException = ex.asNoNetworkException(appContext)
-            firebaseCrashlytics.recordException(networkException ?: ex)
-            if (networkException != null) {
-                return Result.retry()
-            }
+            firebaseCrashlytics.recordException(ex)
         }
 
         return Result.success()

@@ -1,4 +1,4 @@
-@file:Suppress("deprecation")
+@file:Suppress("deprecation", "unused")
 
 package com.rainyseason.cj.common
 

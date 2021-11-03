@@ -7,7 +7,6 @@ import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.rainyseason.cj.common.asNoNetworkException
 import com.rainyseason.cj.common.exception.logFallbackPrice
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
@@ -80,11 +79,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
                     "message" to ex.message
                 )
             )
-            val networkException = ex.asNoNetworkException(appContext)
-            firebaseCrashlytics.recordException(networkException ?: ex)
-            if (networkException != null) {
-                return Result.retry()
-            }
+            firebaseCrashlytics.recordException(ex)
         }
 
         return Result.success()
