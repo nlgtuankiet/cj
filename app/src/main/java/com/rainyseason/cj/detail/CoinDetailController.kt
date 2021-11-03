@@ -383,7 +383,7 @@ class CoinDetailController @AssistedInject constructor(
                     )
                 )
             } else {
-                price("--")
+                price("Preview only")
             }
 
             changePercent(changePercentText)
@@ -400,7 +400,10 @@ class CoinDetailController @AssistedInject constructor(
                 }
             )
         }
-
+        if (coinPrice == null) {
+            buildAbout(state)
+            return BuildState.Stop
+        }
         return BuildState.Next
     }
 
