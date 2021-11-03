@@ -137,6 +137,9 @@ class CoinDetailViewModel @AssistedInject constructor(
             TimeInterval.I_1Y -> priceGraph
             TimeInterval.I_ALL -> priceGraph
         }
+        if (graphData.isEmpty()) {
+            return emptyList()
+        }
         val isNegative = graphData.first()[1] > graphData.last()[1]
         val finalGraphData = if (isNegative && DebugFlag.POSITIVE_WIDGET.isEnable) {
             graphData.reverseValue()
