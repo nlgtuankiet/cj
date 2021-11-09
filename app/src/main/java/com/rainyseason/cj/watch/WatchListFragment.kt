@@ -60,6 +60,14 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
         binding.contentRecyclerView.setController(controller)
         setUpEdit(binding)
         tracker.logScreenEnter(SCREEN_NAME)
+        setupRefreshLayout(binding)
+    }
+
+    private fun setupRefreshLayout(binding: FragmentWatchListBinding) {
+        binding.refreshLayout.setOnRefreshListener {
+            binding.refreshLayout.isRefreshing = false
+            viewModel.reload()
+        }
     }
 
     private fun setupSearchAnimation(

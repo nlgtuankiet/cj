@@ -72,7 +72,7 @@ class WatchListViewModel @AssistedInject constructor(
         reload()
     }
 
-    private fun reload() {
+    fun reload() {
         coinListJob?.cancel()
         coinListJob = context.realtimeFlowOf {
             coinGeckoService.getCoinList()
