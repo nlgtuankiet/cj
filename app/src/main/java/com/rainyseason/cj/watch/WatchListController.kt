@@ -224,6 +224,8 @@ class WatchListController @AssistedInject constructor(
         symbol: String? = null,
     ) {
         onClickListener { view ->
+            view.requestFocus()
+            viewModel.onKeywordChange("")
             tracker.logClick(
                 screenName = WatchListFragment.SCREEN_NAME,
                 target = "entry",

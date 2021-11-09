@@ -12,6 +12,7 @@ import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.WatchListRepository
+import com.rainyseason.cj.common.realtimeFlowOf
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSetting
 import com.rainyseason.cj.data.UserSettingRepository
@@ -73,14 +74,14 @@ class WatchListViewModel @AssistedInject constructor(
 
     private fun reload() {
         coinListJob?.cancel()
-        coinListJob = suspend {
+        coinListJob = context.realtimeFlowOf {
             coinGeckoService.getCoinList()
         }.execute {
             copy(coinList = it)
         }
 
         marketJob?.cancel()
-        marketJob = suspend {
+        marketJob = context.realtimeFlowOf {
             val currencyCode = userSettingRepository.getUserSetting().currencyCode
             coinGeckoService.getCoinMarkets(
                 vsCurrency = currencyCode,
@@ -111,8 +112,9 @@ class WatchListViewModel @AssistedInject constructor(
         ) { userSetting, watchList ->
             if (userSetting is Success && watchList is Success) {
                 val currency = userSetting.invoke().currencyCode
+                val watchListIds = watchList.invoke()
                 withState { state ->
-                    watchList.invoke().forEach { coinId ->
+                    watchListIds.forEach { coinId ->
                         val detailAsync = state.watchEntryDetail[coinId]
                         val marketAsync = state.watchEntryMarket[coinId]
                         val needLoad = listOf(detailAsync, marketAsync)
@@ -120,6 +122,20 @@ class WatchListViewModel @AssistedInject constructor(
                         if (needLoad) {
                             loadWatchEntry(coinId, currency)
                         }
+                    }
+                    // cancel all job that is not in the watch list
+                    state.watchEntryDetail.keys.filter { !watchListIds.contains(it) }
+                        .forEach { wachEntryDetailJob.remove(it)?.cancel() }
+                    state.watchEntryMarket.keys.filter { !watchListIds.contains(it) }
+                        .forEach { wachEntryMarketlJob.remove(it)?.cancel() }
+
+                    setState {
+                        copy(
+                            watchEntryDetail = watchEntryDetail
+                                .filter { watchListIds.contains(it.key) },
+                            watchEntryMarket = watchEntryMarket
+                                .filter { watchListIds.contains(it.key) },
+                        )
                     }
                 }
             }
@@ -129,7 +145,7 @@ class WatchListViewModel @AssistedInject constructor(
     private fun loadWatchEntry(id: String, currencyCode: String) {
         Timber.d("loadWatchEntry $id")
         wachEntryDetailJob.remove(id)?.cancel()
-        wachEntryDetailJob[id] = suspend {
+        wachEntryDetailJob[id] = context.realtimeFlowOf {
             coinGeckoService.getCoinDetail(id)
         }.execute {
             copy(
@@ -138,7 +154,7 @@ class WatchListViewModel @AssistedInject constructor(
         }
 
         wachEntryMarketlJob.remove(id)?.cancel()
-        wachEntryMarketlJob[id] = suspend {
+        wachEntryMarketlJob[id] = context.realtimeFlowOf {
             coinGeckoService.getMarketChartWithFilter(id, currencyCode, "1")
         }.execute {
             copy(
@@ -170,6 +186,11 @@ class WatchListViewModel @AssistedInject constructor(
                 }.execute { copy(addTasks = addTasks.update { put(id, it) }) }
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Timber.d("onClear")
     }
 
     init {

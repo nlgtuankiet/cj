@@ -52,5 +52,43 @@ class SettingController @AssistedInject constructor(
                     .show()
             }
         }
+        buildRealtimeInterval(state)
+    }
+
+    private fun buildRealtimeInterval(state: SettingState) {
+        val userSetting = state.userSetting.invoke() ?: return
+        val values = listOf(1L, 5L, 15L, 30L, 60L)
+        settingTitleSummaryView {
+            id("watchlist_update")
+            title(R.string.watchlist_update_rate)
+            summary(
+                context.getString(
+                    R.string.watchlist_update_rate_value,
+                    (userSetting.realtimeIntervalMs / 60000).toString()
+                )
+            )
+            onClickListener { _ ->
+                val currentState = withState(viewModel) { it }
+                val currentUserSetting = currentState.userSetting.invoke() ?: return@onClickListener
+                val currentRate = currentUserSetting.realtimeIntervalMs / 60000
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_setting_header_currency)
+                    .setCancelButton()
+                    .setSingleChoiceItems(
+                        values.map {
+                            context.getString(
+                                R.string.watchlist_update_rate_value,
+                                it.toString()
+                            )
+                        }.toTypedArray(),
+                        values.indexOfFirst { it == currentRate },
+                    ) { dialog, which ->
+                        val selectedRate = values[which]
+                        viewModel.updateSetting { copy(realtimeIntervalMs = selectedRate * 60000) }
+                        dialog.dismiss()
+                    }
+                    .show()
+            }
+        }
     }
 }

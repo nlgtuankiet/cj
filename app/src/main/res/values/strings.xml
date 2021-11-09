@@ -76,7 +76,7 @@
     <string name="inapp_review_cancel_feedback">Maybe later</string>
 
     <string name="bottom_nav_home">Tutorial</string>
-    <string name="bottom_nav_watch_list">Watch list</string>
+    <string name="bottom_nav_watch_list">Watchlist</string>
     <string name="bottom_nav_contact">Contact</string>
     <string name="home_add_widget">Add widget</string>
     <string name="drag_and_drop_to_add_widget">Long press in home screen to add widget!</string>
@@ -93,7 +93,7 @@
 
     <string name="coin_ticker_preview_amount">Amount</string>
 
-    <string name="watch_list_header">Watch list</string>
+    <string name="watch_list_header">Watchlist</string>
     <string name="watch_list_symbol_header">Symbols</string>
     <string name="watch_list_menu_remove">Remove from watch list</string>
     <string name="watch_list_menu_add">Add to watch list</string>
@@ -109,6 +109,9 @@
     <string name="watch_preview_click_action_open_watchlist">Open watchlist</string>
     <string name="watch_edit_watch_list">Edit watchlist</string>
     <string name="watch_edit_watch_list_summary">Add or remove coin, rearrange items</string>
+
+    <string name="watchlist_update_rate">Watchlist update rate (in watchlist screen)</string>
+    <string name="watchlist_update_rate_value">Every %s minute(s)</string>
 
 
     <string name="coin_stat_title">%s Statistics</string>

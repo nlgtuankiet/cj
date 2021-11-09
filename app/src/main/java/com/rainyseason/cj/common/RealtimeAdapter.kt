@@ -15,11 +15,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import timber.log.Timber
 import kotlin.coroutines.resume
@@ -121,10 +123,12 @@ private suspend fun awaitAppForeground() {
                 cont.resume(Unit)
             }
         }
-        cont.invokeOnCancellation {
-            processOwner.removeObserver(observer)
+        runBlocking(Dispatchers.Main) {
+            cont.invokeOnCancellation {
+                processOwner.removeObserver(observer)
+            }
+            processOwner.addObserver(observer)
         }
-        processOwner.addObserver(observer)
     }
 }
 
@@ -137,7 +141,8 @@ interface DefaultLifecycleObserver : LifecycleEventObserver {
             Lifecycle.Event.ON_PAUSE -> onPause(source)
             Lifecycle.Event.ON_STOP -> onStop(source)
             Lifecycle.Event.ON_DESTROY -> onDestroy(source)
-            Lifecycle.Event.ON_ANY -> throw IllegalArgumentException("ON_ANY must not been send by anybody")
+            Lifecycle.Event.ON_ANY ->
+                throw IllegalArgumentException("ON_ANY must not been send by anybody")
         }
     }
 
