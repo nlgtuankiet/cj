@@ -21,7 +21,6 @@ import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import timber.log.Timber
 
 /**
  * Refresh
@@ -96,46 +95,56 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     }
 
     private suspend fun updateWidget(widgetId: Int) {
-        val config = coinTickerRepository.getConfig(widgetId) ?: return
+        val config = coinTickerRepository.getConfig(widgetId)
+        if (config == null) {
+            handler.removeRefreshWork(widgetId)
+            return
+        }
 
         tracker.logKeyParamsEvent(
             key = "widget_refresh",
             params = config.getTrackingParams(),
         )
 
-        val oldDisplayData: CoinTickerDisplayData = coinTickerRepository.getDisplayData(widgetId)
-            ?: throw IllegalStateException("missing display data")
-
         val configCurrency = config.currency
-        val loadingView = RemoteViews(appContext.packageName, render.selectLayout(config))
-        val loadingParams = CoinTickerRenderParams(
-            config = config,
-            data = oldDisplayData,
-            showLoading = true,
-        )
-        render.render(
-            view = loadingView,
-            inputParams = loadingParams,
-        )
-        appWidgetManager.updateAppWidget(widgetId, loadingView)
+        val oldDisplayData = coinTickerRepository.getDisplayData(widgetId)
+
+        if (oldDisplayData != null) {
+            val loadingView = RemoteViews(appContext.packageName, render.selectLayout(config))
+            val loadingParams = CoinTickerRenderParams(
+                config = config,
+                data = oldDisplayData,
+                showLoading = true,
+            )
+            render.render(
+                view = loadingView,
+                inputParams = loadingParams,
+            )
+            appWidgetManager.updateAppWidget(widgetId, loadingView)
+        } else {
+            firebaseCrashlytics.recordException(
+                IllegalStateException("missing display data ${config.layout}")
+            )
+        }
 
         val coinDetail: CoinDetailResponse
         try {
             coinDetail = coinGeckoService.getCoinDetail(config.coinId)
         } catch (ex: Exception) {
-            // show error ui? toast?
-            val errorView = RemoteViews(appContext.packageName, render.selectLayout(config))
-            val oldParams = CoinTickerRenderParams(
-                config = config,
-                data = oldDisplayData,
-                showLoading = false,
-                isPreview = false
-            )
-            render.render(
-                view = errorView,
-                inputParams = oldParams,
-            )
-            appWidgetManager.updateAppWidget(widgetId, errorView)
+            if (oldDisplayData != null) {
+                val errorView = RemoteViews(appContext.packageName, render.selectLayout(config))
+                val oldParams = CoinTickerRenderParams(
+                    config = config,
+                    data = oldDisplayData,
+                    showLoading = false,
+                    isPreview = false
+                )
+                render.render(
+                    view = errorView,
+                    inputParams = oldParams,
+                )
+                appWidgetManager.updateAppWidget(widgetId, errorView)
+            }
             throw ex
         }
 

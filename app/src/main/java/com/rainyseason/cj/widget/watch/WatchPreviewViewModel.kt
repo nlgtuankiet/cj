@@ -60,9 +60,6 @@ data class WatchPreviewArgs(
     val debugLayout: String?,
 ) : Parcelable
 
-// for each coinid we need to load
-// coin detail
-// coin market (each change interval and user currency)
 class WatchPreviewViewModel @AssistedInject constructor(
     @Assisted val initState: WatchPreviewState,
     @Assisted val args: WatchPreviewArgs,
@@ -177,7 +174,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
                     symbol = coinDetail.symbol,
                     name = coinDetail.name,
                     graph = priceChart,
-                    price = coinDetail.marketData.currentPrice[currencyCode]!!,
+                    price = coinDetail.marketData.currentPrice[currencyCode] ?: 0.0,
                     changePercent = priceChart?.changePercent()?.let { it * 100 }
                 )
             )

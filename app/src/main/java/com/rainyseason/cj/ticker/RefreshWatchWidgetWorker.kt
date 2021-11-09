@@ -9,6 +9,7 @@ import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.changePercent
+import com.rainyseason.cj.common.hasValidNetworkConnection
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.model.asDayString
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
@@ -27,12 +28,10 @@ import com.rainyseason.cj.widget.watch.WatchWidgetRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
-import timber.log.Timber
 
 /**
  * Refresh
@@ -68,6 +67,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
 
         if (widgetId !in widgetIds) {
             handler.removeRefreshWork(widgetId)
+            return Result.success()
         }
 
         if (appContext.isInBatteryOptimize()) {
@@ -77,13 +77,19 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
                     "reason" to "in_battery_optimize"
                 )
             )
-            return Result.retry()
+            return Result.success()
+        }
+
+        if (!appContext.hasValidNetworkConnection()) {
+            tracker.logKeyParamsEvent(
+                "widget_refresh_fail",
+                mapOf("reason" to "no_network")
+            )
+            return Result.success()
         }
 
         try {
-            coroutineScope {
-                updateWidget(widgetId)
-            }
+            updateWidget(widgetId)
         } catch (ex: Throwable) {
             tracker.logKeyParamsEvent(
                 "widget_refresh_fail",
@@ -98,15 +104,10 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    /**
-     * TODO fix coroutine scope warning
-     */
-    private suspend fun CoroutineScope.updateWidget(widgetId: Int) {
+    private suspend fun updateWidget(widgetId: Int) {
         val config = watchWidgetRepository.getConfig(widgetId)
         if (config == null) {
-            Timber.d("missing widget config for id $widgetId")
-            // TODO remove this work?
-            // TODO launch intent to config the widget?
+            handler.removeRefreshWork(widgetId)
             return
         }
 
@@ -115,48 +116,56 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
             params = config.getTrackingParams(),
         )
 
-        val oldDisplayData: WatchDisplayData = watchWidgetRepository.getDisplayData(widgetId)
-            ?: throw IllegalStateException("missing display data")
-
         val configCurrency = config.currency
-        val loadingView = RemoteViews(appContext.packageName, config.layout.layout)
-        val loadingParams = WatchWidgetRenderParams(
-            config = config,
-            data = oldDisplayData,
-            showLoading = true,
-        )
-        render.render(
-            remoteView = loadingView,
-            inputParams = loadingParams,
-        )
-        appWidgetManager.updateAppWidget(widgetId, loadingView)
+        val oldDisplayData = watchWidgetRepository.getDisplayData(widgetId)
+
+        if (oldDisplayData != null) {
+            val loadingView = RemoteViews(appContext.packageName, config.layout.layout)
+            val loadingParams = WatchWidgetRenderParams(
+                config = config,
+                data = oldDisplayData,
+                showLoading = true,
+            )
+            render.render(
+                remoteView = loadingView,
+                inputParams = loadingParams,
+            )
+            appWidgetManager.updateAppWidget(widgetId, loadingView)
+        } else {
+            firebaseCrashlytics.recordException(
+                IllegalStateException("missing display data ${config.layout}")
+            )
+        }
 
         try {
             val watchList = watchListRepository.getWatchList().first()
                 .take(config.layout.entryLimit)
-            val entries = watchList.map { coinId ->
-                async {
-                    val coinDetail = coinGeckoService.getCoinDetail(coinId)
-                    val coinMarket = coinGeckoService.getMarketChartWithFilter(
-                        coinId,
-                        configCurrency,
-                        config.interval.asDayString()!!
-                    )
-                    val priceChart =
-                        coinMarket.prices.takeIf { it.size >= 2 }
-                    WatchDisplayEntry(
-                        coinId = coinId,
-                        content = WatchDisplayEntryContent(
-                            symbol = coinDetail.symbol,
-                            name = coinDetail.name,
-                            graph = priceChart,
-                            price = coinDetail.marketData.currentPrice[configCurrency]!!,
-                            changePercent = priceChart?.changePercent()?.let { it * 100 }
+            val entries = coroutineScope {
+                watchList.map { coinId ->
+                    async {
+                        val coinDetail = coinGeckoService.getCoinDetail(coinId)
+                        val coinMarket = coinGeckoService.getMarketChartWithFilter(
+                            coinId,
+                            configCurrency,
+                            config.interval.asDayString()!!
                         )
-                    )
+                        val priceChart =
+                            coinMarket.prices.takeIf { it.size >= 2 }
+                        WatchDisplayEntry(
+                            coinId = coinId,
+                            content = WatchDisplayEntryContent(
+                                symbol = coinDetail.symbol,
+                                name = coinDetail.name,
+                                graph = priceChart,
+                                price = coinDetail.marketData.currentPrice[configCurrency] ?: 0.0,
+                                changePercent = priceChart?.changePercent()?.let { it * 100 }
+                            )
+                        )
+                    }
                 }
             }.awaitAll()
             val data = WatchDisplayData(entries)
+            watchWidgetRepository.setDisplayData(widgetId, data)
             val newView = RemoteViews(appContext.packageName, config.layout.layout)
             val newParams = WatchWidgetRenderParams(
                 config = config,
@@ -170,19 +179,20 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
             )
             appWidgetManager.updateAppWidget(config.widgetId, newView)
         } catch (ex: Exception) {
-            // show error ui? toast?
-            val errorView = RemoteViews(appContext.packageName, config.layout.layout)
-            val oldParams = WatchWidgetRenderParams(
-                config = config,
-                data = oldDisplayData,
-                showLoading = false,
-                isPreview = false
-            )
-            render.render(
-                remoteView = errorView,
-                inputParams = oldParams,
-            )
-            appWidgetManager.updateAppWidget(widgetId, errorView)
+            if (oldDisplayData != null) {
+                val errorView = RemoteViews(appContext.packageName, config.layout.layout)
+                val oldParams = WatchWidgetRenderParams(
+                    config = config,
+                    data = oldDisplayData,
+                    showLoading = false,
+                    isPreview = false
+                )
+                render.render(
+                    remoteView = errorView,
+                    inputParams = oldParams,
+                )
+                appWidgetManager.updateAppWidget(widgetId, errorView)
+            }
             throw ex
         }
     }
