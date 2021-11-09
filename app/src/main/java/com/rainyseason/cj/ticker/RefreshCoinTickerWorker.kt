@@ -5,9 +5,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.common.exception.logFallbackPrice
+import com.rainyseason.cj.common.hasValidNetworkConnection
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
@@ -32,6 +34,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     private val appWidgetManager: AppWidgetManager,
     private val handler: CoinTickerHandler,
     private val render: TickerWidgetRenderer,
+    private val workManager: WorkManager,
     private val tracker: Tracker,
     private val firebaseCrashlytics: FirebaseCrashlytics,
 ) : CoroutineWorker(appContext = appContext, params = params) {
@@ -57,16 +60,23 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
 
         if (widgetId !in widgetIds) {
             handler.removeRefreshWork(widgetId)
+            return Result.success()
         }
 
         if (appContext.isInBatteryOptimize()) {
             tracker.logKeyParamsEvent(
                 "widget_refresh_fail",
-                mapOf(
-                    "reason" to "in_battery_optimize"
-                )
+                mapOf("reason" to "in_battery_optimize")
             )
-            return Result.retry()
+            return Result.success()
+        }
+
+        if (!appContext.hasValidNetworkConnection()) {
+            tracker.logKeyParamsEvent(
+                "widget_refresh_fail",
+                mapOf("reason" to "no_network")
+            )
+            return Result.success()
         }
 
         try {
@@ -85,17 +95,8 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    /**
-     * TODO when user clear app data, the config is missing, so we just return?
-     */
     private suspend fun updateWidget(widgetId: Int) {
-        val config = coinTickerRepository.getConfig(widgetId)
-        if (config == null) {
-            Timber.d("missing widget config for id $widgetId")
-            // TODO remove this work?
-            // TODO launch intent to config the widget?
-            return
-        }
+        val config = coinTickerRepository.getConfig(widgetId) ?: return
 
         tracker.logKeyParamsEvent(
             key = "widget_refresh",
