@@ -5,6 +5,7 @@ import android.content.Context
 import android.view.View
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.data.CommonRepository
+import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.featureflag.DebugFlagProvider
@@ -30,6 +31,7 @@ interface CoreComponent {
     val traceManager: TraceManager
     val tracker: Tracker
     val commonRepository: CommonRepository
+    val userSettingRepository: UserSettingRepository
     val firebaseCrashlytics: FirebaseCrashlytics
     val numberFormater: NumberFormater
     val graphRenderer: GraphRenderer

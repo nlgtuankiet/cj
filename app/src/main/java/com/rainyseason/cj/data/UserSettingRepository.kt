@@ -37,6 +37,8 @@ data class UserSetting(
     val numberOfChangePercentDecimal: Int? = 1,
     @Json(name = "size_adjustment")
     val sizeAdjustment: Int = 0,
+    @Json(name = "realtime_interval_ms")
+    val realtimeIntervalMs: Long = 1 * 60 * 1000L, // 60 seconds
 )
 
 val UserSetting.locale: Locale
