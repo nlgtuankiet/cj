@@ -65,4 +65,8 @@ class CoinStatFragment : Fragment(R.layout.coin_stat_fragment), MavericksView {
     override fun invalidate() {
         controller.requestModelBuild()
     }
+
+    companion object {
+        const val SCREEN_NAME = "coin_stat"
+    }
 }

@@ -44,7 +44,7 @@ data class CoinTickerConfig(
     val layout: String = Layout.GRAPH,
 
     @Json(name = "click_action")
-    val clickAction: String = ClickAction.REFRESH,
+    val clickAction: String = ClickAction.OPEN_COIN_DETAIL,
 
     @Json(name = "show_currency_symbol")
     val showCurrencySymbol: Boolean = true,
@@ -87,7 +87,7 @@ data class CoinTickerConfig(
             "show_currency_symbol" to showCurrencySymbol,
             "currency" to currency,
             "round_to_million" to roundToMillion,
-            "show_battery_ưarning" to showBatteryWarning,
+            "show_battery_warning" to showBatteryWarning,
             "size_adjustment" to sizeAdjustment,
             "background_transparency" to backgroundTransparency,
             "hide_decimal_on_large_price" to hideDecimalOnLargePrice,
@@ -107,6 +107,7 @@ data class CoinTickerConfig(
         const val REFRESH = "refresh"
         const val SETTING = "setting"
         const val SWITCH_PRICE_MARKET_CAP = "switch_price_market_cap"
+        const val OPEN_COIN_DETAIL = "open_coin_detail"
     }
 
     object Action {

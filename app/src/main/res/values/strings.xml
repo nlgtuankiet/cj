@@ -42,6 +42,7 @@
     <string name="coin_ticket_style_mini">Mini</string>
 
     <string name="coin_ticker_preview_setting_header_click_action">Click action</string>
+    <string name="coin_ticker_preview_setting_header_click_action_open_coin_detail">Open coin detail</string>
     <string name="coin_ticker_preview_setting_header_click_action_refresh">Refresh widget</string>
     <string name="coin_ticker_preview_setting_header_click_action_setting">Open setting page</string>
     <string name="coin_ticker_preview_setting_header_click_action_switch">Switch price and market cap</string>

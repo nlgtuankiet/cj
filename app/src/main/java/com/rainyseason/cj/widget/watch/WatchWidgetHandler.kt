@@ -12,7 +12,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.await
 import com.rainyseason.cj.MainActivity
-import com.rainyseason.cj.R
 import com.rainyseason.cj.common.getWidgetId
 import com.rainyseason.cj.ticker.RefreshWatchWidgetWorker
 import javax.inject.Inject
@@ -59,12 +58,7 @@ class WatchWidgetHandler @Inject constructor(
         val config = watchWidgetRepository.getConfig(widgetId) ?: return
         when (config.clickAction) {
             WatchClickAction.OpenWatchlist -> {
-                context.startActivity(
-                    Intent(context, MainActivity::class.java).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        putExtra(MainActivity.SCREEN_TO_OPEN_EXTRA, R.id.watch_list_screen)
-                    }
-                )
+                context.startActivity(MainActivity.watchListIntent(context))
             }
             WatchClickAction.Refresh -> {
                 enqueueRefreshWidget(widgetId)

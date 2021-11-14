@@ -1,7 +1,6 @@
 package com.rainyseason.cj.widget.watch
 
 import android.content.Context
-import android.content.Intent
 import androidx.appcompat.app.AlertDialog
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
@@ -50,11 +49,7 @@ class WatchController @AssistedInject constructor(
             title(R.string.watch_edit_watch_list)
             summary(R.string.watch_edit_watch_list_summary)
             onClickListener { _ ->
-                context.startActivity(
-                    Intent(context, MainActivity::class.java).apply {
-                        putExtra(MainActivity.SCREEN_TO_OPEN_EXTRA, R.id.watch_list_screen)
-                    }
-                )
+                context.startActivity(MainActivity.watchListIntent(context))
             }
         }
     }

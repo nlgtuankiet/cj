@@ -1,11 +1,13 @@
 package com.rainyseason.cj
 
+import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.createGraph
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.fragment
 import androidx.navigation.ui.setupWithNavController
@@ -43,13 +45,15 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var commonRepository: CommonRepository
 
+    private lateinit var navController: NavController
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        val navController = navHostFragment.navController
+        navController = navHostFragment.navController
 
         navController.graph = navController.createGraph(
             R.id.main_nav_graph,
@@ -69,28 +73,7 @@ class MainActivity : AppCompatActivity() {
         bottomNav.setupWithNavController(navController)
         bottomNav.setOnItemReselectedListener { }
         if (savedInstanceState == null) {
-            val screen = intent.extras?.getString("screen")
-            val coinId = intent.extras?.getString("coinId")
-            if (screen != null) {
-                when (screen) {
-                    "coin_detail" -> {
-                        if (coinId != null) {
-                            navController.navigate(
-                                R.id.detail_screen,
-                                CoinDetailArgs(coinId).asArgs()
-                            )
-                        }
-                    }
-                    "coin_stat" -> {
-                        if (coinId != null) {
-                            navController.navigate(
-                                R.id.coin_stat_screen,
-                                CoinStatArgs(coinId).asArgs()
-                            )
-                        }
-                    }
-                }
-            }
+            navigateNewIntent(intent)
         }
 
         lifecycleScope.launch {
@@ -104,17 +87,67 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        val screenId = intent.extras?.getInt(SCREEN_TO_OPEN_EXTRA)
-        Timber.d("onNewIntent: $intent screenId = $screenId")
-        if (screenId != null && screenId != 0) {
-            findNavController(R.id.nav_host_fragment)
-                .navigate(screenId)
+    private fun navigateNewIntent(intent: Intent) {
+        val screen = intent.extras?.getString(SCREEN_TO_OPEN_EXTRA)
+        val coinId = intent.extras?.getString(COIN_ID_EXTRA)
+            ?: intent.extras?.getString("coinId") // for dev
+        val screenId = when (screen) {
+            WatchListFragment.SCREEN_NAME -> R.id.watch_list_screen
+            CoinDetailFragment.SCREEN_NAME -> R.id.detail_screen
+            CoinStatFragment.SCREEN_NAME -> R.id.coin_stat_screen
+            else -> null
+        }
+        Timber.d("onNewIntent: $intent screen = $screen")
+
+        when (screenId) {
+            R.id.watch_list_screen -> navController.navigate(screenId)
+            R.id.coin_stat_screen -> {
+                if (coinId != null) {
+                    navController.navigate(
+                        R.id.coin_stat_screen,
+                        CoinStatArgs(coinId).asArgs()
+                    )
+                }
+            }
+            R.id.detail_screen -> {
+                if (coinId != null) {
+                    navController.navigate(
+                        R.id.detail_screen,
+                        CoinDetailArgs(coinId).asArgs()
+                    )
+                }
+            }
         }
     }
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        navigateNewIntent(intent)
+    }
+
     companion object {
-        const val SCREEN_TO_OPEN_EXTRA = "SCREEN_TO_OPEN"
+
+        fun watchListIntent(context: Context): Intent {
+            return Intent(context, MainActivity::class.java).apply {
+                putExtra(SCREEN_TO_OPEN_EXTRA, WatchListFragment.SCREEN_NAME)
+            }.maybeNewTask(context)
+        }
+
+        fun coinDetailIntent(context: Context, coinId: String): Intent {
+            return Intent(context, MainActivity::class.java).apply {
+                putExtra(SCREEN_TO_OPEN_EXTRA, CoinDetailFragment.SCREEN_NAME)
+                putExtra(COIN_ID_EXTRA, coinId)
+            }.maybeNewTask(context)
+        }
+
+        private fun Intent.maybeNewTask(context: Context): Intent {
+            if (context is Activity) {
+                return this
+            }
+            return addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+
+        private const val SCREEN_TO_OPEN_EXTRA = "screen"
+        private const val COIN_ID_EXTRA = "coin_id"
     }
 }

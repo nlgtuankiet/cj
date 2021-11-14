@@ -23,6 +23,7 @@ import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
 import com.rainyseason.cj.LocalRemoteViews
+import com.rainyseason.cj.MainActivity
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.GraphRenderer
 import com.rainyseason.cj.common.NumberFormater
@@ -142,6 +143,15 @@ class TickerWidgetRenderer @Inject constructor(
                     params.config.widgetId,
                 )
                 PendingIntent.getBroadcast(
+                    context,
+                    params.config.widgetId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                )
+            }
+            CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL -> {
+                val intent = MainActivity.coinDetailIntent(context, config.coinId)
+                PendingIntent.getActivity(
                     context,
                     params.config.widgetId,
                     intent,

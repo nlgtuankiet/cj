@@ -452,6 +452,8 @@ class CoinTickerPreviewController(
     private fun buildClickAction(state: CoinTickerPreviewState) {
         val config = state.config ?: return
         val optionsToString = listOf(
+            CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL
+                to R.string.coin_ticker_preview_setting_header_click_action_open_coin_detail,
             CoinTickerConfig.ClickAction.REFRESH
                 to R.string.coin_ticker_preview_setting_header_click_action_refresh,
             CoinTickerConfig.ClickAction.SETTING
