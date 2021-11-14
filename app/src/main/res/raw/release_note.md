@@ -1,8 +1,13 @@
+### 1.9.4 Release
+
+✨ Now you can click on widget to open coin detail page, create new widget to try it out
+(under Advance -> Click action)
+
 ### 1.9.3 Release
 
 ✨ Add auto refresh to watchlist screen (config auto refresh interval in Setting screen)  
 ✨ Add swipe to refresh to watchlist screen  
-🛠 Improve widget refresh performance  
+🛠 Improve widget refresh performance
 
 ### 1.9.0 Release
 
