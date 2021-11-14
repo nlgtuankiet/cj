@@ -15,7 +15,6 @@ import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.MarketChartResponse
-import com.rainyseason.cj.data.coingecko.getMarketChartWithFilter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -53,7 +52,7 @@ class CoinStatViewModel @AssistedInject constructor(
                 TimeInterval.I_1Y,
             ).forEach { timeInterval ->
                 suspend {
-                    coinGeckoService.getMarketChartWithFilter(
+                    coinGeckoService.getMarketChart(
                         args.coinId,
                         userSetting.currencyCode,
                         timeInterval.asDayString()!!

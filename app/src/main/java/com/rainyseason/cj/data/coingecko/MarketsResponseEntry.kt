@@ -22,13 +22,4 @@ data class MarketsResponseEntry(
 
     @Json(name = "current_price")
     val currentPrice: Double,
-
-    @Json(name = "sparkline_in_7d")
-    val sparklineIn7d: SparklineIn7d?,
-) {
-    @JsonClass(generateAdapter = true)
-    data class SparklineIn7d(
-        @Json(name = "price")
-        val price: List<Double>,
-    )
-}
+)

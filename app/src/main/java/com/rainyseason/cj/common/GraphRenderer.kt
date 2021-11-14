@@ -8,7 +8,6 @@ import android.graphics.Path
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.withClip
 import com.rainyseason.cj.R
-import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
@@ -19,13 +18,15 @@ class GraphRenderer @Inject constructor() {
         context: Context,
         width: Float,
         height: Float,
-        isPositive: Boolean,
         data: List<List<Double>>,
     ): Bitmap {
-        Timber.d("createGraphBitmap $width $height ${data.size}")
         // [0] timestamp
         // [1] price
         val bitmap = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
+        if (data.size <= 2) {
+            return bitmap
+        }
+        val isPositive = data.first()[1] < data.last()[1]
         val canvas = Canvas(bitmap)
         val paint = Paint()
         paint.strokeWidth = context.dpToPxF(1.5f)

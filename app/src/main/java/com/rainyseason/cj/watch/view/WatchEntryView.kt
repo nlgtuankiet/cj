@@ -13,11 +13,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.inflater
-import com.rainyseason.cj.common.reverseValue
 import com.rainyseason.cj.databinding.ViewWatchEntryBinding
-import com.rainyseason.cj.featureflag.DebugFlag
-import com.rainyseason.cj.featureflag.isEnable
-import kotlin.math.abs
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
 class WatchEntryView @JvmOverloads constructor(
@@ -49,20 +45,12 @@ class WatchEntryView @JvmOverloads constructor(
         binding.graph.isGone = value.isNullOrEmpty()
 
         if (!value.isNullOrEmpty()) {
-            val start = value.first()[1]
-            val end = value.last()[1]
-            val actualGraph = if (end < start && DebugFlag.POSITIVE_WIDGET.isEnable) {
-                value.reverseValue()
-            } else {
-                value
-            }
             binding.graph.doOnPreDraw {
                 val bitmap = graphRenderer.createGraphBitmap(
                     context = context,
                     width = binding.graph.measuredWidth.toFloat(),
                     height = binding.graph.measuredHeight.toFloat(),
-                    isPositive = end > start || DebugFlag.POSITIVE_WIDGET.isEnable,
-                    data = actualGraph
+                    data = value
                 )
                 binding.graph.setImageBitmap(bitmap)
             }
@@ -96,18 +84,13 @@ class WatchEntryView @JvmOverloads constructor(
         )
         val changePercent = model.changePercent
         if (changePercent != null) {
-            val actualChangePercent = if (DebugFlag.POSITIVE_WIDGET.isEnable) {
-                abs(changePercent)
-            } else {
-                changePercent
-            }
             binding.changePercent.text = numberFormater.formatPercent(
-                amount = actualChangePercent,
+                amount = changePercent,
                 locate = locale,
                 numberOfDecimals = 1
             )
             binding.changePercent.setBackgroundResource(
-                if (actualChangePercent > 0) {
+                if (changePercent > 0) {
                     R.drawable.watch_change_background_green
                 } else {
                     R.drawable.watch_change_background_red

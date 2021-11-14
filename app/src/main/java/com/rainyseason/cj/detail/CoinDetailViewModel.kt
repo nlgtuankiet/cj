@@ -11,16 +11,12 @@ import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.model.asDayString
-import com.rainyseason.cj.common.reverseValue
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSetting
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.MarketChartResponse
-import com.rainyseason.cj.data.coingecko.getMarketChartWithFilter
-import com.rainyseason.cj.featureflag.DebugFlag
-import com.rainyseason.cj.featureflag.isEnable
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -137,16 +133,7 @@ class CoinDetailViewModel @AssistedInject constructor(
             TimeInterval.I_1Y -> priceGraph
             TimeInterval.I_ALL -> priceGraph
         }
-        if (graphData.isEmpty()) {
-            return emptyList()
-        }
-        val isNegative = graphData.first()[1] > graphData.last()[1]
-        val finalGraphData = if (isNegative && DebugFlag.POSITIVE_WIDGET.isEnable) {
-            graphData.reverseValue()
-        } else {
-            graphData
-        }
-        return finalGraphData
+        return graphData
     }
 
     private fun reload() {
@@ -166,7 +153,7 @@ class CoinDetailViewModel @AssistedInject constructor(
             ).forEach { interval ->
                 loadGraphJobs[interval]?.cancel()
                 loadGraphJobs[interval] = suspend {
-                    coinGeckoService.getMarketChartWithFilter(
+                    coinGeckoService.getMarketChart(
                         id = args.coinId,
                         vsCurrency = currencyCode,
                         day = interval.asDayString()!!

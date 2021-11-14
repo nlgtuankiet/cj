@@ -14,7 +14,6 @@ import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.currentPrice
-import com.rainyseason.cj.data.coingecko.getMarketChartWithFilter
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
@@ -148,7 +147,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             throw ex
         }
 
-        val graphResponse = coinGeckoService.getMarketChartWithFilter(
+        val graphResponse = coinGeckoService.getMarketChart(
             id = config.coinId,
             vsCurrency = configCurrency,
             day = when (config.changeInterval) {
@@ -164,7 +163,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         val marketPrice = if (config.changeInterval == ChangeInterval._24H) {
             graphResponse.currentPrice()
         } else {
-            coinGeckoService.getMarketChartWithFilter(
+            coinGeckoService.getMarketChart(
                 id = config.coinId,
                 vsCurrency = configCurrency,
                 day = "1",

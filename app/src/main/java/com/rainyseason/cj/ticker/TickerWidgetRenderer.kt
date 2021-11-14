@@ -31,7 +31,6 @@ import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
-import com.rainyseason.cj.common.reverseValue
 import com.rainyseason.cj.common.verticalPadding
 import com.rainyseason.cj.databinding.WidgetCoinTicker1x1Coin360MiniBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x1MiniBinding
@@ -43,7 +42,6 @@ import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.tracking.Tracker
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.abs
 
 data class CoinTickerRenderParams(
     val config: CoinTickerConfig,
@@ -402,18 +400,11 @@ class TickerWidgetRenderer @Inject constructor(
             container.mesureAndLayout(config)
             val width = imageView.measuredWidth.toFloat()
             val height = imageView.measuredHeight.toFloat()
-            val isPositive = graphData.last()[1] > graphData.first()[1]
-            val renderData = if (!isPositive && DebugFlag.POSITIVE_WIDGET.isEnable) {
-                graphData.reverseValue()
-            } else {
-                graphData
-            }
             val bitmap = graphRenderer.createGraphBitmap(
                 context = context,
                 width = width,
                 height = height,
-                isPositive = isPositive || DebugFlag.POSITIVE_WIDGET.isEnable,
-                data = renderData
+                data = graphData
             )
             imageView.setImageBitmap(bitmap)
         }
@@ -520,18 +511,6 @@ class TickerWidgetRenderer @Inject constructor(
         )
     }
 
-    private fun CoinTickerRenderParams.maybePositive(): CoinTickerRenderParams {
-        if (DebugFlag.POSITIVE_WIDGET.isEnable) {
-            return this.copy(
-                data = this.data.copy(
-                    priceChangePercent = this.data.priceChangePercent?.let { abs(it) },
-                    marketCapChangePercent = this.data.marketCapChangePercent?.let { abs(it) },
-                )
-            )
-        }
-        return this
-    }
-
     private fun ViewGroup.mesureAndLayout(config: CoinTickerConfig) {
         val size = getWidgetSize(config)
         val specsWidth = MeasureSpec.makeMeasureSpec(size.width, MeasureSpec.EXACTLY)
@@ -600,20 +579,19 @@ class TickerWidgetRenderer @Inject constructor(
     ) {
         val container = FrameLayout(context)
         container.mesureAndLayout(inputParams.config)
-        val params = inputParams.maybePositive()
         when (inputParams.config.layout) {
-            CoinTickerConfig.Layout.DEFAULT -> renderDefault(container, view, params)
-            CoinTickerConfig.Layout.GRAPH -> renderGraph(container, view, params)
-            CoinTickerConfig.Layout.COIN360 -> renderCoin360(container, view, params)
-            CoinTickerConfig.Layout.COIN360_MINI -> renderCoin360Mini(container, view, params)
-            CoinTickerConfig.Layout.MINI -> renderMini(container, view, params)
-            else -> error("Unknown layout: ${params.config.layout}")
+            CoinTickerConfig.Layout.DEFAULT -> renderDefault(container, view, inputParams)
+            CoinTickerConfig.Layout.GRAPH -> renderGraph(container, view, inputParams)
+            CoinTickerConfig.Layout.COIN360 -> renderCoin360(container, view, inputParams)
+            CoinTickerConfig.Layout.COIN360_MINI -> renderCoin360Mini(container, view, inputParams)
+            CoinTickerConfig.Layout.MINI -> renderMini(container, view, inputParams)
+            else -> error("Unknown layout: ${inputParams.config.layout}")
         }
 
-        container.mesureAndLayout(params.config)
-        val size = getWidgetSize(params.config)
+        container.mesureAndLayout(inputParams.config)
+        val size = getWidgetSize(inputParams.config)
 
-        if (params.isPreview && DebugFlag.SHOW_PREVIEW_LAYOUT_BOUNDS.isEnable) {
+        if (inputParams.isPreview && DebugFlag.SHOW_PREVIEW_LAYOUT_BOUNDS.isEnable) {
             view as LocalRemoteViews
             view.container.removeAllViews()
             view.container.addView(container)

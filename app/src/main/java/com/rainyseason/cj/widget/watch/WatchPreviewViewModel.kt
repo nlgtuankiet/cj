@@ -22,7 +22,6 @@ import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.MarketChartResponse
-import com.rainyseason.cj.data.coingecko.getMarketChartWithFilter
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -148,7 +147,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
         setState { copy(coinMarket = emptyMap()) }
         watchlist.forEach { coinId ->
             suspend {
-                coinGeckoService.getMarketChartWithFilter(
+                coinGeckoService.getMarketChart(
                     coinId,
                     currencyCode,
                     interval.asDayString()!!

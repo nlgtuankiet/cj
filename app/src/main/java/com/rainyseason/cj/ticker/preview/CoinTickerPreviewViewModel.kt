@@ -17,7 +17,6 @@ import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.MarketChartResponse
 import com.rainyseason.cj.data.coingecko.currentPrice
-import com.rainyseason.cj.data.coingecko.getMarketChartWithFilter
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.ChangeInterval
 import com.rainyseason.cj.ticker.CoinTickerConfig
@@ -213,7 +212,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
         loadGraphJobs[interval]?.cancel()
         loadGraphJobs[interval] = suspend {
-            coinGeckoService.getMarketChartWithFilter(
+            coinGeckoService.getMarketChart(
                 id = args.coinId,
                 vsCurrency = currency,
                 day.toString()

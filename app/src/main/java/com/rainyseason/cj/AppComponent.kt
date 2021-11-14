@@ -32,6 +32,7 @@ import com.rainyseason.cj.data.NetworkUrlLoggerInterceptor
 import com.rainyseason.cj.data.NoMustRevalidateInterceptor
 import com.rainyseason.cj.data.UserSettingStorage
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
+import com.rainyseason.cj.data.coingecko.CoinGeckoServiceWrapper
 import com.rainyseason.cj.detail.CoinDetailModule
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
@@ -215,12 +216,14 @@ object AppProvides {
         @CoinGecko
         callFactory: Call.Factory,
     ): CoinGeckoService {
-        return Retrofit.Builder()
+        val service = Retrofit.Builder()
             .baseUrl(CoinGeckoService.BASE_URL)
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .callFactory(callFactory)
             .build()
             .create(CoinGeckoService::class.java)
+
+        return CoinGeckoServiceWrapper(service)
     }
 
     @Provides

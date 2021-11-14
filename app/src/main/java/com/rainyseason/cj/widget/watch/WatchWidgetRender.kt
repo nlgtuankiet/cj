@@ -27,7 +27,6 @@ import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.Theme
-import com.rainyseason.cj.common.reverseValue
 import com.rainyseason.cj.databinding.WatchWidgetEntryDividerBinding
 import com.rainyseason.cj.databinding.WidgetWatchBinding
 import com.rainyseason.cj.databinding.WidgetWatchEntryBinding
@@ -36,7 +35,6 @@ import com.rainyseason.cj.featureflag.isEnable
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.abs
 
 @Singleton
 class WatchWidgetRender @Inject constructor(
@@ -125,19 +123,11 @@ class WatchWidgetRender @Inject constructor(
 
         val graph = data?.graph
         if (graph != null && graph.size >= 2) {
-            val isNegative = graph.first()[1] > graph.last()[1]
-            Timber.d("isNegative: $isNegative")
-            val actualGraph = if (isNegative && DebugFlag.POSITIVE_WIDGET.isEnable) {
-                graph.reverseValue()
-            } else {
-                graph
-            }
             val bitmap = graphRenderer.createGraphBitmap(
                 context,
                 binding.graph.width.toFloat(),
                 binding.graph.height.toFloat(),
-                !isNegative || DebugFlag.POSITIVE_WIDGET.isEnable,
-                actualGraph,
+                graph,
             )
             binding.graph.setImageBitmap(bitmap)
         }
@@ -177,19 +167,14 @@ class WatchWidgetRender @Inject constructor(
     ): CharSequence {
         return buildSpannedString {
             if (amount != null) {
-                val actualAmount = if (amount < 0 && DebugFlag.POSITIVE_WIDGET.isEnable) {
-                    abs(amount)
-                } else {
-                    amount
-                }
-                val color = if (actualAmount > 0) {
+                val color = if (amount > 0) {
                     ContextCompat.getColor(context, R.color.green_700)
                 } else {
                     ContextCompat.getColor(context, R.color.red_600)
                 }
                 val locate = SUPPORTED_CURRENCY[config.currency]!!.locale
                 val content = numberFormater.formatPercent(
-                    amount = actualAmount,
+                    amount = amount,
                     locate = locate,
                     numberOfDecimals = config.numberOfChangePercentDecimal
                 )
