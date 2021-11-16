@@ -1,3 +1,7 @@
+### 1.9.5 Release
+
+✨ New widget: Nano 1x1, resizeable to 2x1 (request from sunnyandtony)
+
 ### 1.9.4 Release
 
 ✨ Now you can click on widget to open coin detail page, create new widget to try it out
