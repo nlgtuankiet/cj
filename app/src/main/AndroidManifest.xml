@@ -94,6 +94,18 @@
         </receiver>
 
         <receiver
+            android:name=".ticker.CoinTickerProviderNano"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.rainyseason.cj.widget.cointicker.switch" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ticker_widget_info_nano" />
+        </receiver>
+
+        <receiver
             android:name=".ticker.CoinTickerProviderDefault"
             android:exported="true">
             <intent-filter>

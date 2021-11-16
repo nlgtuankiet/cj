@@ -1,6 +1,7 @@
 package com.rainyseason.cj.ticker
 
 import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -26,16 +27,9 @@ class CoinTickerNavigator @Inject constructor(
     fun moveToPreview(coinId: String) {
         activity.window?.decorView?.dismissKeyboard()
         val widgetId = activity.getWidgetId()!!
-        val layoutRes = appWidgetManager.getAppWidgetInfo(widgetId)?.initialLayout
-            ?: R.layout.widget_coin_ticker_2x2_default
-        val layout = when (layoutRes) {
-            R.layout.widget_coin_ticker_2x2_default -> CoinTickerConfig.Layout.DEFAULT
-            R.layout.widget_coin_ticker_2x2_graph -> CoinTickerConfig.Layout.GRAPH
-            R.layout.widget_coin_ticker_2x2_coin360 -> CoinTickerConfig.Layout.COIN360
-            R.layout.widget_coin_ticker_1x1_coin360_mini -> CoinTickerConfig.Layout.COIN360_MINI
-            R.layout.widget_coin_ticker_2x1_mini -> CoinTickerConfig.Layout.MINI
-            else -> error("Unknown layout for $layoutRes")
-        }
+        val componentName = appWidgetManager.getAppWidgetInfo(widgetId)?.provider
+            ?: ComponentName(activity, CoinTickerProviderDefault::class.java)
+        val layout = CoinTickerConfig.Layout.fromComponentName(componentName.className)
         val args = CoinTickerPreviewArgs(
             widgetId = widgetId,
             coinId = coinId,

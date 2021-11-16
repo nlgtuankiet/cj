@@ -220,7 +220,12 @@ class CoinTickerPreviewController(
 
     private fun buildSizeAdjustment(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        if (config.layout == CoinTickerConfig.Layout.COIN360_MINI) {
+        val miniLayouts = listOf(
+            CoinTickerConfig.Layout.COIN360_MINI,
+            CoinTickerConfig.Layout.NANO,
+        )
+
+        if (config.layout in miniLayouts) {
             return
         }
         maybeBuildHorizontalSeparator(id = "size_adjustment_separator")
@@ -267,6 +272,7 @@ class CoinTickerPreviewController(
         )
 
         val layoutToString1x1 = listOf(
+            CoinTickerConfig.Layout.NANO to R.string.coin_ticket_style_nano,
             CoinTickerConfig.Layout.COIN360_MINI to R.string.coin_ticket_style_coin360_mini,
         )
 

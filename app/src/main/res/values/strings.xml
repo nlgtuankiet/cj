@@ -39,6 +39,7 @@
     <string name="coin_ticket_style_graph">Graph</string>
     <string name="coin_ticket_style_coin360">Coin 360</string>
     <string name="coin_ticket_style_coin360_mini">Coin 360 Mini</string>
+    <string name="coin_ticket_style_nano">Nano</string>
     <string name="coin_ticket_style_mini">Mini</string>
 
     <string name="coin_ticker_preview_setting_header_click_action">Click action</string>

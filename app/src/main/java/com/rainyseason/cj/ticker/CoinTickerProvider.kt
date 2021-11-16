@@ -14,6 +14,7 @@ class CoinTickerProviderGraph : CoinTickerProvider()
 class CoinTickerProviderCoin360 : CoinTickerProvider()
 class CoinTickerProviderCoin360Mini : CoinTickerProvider()
 class CoinTickerProviderMini : CoinTickerProvider()
+class CoinTickerProviderNano : CoinTickerProvider()
 
 abstract class CoinTickerProvider : AppWidgetProvider() {
 

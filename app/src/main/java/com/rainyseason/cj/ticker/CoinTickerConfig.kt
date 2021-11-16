@@ -1,5 +1,6 @@
 package com.rainyseason.cj.ticker
 
+import com.rainyseason.cj.R
 import com.rainyseason.cj.common.Theme
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -101,6 +102,33 @@ data class CoinTickerConfig(
         const val COIN360 = "coin360"
         const val COIN360_MINI = "coin360_mini"
         const val MINI = "mini"
+        const val NANO = "nano"
+
+        private val clazzToLayout = mapOf(
+            CoinTickerProviderDefault::class.java.name to DEFAULT,
+            CoinTickerProviderGraph::class.java.name to GRAPH,
+            CoinTickerProviderCoin360::class.java.name to COIN360,
+            CoinTickerProviderCoin360Mini::class.java.name to COIN360_MINI,
+            CoinTickerProviderMini::class.java.name to MINI,
+            CoinTickerProviderNano::class.java.name to NANO,
+        )
+
+        private val layoutToLayoutRes = mapOf(
+            DEFAULT to R.layout.widget_coin_ticker_2x2,
+            GRAPH to R.layout.widget_coin_ticker_2x2,
+            COIN360 to R.layout.widget_coin_ticker_2x2,
+            COIN360_MINI to R.layout.widget_coin_ticker_1x1,
+            MINI to R.layout.widget_coin_ticker_2x1,
+            NANO to R.layout.widget_coin_ticker_1x1,
+        )
+
+        fun fromComponentName(name: String): String {
+            return clazzToLayout[name]!!
+        }
+
+        fun getLayoutRes(layout: String): Int {
+            return layoutToLayoutRes[layout]!!
+        }
     }
 
     object ClickAction {

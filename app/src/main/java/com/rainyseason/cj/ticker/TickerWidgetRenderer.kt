@@ -3,6 +3,7 @@ package com.rainyseason.cj.ticker
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -34,6 +35,7 @@ import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.verticalPadding
 import com.rainyseason.cj.databinding.WidgetCoinTicker1x1Coin360MiniBinding
+import com.rainyseason.cj.databinding.WidgetCoinTicker1x1NanoBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x1MiniBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2Coin360Binding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2DefaultBinding
@@ -62,14 +64,7 @@ class TickerWidgetRenderer @Inject constructor(
 
     @LayoutRes
     fun selectLayout(config: CoinTickerConfig): Int {
-        return when (config.layout) {
-            CoinTickerConfig.Layout.GRAPH -> R.layout.widget_coin_ticker_2x2
-            CoinTickerConfig.Layout.DEFAULT -> R.layout.widget_coin_ticker_2x2
-            CoinTickerConfig.Layout.COIN360 -> R.layout.widget_coin_ticker_2x2
-            CoinTickerConfig.Layout.COIN360_MINI -> R.layout.widget_coin_ticker_1x1
-            CoinTickerConfig.Layout.MINI -> R.layout.widget_coin_ticker_2x1
-            else -> error("not support ${config.layout}")
-        }
+        return CoinTickerConfig.Layout.getLayoutRes(config.layout)
     }
 
     private fun <T> select(theme: String, light: T, dark: T): T {
@@ -92,20 +87,13 @@ class TickerWidgetRenderer @Inject constructor(
             return
         }
         val config = params.config
-        val layoutRes = appWidgetManager.getAppWidgetInfo(config.widgetId)?.initialLayout
-            ?: R.layout.widget_coin_ticker_2x2_default
-        val clazz = when (layoutRes) {
-            R.layout.widget_coin_ticker_2x2_default -> CoinTickerProviderDefault::class.java
-            R.layout.widget_coin_ticker_2x2_graph -> CoinTickerProviderGraph::class.java
-            R.layout.widget_coin_ticker_2x2_coin360 -> CoinTickerProviderCoin360::class.java
-            R.layout.widget_coin_ticker_1x1_coin360_mini
-            -> CoinTickerProviderCoin360Mini::class.java
-            R.layout.widget_coin_ticker_2x1_mini -> CoinTickerProviderMini::class.java
-            else -> error("Unknown layout for $layoutRes")
-        }
+        val componentName = appWidgetManager.getAppWidgetInfo(config.widgetId)?.provider
+            ?: ComponentName(context, CoinTickerProviderDefault::class.java)
+
         val pendingIntent = when (params.config.clickAction) {
             CoinTickerConfig.ClickAction.REFRESH -> {
-                val intent = Intent(context, clazz)
+                val intent = Intent()
+                intent.component = componentName
                 intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                 intent.putExtra(
                     AppWidgetManager.EXTRA_APPWIDGET_IDS,
@@ -136,7 +124,8 @@ class TickerWidgetRenderer @Inject constructor(
                 )
             }
             CoinTickerConfig.ClickAction.SWITCH_PRICE_MARKET_CAP -> {
-                val intent = Intent(context, clazz)
+                val intent = Intent()
+                intent.component = componentName
                 intent.action = CoinTickerConfig.Action.SWITCH_ACTION
                 intent.putExtra(
                     AppWidgetManager.EXTRA_APPWIDGET_ID,
@@ -344,6 +333,59 @@ class TickerWidgetRenderer @Inject constructor(
         }
     }
 
+    private fun renderNano(
+        container: ViewGroup,
+        remoteViews: RemoteViews,
+        params: CoinTickerRenderParams,
+    ) {
+        val binding = WidgetCoinTicker1x1NanoBinding
+            .inflate(context.inflater(), container, true)
+        val config = params.config
+        val theme = config.theme
+        val renderData = params.data
+
+        container.mesureAndLayout(config)
+
+        remoteViews.bindLoading(params)
+
+        // bind container
+        binding.container.setBackgroundResource(
+            select(
+                theme,
+                R.drawable.coin_ticker_background,
+                R.drawable.coin_ticker_background_dark
+            )
+        )
+        applyBackgroundTransparency(binding.container, config)
+        remoteViews.applyClickAction(params)
+
+        // bind symbol
+        binding.symbol.text = renderData.symbol
+        binding.symbol.setTextColor(
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+
+        // bind amount
+        binding.amount.text = formatAmount(params)
+        binding.amount.setTextColor(
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+
+        // bind change percent
+        binding.changePercent.text = formatChange(params)
+
+        binding.symbol.updateVertialFontMargin(updateTop = true)
+        binding.changePercent.updateVertialFontMargin(updateBottom = true)
+    }
+
     private fun renderMini(
         container: ViewGroup,
         remoteViews: RemoteViews,
@@ -539,7 +581,11 @@ class TickerWidgetRenderer @Inject constructor(
         val size = minHeight.coerceAtMost(minWidth)
             .coerceAtMost(context.dpToPx(155))
             .coerceAtLeast(context.dpToPx(145))
-        val finalSize = if (config.layout == CoinTickerConfig.Layout.COIN360_MINI) {
+        val miniLayouts = listOf(
+            CoinTickerConfig.Layout.COIN360_MINI,
+            CoinTickerConfig.Layout.NANO,
+        )
+        val finalSize = if (config.layout in miniLayouts) {
             val height = context.dpToPx(75)
             val width = if (minWidth / minHeight >= 2) {
                 height * 2
@@ -595,6 +641,7 @@ class TickerWidgetRenderer @Inject constructor(
             CoinTickerConfig.Layout.COIN360 -> renderCoin360(container, view, inputParams)
             CoinTickerConfig.Layout.COIN360_MINI -> renderCoin360Mini(container, view, inputParams)
             CoinTickerConfig.Layout.MINI -> renderMini(container, view, inputParams)
+            CoinTickerConfig.Layout.NANO -> renderNano(container, view, inputParams)
             else -> error("Unknown layout: ${inputParams.config.layout}")
         }
 
