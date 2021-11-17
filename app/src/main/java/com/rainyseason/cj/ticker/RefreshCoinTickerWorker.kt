@@ -47,14 +47,9 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         }
 
         // check if widget has been removed
-        val widgetIds = listOf(
-            CoinTickerProviderDefault::class.java,
-            CoinTickerProviderGraph::class.java,
-            CoinTickerProviderCoin360::class.java,
-            CoinTickerProviderCoin360Mini::class.java,
-            CoinTickerProviderMini::class.java,
-            CoinTickerProviderNano::class.java,
-        ).map { appWidgetManager.getAppWidgetIds(ComponentName(appContext, it)).toList() }
+        val widgetIds = CoinTickerConfig.Layout
+            .clazzToLayout.keys
+            .map { appWidgetManager.getAppWidgetIds(ComponentName(appContext, it)).toList() }
             .flatten()
 
         if (widgetId !in widgetIds) {
