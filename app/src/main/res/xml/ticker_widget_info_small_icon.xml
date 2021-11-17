@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:configure="com.rainyseason.cj.ticker.CoinTickerSettingActivity"
-    android:initialLayout="@layout/widget_coin_ticker_2x1_small_icon"
+    android:initialLayout="@layout/widget_coin_ticker_2x1"
     android:minWidth="110dp"
     android:minHeight="40dp"
     android:previewImage="@drawable/coin_ticker_preview_icon_small"
