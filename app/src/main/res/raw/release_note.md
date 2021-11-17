@@ -1,6 +1,7 @@
 ### 1.9.6 Release
 
 ✨ New widget: Icon small 2x1 <- this widget has the coin logo in it (request from Nord0k)
+🛠 Fix bug where widgets don't refresh after device restart or on new app update
 
 ### 1.9.5 Release
 
