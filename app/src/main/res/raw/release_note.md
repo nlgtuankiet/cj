@@ -1,3 +1,7 @@
+### 1.9.6 Release
+
+✨ New widget: Icon small 2x1 <- this widget has the coin logo in it (request from Nord0k)
+
 ### 1.9.5 Release
 
 ✨ New widget: Nano 1x1, resizeable to 2x1 (request from sunnyandtony)
