@@ -269,6 +269,7 @@ class CoinTickerPreviewController(
 
         val layoutToString2x1 = listOf(
             CoinTickerConfig.Layout.MINI to R.string.coin_ticket_style_mini,
+            CoinTickerConfig.Layout.ICON_SMALL to R.string.coin_ticket_style_icon_small,
         )
 
         val layoutToString1x1 = listOf(

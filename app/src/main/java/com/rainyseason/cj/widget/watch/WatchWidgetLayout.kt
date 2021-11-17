@@ -10,18 +10,27 @@ enum class WatchWidgetLayout(
     val layout: Int,
     val previewScale: Double,
     val entryLimit: Int,
+    val providerName: String,
 ) {
-    Watch4x2("watch_4x2", R.layout.widget_watch_4x2_frame, 0.75, 3),
-    Watch4x4("watch_4x4", R.layout.widget_watch_4x2_frame, 0.75, 6),
+    Watch4x2(
+        id = "watch_4x2",
+        layout = R.layout.widget_watch_4x2_frame,
+        previewScale = 0.75,
+        entryLimit = 3,
+        providerName = WatchWidget4x2Provider::class.java.name,
+    ),
+    Watch4x4(
+        id = "watch_4x4",
+        layout = R.layout.widget_watch_4x2_frame,
+        previewScale = 0.75,
+        entryLimit = 6,
+        providerName = WatchWidget4x2Provider::class.java.name,
+    ),
     ;
 
     companion object {
-        fun fromDefaultLayout(id: Int): WatchWidgetLayout {
-            return when (id) {
-                R.layout.widget_watch_4x2_frame -> Watch4x2
-                R.layout.widget_watch_4x4_frame -> Watch4x4
-                else -> error("?")
-            }
+        fun fromProviderName(name: String): WatchWidgetLayout {
+            return values().first { it.providerName == name }
         }
     }
 }

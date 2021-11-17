@@ -2,7 +2,9 @@ package com.rainyseason.cj.ticker.view
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -13,13 +15,17 @@ import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
+import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.transition.Transition
 import com.rainyseason.cj.BuildConfig
+import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.CoinTickerPreviewTTI
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.inflateAndAdd
+import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import timber.log.Timber
 import java.io.File
@@ -84,6 +90,33 @@ class CoinTickerPreviewView @JvmOverloads constructor(
         mainContainer.updateLayoutParams<MarginLayoutParams> {
             height = widgetSize.height + context.dpToPx(12 * 2)
         }
-        renderer.render(remoteView!!, params)
+        val iconLayouts = listOf(
+            CoinTickerConfig.Layout.ICON_SMALL
+        )
+        if (params.config.layout in iconLayouts) {
+            progressBar.isGone = false
+            GlideApp.with(this)
+                .asBitmap()
+                .override(context.dpToPx(48), context.dpToPx(48))
+                .load(params.data.iconUrl)
+                .into(object : CustomViewTarget<View, Bitmap>(this) {
+                    override fun onLoadFailed(errorDrawable: Drawable?) {
+                        progressBar.isGone = true
+                    }
+
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
+                        progressBar.isGone = true
+                        renderer.render(remoteView!!, params, resource)
+                    }
+
+                    override fun onResourceCleared(placeholder: Drawable?) {
+                    }
+                })
+        } else {
+            renderer.render(remoteView!!, params)
+        }
     }
 }

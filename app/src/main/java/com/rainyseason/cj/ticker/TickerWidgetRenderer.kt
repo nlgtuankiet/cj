@@ -23,6 +23,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
+import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.MainActivity
 import com.rainyseason.cj.R
@@ -37,6 +38,7 @@ import com.rainyseason.cj.common.verticalPadding
 import com.rainyseason.cj.databinding.WidgetCoinTicker1x1Coin360MiniBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker1x1NanoBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x1MiniBinding
+import com.rainyseason.cj.databinding.WidgetCoinTicker2x1SmallIconBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2Coin360Binding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2DefaultBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2GraphBinding
@@ -386,6 +388,56 @@ class TickerWidgetRenderer @Inject constructor(
         binding.changePercent.updateVertialFontMargin(updateBottom = true)
     }
 
+    private fun renderIconSmall(
+        container: ViewGroup,
+        remoteViews: RemoteViews,
+        params: CoinTickerRenderParams,
+        icon: Bitmap?
+    ) {
+        val binding = WidgetCoinTicker2x1SmallIconBinding
+            .inflate(context.inflater(), container, true)
+        val config = params.config
+        val theme = config.theme
+        val renderData = params.data
+
+        container.mesureAndLayout(config)
+
+        remoteViews.bindLoading(params)
+
+        // bind container
+        binding.container.setBackgroundResource(
+            select(
+                theme,
+                R.drawable.coin_ticker_background,
+                R.drawable.coin_ticker_background_dark
+            )
+        )
+        applyBackgroundTransparency(binding.container, config)
+        remoteViews.applyClickAction(params)
+
+        // bind amount
+        binding.amount.text = formatAmount(params)
+        binding.amount.setTextColor(
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+
+        // bind change percent
+        binding.changePercent.text = formatChange(params)
+
+        // bind icon
+        val finalBitmap = icon ?: GlideApp.with(context)
+            .asBitmap()
+            .override(context.dpToPx(48), context.dpToPx(48))
+            .load(renderData.iconUrl)
+            .submit()
+            .get()
+        binding.icon.setImageBitmap(finalBitmap)
+    }
+
     private fun renderMini(
         container: ViewGroup,
         remoteViews: RemoteViews,
@@ -584,6 +636,7 @@ class TickerWidgetRenderer @Inject constructor(
         val miniLayouts = listOf(
             CoinTickerConfig.Layout.COIN360_MINI,
             CoinTickerConfig.Layout.NANO,
+            CoinTickerConfig.Layout.ICON_SMALL,
         )
         val finalSize = if (config.layout in miniLayouts) {
             val height = context.dpToPx(75)
@@ -632,6 +685,7 @@ class TickerWidgetRenderer @Inject constructor(
     fun render(
         view: RemoteViews,
         inputParams: CoinTickerRenderParams,
+        icon: Bitmap? = null,
     ) {
         val container = FrameLayout(context)
         container.mesureAndLayout(inputParams.config)
@@ -641,6 +695,8 @@ class TickerWidgetRenderer @Inject constructor(
             CoinTickerConfig.Layout.COIN360 -> renderCoin360(container, view, inputParams)
             CoinTickerConfig.Layout.COIN360_MINI -> renderCoin360Mini(container, view, inputParams)
             CoinTickerConfig.Layout.MINI -> renderMini(container, view, inputParams)
+            CoinTickerConfig.Layout.ICON_SMALL ->
+                renderIconSmall(container, view, inputParams, icon)
             CoinTickerConfig.Layout.NANO -> renderNano(container, view, inputParams)
             else -> error("Unknown layout: ${inputParams.config.layout}")
         }

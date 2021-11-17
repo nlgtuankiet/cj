@@ -103,14 +103,16 @@ data class CoinTickerConfig(
         const val COIN360_MINI = "coin360_mini"
         const val MINI = "mini"
         const val NANO = "nano"
+        const val ICON_SMALL = "icon_small"
 
-        private val clazzToLayout = mapOf(
+        val clazzToLayout = mapOf(
             CoinTickerProviderDefault::class.java.name to DEFAULT,
             CoinTickerProviderGraph::class.java.name to GRAPH,
             CoinTickerProviderCoin360::class.java.name to COIN360,
             CoinTickerProviderCoin360Mini::class.java.name to COIN360_MINI,
             CoinTickerProviderMini::class.java.name to MINI,
             CoinTickerProviderNano::class.java.name to NANO,
+            CoinTickerProviderIconSmall::class.java.name to ICON_SMALL,
         )
 
         private val layoutToLayoutRes = mapOf(
@@ -120,6 +122,7 @@ data class CoinTickerConfig(
             COIN360_MINI to R.layout.widget_coin_ticker_1x1,
             MINI to R.layout.widget_coin_ticker_2x1,
             NANO to R.layout.widget_coin_ticker_1x1,
+            ICON_SMALL to R.layout.widget_coin_ticker_2x1,
         )
 
         fun fromComponentName(name: String): String {

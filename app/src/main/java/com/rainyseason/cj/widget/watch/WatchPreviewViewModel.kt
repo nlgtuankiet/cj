@@ -9,7 +9,6 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
-import com.rainyseason.cj.R
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.getWidgetId
@@ -186,9 +185,9 @@ class WatchPreviewViewModel @AssistedInject constructor(
         if (args.debugLayout != null) {
             return WatchWidgetLayout.values().first { it.id == args.debugLayout }
         }
-        val defaultLayout = appWidgetManager.getAppWidgetInfo(args.widgetId)?.initialLayout
-            ?: R.layout.widget_watch_4x2_frame
-        return WatchWidgetLayout.fromDefaultLayout(defaultLayout)
+        val providerName = appWidgetManager.getAppWidgetInfo(args.widgetId)?.provider?.className
+            ?: WatchWidgetLayout.Watch4x2.providerName
+        return WatchWidgetLayout.fromProviderName(providerName)
     }
 
     private fun loadWatchList() {

@@ -11,6 +11,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.await
 import com.rainyseason.cj.data.local.CoinTickerRepository
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -24,6 +25,7 @@ class CoinTickerHandler @Inject constructor(
 ) {
     suspend fun enqueueRefreshWidget(widgetId: Int, config: CoinTickerConfig? = null) {
         val latestConfig = config ?: coinTickerRepository.getConfig(widgetId = widgetId) ?: return
+        Timber.d("enqueueRefreshWidget $widgetId")
         val request = PeriodicWorkRequestBuilder<RefreshCoinTickerWorker>(
             repeatInterval = latestConfig.refreshInterval,
             repeatIntervalTimeUnit = latestConfig.refreshIntervalUnit

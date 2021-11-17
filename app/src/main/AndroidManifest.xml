@@ -142,10 +142,29 @@
         </receiver>
 
         <receiver
-            android:name=".RefreshReceiver"
+            android:name=".ticker.CoinTickerProviderIconSmall"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.rainyseason.cj.widget.cointicker.switch" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ticker_widget_info_small_icon" />
+        </receiver>
+
+        <receiver
+            android:name=".PackageReplaceRefreshReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name=".BootRefreshReceiver"
+            android:exported="true">
+            <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
