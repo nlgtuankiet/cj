@@ -1,3 +1,6 @@
+### 1.9.7 Release
+🛠 Fix a bug where you can not create the watchlist 4x4 widget
+
 ### 1.9.6 Release
 
 ✨ New widget: Icon small 2x1 <- this widget has the coin logo in it (request from Nord0k)
