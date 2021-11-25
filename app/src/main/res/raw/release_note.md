@@ -1,3 +1,6 @@
+### 1.9.8 Release
+✨ Support smaller refresh intervals, ranging from 5 minutes down to 15 seconds (request from Alexander DMax)
+
 ### 1.9.7 Release
 🛠 Fix a bug where you can not create the watchlist 4x4 widget
 
