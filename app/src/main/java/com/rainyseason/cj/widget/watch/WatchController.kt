@@ -6,6 +6,7 @@ import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.MainActivity
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.RefreshIntervals
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
@@ -21,7 +22,6 @@ import com.rainyseason.cj.common.view.settingTitleSummaryView
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import java.util.concurrent.TimeUnit
 
 class WatchController @AssistedInject constructor(
     @Assisted val viewModel: WatchPreviewViewModel,
@@ -420,16 +420,6 @@ class WatchController @AssistedInject constructor(
         // }
     }
 
-    private fun createInterval(interval: Long, unit: TimeUnit): String {
-        val res = when (unit) {
-            TimeUnit.MINUTES -> R.plurals.coin_ticker_preview_internal_minute_template
-            TimeUnit.HOURS -> R.plurals.coin_ticker_preview_internal_hour_template
-            TimeUnit.DAYS -> R.plurals.coin_ticker_preview_internal_day_template
-            else -> error("not support")
-        }
-        return context.resources.getQuantityString(res, interval.toInt(), interval)
-    }
-
     private fun buildRefreshInternal(state: WatchPreviewState) {
         val config = state.config ?: return
         val refreshInterval = config.refreshInterval
@@ -438,20 +428,12 @@ class WatchController @AssistedInject constructor(
         settingTitleSummaryView {
             id("refresh_internal")
             title(R.string.coin_ticker_preview_refresh_interval)
-            summary(createInterval(refreshInterval, refreshInternalUnit))
+            summary(RefreshIntervals.createString(context, refreshInterval, refreshInternalUnit))
             onClickListener { _ ->
                 val currentConfig = withState(viewModel) { it.config } ?: return@onClickListener
-                val options = listOf(
-                    15L to TimeUnit.MINUTES,
-                    30L to TimeUnit.MINUTES,
-                    1L to TimeUnit.HOURS,
-                    2L to TimeUnit.HOURS,
-                    3L to TimeUnit.HOURS,
-                    6L to TimeUnit.HOURS,
-                    12L to TimeUnit.HOURS,
-                    1L to TimeUnit.DAYS,
-                )
-                val optionsString = options.map { createInterval(it.first, it.second) }
+                val optionsString = RefreshIntervals.VALUES.map {
+                    RefreshIntervals.createString(context, it.first, it.second)
+                }
                 val currentRefreshInterval = currentConfig.refreshInterval
                 val currentRefreshInternalUnit = currentConfig.refreshIntervalUnit
 
@@ -460,12 +442,12 @@ class WatchController @AssistedInject constructor(
                     .setCancelButton()
                     .setSingleChoiceItems(
                         optionsString.toTypedArray(),
-                        options.indexOfFirst {
+                        RefreshIntervals.VALUES.indexOfFirst {
                             it.first == currentRefreshInterval &&
                                 it.second == currentRefreshInternalUnit
                         }
                     ) { dialog, which ->
-                        val select = options[which]
+                        val select = RefreshIntervals.VALUES[which]
                         viewModel.setRefreshInternal(select.first, select.second)
                         dialog.dismiss()
                     }

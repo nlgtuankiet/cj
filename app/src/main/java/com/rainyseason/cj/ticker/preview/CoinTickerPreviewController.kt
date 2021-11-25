@@ -9,6 +9,7 @@ import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
+import com.rainyseason.cj.common.RefreshIntervals
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.getUserErrorMessage
@@ -390,20 +391,12 @@ class CoinTickerPreviewController(
         settingTitleSummaryView {
             id("refresh_internal")
             title(R.string.coin_ticker_preview_refresh_interval)
-            summary(createInterval(refreshInterval, refreshInternalUnit))
+            summary(RefreshIntervals.createString(context, refreshInterval, refreshInternalUnit))
             onClickListener { _ ->
                 val currentConfig = withState(viewModel) { it.config } ?: return@onClickListener
-                val options = listOf(
-                    15L to TimeUnit.MINUTES,
-                    30L to TimeUnit.MINUTES,
-                    1L to TimeUnit.HOURS,
-                    2L to TimeUnit.HOURS,
-                    3L to TimeUnit.HOURS,
-                    6L to TimeUnit.HOURS,
-                    12L to TimeUnit.HOURS,
-                    1L to TimeUnit.DAYS,
-                )
-                val optionsString = options.map { createInterval(it.first, it.second) }
+                val optionsString = RefreshIntervals.VALUES.map {
+                    RefreshIntervals.createString(context, it.first, it.second)
+                }
                 val currentRefreshInterval = currentConfig.refreshInterval
                 val currentRefreshInternalUnit = currentConfig.refreshIntervalUnit
 
@@ -412,12 +405,12 @@ class CoinTickerPreviewController(
                     .setCancelButton()
                     .setSingleChoiceItems(
                         optionsString.toTypedArray(),
-                        options.indexOfFirst {
+                        RefreshIntervals.VALUES.indexOfFirst {
                             it.first == currentRefreshInterval &&
                                 it.second == currentRefreshInternalUnit
                         }
                     ) { dialog, which ->
-                        val select = options[which]
+                        val select = RefreshIntervals.VALUES[which]
                         viewModel.setRefreshInternal(select.first, select.second)
                         dialog.dismiss()
                     }
