@@ -9,7 +9,7 @@ import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
-import com.rainyseason.cj.common.saveOrShowBatteryOptimize
+import com.rainyseason.cj.common.saveOrShowWarning
 import com.rainyseason.cj.databinding.WatchPreviewFragmentBinding
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -104,7 +104,8 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
             (requireActivity() as WatchWidgetSaver).saveWidget(config, displayData)
         }
 
-        saveOrShowBatteryOptimize {
+        val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
+        saveOrShowWarning(config.getRefreshMilis()) {
             actualSave()
         }
     }

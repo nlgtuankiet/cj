@@ -72,6 +72,10 @@ data class CoinTickerConfig(
     val amount: Double? = 1.0,
 ) {
 
+    fun getRefreshMilis(): Long {
+        return refreshIntervalUnit.toMillis(refreshInterval)
+    }
+
     fun getTrackingParams(): Map<String, Any?> {
         return mapOf(
             "widget_id" to widgetId,

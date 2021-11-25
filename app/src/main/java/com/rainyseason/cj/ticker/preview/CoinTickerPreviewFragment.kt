@@ -15,7 +15,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.CoinTickerPreviewTTI
 import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.requireArgs
-import com.rainyseason.cj.common.saveOrShowBatteryOptimize
+import com.rainyseason.cj.common.saveOrShowWarning
 import com.rainyseason.cj.databinding.CoinTickerPreviewFragmentBinding
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.CoinTickerWidgetSaver
@@ -117,7 +117,8 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
             (requireActivity() as CoinTickerWidgetSaver).saveWidget(config, displayData)
         }
 
-        saveOrShowBatteryOptimize {
+        val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
+        saveOrShowWarning(config.getRefreshMilis()) {
             actualSave()
         }
     }

@@ -89,6 +89,8 @@
     <string name="coin_ticker_preview_save_widget">Save</string>
     <string name="coin_ticker_preview_save_widget_anyway">Save anyway</string>
     <string name="coin_ticker_preview_battery_saver_warning_dialog_title">Battery saver warning</string>
+    <string name="warning_refresh_interval">Refresh interval warning</string>
+    <string name="warning_refresh_interval_description">Refresh interval less than 15 minutes is not recommended, it might drain your battery.</string>
 
 
     <string name="watch_add">Add</string>

@@ -60,6 +60,11 @@ data class WatchConfig(
     val clickAction: WatchClickAction = WatchClickAction.OpenWatchlist
 
 ) {
+
+    fun getRefreshMilis(): Long {
+        return refreshIntervalUnit.toMillis(refreshInterval)
+    }
+
     fun getTrackingParams(): Map<String, Any?> {
         return mapOf(
             "widget_id" to widgetId,
