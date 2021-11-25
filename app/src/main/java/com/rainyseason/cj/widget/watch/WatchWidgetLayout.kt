@@ -21,10 +21,10 @@ enum class WatchWidgetLayout(
     ),
     Watch4x4(
         id = "watch_4x4",
-        layout = R.layout.widget_watch_4x2_frame,
+        layout = R.layout.widget_watch_4x4_frame,
         previewScale = 0.75,
         entryLimit = 6,
-        providerName = WatchWidget4x2Provider::class.java.name,
+        providerName = WatchWidget4x4Provider::class.java.name,
     ),
     ;
 
