@@ -75,10 +75,10 @@ private suspend fun Context.awaitApi24ValidatedNetwork() {
                 }
             }
         }
+        manager.registerDefaultNetworkCallback(callback)
         cont.invokeOnCancellation {
             manager.unregisterNetworkCallback(callback)
         }
-        manager.registerDefaultNetworkCallback(callback)
     }
 }
 
