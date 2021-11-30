@@ -1,3 +1,6 @@
+### 1.9.9 Release
+🛠 Improve click action performance for watchlist widgets (now more responsive)  
+
 ### 1.9.8 Release
 ✨ Support smaller refresh intervals, ranging from 5 minutes down to 15 seconds (request from Alexander DMax)
 
