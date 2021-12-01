@@ -1,3 +1,6 @@
+### 1.9.10 Release
+🛠 Fix crash when create widget with "Preview only" coin  
+
 ### 1.9.9 Release
 🛠 Improve click action performance for watchlist widgets (now more responsive)  
 
