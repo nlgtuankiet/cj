@@ -155,6 +155,9 @@ fun <K, V> Map<K, V>.update(block: MutableMap<K, V>.() -> Unit): Map<K, V> {
 }
 
 fun List<List<Double>>.changePercent(): Double? {
+    if (this.isEmpty()) {
+        return null
+    }
     val open = first()[1]
     val last = last()[1]
     val diff = last - open

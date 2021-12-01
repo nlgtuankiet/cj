@@ -265,7 +265,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
 
         val marketPrice = market24h.invoke()?.currentPrice()
-        val price = marketPrice ?: coinDetail.marketData.currentPrice[config.currency]!!
+        val price = marketPrice ?: coinDetail.marketData.currentPrice[config.currency]
 
         if (marketPrice == null) {
             if (!fallbackPriceRecord) {
@@ -288,7 +288,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         config: CoinTickerConfig,
         coinDetail: CoinDetailResponse,
         marketChartResponse: Map<String, MarketChartResponse?>,
-        price: Double,
+        price: Double?,
     ): CoinTickerDisplayData {
         val data = CoinTickerDisplayData.create(
             config = config,

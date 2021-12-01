@@ -5,13 +5,12 @@ import android.content.ComponentName
 import android.content.Context
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.common.exception.logFallbackPrice
 import com.rainyseason.cj.common.hasValidNetworkConnection
 import com.rainyseason.cj.common.isInBatteryOptimize
-import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.currentPrice
 import com.rainyseason.cj.data.local.CoinTickerRepository
@@ -32,7 +31,6 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     private val appWidgetManager: AppWidgetManager,
     private val handler: CoinTickerHandler,
     private val render: TickerWidgetRenderer,
-    private val workManager: WorkManager,
     private val tracker: Tracker,
     private val firebaseCrashlytics: FirebaseCrashlytics,
 ) : CoroutineWorker(appContext = appContext, params = params) {
@@ -84,6 +82,9 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
                 )
             )
             firebaseCrashlytics.recordException(ex)
+            if (BuildConfig.DEBUG) {
+                throw ex
+            }
         }
 
         return Result.success()
@@ -122,9 +123,54 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             )
         }
 
-        val coinDetail: CoinDetailResponse
         try {
-            coinDetail = coinGeckoService.getCoinDetail(config.coinId)
+            val coinDetail = coinGeckoService.getCoinDetail(config.coinId)
+            val graphResponse = coinGeckoService.getMarketChart(
+                id = config.coinId,
+                vsCurrency = configCurrency,
+                day = when (config.changeInterval) {
+                    ChangeInterval._24H -> 1
+                    ChangeInterval._7D -> 7
+                    ChangeInterval._14D -> 14
+                    ChangeInterval._30D -> 30
+                    ChangeInterval._1Y -> 365
+                    else -> error("Unknown ${config.changeInterval}")
+                }.toString()
+            )
+
+            val marketPrice = if (config.changeInterval == ChangeInterval._24H) {
+                graphResponse.currentPrice()
+            } else {
+                coinGeckoService.getMarketChart(
+                    id = config.coinId,
+                    vsCurrency = configCurrency,
+                    day = "1",
+                ).currentPrice()
+            }
+
+            val price = marketPrice ?: coinDetail.marketData.currentPrice[config.currency]
+            if (marketPrice == null) {
+                firebaseCrashlytics.logFallbackPrice(config.coinId)
+            }
+            val newDisplayData = CoinTickerDisplayData.create(
+                config = config,
+                coinDetail = coinDetail,
+                marketChartResponse = mapOf(config.changeInterval to graphResponse),
+                price = price
+            )
+
+            coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)
+            val newView = RemoteViews(appContext.packageName, render.selectLayout(config))
+            val newParams = CoinTickerRenderParams(
+                config = config,
+                data = newDisplayData,
+                showLoading = false,
+            )
+            render.render(
+                view = newView,
+                inputParams = newParams,
+            )
+            appWidgetManager.updateAppWidget(widgetId, newView)
         } catch (ex: Exception) {
             if (oldDisplayData != null) {
                 val errorView = RemoteViews(appContext.packageName, render.selectLayout(config))
@@ -142,53 +188,6 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             }
             throw ex
         }
-
-        val graphResponse = coinGeckoService.getMarketChart(
-            id = config.coinId,
-            vsCurrency = configCurrency,
-            day = when (config.changeInterval) {
-                ChangeInterval._24H -> 1
-                ChangeInterval._7D -> 7
-                ChangeInterval._14D -> 14
-                ChangeInterval._30D -> 30
-                ChangeInterval._1Y -> 365
-                else -> error("Unknown ${config.changeInterval}")
-            }.toString()
-        )
-
-        val marketPrice = if (config.changeInterval == ChangeInterval._24H) {
-            graphResponse.currentPrice()
-        } else {
-            coinGeckoService.getMarketChart(
-                id = config.coinId,
-                vsCurrency = configCurrency,
-                day = "1",
-            ).currentPrice()
-        }
-
-        val price = marketPrice ?: coinDetail.marketData.currentPrice[config.currency]!!
-        if (marketPrice == null) {
-            firebaseCrashlytics.logFallbackPrice(config.coinId)
-        }
-        val newDisplayData = CoinTickerDisplayData.create(
-            config = config,
-            coinDetail = coinDetail,
-            marketChartResponse = mapOf(config.changeInterval to graphResponse),
-            price = price
-        )
-
-        coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)
-        val newView = RemoteViews(appContext.packageName, render.selectLayout(config))
-        val newParams = CoinTickerRenderParams(
-            config = config,
-            data = newDisplayData,
-            showLoading = false,
-        )
-        render.render(
-            view = newView,
-            inputParams = newParams,
-        )
-        appWidgetManager.updateAppWidget(widgetId, newView)
     }
 
     @AssistedFactory

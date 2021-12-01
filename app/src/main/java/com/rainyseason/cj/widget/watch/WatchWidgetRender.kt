@@ -270,7 +270,7 @@ class WatchWidgetRender @Inject constructor(
 
         val config = params.config
         @SuppressLint("UnspecifiedImmutableFlag")
-        val pendingIntent = when(config.clickAction) {
+        val pendingIntent = when (config.clickAction) {
             WatchClickAction.Refresh -> {
                 val intent = Intent()
                 intent.component = ComponentName(context, config.layout.providerName)
@@ -289,7 +289,8 @@ class WatchWidgetRender @Inject constructor(
             }
             WatchClickAction.OpenWatchlist -> {
                 val intent = MainActivity.watchListIntent(context)
-                PendingIntent.getActivity(context,
+                PendingIntent.getActivity(
+                    context,
                     params.config.widgetId,
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT

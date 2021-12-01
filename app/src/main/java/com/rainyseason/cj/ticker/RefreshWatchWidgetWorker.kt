@@ -7,6 +7,7 @@ import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.hasValidNetworkConnection
@@ -98,6 +99,9 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
                 )
             )
             firebaseCrashlytics.recordException(ex)
+            if (BuildConfig.DEBUG) {
+                throw ex
+            }
         }
 
         return Result.success()

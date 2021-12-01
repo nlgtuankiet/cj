@@ -26,13 +26,13 @@ data class CoinTickerDisplayData(
     val name: String,
 
     @Json(name = "price")
-    val price: Double,
+    val price: Double?, // null when coin is in preview
 
     @Json(name = "price_change_percent")
     val priceChangePercent: Double?,
 
     @Json(name = "market_cap")
-    val marketCap: Double,
+    val marketCap: Double?,
 
     @Json(name = "market_cap_change_percent")
     val marketCapChangePercent: Double?,
@@ -52,9 +52,13 @@ data class CoinTickerDisplayData(
         }
     }
 
-    fun getAmount(config: CoinTickerConfig): Double {
+    fun getAmount(config: CoinTickerConfig): Double? {
         return when (config.bottomContentType) {
-            BottomContentType.PRICE -> price * (config.amount ?: 1.0)
+            BottomContentType.PRICE -> if (price == null) {
+                null
+            } else {
+                price * (config.amount ?: 1.0)
+            }
             BottomContentType.MARKET_CAP -> marketCap
             else -> error("Unknown ${config.bottomContentType}")
         }
@@ -76,7 +80,7 @@ data class CoinTickerDisplayData(
             config: CoinTickerConfig,
             coinDetail: CoinDetailResponse,
             marketChartResponse: Map<String, MarketChartResponse?>,
-            price: Double,
+            price: Double?,
         ): CoinTickerDisplayData {
             val currencyCode = config.currency
             val priceChangePercent = when (config.changeInterval) {
@@ -108,7 +112,7 @@ data class CoinTickerDisplayData(
                 name = coinDetail.name,
                 price = price,
                 priceChangePercent = priceChangePercent,
-                marketCap = coinDetail.marketData.marketCap[currencyCode]!!,
+                marketCap = coinDetail.marketData.marketCap[currencyCode],
                 marketCapChangePercent = marketCapChangePercent,
                 priceGraph = marketChartResponse[config.changeInterval]?.prices,
                 marketCapGraph = marketChartResponse[config.changeInterval]?.marketCaps,

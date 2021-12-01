@@ -746,6 +746,15 @@ class TickerWidgetRenderer @Inject constructor(
                 } else {
                     append(content)
                 }
+            } else {
+                val color = select(
+                    config.theme,
+                    context.getColorCompat(R.color.gray_900),
+                    context.getColorCompat(R.color.gray_50),
+                )
+                color(color) {
+                    append("--")
+                }
             }
         }
         return content
@@ -756,9 +765,10 @@ class TickerWidgetRenderer @Inject constructor(
     ): String {
         val config = params.config
         val data = params.data
-
+        val amount = data.getAmount(config)
+            ?: return context.getString(R.string.coin_preview_only)
         return numberFormater.formatAmount(
-            amount = data.getAmount(config),
+            amount = amount,
             roundToMillion = config.roundToMillion,
             currencyCode = config.currency,
             numberOfDecimal = config.numberOfAmountDecimal ?: 2,
