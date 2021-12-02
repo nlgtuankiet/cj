@@ -221,7 +221,6 @@ class GraphView @JvmOverloads constructor(
         val middleY = spaceTop + (startPricePercent * avaHeight).toInt()
         clipTop.set(spaceStart, spaceTop, width - spaceEnd, middleY)
         clipBottom.set(spaceStart, middleY, width - spaceEnd, drawBottom)
-        println("clipTop: $clipTop clipBottom: $clipBottom, startPricePercent: $startPricePercent")
 
         val greenAlpha = (0.5 * startPricePercent).coerceAtLeast(0.25) * 255
         val greenBackground = Color.argb(

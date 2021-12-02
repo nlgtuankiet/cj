@@ -94,7 +94,7 @@ class CoinTickerSettingActivity :
             return
         }
         setContentView(R.layout.activity_coin_ticker_setting)
-
+        Timber.d("widgetId: $widgetId")
         val coinId = intent.extras?.getString(COIN_ID_EXTRA)
         val exchangeId = intent.extras?.getString("exchange_id")
         if (coinId != null) {

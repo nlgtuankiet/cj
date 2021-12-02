@@ -4,8 +4,16 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 
-enum class Exchange(val id: String, val displayName: String) {
-    Binance("binance", "Binance")
+enum class Exchange(
+    val id: String,
+    val displayName: String,
+    val iconUrl: String
+) {
+    Binance(
+        id = "binance",
+        displayName = "Binance",
+        iconUrl = "https://s2.coinmarketcap.com/static/img/coins/128x128/1839.png"
+    )
     ;
 
     companion object {

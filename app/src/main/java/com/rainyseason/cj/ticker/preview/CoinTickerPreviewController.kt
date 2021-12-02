@@ -216,7 +216,7 @@ class CoinTickerPreviewController(
     private fun buildSizeAdjustment(state: CoinTickerPreviewState) {
         val config = state.config ?: return
         val miniLayouts = listOf(
-            CoinTickerConfig.Layout.COIN360_MINI,
+            CoinTickerConfig.Layout.COIN360_NANO,
             CoinTickerConfig.Layout.NANO,
         )
 
@@ -269,7 +269,7 @@ class CoinTickerPreviewController(
 
         val layoutToString1x1 = listOf(
             CoinTickerConfig.Layout.NANO to R.string.coin_ticket_style_nano,
-            CoinTickerConfig.Layout.COIN360_MINI to R.string.coin_ticket_style_coin360_mini,
+            CoinTickerConfig.Layout.COIN360_NANO to R.string.coin_ticket_style_coin360_mini,
         )
 
         val layoutToString = listOf(

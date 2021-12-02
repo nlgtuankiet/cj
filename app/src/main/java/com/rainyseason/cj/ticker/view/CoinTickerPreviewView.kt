@@ -93,7 +93,7 @@ class CoinTickerPreviewView @JvmOverloads constructor(
         val iconLayouts = listOf(
             CoinTickerConfig.Layout.ICON_SMALL
         )
-        if (params.config.layout in iconLayouts) {
+        if (params.config.layout in iconLayouts && params.data.iconUrl.isNotBlank()) {
             progressBar.isGone = false
             GlideApp.with(this)
                 .asBitmap()

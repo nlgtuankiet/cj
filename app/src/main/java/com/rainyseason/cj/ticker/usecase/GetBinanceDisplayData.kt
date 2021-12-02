@@ -1,6 +1,7 @@
 package com.rainyseason.cj.ticker.usecase
 
 import com.rainyseason.cj.common.changePercent
+import com.rainyseason.cj.common.model.Exchange
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.data.binance.BinanceService
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
@@ -46,7 +47,7 @@ class GetBinanceDisplayData @Inject constructor(
             val tickerPrice = tickerPriceAsync.await()
 
             CoinTickerDisplayData(
-                iconUrl = "",
+                iconUrl = Exchange.Binance.iconUrl,
                 symbol = "${symbolDetail.baseAsset}/${symbolDetail.quoteAsset}",
                 name = param.exchange?.displayName ?: "",
                 price = tickerPrice.price,

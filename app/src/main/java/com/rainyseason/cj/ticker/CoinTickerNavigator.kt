@@ -29,7 +29,7 @@ class CoinTickerNavigator @Inject constructor(
         activity.window?.decorView?.dismissKeyboard()
         val widgetId = activity.getWidgetId()!!
         val componentName = appWidgetManager.getAppWidgetInfo(widgetId)?.provider
-            ?: ComponentName(activity, CoinTickerProviderDefault::class.java)
+            ?: ComponentName(activity, CoinTickerProviderNano::class.java)
         val layout = CoinTickerConfig.Layout.fromComponentName(componentName.className)
         val args = CoinTickerPreviewArgs(
             widgetId = widgetId,

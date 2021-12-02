@@ -243,7 +243,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         if (data == null) {
             return
         }
-        println("saveDisplayData")
         viewModelScope.launch {
             coinTickerRepository.setDisplayData(widgetId, data)
         }

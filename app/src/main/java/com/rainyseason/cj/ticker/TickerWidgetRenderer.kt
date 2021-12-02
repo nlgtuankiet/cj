@@ -278,7 +278,11 @@ class TickerWidgetRenderer @Inject constructor(
         remoteViews.applyClickAction(params)
 
         // bind symbol
-        binding.symbol.text = renderData.symbol
+        binding.symbol.text = if (config.isExchange) {
+            renderData.name
+        } else {
+            renderData.symbol
+        }
         binding.symbol.setTextColor(
             select(
                 theme,
@@ -303,7 +307,11 @@ class TickerWidgetRenderer @Inject constructor(
         binding.changePercent.text = formatChange(params)
 
         // bind name
-        binding.name.text = renderData.name
+        binding.name.text = if (config.isExchange) {
+            renderData.symbol
+        } else {
+            renderData.name
+        }
         binding.name.setTextColor(
             select(
                 theme,
@@ -429,13 +437,19 @@ class TickerWidgetRenderer @Inject constructor(
         binding.changePercent.text = formatChange(params)
 
         // bind icon
-        val finalBitmap = icon ?: GlideApp.with(context)
-            .asBitmap()
-            .override(context.dpToPx(48), context.dpToPx(48))
-            .load(renderData.iconUrl)
-            .submit()
-            .get()
-        binding.icon.setImageBitmap(finalBitmap)
+        val finalBitmap = icon ?: if (renderData.iconUrl.isNotBlank()) {
+            GlideApp.with(context)
+                .asBitmap()
+                .override(context.dpToPx(48), context.dpToPx(48))
+                .load(renderData.iconUrl)
+                .submit()
+                .get()
+        } else {
+            null
+        }
+        if (finalBitmap != null) {
+            binding.icon.setImageBitmap(finalBitmap)
+        }
     }
 
     private fun renderMini(
@@ -633,13 +647,12 @@ class TickerWidgetRenderer @Inject constructor(
         val size = minHeight.coerceAtMost(minWidth)
             .coerceAtMost(context.dpToPx(155))
             .coerceAtLeast(context.dpToPx(145))
-        val miniLayouts = listOf(
-            CoinTickerConfig.Layout.COIN360_MINI,
+        val nanoLayouts = listOf(
+            CoinTickerConfig.Layout.COIN360_NANO,
             CoinTickerConfig.Layout.NANO,
-            CoinTickerConfig.Layout.ICON_SMALL,
         )
-        val finalSize = if (config.layout in miniLayouts) {
-            val height = context.dpToPx(75)
+        val finalSize = if (config.layout in nanoLayouts) {
+            val height = context.dpToPx(75) + context.dpToPx(config.sizeAdjustment)
             val width = if (minWidth / minHeight >= 2) {
                 height * 2
             } else {
@@ -650,6 +663,7 @@ class TickerWidgetRenderer @Inject constructor(
             val finalWidth = size + context.dpToPx(config.sizeAdjustment)
             val finalHeight = when (config.layout) {
                 CoinTickerConfig.Layout.MINI -> finalWidth / 2
+                CoinTickerConfig.Layout.ICON_SMALL -> finalWidth / 2
                 CoinTickerConfig.Layout.DEFAULT -> finalWidth
                 CoinTickerConfig.Layout.GRAPH -> finalWidth
                 CoinTickerConfig.Layout.COIN360 -> finalWidth
@@ -693,7 +707,7 @@ class TickerWidgetRenderer @Inject constructor(
             CoinTickerConfig.Layout.DEFAULT -> renderDefault(container, view, inputParams)
             CoinTickerConfig.Layout.GRAPH -> renderGraph(container, view, inputParams)
             CoinTickerConfig.Layout.COIN360 -> renderCoin360(container, view, inputParams)
-            CoinTickerConfig.Layout.COIN360_MINI -> renderCoin360Mini(container, view, inputParams)
+            CoinTickerConfig.Layout.COIN360_NANO -> renderCoin360Mini(container, view, inputParams)
             CoinTickerConfig.Layout.MINI -> renderMini(container, view, inputParams)
             CoinTickerConfig.Layout.ICON_SMALL ->
                 renderIconSmall(container, view, inputParams, icon)

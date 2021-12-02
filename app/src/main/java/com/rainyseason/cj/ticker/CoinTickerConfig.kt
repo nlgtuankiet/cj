@@ -74,6 +74,9 @@ data class CoinTickerConfig(
     val amount: Double? = 1.0,
 ) {
 
+    val isExchange: Boolean
+        get() = exchange != null
+
     fun asDataLoadParams(): CoinTickerDisplayData.LoadParam {
         return CoinTickerDisplayData.LoadParam(
             coinId = coinId,
@@ -114,7 +117,7 @@ data class CoinTickerConfig(
         const val DEFAULT = "default"
         const val GRAPH = "graph"
         const val COIN360 = "coin360"
-        const val COIN360_MINI = "coin360_mini"
+        const val COIN360_NANO = "coin360_mini"
         const val MINI = "mini"
         const val NANO = "nano"
         const val ICON_SMALL = "icon_small"
@@ -123,7 +126,7 @@ data class CoinTickerConfig(
             CoinTickerProviderDefault::class.java.name to DEFAULT,
             CoinTickerProviderGraph::class.java.name to GRAPH,
             CoinTickerProviderCoin360::class.java.name to COIN360,
-            CoinTickerProviderCoin360Mini::class.java.name to COIN360_MINI,
+            CoinTickerProviderCoin360Mini::class.java.name to COIN360_NANO,
             CoinTickerProviderMini::class.java.name to MINI,
             CoinTickerProviderNano::class.java.name to NANO,
             CoinTickerProviderIconSmall::class.java.name to ICON_SMALL,
@@ -133,7 +136,7 @@ data class CoinTickerConfig(
             DEFAULT to R.layout.widget_coin_ticker_2x2,
             GRAPH to R.layout.widget_coin_ticker_2x2,
             COIN360 to R.layout.widget_coin_ticker_2x2,
-            COIN360_MINI to R.layout.widget_coin_ticker_1x1,
+            COIN360_NANO to R.layout.widget_coin_ticker_1x1,
             MINI to R.layout.widget_coin_ticker_2x1,
             NANO to R.layout.widget_coin_ticker_1x1,
             ICON_SMALL to R.layout.widget_coin_ticker_2x1,
