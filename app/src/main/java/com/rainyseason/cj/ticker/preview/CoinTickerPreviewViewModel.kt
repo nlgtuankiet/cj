@@ -2,53 +2,52 @@ package com.rainyseason.cj.ticker.preview
 
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.FragmentViewModelContext
+import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.common.model.TimeInterval
-import com.rainyseason.cj.common.model.asDayString
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSettingRepository
-import com.rainyseason.cj.data.coingecko.CoinDetailResponse
-import com.rainyseason.cj.data.coingecko.CoinGeckoService
-import com.rainyseason.cj.data.coingecko.MarketChartResponse
-import com.rainyseason.cj.data.coingecko.currentPrice
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
+import com.rainyseason.cj.ticker.CoinTickerDisplayData.LoadParam
+import com.rainyseason.cj.ticker.usecase.GetDisplayData
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
+import java.util.Collections
 import java.util.concurrent.TimeUnit
 
 data class CoinTickerPreviewState(
     val savedDisplayData: Async<CoinTickerDisplayData> = Uninitialized,
     val savedConfig: Async<CoinTickerConfig> = Uninitialized,
-    val coinDetailResponse: Async<CoinDetailResponse> = Uninitialized,
-    val marketChartResponse: Map<TimeInterval, Async<MarketChartResponse>> = emptyMap(),
     val showAdvanceSetting: Boolean = false,
+    val displayDataCache: Map<LoadParam, Async<CoinTickerDisplayData>> = emptyMap()
 ) : MavericksState {
     val config: CoinTickerConfig?
         get() = savedConfig.invoke()
+
+    val currentDisplayData: CoinTickerDisplayData?
+        get() = displayDataCache[config?.asDataLoadParams()]?.invoke()
+
+    val loadDataParams: LoadParam?
+        get() = config?.asDataLoadParams()
 }
 
 class CoinTickerPreviewViewModel @AssistedInject constructor(
     @Assisted private val args: CoinTickerPreviewArgs,
     private val coinTickerRepository: CoinTickerRepository,
     private val userSettingRepository: UserSettingRepository,
-    private val coinGeckoService: CoinGeckoService,
-    private val firebaseCrashlytics: FirebaseCrashlytics,
+    private val getDisplayData: GetDisplayData,
 ) : MavericksViewModel<CoinTickerPreviewState>(CoinTickerPreviewState()) {
 
     private val widgetId = args.widgetId
@@ -58,46 +57,46 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     init {
         loadDisplayData()
 
-        onEach { state ->
-            maybeSaveDisplayData(state)
+        onEach(CoinTickerPreviewState::currentDisplayData) { currentDisplayData ->
+            saveDisplayData(currentDisplayData)
         }
 
         reload()
     }
 
     fun reload() {
-        loadCoinDetail()
-        loadGraphs()
-        loadPairData()
+        loadData()
         viewModelScope.launch {
             saveInitialConfig()
         }
     }
 
-    private fun loadPairData() {
-        onEach(CoinTickerPreviewState::config) { config ->
-        }
-    }
+    private var onEachParamJob: Job? = null
+    private val getDisplayDataJob = Collections
+        .synchronizedMap(mutableMapOf<LoadParam, Job>())
 
-    private var loadGraphsJob: Job? = null
-    private fun loadGraphs() {
-        if (args.exchange != null) {
-            return
-        }
-        loadGraphsJob?.cancel()
-        loadGraphsJob = viewModelScope.launch {
-            stateFlow.mapNotNull { state ->
-                val savedConfig = state.savedConfig
-                if (savedConfig !is Success) {
-                    return@mapNotNull null
+    private fun loadData() {
+        onEachParamJob?.cancel()
+        onEachParamJob = onEach(CoinTickerPreviewState::loadDataParams) { loadDataParams ->
+            if (loadDataParams == null) {
+                return@onEach
+            }
+            withState { state ->
+                val previousData = state.displayDataCache[loadDataParams]
+                if (previousData is Loading || previousData is Success) {
+                    return@withState
                 }
-                savedConfig.invoke().currency
-            }.distinctUntilChanged()
-                .collect { currencyCode ->
-                    TimeInterval.ALL_PRICE_INTERVAL.forEach { interval ->
-                        loadGraph(interval, currencyCode)
-                    }
+                getDisplayDataJob[loadDataParams]?.cancel()
+                val job = suspend {
+                    getDisplayData(loadDataParams)
+                }.execute {
+                    copy(
+                        displayDataCache = displayDataCache
+                            .update { put(loadDataParams, it) }
+                    )
                 }
+                getDisplayDataJob[loadDataParams] = job
+            }
         }
     }
 
@@ -115,14 +114,26 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 refreshInterval = userSetting.refreshInterval,
                 refreshIntervalUnit = userSetting.refreshIntervalUnit,
                 showThousandsSeparator = userSetting.showThousandsSeparator,
-                showCurrencySymbol = userSetting.showCurrencySymbol,
+                showCurrencySymbol = if (args.exchange == null) {
+                    userSetting.showCurrencySymbol
+                } else {
+                    false
+                },
                 roundToMillion = userSetting.roundToMillion,
                 currency = userSetting.currencyCode,
                 sizeAdjustment = userSetting.sizeAdjustment,
             )
             coinTickerRepository.setConfig(widgetId, config)
         } else {
-            val newConfig = lastConfig.copy(coinId = args.coinId)
+            val newConfig = lastConfig.copy(
+                coinId = args.coinId,
+                exchange = args.exchange,
+                showCurrencySymbol = if (args.exchange == null) {
+                    lastConfig.showCurrencySymbol
+                } else {
+                    false
+                }
+            )
             coinTickerRepository.setConfig(widgetId, newConfig)
         }
 
@@ -208,33 +219,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             .execute { copy(savedConfig = it) }
     }
 
-    private fun loadGraph(interval: TimeInterval, currency: String) {
-        loadGraphJobs[interval]?.cancel()
-        loadGraphJobs[interval] = suspend {
-            coinGeckoService.getMarketChart(
-                id = args.coinId,
-                vsCurrency = currency,
-                interval.asDayString()!!
-            )
-        }.execute {
-            copy(marketChartResponse = marketChartResponse.update { set(interval, it) })
-        }
-    }
-
-    private var loadCoinDetailJob: Job? = null
-    private fun loadCoinDetail() {
-        if (args.exchange != null) {
-            return
-        }
-        loadCoinDetailJob?.cancel()
-        loadCoinDetailJob = suspend {
-            coinGeckoService.getCoinDetail(args.coinId)
-        }.execute {
-            copy(coinDetailResponse = it)
-        }
-    }
-
-    fun switchShowBaterryWarning() {
+    fun switchShowBatteryWarning() {
         updateConfig { copy(showBatteryWarning = !showBatteryWarning) }
     }
 
@@ -254,55 +239,14 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         updateConfig { copy(showThousandsSeparator = !showThousandsSeparator) }
     }
 
-    private fun maybeSaveDisplayData(state: CoinTickerPreviewState) {
-        if (args.exchange == null) {
-            saveDisplayDataForCoin(state)
-        } else {
-            saveDisplayDataForPair(state)
-        }
-    }
-
-    private fun saveDisplayDataForPair(state: CoinTickerPreviewState) {
-    }
-
-    private fun saveDisplayDataForCoin(state: CoinTickerPreviewState) {
-        val coinDetail = state.coinDetailResponse.invoke() ?: return
-        val config = state.config ?: return
-
-        val market24h = state.marketChartResponse[TimeInterval.I_24H]
-
-        // avoid UI glitch
-        if (market24h == null || !market24h.complete) {
+    private fun saveDisplayData(data: CoinTickerDisplayData?) {
+        if (data == null) {
             return
         }
-
-        val marketPrice = market24h.invoke()?.currentPrice()
-        val price = marketPrice ?: coinDetail.marketData.currentPrice[config.currency]
-
+        println("saveDisplayData")
         viewModelScope.launch {
-            setWidgetData(
-                config = config,
-                coinDetail = coinDetail,
-                marketChartResponse = state.marketChartResponse.mapValues { it.value.invoke() },
-                price = price,
-            )
+            coinTickerRepository.setDisplayData(widgetId, data)
         }
-    }
-
-    private suspend fun setWidgetData(
-        config: CoinTickerConfig,
-        coinDetail: CoinDetailResponse,
-        marketChartResponse: Map<TimeInterval, MarketChartResponse?>,
-        price: Double?,
-    ): CoinTickerDisplayData {
-        val data = CoinTickerDisplayData.create(
-            config = config,
-            coinDetail = coinDetail,
-            marketChartResponse = marketChartResponse,
-            price = price,
-        )
-        coinTickerRepository.setDisplayData(widgetId = widgetId, data = data)
-        return data
     }
 
     fun save() {

@@ -29,7 +29,6 @@ import com.rainyseason.cj.common.view.settingTitleSummaryView
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.view.CoinTickerPreviewViewModel_
 import java.util.Locale
-import java.util.concurrent.TimeUnit
 
 class CoinTickerPreviewController(
     private val viewModel: CoinTickerPreviewViewModel,
@@ -133,12 +132,9 @@ class CoinTickerPreviewController(
     }
 
     private fun buildRetry(state: CoinTickerPreviewState): BuildState {
-        val errors = listOf(
-            (state.coinDetailResponse as? Fail)?.error,
-        ) + state.marketChartResponse.values.map {
-            (it as? Fail)?.error
-        }
-        val error = errors.firstOrNull { it != null } ?: return BuildState.Next
+        val loadDataParams = state.loadDataParams ?: return BuildState.Stop
+        val data = state.displayDataCache[loadDataParams]
+        val error = (data as? Fail)?.error ?: return BuildState.Next
         retryView {
             id("retry")
             reason(error.getUserErrorMessage(context = context))
@@ -166,14 +162,14 @@ class CoinTickerPreviewController(
 
     private fun buildAmount(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        val coinDetailResponse = state.coinDetailResponse.invoke() ?: return
+        val displayData = state.savedDisplayData.invoke() ?: return
         val amount = config.amount ?: 1.0
 
         maybeBuildHorizontalSeparator(id = "separator_amount")
         settingTitleSummaryView {
             id("setting_amount")
             title(R.string.coin_ticker_preview_amount)
-            summary("$amount ${coinDetailResponse.symbol.uppercase(Locale.getDefault())}")
+            summary("$amount ${displayData.symbol.uppercase(Locale.getDefault())}")
             onClickListener { view ->
                 val container = view.inflater
                     .inflate(R.layout.dialog_number_input, null, false)
@@ -252,7 +248,7 @@ class CoinTickerPreviewController(
             title(R.string.coin_ticker_preview_setting_show_battery_warning)
             checked(config.showBatteryWarning)
             onClickListener { _ ->
-                viewModel.switchShowBaterryWarning()
+                viewModel.switchShowBatteryWarning()
             }
         }
     }
@@ -310,7 +306,9 @@ class CoinTickerPreviewController(
 
     private fun buildShowCurrencySymbol(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-
+        if (config.exchange != null) {
+            return
+        }
         maybeBuildHorizontalSeparator(id = "show_currency_separator")
 
         settingSwitchView {
@@ -336,16 +334,6 @@ class CoinTickerPreviewController(
                 viewModel.switchThousandsSeparator()
             }
         }
-    }
-
-    private fun createInterval(interval: Long, unit: TimeUnit): String {
-        val res = when (unit) {
-            TimeUnit.MINUTES -> R.plurals.coin_ticker_preview_internal_minute_template
-            TimeUnit.HOURS -> R.plurals.coin_ticker_preview_internal_hour_template
-            TimeUnit.DAYS -> R.plurals.coin_ticker_preview_internal_day_template
-            else -> error("not support")
-        }
-        return context.resources.getQuantityString(res, interval.toInt(), interval)
     }
 
     private fun buildTheme(state: CoinTickerPreviewState) {
@@ -456,8 +444,6 @@ class CoinTickerPreviewController(
                 to R.string.coin_ticker_preview_setting_header_click_action_refresh,
             CoinTickerConfig.ClickAction.SETTING
                 to R.string.coin_ticker_preview_setting_header_click_action_setting,
-            CoinTickerConfig.ClickAction.SWITCH_PRICE_MARKET_CAP
-                to R.string.coin_ticker_preview_setting_header_click_action_switch,
         ).map { it.first to context.getString(it.second) }
         val selectedOption = config.clickAction
         maybeBuildHorizontalSeparator(id = "setting_click_action_separator")

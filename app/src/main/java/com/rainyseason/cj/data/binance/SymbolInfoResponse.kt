@@ -8,6 +8,9 @@ data class SymbolInfoResponse(
     @Json(name = "symbols")
     val symbols: List<Symbol>
 ) {
+    /**
+     * BNBBTC -> baseAsset BNB quoteAsset BTC
+     */
     @JsonClass(generateAdapter = true)
     data class Symbol(
         @Json(name = "baseAsset")

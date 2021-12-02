@@ -32,6 +32,8 @@ import com.rainyseason.cj.data.ForceCacheInterceptor
 import com.rainyseason.cj.data.NetworkUrlLoggerInterceptor
 import com.rainyseason.cj.data.NoMustRevalidateInterceptor
 import com.rainyseason.cj.data.UserSettingStorage
+import com.rainyseason.cj.data.binance.BinanceService
+import com.rainyseason.cj.data.binance.BinanceServiceWrapper
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.CoinGeckoServiceWrapper
 import com.rainyseason.cj.detail.CoinDetailModule
@@ -226,6 +228,21 @@ object AppProvides {
             .create(CoinGeckoService::class.java)
 
         return CoinGeckoServiceWrapper(service)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBinanceService(
+        moshi: Moshi,
+        clientProvider: Provider<OkHttpClient>,
+    ): BinanceService {
+        val service = Retrofit.Builder()
+            .baseUrl(BinanceService.BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .callFactory { clientProvider.get().newCall(it) }
+            .build()
+            .create(BinanceService::class.java)
+        return BinanceServiceWrapper(service)
     }
 
     @Provides

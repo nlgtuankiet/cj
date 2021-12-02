@@ -74,6 +74,15 @@ data class CoinTickerConfig(
     val amount: Double? = 1.0,
 ) {
 
+    fun asDataLoadParams(): CoinTickerDisplayData.LoadParam {
+        return CoinTickerDisplayData.LoadParam(
+            coinId = coinId,
+            exchange = exchange,
+            currency = currency,
+            changeInterval = changeInterval,
+        )
+    }
+
     fun getRefreshMilis(): Long {
         return refreshIntervalUnit.toMillis(refreshInterval)
     }
