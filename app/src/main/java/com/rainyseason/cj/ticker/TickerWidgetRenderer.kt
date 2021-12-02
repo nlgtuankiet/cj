@@ -125,22 +125,9 @@ class TickerWidgetRenderer @Inject constructor(
                     PendingIntent.FLAG_UPDATE_CURRENT
                 )
             }
+            // migrate switch action to open coin detail
+            CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL,
             CoinTickerConfig.ClickAction.SWITCH_PRICE_MARKET_CAP -> {
-                val intent = Intent()
-                intent.component = componentName
-                intent.action = CoinTickerConfig.Action.SWITCH_ACTION
-                intent.putExtra(
-                    AppWidgetManager.EXTRA_APPWIDGET_ID,
-                    params.config.widgetId,
-                )
-                PendingIntent.getBroadcast(
-                    context,
-                    params.config.widgetId,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
-                )
-            }
-            CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL -> {
                 val intent = MainActivity.coinDetailIntent(context, config.coinId)
                 PendingIntent.getActivity(
                     context,

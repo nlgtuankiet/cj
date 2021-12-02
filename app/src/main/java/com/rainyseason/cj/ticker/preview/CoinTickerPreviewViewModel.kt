@@ -122,16 +122,30 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 roundToMillion = userSetting.roundToMillion,
                 currency = userSetting.currencyCode,
                 sizeAdjustment = userSetting.sizeAdjustment,
+                clickAction = if (args.isExChange) {
+                    CoinTickerConfig.ClickAction.REFRESH
+                } else {
+                    CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL
+                }
             )
             coinTickerRepository.setConfig(widgetId, config)
         } else {
             val newConfig = lastConfig.copy(
                 coinId = args.coinId,
                 exchange = args.exchange,
-                showCurrencySymbol = if (args.exchange == null) {
-                    lastConfig.showCurrencySymbol
-                } else {
+                showCurrencySymbol = if (args.isExChange) {
                     false
+                } else {
+                    lastConfig.showCurrencySymbol
+                },
+                clickAction = if (args.isExChange) {
+                    if (lastConfig.clickAction == CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL) {
+                        CoinTickerConfig.ClickAction.REFRESH
+                    } else {
+                        lastConfig.clickAction
+                    }
+                } else {
+                    lastConfig.clickAction
                 }
             )
             coinTickerRepository.setConfig(widgetId, newConfig)

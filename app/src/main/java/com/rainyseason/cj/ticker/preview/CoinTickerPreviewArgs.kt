@@ -10,4 +10,7 @@ data class CoinTickerPreviewArgs(
     val coinId: String,
     val layout: String,
     val exchange: Exchange?
-) : Parcelable
+) : Parcelable {
+    val isExChange: Boolean
+        get() = exchange != null
+}

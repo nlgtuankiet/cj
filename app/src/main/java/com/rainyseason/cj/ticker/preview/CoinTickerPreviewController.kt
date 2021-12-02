@@ -445,6 +445,13 @@ class CoinTickerPreviewController(
             CoinTickerConfig.ClickAction.SETTING
                 to R.string.coin_ticker_preview_setting_header_click_action_setting,
         ).map { it.first to context.getString(it.second) }
+            .let {
+                if (config.isExchange) {
+                    it.filter { p -> p.first != CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL }
+                } else {
+                    it
+                }
+            }
         val selectedOption = config.clickAction
         maybeBuildHorizontalSeparator(id = "setting_click_action_separator")
         settingTitleSummaryView {

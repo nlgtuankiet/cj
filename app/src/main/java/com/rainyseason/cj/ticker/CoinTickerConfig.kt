@@ -154,11 +154,8 @@ data class CoinTickerConfig(
     object ClickAction {
         const val REFRESH = "refresh"
         const val SETTING = "setting"
+        @Deprecated(message = "Will remove this after some versio")
         const val SWITCH_PRICE_MARKET_CAP = "switch_price_market_cap"
         const val OPEN_COIN_DETAIL = "open_coin_detail"
-    }
-
-    object Action {
-        const val SWITCH_ACTION = "com.rainyseason.cj.widget.cointicker.switch"
     }
 }
