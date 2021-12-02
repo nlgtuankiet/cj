@@ -2,6 +2,8 @@ package com.rainyseason.cj.ticker
 
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.Theme
+import com.rainyseason.cj.common.model.Exchange
+import com.rainyseason.cj.common.model.TimeInterval
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.util.concurrent.TimeUnit
@@ -16,6 +18,9 @@ data class CoinTickerConfig(
 
     @Json(name = "coin_id")
     val coinId: String,
+
+    @Json(name = "exchange")
+    val exchange: Exchange? = null,
 
     @Json(name = "number_of_price_decimal")
     val numberOfAmountDecimal: Int? = 2,
@@ -35,11 +40,8 @@ data class CoinTickerConfig(
     @Json(name = "show_thousands_separator")
     val showThousandsSeparator: Boolean = true,
 
-    @Json(name = "bottom_content_type")
-    val bottomContentType: String = BottomContentType.PRICE,
-
     @Json(name = "change_interval")
-    val changeInterval: String = ChangeInterval._24H,
+    val changeInterval: TimeInterval = TimeInterval.I_24H,
 
     @Json(name = "layout")
     val layout: String = Layout.GRAPH,
@@ -85,8 +87,7 @@ data class CoinTickerConfig(
             "refresh_interval_seconds" to refreshIntervalUnit.toSeconds(refreshInterval),
             "theme" to theme,
             "show_thousands_separator" to showThousandsSeparator,
-            "bottom_content_type" to bottomContentType,
-            "change_interval" to changeInterval,
+            "change_interval" to changeInterval.id,
             "layout" to layout,
             "click_action" to clickAction,
             "show_currency_symbol" to showCurrencySymbol,

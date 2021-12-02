@@ -14,6 +14,7 @@ import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.inflater
+import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.setCancelButton
 import com.rainyseason.cj.common.showKeyboard
 import com.rainyseason.cj.common.view.IntLabelFormater
@@ -25,8 +26,6 @@ import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.common.view.settingSliderView
 import com.rainyseason.cj.common.view.settingSwitchView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
-import com.rainyseason.cj.ticker.BottomContentType
-import com.rainyseason.cj.ticker.ChangeInterval
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.view.CoinTickerPreviewViewModel_
 import java.util.Locale
@@ -85,7 +84,6 @@ class CoinTickerPreviewController(
         }
 
         buildAmount(state)
-        buildBottomContentType(state)
     }
 
     private fun buildChangePercentGroup(state: CoinTickerPreviewState) {
@@ -485,55 +483,18 @@ class CoinTickerPreviewController(
         }
     }
 
-    private fun buildBottomContentType(state: CoinTickerPreviewState) {
-        val config = state.config ?: return
-        val summary = when (val contentType = config.bottomContentType) {
-            BottomContentType.PRICE -> R.string.coin_ticker_preview_setting_bottom_content_price
-            BottomContentType.MARKET_CAP ->
-                R.string.coin_ticker_preview_setting_bottom_content_market_cap
-            else -> error("contentType: $contentType")
-        }
-        maybeBuildHorizontalSeparator(id = "bottom_content_type_separator")
-        settingTitleSummaryView {
-            id("bottom-content-type")
-            title(R.string.coin_ticker_preview_setting_bottom_content_type)
-            summary(summary)
-            onClickListener { _ ->
-                val options = listOf(
-                    BottomContentType.PRICE
-                        to R.string.coin_ticker_preview_setting_bottom_content_price,
-                    BottomContentType.MARKET_CAP
-                        to R.string.coin_ticker_preview_setting_bottom_content_market_cap,
-                )
-                val currentState = withState(viewModel) { it }
-                val currentContentType = currentState.config!!.bottomContentType
-                AlertDialog.Builder(context)
-                    .setTitle(R.string.coin_ticker_preview_setting_bottom_content_type)
-                    .setCancelButton()
-                    .setSingleChoiceItems(
-                        options.map { context.getString(it.second) }.toTypedArray(),
-                        options.indexOfFirst { it.first == currentContentType }
-                    ) { dialog, which ->
-                        viewModel.setBottomContentType(options[which].first)
-                        dialog.dismiss()
-                    }
-                    .show()
-            }
-        }
-    }
-
     private fun buildChangePercentInternal(state: CoinTickerPreviewState) {
         val config = state.config ?: return
         val mapping = listOf(
-            ChangeInterval._24H
+            TimeInterval.I_24H
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
-            ChangeInterval._7D
+            TimeInterval.I_7D
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
-            ChangeInterval._14D
+            TimeInterval.I_14D
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_14d,
-            ChangeInterval._30D
+            TimeInterval.I_30D
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
-            ChangeInterval._1Y
+            TimeInterval.I_1Y
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_1y,
         ).toMap()
 
@@ -548,7 +509,7 @@ class CoinTickerPreviewController(
             onClickListener { _ ->
                 val currentState = withState(viewModel) { it }
                 val currentConfig = currentState.config!!
-                val options = ChangeInterval.ALL_PRICE_INTERVAL
+                val options = TimeInterval.ALL_PRICE_INTERVAL
                 val currentInterval = currentConfig.changeInterval
                 AlertDialog.Builder(context)
                     .setTitle(

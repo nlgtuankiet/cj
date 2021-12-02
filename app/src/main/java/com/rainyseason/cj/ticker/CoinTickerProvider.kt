@@ -29,15 +29,6 @@ abstract class CoinTickerProvider : AppWidgetProvider() {
         coinTickerHandler = context.coreComponent.coinTickerHandler
         coinTickerRepository = context.coreComponent.coinTickerRepository
         appWidgetManager = context.coreComponent.appWidgetManager
-        val action = intent.action
-        if (action == CoinTickerConfig.Action.SWITCH_ACTION) {
-            goBackground {
-                coinTickerHandler.switchPriceAndMarketCap(
-                    widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
-                )
-            }
-        }
-
         super.onReceive(context, intent)
     }
 

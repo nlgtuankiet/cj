@@ -96,10 +96,11 @@ class CoinTickerSettingActivity :
         setContentView(R.layout.activity_coin_ticker_setting)
 
         val coinId = intent.extras?.getString(COIN_ID_EXTRA)
+        val exchangeId = intent.extras?.getString("exchange_id")
         if (coinId != null) {
             if (savedInstanceState == null) {
                 // on recreate we are already at preview screen
-                navigator.moveToPreview(coinId)
+                navigator.moveToPreview(coinId, exchangeId)
             }
         }
 

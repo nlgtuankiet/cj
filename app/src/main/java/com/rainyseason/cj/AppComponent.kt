@@ -23,6 +23,7 @@ import com.rainyseason.cj.coinstat.CoinStatFragmentModule
 import com.rainyseason.cj.common.AppDnsSelector
 import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
+import com.rainyseason.cj.common.model.ExchangeJsonAdapter
 import com.rainyseason.cj.common.model.ThemeJsonAdapter
 import com.rainyseason.cj.common.model.TimeIntervalJsonAdapter
 import com.rainyseason.cj.data.CoinHistory
@@ -205,6 +206,7 @@ object AppProvides {
             .addAdapter(TimeIntervalJsonAdapter)
             .addAdapter(WatchWidgetLayoutJsonAdapter)
             .addAdapter(ThemeJsonAdapter)
+            .addAdapter(ExchangeJsonAdapter)
             .addAdapter(WatchClickActionJsonAdapter)
             .build()
     }

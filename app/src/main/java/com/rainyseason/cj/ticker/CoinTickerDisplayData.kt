@@ -2,6 +2,8 @@ package com.rainyseason.cj.ticker
 
 import android.graphics.Bitmap
 import com.rainyseason.cj.common.changePercent
+import com.rainyseason.cj.common.model.Exchange
+import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.MarketChartResponse
 import com.squareup.moshi.Json
@@ -44,31 +46,17 @@ data class CoinTickerDisplayData(
     val marketCapGraph: List<List<Double>>? = null,
 ) {
 
-    fun getChangePercent(config: CoinTickerConfig): Double? {
-        return when (config.bottomContentType) {
-            BottomContentType.PRICE -> priceChangePercent
-            BottomContentType.MARKET_CAP -> marketCapChangePercent
-            else -> error("Unknown ${config.bottomContentType}")
-        }
-    }
+    data class LoadParam(
+        val coinId: String,
+        val exchange: Exchange,
+
+    )
 
     fun getAmount(config: CoinTickerConfig): Double? {
-        return when (config.bottomContentType) {
-            BottomContentType.PRICE -> if (price == null) {
-                null
-            } else {
-                price * (config.amount ?: 1.0)
-            }
-            BottomContentType.MARKET_CAP -> marketCap
-            else -> error("Unknown ${config.bottomContentType}")
-        }
-    }
-
-    fun getGraphData(config: CoinTickerConfig): List<List<Double>>? {
-        return when (config.bottomContentType) {
-            BottomContentType.PRICE -> priceGraph
-            BottomContentType.MARKET_CAP -> marketCapGraph
-            else -> error("Unknown ${config.bottomContentType}")
+        return if (price == null) {
+            null
+        } else {
+            price * (config.amount ?: 1.0)
         }
     }
 
@@ -79,21 +67,21 @@ data class CoinTickerDisplayData(
         fun create(
             config: CoinTickerConfig,
             coinDetail: CoinDetailResponse,
-            marketChartResponse: Map<String, MarketChartResponse?>,
+            marketChartResponse: Map<TimeInterval, MarketChartResponse?>,
             price: Double?,
         ): CoinTickerDisplayData {
             val currencyCode = config.currency
             val priceChangePercent = when (config.changeInterval) {
-                ChangeInterval._7D ->
+                TimeInterval.I_7D ->
                     coinDetail.marketData
                         .priceChangePercentage7dInCurrency[currencyCode]
-                ChangeInterval._14D ->
+                TimeInterval.I_14D ->
                     coinDetail.marketData
                         .priceChangePercentage14dInCurrency[currencyCode]
-                ChangeInterval._30D ->
+                TimeInterval.I_30D ->
                     coinDetail.marketData
                         .priceChangePercentage30dInCurrency[currencyCode]
-                ChangeInterval._1Y ->
+                TimeInterval.I_1Y ->
                     coinDetail.marketData
                         .priceChangePercentage1yInCurrency[currencyCode]
                 else ->

@@ -102,6 +102,7 @@ class CoinDetailViewModel @AssistedInject constructor(
             TimeInterval.I_1H -> TimeInterval.I_24H
             TimeInterval.I_24H -> TimeInterval.I_24H
             TimeInterval.I_7D -> TimeInterval.I_30D
+            TimeInterval.I_14D -> TimeInterval.I_30D
             TimeInterval.I_30D -> TimeInterval.I_30D
             TimeInterval.I_90D -> TimeInterval.I_1Y
             TimeInterval.I_1Y -> TimeInterval.I_1Y
@@ -125,7 +126,9 @@ class CoinDetailViewModel @AssistedInject constructor(
             TimeInterval.I_7D -> priceGraph.filter {
                 it[0] > currentTime - TimeUnit.DAYS.toMillis(7)
             }
-
+            TimeInterval.I_14D -> priceGraph.filter {
+                it[0] > currentTime - TimeUnit.DAYS.toMillis(14)
+            }
             TimeInterval.I_30D -> priceGraph
             TimeInterval.I_90D -> priceGraph.filter {
                 it[0] > currentTime - TimeUnit.DAYS.toMillis(90)

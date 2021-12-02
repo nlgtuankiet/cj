@@ -8,6 +8,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.ActivityScope
 import com.rainyseason.cj.common.dismissKeyboard
+import com.rainyseason.cj.common.model.Exchange
 import com.rainyseason.cj.common.putArgs
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewArgs
 import javax.inject.Inject
@@ -24,7 +25,7 @@ class CoinTickerNavigator @Inject constructor(
         return navHostFragment.navController
     }
 
-    fun moveToPreview(coinId: String) {
+    fun moveToPreview(coinId: String, exchangeId: String? = null) {
         activity.window?.decorView?.dismissKeyboard()
         val widgetId = activity.getWidgetId()!!
         val componentName = appWidgetManager.getAppWidgetInfo(widgetId)?.provider
@@ -34,6 +35,7 @@ class CoinTickerNavigator @Inject constructor(
             widgetId = widgetId,
             coinId = coinId,
             layout = layout,
+            exchange = exchangeId?.let { Exchange.from(exchangeId) }
         )
 
         getNavHostController().navigate(R.id.preview, Bundle().putArgs(args))

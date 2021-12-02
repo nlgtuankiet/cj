@@ -170,7 +170,7 @@ class TickerWidgetRenderer @Inject constructor(
         remoteViews.bindLoading(params)
 
         // bind container
-        val backgroundRes = if ((renderData.getChangePercent(config) ?: 0.0) > 0) {
+        val backgroundRes = if ((renderData.priceChangePercent ?: 0.0) > 0) {
             select(
                 config.theme,
                 R.drawable.coin_ticker_background_positive_light,
@@ -212,7 +212,7 @@ class TickerWidgetRenderer @Inject constructor(
         remoteViews.bindLoading(params)
 
         // bind container
-        val backgroundRes = if ((renderData.getChangePercent(config) ?: 0.0) > 0) {
+        val backgroundRes = if ((renderData.priceChangePercent ?: 0.0) > 0) {
             select(
                 config.theme,
                 R.drawable.coin_ticker_background_positive_light,
@@ -499,7 +499,7 @@ class TickerWidgetRenderer @Inject constructor(
     ) {
         val data = params.data
         val config = params.config
-        val graphData = data.getGraphData(config).orEmpty()
+        val graphData = data.priceGraph.orEmpty()
         if (graphData.size >= 2) {
             container.mesureAndLayout(config)
             val width = imageView.measuredWidth.toFloat()
@@ -725,7 +725,7 @@ class TickerWidgetRenderer @Inject constructor(
 
         @Suppress("UnnecessaryVariable")
         val content = buildSpannedString {
-            val amount = data.getChangePercent(config)
+            val amount = data.priceChangePercent
 
             if (amount != null) {
                 val color = if (amount > 0) {

@@ -64,17 +64,4 @@ class CoinTickerHandler @Inject constructor(
         renderer.render(view, params)
         appWidgetManager.updateAppWidget(widgetId, view)
     }
-
-    suspend fun switchPriceAndMarketCap(widgetId: Int) {
-        val config = coinTickerRepository.getConfig(widgetId = widgetId) ?: return
-        val newConfig = config.copy(
-            bottomContentType = when (config.bottomContentType) {
-                BottomContentType.PRICE -> BottomContentType.MARKET_CAP
-                BottomContentType.MARKET_CAP -> BottomContentType.PRICE
-                else -> error("Unknown ${config.bottomContentType}")
-            }
-        )
-        coinTickerRepository.setConfig(widgetId, newConfig)
-        rerender(widgetId)
-    }
 }

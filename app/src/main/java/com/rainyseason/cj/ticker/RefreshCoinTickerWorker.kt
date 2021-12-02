@@ -11,6 +11,8 @@ import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.common.exception.logFallbackPrice
 import com.rainyseason.cj.common.hasValidNetworkConnection
 import com.rainyseason.cj.common.isInBatteryOptimize
+import com.rainyseason.cj.common.model.TimeInterval
+import com.rainyseason.cj.common.model.asDayString
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.currentPrice
 import com.rainyseason.cj.data.local.CoinTickerRepository
@@ -128,17 +130,10 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
             val graphResponse = coinGeckoService.getMarketChart(
                 id = config.coinId,
                 vsCurrency = configCurrency,
-                day = when (config.changeInterval) {
-                    ChangeInterval._24H -> 1
-                    ChangeInterval._7D -> 7
-                    ChangeInterval._14D -> 14
-                    ChangeInterval._30D -> 30
-                    ChangeInterval._1Y -> 365
-                    else -> error("Unknown ${config.changeInterval}")
-                }.toString()
+                day = config.changeInterval.asDayString()!!
             )
 
-            val marketPrice = if (config.changeInterval == ChangeInterval._24H) {
+            val marketPrice = if (config.changeInterval == TimeInterval.I_24H) {
                 graphResponse.currentPrice()
             } else {
                 coinGeckoService.getMarketChart(
