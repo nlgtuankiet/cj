@@ -51,7 +51,7 @@ class TraceManager @Inject constructor(
 
 data class CoinSelectTTI(
     override val key: String,
-) : TraceParam(key = key, name = "coin_select_tti")
+) : TraceParam(key = key, name = "coin_ticker_list_tti")
 
 data class CoinTickerPreviewTTI(
     override val key: String,
