@@ -1,6 +1,6 @@
 package com.rainyseason.cj.ticker.usecase
 
-import com.rainyseason.cj.common.model.Exchange
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import javax.inject.Inject
 
@@ -10,9 +10,9 @@ class GetDisplayData @Inject constructor(
 ) {
 
     suspend operator fun invoke(param: CoinTickerDisplayData.LoadParam): CoinTickerDisplayData {
-        return when (param.exchange) {
-            Exchange.Binance -> getBinanceDisplayData(param)
-            null -> getCoinGeckoDisplayData(param)
+        return when (param.backend) {
+            Backend.Binance -> getBinanceDisplayData(param)
+            Backend.CoinGecko -> getCoinGeckoDisplayData(param)
         }
     }
 }

@@ -1,7 +1,7 @@
 package com.rainyseason.cj.ticker.usecase
 
 import com.rainyseason.cj.common.changePercent
-import com.rainyseason.cj.common.model.Exchange
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.data.binance.BinanceService
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
@@ -47,9 +47,9 @@ class GetBinanceDisplayData @Inject constructor(
             val tickerPrice = tickerPriceAsync.await()
 
             CoinTickerDisplayData(
-                iconUrl = Exchange.Binance.iconUrl,
+                iconUrl = Backend.Binance.iconUrl,
                 symbol = "${symbolDetail.baseAsset}/${symbolDetail.quoteAsset}",
-                name = param.exchange?.displayName ?: "",
+                name = param.backend.displayName,
                 price = tickerPrice.price,
                 priceChangePercent = kLinesResponse.changePercent()?.let { it * 100 },
                 priceGraph = kLinesResponse

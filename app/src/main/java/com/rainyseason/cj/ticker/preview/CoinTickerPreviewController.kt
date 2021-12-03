@@ -306,7 +306,7 @@ class CoinTickerPreviewController(
 
     private fun buildShowCurrencySymbol(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        if (config.exchange != null) {
+        if (config.backend.isExchange) {
             return
         }
         maybeBuildHorizontalSeparator(id = "show_currency_separator")
@@ -446,7 +446,7 @@ class CoinTickerPreviewController(
                 to R.string.coin_ticker_preview_setting_header_click_action_setting,
         ).map { it.first to context.getString(it.second) }
             .let {
-                if (config.isExchange) {
+                if (config.backend.isExchange) {
                     it.filter { p -> p.first != CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL }
                 } else {
                     it

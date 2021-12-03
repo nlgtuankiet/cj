@@ -1,7 +1,7 @@
 package com.rainyseason.cj.ticker
 
 import android.graphics.Bitmap
-import com.rainyseason.cj.common.model.Exchange
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.TimeInterval
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -36,7 +36,7 @@ data class CoinTickerDisplayData(
 
     data class LoadParam(
         val coinId: String,
-        val exchange: Exchange?,
+        val backend: Backend,
         val currency: String,
         val changeInterval: TimeInterval,
     )

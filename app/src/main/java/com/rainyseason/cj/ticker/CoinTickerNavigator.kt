@@ -8,7 +8,7 @@ import androidx.navigation.fragment.NavHostFragment
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.ActivityScope
 import com.rainyseason.cj.common.dismissKeyboard
-import com.rainyseason.cj.common.model.Exchange
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.putArgs
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewArgs
 import javax.inject.Inject
@@ -35,7 +35,7 @@ class CoinTickerNavigator @Inject constructor(
             widgetId = widgetId,
             coinId = coinId,
             layout = layout,
-            exchange = exchangeId?.let { Exchange.from(exchangeId) }
+            backend = Backend.from(exchangeId)
         )
 
         getNavHostController().navigate(R.id.preview, Bundle().putArgs(args))

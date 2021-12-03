@@ -108,21 +108,21 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 widgetId = widgetId,
                 coinId = args.coinId,
                 layout = args.layout,
-                exchange = args.exchange,
+                backend = args.backend,
                 numberOfAmountDecimal = userSetting.amountDecimals,
                 numberOfChangePercentDecimal = userSetting.numberOfChangePercentDecimal,
                 refreshInterval = userSetting.refreshInterval,
                 refreshIntervalUnit = userSetting.refreshIntervalUnit,
                 showThousandsSeparator = userSetting.showThousandsSeparator,
-                showCurrencySymbol = if (args.exchange == null) {
-                    userSetting.showCurrencySymbol
-                } else {
+                showCurrencySymbol = if (args.backend.isExchange) {
                     false
+                } else {
+                    userSetting.showCurrencySymbol
                 },
                 roundToMillion = userSetting.roundToMillion,
                 currency = userSetting.currencyCode,
                 sizeAdjustment = userSetting.sizeAdjustment,
-                clickAction = if (args.isExChange) {
+                clickAction = if (args.backend.isExchange) {
                     CoinTickerConfig.ClickAction.REFRESH
                 } else {
                     CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL
@@ -132,13 +132,13 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         } else {
             val newConfig = lastConfig.copy(
                 coinId = args.coinId,
-                exchange = args.exchange,
-                showCurrencySymbol = if (args.isExChange) {
+                backend = args.backend,
+                showCurrencySymbol = if (args.backend.isExchange) {
                     false
                 } else {
                     lastConfig.showCurrencySymbol
                 },
-                clickAction = if (args.isExChange) {
+                clickAction = if (args.backend.isExchange) {
                     if (lastConfig.clickAction == CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL) {
                         CoinTickerConfig.ClickAction.REFRESH
                     } else {

@@ -2,7 +2,7 @@ package com.rainyseason.cj.ticker
 
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.Theme
-import com.rainyseason.cj.common.model.Exchange
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.TimeInterval
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -19,8 +19,8 @@ data class CoinTickerConfig(
     @Json(name = "coin_id")
     val coinId: String,
 
-    @Json(name = "exchange")
-    val exchange: Exchange? = null,
+    @Json(name = "backend")
+    val backend: Backend = Backend.CoinGecko,
 
     @Json(name = "number_of_price_decimal")
     val numberOfAmountDecimal: Int? = 2,
@@ -74,13 +74,10 @@ data class CoinTickerConfig(
     val amount: Double? = 1.0,
 ) {
 
-    val isExchange: Boolean
-        get() = exchange != null
-
     fun asDataLoadParams(): CoinTickerDisplayData.LoadParam {
         return CoinTickerDisplayData.LoadParam(
             coinId = coinId,
-            exchange = exchange,
+            backend = backend,
             currency = currency,
             changeInterval = changeInterval,
         )
@@ -94,6 +91,7 @@ data class CoinTickerConfig(
         return mapOf(
             "widget_id" to widgetId,
             "coin_id" to coinId,
+            "backend" to backend.id,
             "number_of_price_decimal" to numberOfAmountDecimal,
             "number_of_change_percent_decimal" to numberOfChangePercentDecimal,
             "refresh_interval_seconds" to refreshIntervalUnit.toSeconds(refreshInterval),

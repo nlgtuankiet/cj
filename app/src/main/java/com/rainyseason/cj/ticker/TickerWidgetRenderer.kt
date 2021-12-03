@@ -265,7 +265,7 @@ class TickerWidgetRenderer @Inject constructor(
         remoteViews.applyClickAction(params)
 
         // bind symbol
-        binding.symbol.text = if (config.isExchange) {
+        binding.symbol.text = if (config.backend.isExchange) {
             renderData.name
         } else {
             renderData.symbol
@@ -294,7 +294,7 @@ class TickerWidgetRenderer @Inject constructor(
         binding.changePercent.text = formatChange(params)
 
         // bind name
-        binding.name.text = if (config.isExchange) {
+        binding.name.text = if (config.backend.isExchange) {
             renderData.symbol
         } else {
             renderData.name
