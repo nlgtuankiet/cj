@@ -6,7 +6,11 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.rainyseason.cj.common.model.Backend
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonClass
+import com.squareup.moshi.JsonQualifier
+import com.squareup.moshi.JsonReader
+import com.squareup.moshi.JsonWriter
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -85,12 +89,36 @@ data class CoinHistoryEntry(
     val symbol: String,
     @Json(name = "name")
     val name: String,
+    @NullToCoinGeckoUrl // iconUrl is String? in the pass
     @Json(name = "icon_url")
     val iconUrl: String = Backend.CoinGecko.iconUrl,
     @Json(name = "backend")
     val backend: Backend = Backend.CoinGecko
 ) {
     val uniqueId: String = "${backend.id}_$id"
+
+    @Retention(AnnotationRetention.RUNTIME)
+    @JsonQualifier
+    annotation class NullToCoinGeckoUrl
+
+    object NullIconUrlToCoinGeckoUrlAdapter : JsonAdapter<String>() {
+        override fun fromJson(reader: JsonReader): String {
+            return if (reader.peek() == JsonReader.Token.NULL) {
+                reader.nextNull<String>()
+                Backend.CoinGecko.iconUrl
+            } else {
+                reader.nextString()
+            }
+        }
+
+        override fun toJson(writer: JsonWriter, value: String?) {
+            if (value == null) {
+                writer.value(Backend.CoinGecko.iconUrl)
+            } else {
+                writer.value(value)
+            }
+        }
+    }
 }
 
 @Qualifier

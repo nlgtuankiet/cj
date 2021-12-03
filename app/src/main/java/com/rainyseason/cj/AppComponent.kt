@@ -28,6 +28,7 @@ import com.rainyseason.cj.common.model.BackendJsonAdapter
 import com.rainyseason.cj.common.model.ThemeJsonAdapter
 import com.rainyseason.cj.common.model.TimeIntervalJsonAdapter
 import com.rainyseason.cj.data.CoinHistory
+import com.rainyseason.cj.data.CoinHistoryEntry
 import com.rainyseason.cj.data.CommonStorage
 import com.rainyseason.cj.data.ForceCacheInterceptor
 import com.rainyseason.cj.data.NetworkUrlLoggerInterceptor
@@ -204,11 +205,16 @@ object AppProvides {
         return Call.Factory { request -> clientProvider.get().newCall(request) }
     }
 
-    @ExperimentalStdlibApi
+    @OptIn(ExperimentalStdlibApi::class)
     @Provides
     @Singleton
     fun moshi(): Moshi {
         return Moshi.Builder()
+            .add(
+                String::class.java,
+                CoinHistoryEntry.NullToCoinGeckoUrl::class.java,
+                CoinHistoryEntry.NullIconUrlToCoinGeckoUrlAdapter
+            )
             .addAdapter(TimeIntervalJsonAdapter)
             .addAdapter(WatchWidgetLayoutJsonAdapter)
             .addAdapter(ThemeJsonAdapter)
