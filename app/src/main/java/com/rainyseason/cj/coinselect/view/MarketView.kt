@@ -2,9 +2,11 @@ package com.rainyseason.cj.coinselect.view
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.view.isGone
 import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
@@ -19,12 +21,13 @@ class MarketView @JvmOverloads constructor(
     attributeSet: AttributeSet? = null
 ) : FrameLayout(context, attributeSet) {
     init {
-        inflateAndAdd(R.layout.coin_select_market_view)
+        inflateAndAdd(R.layout.coin_select_entry_view)
     }
 
     private val icon: ImageView = findViewById(R.id.icon)
     private val name: TextView = findViewById(R.id.name)
     private val symbol: TextView = findViewById(R.id.symbol)
+    private val cancel: View = findViewById(R.id.cancel_button)
 
     @ModelProp
     fun setIconUrl(value: String) {
@@ -47,4 +50,12 @@ class MarketView @JvmOverloads constructor(
     override fun setOnClickListener(l: OnClickListener?) {
         super.setOnClickListener(l)
     }
+
+    @CallbackProp
+    fun setOnClearClickListener(l: OnClickListener?) {
+        cancel.setOnClickListener(l)
+        cancel.isGone = l == null
+    }
+
+
 }

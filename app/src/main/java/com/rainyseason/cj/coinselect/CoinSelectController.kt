@@ -12,7 +12,6 @@ import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
-import com.rainyseason.cj.coinselect.view.coinView
 import com.rainyseason.cj.coinselect.view.historyView
 import com.rainyseason.cj.coinselect.view.marketView
 import com.rainyseason.cj.common.BuildState
@@ -21,6 +20,7 @@ import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.dismissKeyboard
 import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.loadingView
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.view.emptyView
 import com.rainyseason.cj.common.view.retryView
 import com.rainyseason.cj.common.view.settingHeaderView
@@ -105,12 +105,12 @@ class CoinSelectController @AssistedInject constructor(
         }
 
         historyEntries.forEach { entry ->
-            historyView {
+            marketView {
                 id("history_${entry.id}")
                 name(entry.name)
                 symbol(entry.symbol)
                 iconUrl(entry.iconUrl)
-                onCancelClickListener { _ ->
+                onClearClickListener { _ ->
                     viewModel.removeHistory(id = entry.id)
                 }
                 onClickListener { view ->
@@ -122,6 +122,7 @@ class CoinSelectController @AssistedInject constructor(
                             iconUrl = entry.iconUrl,
                         )
                     )
+                    // fixme
                     moveToResult(view, coinId = entry.id)
                 }
             }
@@ -190,13 +191,14 @@ class CoinSelectController @AssistedInject constructor(
         return BuildState.Next
     }
 
-    private fun moveToResult(view: View, coinId: String) {
+    private fun moveToResult(view: View, coinId: String, backend: Backend = Backend.CoinGecko) {
         view.dismissKeyboard()
         val controller = view.findNavController()
         controller.navigate(
             resultDestination,
             Bundle().apply {
                 putString("coin_id", coinId)
+                putString("backend_id", backend.id)
             }
         )
     }
@@ -263,17 +265,18 @@ class CoinSelectController @AssistedInject constructor(
         }
 
         orderedList.forEach { entry ->
-            coinView {
+            marketView {
                 id(entry.id)
                 name(entry.name)
                 symbol(entry.symbol)
+                iconUrl(Backend.CoinGecko.iconUrl)
                 onClickListener { view ->
                     viewModel.addToHistory(
                         CoinHistoryEntry(
                             id = entry.id,
-                            name = entry.name,
                             symbol = entry.symbol,
-                            iconUrl = null,
+                            iconUrl = Backend.CoinGecko.iconUrl,
+                            name = entry.name,
                         )
                     )
                     moveToResult(view, coinId = entry.id)

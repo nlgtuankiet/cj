@@ -40,6 +40,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.ModelCollector
+import com.airbnb.mvrx.FragmentViewModelContext
+import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -291,3 +293,6 @@ fun List<List<Double>>.reverseValue(): List<List<Double>> {
         listOf(point[0], this[this.size - 1 - index][1])
     }
 }
+
+fun <F : Fragment> ViewModelContext.fragment(): F
+    = (this as FragmentViewModelContext).fragment()

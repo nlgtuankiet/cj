@@ -7,6 +7,8 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.annotation.IdRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -18,6 +20,7 @@ import com.airbnb.epoxy.EpoxyVisibilityTracker
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
+import com.rainyseason.cj.coinstat.CoinStatState
 import com.rainyseason.cj.common.CoinSelectTTI
 import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.setTextIfDifferent
@@ -107,6 +110,19 @@ class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksVie
 
         recyclerView.setController(controller)
         EpoxyVisibilityTracker().attach(recyclerView)
+
+        val onBackPressedCallback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                viewModel.back()
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher
+            .addCallback(viewLifecycleOwner, onBackPressedCallback)
+
+        viewModel.onEach(CoinSelectState::backend) { backend ->
+            onBackPressedCallback.isEnabled = !backend.isDefault
+        }
     }
 
     override fun invalidate() {

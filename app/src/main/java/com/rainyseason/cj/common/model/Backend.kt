@@ -24,6 +24,9 @@ enum class Backend(
     val isExchange: Boolean
         get() = this != CoinGecko
 
+    val isDefault: Boolean
+        get() = this == CoinGecko
+
     companion object {
         fun from(id: String?): Backend {
             if (id == null) {

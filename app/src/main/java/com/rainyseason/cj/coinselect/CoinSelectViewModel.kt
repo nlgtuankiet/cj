@@ -1,5 +1,6 @@
 package com.rainyseason.cj.coinselect
 
+import androidx.activity.OnBackPressedCallback
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.MavericksState
@@ -7,6 +8,8 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.rainyseason.cj.common.fragment
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.data.CoinHistoryEntry
 import com.rainyseason.cj.data.CoinHistoryRepository
 import com.rainyseason.cj.data.UserSettingRepository
@@ -33,6 +36,7 @@ data class CoinSelectState(
     val list: Async<List<CoinListEntry>> = Uninitialized,
     val history: Async<List<CoinHistoryEntry>> = Uninitialized,
     val keyword: String = "",
+    val backend: Backend,
 ) : MavericksState
 
 class CoinSelectViewModel @AssistedInject constructor(
@@ -60,6 +64,10 @@ class CoinSelectViewModel @AssistedInject constructor(
                 .distinctUntilChanged()
                 .collect { setState { copy(keyword = it) } }
         }
+    }
+
+    fun back() {
+        setState { copy(backend = Backend.CoinGecko) }
     }
 
     fun submitNewKeyword(newKeyword: String) {
@@ -105,13 +113,15 @@ class CoinSelectViewModel @AssistedInject constructor(
             viewModelContext: ViewModelContext,
             state: CoinSelectState,
         ): CoinSelectViewModel {
-            val fragment =
-                (viewModelContext as FragmentViewModelContext).fragment<CoinSelectFragment>()
+            val fragment = viewModelContext.fragment<CoinSelectFragment>()
             return fragment.viewModelFactory.create(state)
         }
 
         override fun initialState(viewModelContext: ViewModelContext): CoinSelectState {
-            return CoinSelectState()
+            val fragment = viewModelContext.fragment<CoinSelectFragment>()
+            return CoinSelectState(
+                backend = Backend.from(fragment.arguments?.getString("backend_id"))
+            )
         }
     }
 }

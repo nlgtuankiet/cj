@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.rainyseason.cj.common.model.Backend
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
@@ -85,7 +86,7 @@ data class CoinHistoryEntry(
     @Json(name = "name")
     val name: String,
     @Json(name = "icon_url")
-    val iconUrl: String?
+    val iconUrl: String = Backend.CoinGecko.iconUrl
 
 )
 
