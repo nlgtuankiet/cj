@@ -20,7 +20,6 @@ import com.airbnb.epoxy.EpoxyVisibilityTracker
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
-import com.rainyseason.cj.coinstat.CoinStatState
 import com.rainyseason.cj.common.CoinSelectTTI
 import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.setTextIfDifferent

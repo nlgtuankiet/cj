@@ -13,10 +13,17 @@ data class SymbolInfoResponse(
      */
     @JsonClass(generateAdapter = true)
     data class Symbol(
+        @Json(name = "symbol")
+        val symbol: String,
+
         @Json(name = "baseAsset")
         val baseAsset: String,
 
         @Json(name = "quoteAsset")
         val quoteAsset: String,
-    )
+    ) {
+        fun displayName(): String {
+            return "$baseAsset/$quoteAsset"
+        }
+    }
 }

@@ -86,9 +86,12 @@ data class CoinHistoryEntry(
     @Json(name = "name")
     val name: String,
     @Json(name = "icon_url")
-    val iconUrl: String = Backend.CoinGecko.iconUrl
-
-)
+    val iconUrl: String = Backend.CoinGecko.iconUrl,
+    @Json(name = "backend")
+    val backend: Backend = Backend.CoinGecko
+) {
+    val uniqueId: String = "${backend.id}_$id"
+}
 
 @Qualifier
 annotation class CoinHistory

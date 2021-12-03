@@ -23,7 +23,7 @@ import retrofit2.http.Query
  */
 interface BinanceService {
     @GET("api/v3/exchangeInfo")
-    suspend fun getSymbolDetail(@Query("symbol") symbol: String): SymbolInfoResponse
+    suspend fun getSymbolDetail(@Query("symbol") symbol: String? = null): SymbolInfoResponse
 
     @GET("/api/v3/klines")
     suspend fun getKLines(

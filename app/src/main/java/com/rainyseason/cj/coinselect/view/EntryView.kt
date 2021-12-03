@@ -16,7 +16,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.inflateAndAdd
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
-class MarketView @JvmOverloads constructor(
+class EntryView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
 ) : FrameLayout(context, attributeSet) {
@@ -37,12 +37,12 @@ class MarketView @JvmOverloads constructor(
     }
 
     @TextProp
-    fun setName(value: CharSequence) {
+    fun setTitle(value: CharSequence) {
         name.text = value
     }
 
     @TextProp
-    fun setSymbol(value: CharSequence) {
+    fun setSubTitle(value: CharSequence) {
         symbol.text = value
     }
 
@@ -56,6 +56,4 @@ class MarketView @JvmOverloads constructor(
         cancel.setOnClickListener(l)
         cancel.isGone = l == null
     }
-
-
 }

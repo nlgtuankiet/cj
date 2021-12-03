@@ -48,7 +48,7 @@ class GetBinanceDisplayData @Inject constructor(
 
             CoinTickerDisplayData(
                 iconUrl = Backend.Binance.iconUrl,
-                symbol = "${symbolDetail.baseAsset}/${symbolDetail.quoteAsset}",
+                symbol = symbolDetail.displayName(),
                 name = param.backend.displayName,
                 price = tickerPrice.price,
                 priceChangePercent = kLinesResponse.changePercent()?.let { it * 100 },

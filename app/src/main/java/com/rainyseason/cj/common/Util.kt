@@ -294,5 +294,5 @@ fun List<List<Double>>.reverseValue(): List<List<Double>> {
     }
 }
 
-fun <F : Fragment> ViewModelContext.fragment(): F
-    = (this as FragmentViewModelContext).fragment()
+fun <F : Fragment> ViewModelContext.fragment(): F =
+    (this as FragmentViewModelContext).fragment()

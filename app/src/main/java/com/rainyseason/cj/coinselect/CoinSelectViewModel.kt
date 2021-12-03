@@ -1,8 +1,6 @@
 package com.rainyseason.cj.coinselect
 
-import androidx.activity.OnBackPressedCallback
 import com.airbnb.mvrx.Async
-import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
@@ -10,6 +8,7 @@ import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.fragment
 import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.CoinHistoryEntry
 import com.rainyseason.cj.data.CoinHistoryRepository
 import com.rainyseason.cj.data.UserSettingRepository
@@ -37,6 +36,7 @@ data class CoinSelectState(
     val history: Async<List<CoinHistoryEntry>> = Uninitialized,
     val keyword: String = "",
     val backend: Backend,
+    val exchangeData: Map<Backend, Async<List<ExchangeEntry>>> = emptyMap(),
 ) : MavericksState
 
 class CoinSelectViewModel @AssistedInject constructor(
@@ -44,6 +44,7 @@ class CoinSelectViewModel @AssistedInject constructor(
     private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
     private val coinHistoryRepository: CoinHistoryRepository,
+    private val getExchangeEntry: GetExchangeEntry,
 ) : MavericksViewModel<CoinSelectState>(initState) {
 
     val id = UUID.randomUUID().toString()
@@ -66,12 +67,46 @@ class CoinSelectViewModel @AssistedInject constructor(
         }
     }
 
+    private var listenBackendChangeJob: Job? = null
+    private fun listenBackendChange() {
+        listenBackendChangeJob?.cancel()
+        setState { copy(exchangeData = emptyMap()) }
+        listenBackendChangeJob = onEach(CoinSelectState::backend) { backend ->
+            loadExchangeData(backend)
+        }
+    }
+
+    private fun loadExchangeData(backend: Backend) {
+        if (backend.isDefault) {
+            return
+        }
+        withState { state ->
+            val oldDataAsync = state.exchangeData[backend]
+            if (oldDataAsync != null && !oldDataAsync.shouldLoad) {
+                return@withState
+            }
+            suspend {
+                getExchangeEntry.invoke(backend)
+            }.execute {
+                copy(
+                    exchangeData = exchangeData.update {
+                        put(backend, it)
+                    }
+                )
+            }
+        }
+    }
+
     fun back() {
         setState { copy(backend = Backend.CoinGecko) }
     }
 
     fun submitNewKeyword(newKeyword: String) {
         keywordDebound.value = newKeyword.trim()
+    }
+
+    fun setBackend(backend: Backend) {
+        setState { copy(backend = backend) }
     }
 
     fun addToHistory(entry: CoinHistoryEntry) {
@@ -91,6 +126,8 @@ class CoinSelectViewModel @AssistedInject constructor(
     private var historyJob: Job? = null
 
     fun reload() {
+        listenBackendChange()
+
         historyJob?.cancel()
         historyJob = coinHistoryRepository.getHistory()
             .execute {

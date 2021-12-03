@@ -1,5 +1,6 @@
 package com.rainyseason.cj.data.coingecko
 
+import com.rainyseason.cj.common.model.Backend
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
@@ -22,4 +23,6 @@ data class MarketsResponseEntry(
 
     @Json(name = "current_price")
     val currentPrice: Double,
-)
+) {
+    val uniqueId: String = "${Backend.CoinGecko.id}_$id"
+}
