@@ -268,7 +268,7 @@ class TickerWidgetRenderer @Inject constructor(
         binding.symbol.text = if (config.backend.isExchange) {
             renderData.name
         } else {
-            renderData.symbol
+            renderData.symbol.uppercase()
         }
         binding.symbol.setTextColor(
             select(

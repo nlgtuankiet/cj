@@ -63,7 +63,7 @@
         android:maxLines="1"
         android:orientation="horizontal"
         android:textColor="@color/green_700"
-        android:textSize="14sp"
+        android:textSize="13sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="+6.6%" />

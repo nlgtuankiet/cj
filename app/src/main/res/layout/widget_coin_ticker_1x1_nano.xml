@@ -60,8 +60,13 @@
     <com.google.android.material.textview.MaterialTextView
         android:layout_marginBottom="12dp"
         android:textSize="12sp"
+        app:autoSizeStepGranularity="1sp"
+        app:autoSizeMinTextSize="1sp"
+        app:autoSizeMaxTextSize="12sp"
+        app:autoSizeTextType="uniform"
         style="@style/Theme.CryptoJet.Text.Medium"
         android:gravity="center"
+        android:maxLines="1"
         android:textAlignment="gravity"
         android:id="@+id/change_percent"
         android:layout_width="0dp"

@@ -407,6 +407,9 @@ class CoinTickerPreviewController(
 
     private fun buildCurrency(state: CoinTickerPreviewState) {
         val config = state.config ?: return
+        if (config.backend.isExchange) {
+            return
+        }
         val currencyCodeToString = SUPPORTED_CURRENCY.mapValues {
             it.value.name
         }.toList().sortedBy { it.first }
