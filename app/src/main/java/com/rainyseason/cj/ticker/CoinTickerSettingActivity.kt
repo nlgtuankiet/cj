@@ -100,23 +100,15 @@ class CoinTickerSettingActivity :
         )
 
         val coinId = intent.extras?.getString(COIN_ID_EXTRA)
-        val exchangeId = intent.extras?.getString("exchange_id")
         if (coinId != null) {
             widgetSaved = true
             if (savedInstanceState == null) {
                 // on recreate we are already at preview screen
-                navigator.moveToPreview(coinId, exchangeId)
-            }
-        }
-
-        if (coinId == null) {
-            traceManager.beginTrace(CoinTickerListTTI(widgetId = widgetId))
-        }
-
-        if (BuildConfig.DEBUG) {
-            lifecycleScope.launch {
-                val ids = coinTickerRepository.getAllDataIds()
-                Timber.d("data widget ids: $ids")
+                val args = Bundle().apply {
+                    putString("coin_id", coinId)
+                    putString("backend_id", intent.extras?.getString("backend_id"))
+                }
+                navController.navigate(R.id.coin_ticker_preview_screen, args)
             }
         }
     }

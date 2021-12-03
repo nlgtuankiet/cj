@@ -21,7 +21,7 @@ class TraceManager @Inject constructor(
         trace.start()
         traces[params.key] = trace
         if (debug) {
-            Timber.d("Trace debug begin $params")
+            Timber.d("Begin     ${params.debugString()}")
             debugTraces[params] = System.currentTimeMillis()
         }
     }
@@ -30,7 +30,7 @@ class TraceManager @Inject constructor(
         val trace = traces.remove(params.key)
         if (debug) {
             if (trace != null) {
-                Timber.d("Trace debug canceled $params")
+                Timber.d("Canceled  ${params.debugString()}")
             }
             debugTraces.remove(params)
         }
@@ -42,7 +42,8 @@ class TraceManager @Inject constructor(
         if (debug) {
             val startTime = debugTraces.remove(params)
             if (startTime != null) {
-                Timber.d("Trace debug end ${params.name} ${System.currentTimeMillis() - startTime}ms")
+                val time = System.currentTimeMillis() - startTime
+                Timber.d("End       ${params.debugString()} ${time}ms")
             }
         }
     }
@@ -56,4 +57,8 @@ data class CoinTickerPreviewTTI(
     override val key: String,
 ) : TraceParam(key = "key", name = "coin_ticker_preview_tti")
 
-open class TraceParam(open val key: String, val name: String)
+open class TraceParam(open val key: String, val name: String) {
+    fun debugString(): String {
+        return "$name - ${key.takeLast(6)}"
+    }
+}

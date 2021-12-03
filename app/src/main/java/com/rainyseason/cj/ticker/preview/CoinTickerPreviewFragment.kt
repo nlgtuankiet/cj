@@ -1,5 +1,7 @@
 package com.rainyseason.cj.ticker.preview
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
 import android.view.View
@@ -16,8 +18,11 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.CoinTickerPreviewTTI
 import com.rainyseason.cj.common.TraceManager
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.saveOrShowWarning
 import com.rainyseason.cj.databinding.CoinTickerPreviewFragmentBinding
+import com.rainyseason.cj.ticker.CoinTickerConfig
+import com.rainyseason.cj.ticker.CoinTickerProviderGraph
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.CoinTickerWidgetSaver
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
@@ -56,10 +61,19 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
     @Inject
     lateinit var tracker: Tracker
 
+    @Inject
+    lateinit var appWidgetManager: AppWidgetManager
+
     val args by lazy {
+        val widgetId = requireActivity().getWidgetId() ?: error("Missing widget id")
+        val componentName = appWidgetManager.getAppWidgetInfo(widgetId)?.provider
+            ?: ComponentName(requireContext(), CoinTickerProviderGraph::class.java)
+        val layout = CoinTickerConfig.Layout.fromComponentName(componentName.className)
         CoinTickerPreviewArgs(
-            widgetId = requireActivity().getWidgetId() ?: error("Missing widget id"),
-            coinId = arguments?.getString("coin_id") ?: error("Missing coin id")
+            widgetId = widgetId,
+            coinId = arguments?.getString("coin_id") ?: error("Missing coin id"),
+            layout = layout,
+            backend = Backend.from(arguments?.getString("backend_id"))
         )
     }
 

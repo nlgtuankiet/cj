@@ -58,18 +58,18 @@ class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksVie
         if (savedInstanceState == null) {
             traceManager.beginTrace(CoinSelectTTI(viewModel.id))
             findNavController().addOnDestinationChangedListener(object :
-                NavController.OnDestinationChangedListener {
-                override fun onDestinationChanged(
-                    controller: NavController,
-                    destination: NavDestination,
-                    arguments: Bundle?
-                ) {
-                    if (destination.id != R.id.coin_select_screen) {
-                        controller.removeOnDestinationChangedListener(this)
-                        traceManager.cancelTrace(CoinSelectTTI(viewModel.id))
+                    NavController.OnDestinationChangedListener {
+                    override fun onDestinationChanged(
+                        controller: NavController,
+                        destination: NavDestination,
+                        arguments: Bundle?
+                    ) {
+                        if (destination.id != R.id.coin_select_screen) {
+                            controller.removeOnDestinationChangedListener(this)
+                            traceManager.cancelTrace(CoinSelectTTI(viewModel.id))
+                        }
                     }
-                }
-            })
+                })
         }
     }
 

@@ -27,7 +27,7 @@ enum class Backend(
     companion object {
         fun from(id: String?): Backend {
             if (id == null) {
-                return Binance
+                return CoinGecko
             }
             return values().first { it.id == id }
         }

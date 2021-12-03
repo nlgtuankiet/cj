@@ -11,7 +11,6 @@ import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.model.TimeInterval
-import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.local.CoinTickerRepository
@@ -25,8 +24,8 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
-import java.util.UUID
 import java.util.Collections
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 data class CoinTickerPreviewState(
@@ -68,7 +67,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         reload()
     }
 
-
     fun reload() {
         loadData()
         viewModelScope.launch {
@@ -107,15 +105,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     private suspend fun saveInitialConfig() {
         val lastConfig = coinTickerRepository.getConfig(widgetId = args.widgetId)
-        val layoutRes = appWidgetManager.getAppWidgetInfo(args.widgetId)?.initialLayout
-            ?: R.layout.widget_coin_ticker_2x2_default
-        val layout = when (layoutRes) {
-            R.layout.widget_coin_ticker_2x2_default -> CoinTickerConfig.Layout.DEFAULT
-            R.layout.widget_coin_ticker_2x2_graph -> CoinTickerConfig.Layout.GRAPH
-            R.layout.widget_coin_ticker_2x2_coin360 -> CoinTickerConfig.Layout.COIN360
-            R.layout.widget_coin_ticker_2x1_mini -> CoinTickerConfig.Layout.MINI
-            else -> error("Unknown layout for $layoutRes")
-        }
         if (lastConfig == null) {
             val userSetting = userSettingRepository.getUserSetting()
             val config = CoinTickerConfig(
