@@ -1,42 +1,42 @@
 ### 1.9.10 Release
+✨ Add Binance trading pairs widgets (create a widget then in "coin select" screen, select Binance under Exchanges section)  
 🛠 Fix crash when create widget with "Preview only" coin  
 
 ### 1.9.9 Release
 🛠 Improve click action performance for watchlist widgets (now more responsive)  
 
 ### 1.9.8 Release
-✨ Support smaller refresh intervals, ranging from 5 minutes down to 15 seconds (request from Alexander DMax)
+✨ Support smaller refresh intervals, ranging from 5 minutes down to 15 seconds (request from Alexander DMax)  
 
 ### 1.9.7 Release
-🛠 Fix a bug where you can not create the watchlist 4x4 widget
+🛠 Fix a bug where you can not create the watchlist 4x4 widget  
 
 ### 1.9.6 Release
 
 ✨ New widget: Icon small 2x1 <- this widget has the coin logo in it (request from Nord0k)  
-🛠 Fix bug where widgets don't refresh after device restart or on new app update
+🛠 Fix bug where widgets don't refresh after device restart or on new app update  
 
 ### 1.9.5 Release
 
-✨ New widget: Nano 1x1, resizeable to 2x1 (request from sunnyandtony)
+✨ New widget: Nano 1x1, resizeable to 2x1 (request from sunnyandtony)  
 
 ### 1.9.4 Release
 
-✨ Now you can click on widget to open coin detail page, create new widget to try it out
-(under Advance -> Click action)
+✨ Now you can click on widget to open coin detail page, create new widget to try it out (under Advance -> Click action)  
 
 ### 1.9.3 Release
 
 ✨ Add auto refresh to watchlist screen (config auto refresh interval in Setting screen)  
 ✨ Add swipe to refresh to watchlist screen  
-🛠 Improve widget refresh performance
+🛠 Improve widget refresh performance  
 
 ### 1.9.0 Release
 
 ✨ New widget: 1x1 coin360 widget, resizeable to 2x1 (request from Thomas Höfler)  
-🛠 Improve network speed (thank @khang_nt)
+🛠 Improve network speed (thank @khang_nt)  
 
 ### 1.8.0 Release
 
 ✨ New widget: 4x2 watchlist and 4x4 watchlist  
 ✨ New watchlist screen  
-🛠 Add dark mode support for widget configure screen
+🛠 Add dark mode support for widget configure screen  
