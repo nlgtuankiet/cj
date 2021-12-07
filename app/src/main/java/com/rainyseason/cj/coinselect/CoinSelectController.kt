@@ -54,10 +54,10 @@ class CoinSelectController @AssistedInject constructor(
         listOf(
             ::buildRetryButton,
             ::buildHistory,
-            ::buildExchanges,
+            ::buildBackends,
             ::buildMarketDefault,
             ::buildSearchResultDefault,
-            ::buildExchangeEntries,
+            ::buildBackendEntries,
         ).forEach { builder ->
             val buildResult = builder.invoke(state)
             if (buildResult == BuildState.Stop) {
@@ -71,13 +71,13 @@ class CoinSelectController @AssistedInject constructor(
         }
     }
 
-    private fun buildExchangeEntries(state: CoinSelectState): BuildState {
+    private fun buildBackendEntries(state: CoinSelectState): BuildState {
         val backend = state.backend
         if (backend.isDefault) {
             return BuildState.Next
         }
 
-        val data = state.exchangeData[backend] ?: return BuildState.Next
+        val data = state.backendProductMap[backend] ?: return BuildState.Next
 
         if (data is Fail) {
             retryView {
@@ -95,7 +95,7 @@ class CoinSelectController @AssistedInject constructor(
             return BuildState.StopWithLoading
         }
 
-        val list: List<ExchangeEntry> = data.invoke() ?: return BuildState.Next
+        val list: List<BackendProduct> = data.invoke() ?: return BuildState.Next
         val keyword = state.keyword
         val filteredList = list.filter {
             it.symbol.contains(keyword, true) ||
@@ -116,14 +116,14 @@ class CoinSelectController @AssistedInject constructor(
                 onClickListener { view ->
                     viewModel.addToHistory(
                         CoinHistoryEntry(
-                            id = entry.symbol,
+                            id = entry.id,
                             symbol = entry.symbol,
                             name = entry.displayName,
                             iconUrl = backend.iconUrl,
                             backend = backend
                         )
                     )
-                    moveToResult(view, entry.symbol, entry.backend)
+                    moveToResult(view, entry.id, entry.backend)
                 }
             }
         }
@@ -131,7 +131,7 @@ class CoinSelectController @AssistedInject constructor(
         return BuildState.Next
     }
 
-    private fun buildExchanges(state: CoinSelectState): BuildState {
+    private fun buildBackends(state: CoinSelectState): BuildState {
         if (!state.backend.isDefault) {
             return BuildState.Next
         }
@@ -207,10 +207,10 @@ class CoinSelectController @AssistedInject constructor(
             entryView {
                 id("history_${entry.uniqueId}")
                 title(entry.name)
-                if (entry.backend.isDefault) {
-                    subTitle(entry.symbol.uppercase())
-                } else {
+                if (entry.backend.isExchange) {
                     subTitle(entry.backend.displayName)
+                } else {
+                    subTitle(entry.symbol.uppercase())
                 }
                 iconUrl(entry.iconUrl)
                 onClearClickListener { _ ->

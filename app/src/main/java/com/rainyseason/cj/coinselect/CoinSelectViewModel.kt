@@ -36,7 +36,7 @@ data class CoinSelectState(
     val history: Async<List<CoinHistoryEntry>> = Uninitialized,
     val keyword: String = "",
     val backend: Backend,
-    val exchangeData: Map<Backend, Async<List<ExchangeEntry>>> = emptyMap(),
+    val backendProductMap: Map<Backend, Async<List<BackendProduct>>> = emptyMap(),
 ) : MavericksState
 
 class CoinSelectViewModel @AssistedInject constructor(
@@ -44,7 +44,7 @@ class CoinSelectViewModel @AssistedInject constructor(
     private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
     private val coinHistoryRepository: CoinHistoryRepository,
-    private val getExchangeEntry: GetExchangeEntry,
+    private val getBackendProducts: GetBackendProducts,
 ) : MavericksViewModel<CoinSelectState>(initState) {
 
     val id = UUID.randomUUID().toString()
@@ -70,26 +70,26 @@ class CoinSelectViewModel @AssistedInject constructor(
     private var listenBackendChangeJob: Job? = null
     private fun listenBackendChange() {
         listenBackendChangeJob?.cancel()
-        setState { copy(exchangeData = emptyMap()) }
+        setState { copy(backendProductMap = emptyMap()) }
         listenBackendChangeJob = onEach(CoinSelectState::backend) { backend ->
-            loadExchangeData(backend)
+            loadBackendProducts(backend)
         }
     }
 
-    private fun loadExchangeData(backend: Backend) {
+    private fun loadBackendProducts(backend: Backend) {
         if (backend.isDefault) {
             return
         }
         withState { state ->
-            val oldDataAsync = state.exchangeData[backend]
+            val oldDataAsync = state.backendProductMap[backend]
             if (oldDataAsync != null && !oldDataAsync.shouldLoad) {
                 return@withState
             }
             suspend {
-                getExchangeEntry.invoke(backend)
+                getBackendProducts.invoke(backend)
             }.execute {
                 copy(
-                    exchangeData = exchangeData.update {
+                    backendProductMap = backendProductMap.update {
                         put(backend, it)
                     }
                 )
