@@ -1,3 +1,6 @@
+### 1.10.0 Release
+✨ Add CoinMarketCap support, now you can add widgets which display data from CoinMarketCap
+
 ### 1.9.10 Release
 ✨ Add Binance trading pairs widgets (create a widget then in "coin select" screen, select Binance under Exchanges section)  
 🛠 Fix crash when create widget with "Preview only" coin  
