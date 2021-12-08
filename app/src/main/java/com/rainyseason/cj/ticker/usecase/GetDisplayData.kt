@@ -7,12 +7,14 @@ import javax.inject.Inject
 class GetDisplayData @Inject constructor(
     private val getCoinGeckoDisplayData: GetCoinGeckoDisplayData,
     private val getBinanceDisplayData: GetBinanceDisplayData,
+    private val getCoinMarketCapDisplayData: GetCoinMarketCapDisplayData,
 ) {
 
     suspend operator fun invoke(param: CoinTickerDisplayData.LoadParam): CoinTickerDisplayData {
         return when (param.backend) {
             Backend.Binance -> getBinanceDisplayData(param)
             Backend.CoinGecko -> getCoinGeckoDisplayData(param)
+            Backend.CoinMarketCap -> getCoinMarketCapDisplayData(param)
         }
     }
 }

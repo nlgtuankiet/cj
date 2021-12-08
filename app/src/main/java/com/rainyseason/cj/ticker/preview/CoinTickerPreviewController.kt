@@ -7,6 +7,7 @@ import androidx.core.view.doOnPreDraw
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.withState
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.RefreshIntervals
@@ -135,6 +136,9 @@ class CoinTickerPreviewController(
         val loadDataParams = state.loadDataParams ?: return BuildState.Stop
         val data = state.displayDataCache[loadDataParams]
         val error = (data as? Fail)?.error ?: return BuildState.Next
+        if (BuildConfig.DEBUG) {
+            throw error
+        }
         retryView {
             id("retry")
             reason(error.getUserErrorMessage(context = context))
@@ -449,7 +453,7 @@ class CoinTickerPreviewController(
                 to R.string.coin_ticker_preview_setting_header_click_action_setting,
         ).map { it.first to context.getString(it.second) }
             .let {
-                if (config.backend.isExchange) {
+                if (!config.backend.isDefault) {
                     it.filter { p -> p.first != CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL }
                 } else {
                     it
@@ -486,12 +490,8 @@ class CoinTickerPreviewController(
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
             TimeInterval.I_7D
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
-            TimeInterval.I_14D
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_14d,
             TimeInterval.I_30D
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
-            TimeInterval.I_1Y
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_1y,
         ).toMap()
 
         val interval = config.changeInterval

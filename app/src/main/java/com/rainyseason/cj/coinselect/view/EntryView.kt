@@ -33,6 +33,7 @@ class EntryView @JvmOverloads constructor(
     fun setIconUrl(value: String) {
         GlideApp.with(icon)
             .load(value)
+            .fitCenter()
             .into(icon)
     }
 

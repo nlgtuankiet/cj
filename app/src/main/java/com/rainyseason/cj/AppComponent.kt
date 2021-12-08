@@ -6,11 +6,13 @@ import android.content.Context
 import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
+import android.util.Log.VERBOSE
 import androidx.core.content.getSystemService
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
+import androidx.room.Room
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
@@ -19,6 +21,8 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
+import com.ihsanbal.logging.Level
+import com.ihsanbal.logging.LoggingInterceptor
 import com.rainyseason.cj.coinselect.CoinSelectFragmentModule
 import com.rainyseason.cj.coinstat.CoinStatFragmentModule
 import com.rainyseason.cj.common.AppDnsSelector
@@ -36,8 +40,12 @@ import com.rainyseason.cj.data.NoMustRevalidateInterceptor
 import com.rainyseason.cj.data.UserSettingStorage
 import com.rainyseason.cj.data.binance.BinanceService
 import com.rainyseason.cj.data.binance.BinanceServiceWrapper
+import com.rainyseason.cj.data.cmc.CmcService
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.CoinGeckoServiceWrapper
+import com.rainyseason.cj.data.database.kv.KeyValueDao
+import com.rainyseason.cj.data.database.kv.KeyValueDatabase
+import com.rainyseason.cj.data.interceptor.synchronized
 import com.rainyseason.cj.detail.CoinDetailModule
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
@@ -86,6 +94,7 @@ import javax.inject.Singleton
         CoinDetailModule::class,
         AppProvides::class,
         AppBinds::class,
+        DrawSampleActivityModule::class,
         CoinStatFragmentModule::class,
         SettingFragmentModule::class,
         WatchSettingActivityModule::class,
@@ -143,16 +152,18 @@ object AppProvides {
         builder.readTimeout(1, TimeUnit.MINUTES)
         builder.writeTimeout(1, TimeUnit.MINUTES)
         if (BuildConfig.DEBUG) {
-            val logging = HttpLoggingInterceptor { message -> Timber.tag("OkHttp").d(message) }
-            logging.level = HttpLoggingInterceptor.Level.BODY
-
+            val logging = LoggingInterceptor.Builder()
+                .setLevel(Level.BODY)
+                .tag("OkHttp")
+                .log(VERBOSE)
+                .build()
             val networkLogging = HttpLoggingInterceptor { message ->
                 Timber.tag("OkHttpN").d(message)
             }
             networkLogging.level = HttpLoggingInterceptor.Level.HEADERS
 
             if (DebugFlag.SHOW_HTTP_LOG.isEnable) {
-                builder.addInterceptor(logging)
+                builder.addInterceptor(logging.synchronized())
                 if (DebugFlag.SHOW_NETWORK_LOG.isEnable) {
                     builder.addNetworkInterceptor(networkLogging)
                     builder.addNetworkInterceptor(networkUrlLoggerInterceptor)
@@ -256,6 +267,34 @@ object AppProvides {
     }
 
     @Provides
+    @Singleton
+    fun provideCmcService(
+        moshi: Moshi,
+        clientProvider: Provider<OkHttpClient>,
+    ): CmcService {
+        return Retrofit.Builder()
+            .baseUrl(CmcService.BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .callFactory { clientProvider.get().newCall(it) }
+            .build()
+            .create(CmcService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideKeyValueDatabase(context: Context): KeyValueDatabase {
+        checkNotMainThread()
+        return Room.databaseBuilder(context, KeyValueDatabase::class.java, "key_value")
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEntryDao(db: KeyValueDatabase): KeyValueDao {
+        return db.entryDao()
+    }
+
+    @Provides
     fun context(application: Application): Context {
         return application
     }
@@ -340,5 +379,7 @@ object AppProvides {
 }
 
 fun checkNotMainThread() {
-    check(Looper.myLooper() !== Looper.getMainLooper())
+    if (BuildConfig.DEBUG) {
+        check(Looper.myLooper() !== Looper.getMainLooper())
+    }
 }

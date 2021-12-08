@@ -69,6 +69,7 @@
     <string name="coin_ticker_preview_setting_background_transparency">Background transparency</string>
     <string name="coin_history_header">History</string>
     <string name="coin_select_exchange_header">Exchanges</string>
+    <string name="coin_select_other_source_header">Other sources</string>
     <string name="coin_market_header">Popular</string>
     <string name="inapp_review_do_you_like_the_app">How do feel about the app?</string>
     <string name="inapp_review_tell_why_hint">Tell us about it</string>

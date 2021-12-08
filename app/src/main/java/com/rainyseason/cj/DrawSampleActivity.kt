@@ -4,35 +4,33 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.CheckBox
 import androidx.appcompat.app.AppCompatActivity
-import com.rainyseason.cj.common.coreComponent
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import timber.log.Timber
-import kotlin.system.measureTimeMillis
+import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.data.cmc.CmcService
+import dagger.Module
+import dagger.android.AndroidInjection
+import dagger.android.ContributesAndroidInjector
+import javax.inject.Inject
+
+@Module
+interface DrawSampleActivityModule {
+    @ContributesAndroidInjector
+    fun activity(): DrawSampleActivity
+}
 
 class DrawSampleActivity : AppCompatActivity() {
 
+    @Inject
+    lateinit var cmcService: CmcService
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        AndroidInjection.inject(this)
         setContentView(R.layout.activity_draw_sample)
         val checkBox = findViewById<CheckBox>(R.id.enable_cache)
 
         findViewById<Button>(R.id.go_button).setOnClickListener {
-            @OptIn(DelicateCoroutinesApi::class)
-            GlobalScope.launch(Dispatchers.IO) {
-                val time = measureTimeMillis {
-                    try {
-                        coreComponent.coinGeckoService.getCoinList(forceCache = checkBox.isChecked)
-                        Timber.d("request success")
-                    } catch (ex: Exception) {
-                        Timber.d("request fail")
-                        ex.printStackTrace()
-                    }
-                }
-                Timber.d("cache: ${checkBox.isChecked} finish in $time")
-            }
+            val map = mutableMapOf<Backend, List<String>>()
+            map
         }
     }
 }

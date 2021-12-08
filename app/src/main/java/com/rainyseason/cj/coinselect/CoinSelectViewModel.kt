@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import java.util.Collections
 import java.util.UUID
 
 data class CoinSelectState(
@@ -76,6 +77,9 @@ class CoinSelectViewModel @AssistedInject constructor(
         }
     }
 
+    private val loadBackendJobs: MutableMap<Backend, Job> = Collections
+        .synchronizedMap(mutableMapOf())
+
     private fun loadBackendProducts(backend: Backend) {
         if (backend.isDefault) {
             return
@@ -85,9 +89,8 @@ class CoinSelectViewModel @AssistedInject constructor(
             if (oldDataAsync != null && !oldDataAsync.shouldLoad) {
                 return@withState
             }
-            suspend {
-                getBackendProducts.invoke(backend)
-            }.execute {
+            loadBackendJobs[backend]?.cancel()
+            loadBackendJobs[backend] = getBackendProducts.invoke(backend).execute {
                 copy(
                     backendProductMap = backendProductMap.update {
                         put(backend, it)

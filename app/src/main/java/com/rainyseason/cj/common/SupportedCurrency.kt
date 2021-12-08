@@ -57,144 +57,176 @@ data class CurrencyInfo(
     val code: String,
     val name: String,
     val locale: Locale,
+    val cmcId: String,
 )
+
+fun currencyInfoOf(id: String): CurrencyInfo {
+    return SUPPORTED_CURRENCY[id] ?: error("Unknown currency: $id")
+}
 
 val SUPPORTED_CURRENCY = mapOf(
     "usd" to CurrencyInfo(
         code = "usd",
         name = "US Dollar",
         locale = Locale.US,
+        cmcId = "2781",
     ),
     "idr" to CurrencyInfo(
         code = "idr",
         name = "Indonesian Rupiah",
         locale = Locale("id", "ID"),
+        cmcId = "2794",
     ),
     "twd" to CurrencyInfo(
         code = "twd",
         name = "New Taiwan Dollar",
         locale = Locale.TAIWAN,
+        cmcId = "2811",
     ),
     "eur" to CurrencyInfo(
         code = "eur",
         name = "Euro",
         locale = Locale.FRANCE,
+        cmcId = "2790",
     ),
     "krw" to CurrencyInfo(
         code = "krw",
         name = "South Korean Won",
         locale = Locale.KOREA,
+        cmcId = "2798",
     ),
     "jpy" to CurrencyInfo(
         code = "jpy",
         name = "Japanese Yen",
         locale = Locale.JAPAN,
+        cmcId = "2797",
     ),
     "rub" to CurrencyInfo(
         code = "rub",
         name = "Russian Ruble",
         locale = Locale("ru", "RU"),
+        cmcId = "2806",
     ),
     "cny" to CurrencyInfo(
         code = "cny",
         name = "Chinese Yuan",
-        locale = Locale.CHINA
+        locale = Locale.CHINA,
+        cmcId = "2787",
     ),
     "vnd" to CurrencyInfo(
         code = "vnd",
         name = "Vietnamese đồng",
-        locale = Locale("vi", "VN")
+        locale = Locale("vi", "VN"),
+        cmcId = "2823",
     ),
     "gbp" to CurrencyInfo(
         code = "gbp",
         name = "British Pound Sterling",
-        locale = Locale.UK
+        locale = Locale.UK,
+        cmcId = "2791",
     ),
 
     // added since 1.5
     "cad" to CurrencyInfo(
         code = "cad",
         name = "Canadian Dollar",
-        locale = Locale.CANADA
+        locale = Locale.CANADA,
+        cmcId = "2784",
     ),
     "nzd" to CurrencyInfo(
         code = "nzd",
         name = "New Zealand Dollar",
-        locale = Locale("en", "NZ")
+        locale = Locale("en", "NZ"),
+        cmcId = "2802",
     ),
     "inr" to CurrencyInfo(
         code = "inr",
         name = "Indian Rupee",
-        locale = Locale("hi", "IN")
+        locale = Locale("hi", "IN"),
+        cmcId = "2796",
     ),
     "aud" to CurrencyInfo(
         code = "aud",
         name = "Australian Dollar",
-        locale = Locale("en", "AU")
+        locale = Locale("en", "AU"),
+        cmcId = "2782",
     ),
     "php" to CurrencyInfo(
         code = "php",
         name = "Philippine Pesor",
-        locale = Locale("en", "PH")
+        locale = Locale("en", "PH"),
+        cmcId = "2803",
     ),
     "pln" to CurrencyInfo(
         code = "pln",
         name = "Polish Zloty",
-        locale = Locale("pl", "PL")
+        locale = Locale("pl", "PL"),
+        cmcId = "2805",
     ),
     "sgd" to CurrencyInfo(
         code = "sgd",
         name = "Singapore Dollar",
-        locale = Locale("en", "SG")
+        locale = Locale("en", "SG"),
+        cmcId = "2808",
     ),
     "sek" to CurrencyInfo(
         code = "sek",
         name = "Swedish Krona",
-        locale = Locale("sv", "SE")
+        locale = Locale("sv", "SE"),
+        cmcId = "2807",
     ),
     "chf" to CurrencyInfo(
         code = "chf",
         name = "Swiss Franc",
-        locale = Locale("fr", "CH")
+        locale = Locale("fr", "CH"),
+        cmcId = "2785",
     ),
     "myr" to CurrencyInfo(
         code = "myr",
         name = "Malaysian Ringgit",
-        locale = Locale("ms", "MY")
+        locale = Locale("ms", "MY"),
+        cmcId = "2800",
     ),
     "thb" to CurrencyInfo(
         code = "thb",
         name = "Thai Baht",
-        locale = Locale("th", "TH")
+        locale = Locale("th", "TH"),
+        cmcId = "2809",
     ),
     "rub" to CurrencyInfo(
         code = "rub",
         name = "Russian Ruble",
-        locale = Locale("ru", "RU")
+        locale = Locale("ru", "RU"),
+        cmcId = "2806",
     ),
     "czk" to CurrencyInfo(
         code = "czk",
         name = "Czech Koruna",
-        locale = Locale("cs", "CZ")
+        locale = Locale("cs", "CZ"),
+        cmcId = "2788",
     ),
     "brl" to CurrencyInfo(
         code = "brl",
         name = "Brazil Real",
-        locale = Locale("pt", "BR")
+        locale = Locale("pt", "BR"),
+        cmcId = "2783",
     ),
     "dkk" to CurrencyInfo(
         code = "dkk",
         name = "Danish Krone",
-        locale = Locale("da", "DK")
+        locale = Locale("da", "DK"),
+        cmcId = "2789",
     ),
     "ils" to CurrencyInfo(
         code = "ils",
         name = "Israeli New Shekel",
-        locale = Locale("iw", "IL")
+        locale = Locale("iw", "IL"),
+        cmcId = "2795",
     ),
     "huf" to CurrencyInfo(
         code = "huf",
         name = "Hungarian Forint",
-        locale = Locale("hu", "HU")
+        locale = Locale("hu", "HU"),
+        cmcId = "2793",
     ),
 )

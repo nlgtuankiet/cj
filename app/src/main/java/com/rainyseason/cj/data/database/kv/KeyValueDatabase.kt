@@ -11,5 +11,5 @@ import androidx.room.TypeConverters
 )
 @TypeConverters(InstantTypeConverter::class)
 abstract class KeyValueDatabase : RoomDatabase() {
-    abstract fun entryDao(): EntryDao
+    abstract fun entryDao(): KeyValueDao
 }

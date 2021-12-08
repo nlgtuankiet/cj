@@ -54,7 +54,8 @@ class CoinSelectController @AssistedInject constructor(
         listOf(
             ::buildRetryButton,
             ::buildHistory,
-            ::buildBackends,
+            ::buildExchanges,
+            ::buildOtherSources,
             ::buildMarketDefault,
             ::buildSearchResultDefault,
             ::buildBackendEntries,
@@ -103,23 +104,23 @@ class CoinSelectController @AssistedInject constructor(
         }
 
         settingHeaderView {
-            id("header_exchange")
+            id("header_backend")
             content(backend.displayName)
         }
 
         filteredList.forEach { entry ->
             entryView {
-                id("exchange_${entry.uniqueId}")
+                id("backend_product_${entry.uniqueId}")
                 title(entry.displayName)
                 subTitle("")
-                iconUrl(entry.backend.iconUrl)
+                iconUrl(entry.iconUrl)
                 onClickListener { view ->
                     viewModel.addToHistory(
                         CoinHistoryEntry(
                             id = entry.id,
                             symbol = entry.symbol,
                             name = entry.displayName,
-                            iconUrl = backend.iconUrl,
+                            iconUrl = entry.iconUrl,
                             backend = backend
                         )
                     )
@@ -131,16 +132,16 @@ class CoinSelectController @AssistedInject constructor(
         return BuildState.Next
     }
 
-    private fun buildBackends(state: CoinSelectState): BuildState {
+    private fun buildExchanges(state: CoinSelectState): BuildState {
         if (!state.backend.isDefault) {
             return BuildState.Next
         }
         val keyword = state.keyword
 
-        val backends = Backend.values().filter { !it.isDefault }
+        val exchanges = Backend.values().filter { it.isExchange }
             .filter { it.displayName.contains(keyword, true) }
 
-        if (backends.isEmpty()) {
+        if (exchanges.isEmpty()) {
             return BuildState.Next
         }
 
@@ -149,7 +150,41 @@ class CoinSelectController @AssistedInject constructor(
             content(R.string.coin_select_exchange_header)
         }
 
-        backends.forEach { backend ->
+        exchanges.forEach { backend ->
+            entryView {
+                id("backend_${backend.id}")
+                title(backend.displayName)
+                subTitle("")
+                iconUrl(backend.iconUrl)
+                onClickListener { _ ->
+                    viewModel.setBackend(backend)
+                    viewModel.submitNewKeyword("")
+                }
+            }
+        }
+
+        return BuildState.Next
+    }
+
+    private fun buildOtherSources(state: CoinSelectState): BuildState {
+        if (!state.backend.isDefault) {
+            return BuildState.Next
+        }
+        val keyword = state.keyword
+
+        val exchanges = Backend.values().filter { !it.isExchange && !it.isDefault }
+            .filter { it.displayName.contains(keyword, true) }
+
+        if (exchanges.isEmpty()) {
+            return BuildState.Next
+        }
+
+        settingHeaderView {
+            id("header_other_sources")
+            content(R.string.coin_select_other_source_header)
+        }
+
+        exchanges.forEach { backend ->
             entryView {
                 id("backend_${backend.id}")
                 title(backend.displayName)
@@ -210,7 +245,11 @@ class CoinSelectController @AssistedInject constructor(
                 if (entry.backend.isExchange) {
                     subTitle(entry.backend.displayName)
                 } else {
-                    subTitle(entry.symbol.uppercase())
+                    if (entry.backend.isDefault) {
+                        subTitle(entry.symbol.uppercase())
+                    } else {
+                        subTitle("${entry.symbol.uppercase()} (${entry.backend.displayName})")
+                    }
                 }
                 iconUrl(entry.iconUrl)
                 onClearClickListener { _ ->

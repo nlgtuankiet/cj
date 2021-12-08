@@ -125,10 +125,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 roundToMillion = userSetting.roundToMillion,
                 currency = userSetting.currencyCode,
                 sizeAdjustment = userSetting.sizeAdjustment,
-                clickAction = if (args.backend.isExchange) {
-                    CoinTickerConfig.ClickAction.REFRESH
-                } else {
+                clickAction = if (args.backend.isDefault) {
                     CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL
+                } else {
+                    CoinTickerConfig.ClickAction.REFRESH
                 }
             )
             coinTickerRepository.setConfig(args.widgetId, config)
@@ -141,14 +141,14 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 } else {
                     lastConfig.showCurrencySymbol
                 },
-                clickAction = if (args.backend.isExchange) {
+                clickAction = if (args.backend.isDefault) {
+                    lastConfig.clickAction
+                } else {
                     if (lastConfig.clickAction == CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL) {
                         CoinTickerConfig.ClickAction.REFRESH
                     } else {
                         lastConfig.clickAction
                     }
-                } else {
-                    lastConfig.clickAction
                 }
             )
             coinTickerRepository.setConfig(widgetId, newConfig)
