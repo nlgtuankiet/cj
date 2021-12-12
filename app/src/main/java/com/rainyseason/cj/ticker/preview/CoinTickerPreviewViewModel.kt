@@ -105,6 +105,11 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     private suspend fun saveInitialConfig() {
         val lastConfig = coinTickerRepository.getConfig(widgetId = args.widgetId)
+        val allowedChangeInterval = setOf(
+            TimeInterval.I_24H,
+            TimeInterval.I_7D,
+            TimeInterval.I_30D,
+        )
         if (lastConfig == null) {
             val userSetting = userSettingRepository.getUserSetting()
             val config = CoinTickerConfig(
@@ -149,6 +154,11 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                     } else {
                         lastConfig.clickAction
                     }
+                },
+                changeInterval = if (lastConfig.changeInterval in allowedChangeInterval) {
+                    lastConfig.changeInterval
+                } else {
+                    TimeInterval.I_24H
                 }
             )
             coinTickerRepository.setConfig(widgetId, newConfig)

@@ -492,7 +492,7 @@ class CoinTickerPreviewController(
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
             TimeInterval.I_30D
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
-        ).toMap()
+        )
 
         val interval = config.changeInterval
 
@@ -501,11 +501,15 @@ class CoinTickerPreviewController(
         settingTitleSummaryView {
             id("bottom_change_interval")
             title(R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header)
-            summary(context.getString(mapping[interval]!!))
+            summary(
+                context.getString(
+                    mapping.firstOrNull { it.first == interval }?.second
+                        ?: R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h
+                )
+            )
             onClickListener { _ ->
                 val currentState = withState(viewModel) { it }
                 val currentConfig = currentState.config!!
-                val options = TimeInterval.ALL_PRICE_INTERVAL
                 val currentInterval = currentConfig.changeInterval
                 AlertDialog.Builder(context)
                     .setTitle(
@@ -513,10 +517,11 @@ class CoinTickerPreviewController(
                     )
                     .setCancelButton()
                     .setSingleChoiceItems(
-                        options.map { context.getString(mapping[it]!!) }.toTypedArray(),
-                        options.indexOfFirst { it == currentInterval }
+                        mapping.map { context.getString(it.second) }.toTypedArray(),
+                        mapping.toList().indexOfFirst { it.first == currentInterval }
                     ) { dialog, which ->
-                        val selectedInterval = options[which]
+                        val selectedInterval = mapping.map { it.first }
+                            .getOrNull(which) ?: TimeInterval.I_24H
                         viewModel.setPriceChangeInterval(selectedInterval)
                         dialog.dismiss()
                     }

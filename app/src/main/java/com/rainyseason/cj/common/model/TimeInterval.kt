@@ -14,15 +14,6 @@ enum class TimeInterval(val id: String) {
     I_1Y("1y"),
     I_ALL("all"),
     ;
-    companion object {
-        val ALL_PRICE_INTERVAL = listOf(
-            I_24H,
-            I_7D,
-            I_14D,
-            I_30D,
-            I_1Y,
-        )
-    }
 }
 
 private val intervalToDayString = mapOf(
