@@ -24,7 +24,7 @@ class GetCoinMarketCapDisplayData @Inject constructor(
                     convertId = currencyId,
                     range = when (param.changeInterval) {
                         TimeInterval.I_24H -> "1D"
-                        TimeInterval.I_7D -> "1D"
+                        TimeInterval.I_7D -> "7D"
                         TimeInterval.I_30D -> "1M"
                         else -> error("not support ${param.changeInterval}")
                     }
