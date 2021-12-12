@@ -1,6 +1,6 @@
 ### 1.10.1 Release
 
-🛠 Fix crash when select price change interval
+🛠 Fix crash when select price change interval 🛠 Fix display wrong graph on CoinMarketCap
 
 ### 1.10.0 Release
 
