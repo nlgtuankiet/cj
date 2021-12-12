@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.os.Looper
 import android.util.Size
 import android.view.View
 import android.view.View.MeasureSpec
@@ -425,12 +426,17 @@ class TickerWidgetRenderer @Inject constructor(
 
         // bind icon
         val finalBitmap = icon ?: if (renderData.iconUrl.isNotBlank()) {
-            GlideApp.with(context)
-                .asBitmap()
-                .override(context.dpToPx(48), context.dpToPx(48))
-                .load(renderData.iconUrl)
-                .submit()
-                .get()
+            // we will refresh the widget again after initial save
+            if (Looper.myLooper() !== Looper.getMainLooper()) {
+                GlideApp.with(context)
+                    .asBitmap()
+                    .override(context.dpToPx(48), context.dpToPx(48))
+                    .load(renderData.iconUrl)
+                    .submit()
+                    .get()
+            } else {
+                null
+            }
         } else {
             null
         }
