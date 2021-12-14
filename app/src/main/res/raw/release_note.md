@@ -1,16 +1,21 @@
+### 1.10.3 Release
+
+🛠 Improve overall performance, now app uses less memory and less storage  
+
 ### 1.10.1 Release
 
-🛠 Fix crash when select price change interval 🛠 Fix display wrong graph on CoinMarketCap
+🛠 Fix crash when select price change interval  
+🛠 Fix display wrong graph on CoinMarketCap  
 
 ### 1.10.0 Release
 
-✨ Add CoinMarketCap support, now you can add widgets that displays data from CoinMarketCap
+✨ Add CoinMarketCap support, now you can add widgets that displays data from CoinMarketCap  
 
 ### 1.9.10 Release
 
-✨ Add Binance trading pairs widgets (create a widget then in "coin select" screen, select Binance
+✨ Add Binance trading pairs widgets (create a widget then in "coin select" screen, select Binance  
 under Exchanges section)  
-🛠 Fix crash when create widget with "Preview only" coin
+🛠 Fix crash when create widget with "Preview only" coin  
 
 ### 1.9.9 Release
 
