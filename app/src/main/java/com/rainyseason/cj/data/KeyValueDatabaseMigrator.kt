@@ -5,6 +5,8 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.withTransaction
+import com.rainyseason.cj.common.TraceManager
+import com.rainyseason.cj.common.TraceParam
 import com.rainyseason.cj.data.database.kv.KeyValueDao
 import com.rainyseason.cj.data.database.kv.KeyValueDatabase
 import com.rainyseason.cj.data.database.kv.KeyValueEntry
@@ -24,6 +26,7 @@ class KeyValueDatabaseMigrator @Inject constructor(
     private val daoProvider: Provider<KeyValueDao>,
     private val databaseProvider: Provider<KeyValueDatabase>,
     private val context: Context,
+    private val traceManager: TraceManager,
 ) {
     private val dao: KeyValueDao
         get() = daoProvider.get()
@@ -69,9 +72,13 @@ class KeyValueDatabaseMigrator @Inject constructor(
 
     private suspend fun migrateToDatabase() {
         val keyValues = mutableMapOf<Preferences.Key<*>, Any>()
-        listFiles
-            .map { context.preferencesDataStoreFile(it) }
+        val fileToMigrate = listFiles.map { context.preferencesDataStoreFile(it) }
             .filter { it.isFile && it.exists() }
+        if (fileToMigrate.isEmpty()) {
+            return
+        }
+        traceManager.beginTrace(MigrateKeyValueTTI)
+        fileToMigrate
             .map { file ->
                 PreferenceDataStoreFactory.create(
                     corruptionHandler = null,
@@ -80,27 +87,32 @@ class KeyValueDatabaseMigrator @Inject constructor(
                     produceFile = { file }
                 ).data.first().asMap()
             }.forEach { map -> keyValues.putAll(map) }
-        keyValues.forEach { (key: Preferences.Key<*>, value: Any) ->
-            when (value) {
-                is String -> dao.insert(KeyValueEntry(key = key.name, stringValue = value))
-                is Int -> dao.insert(KeyValueEntry(key = key.name, longValue = value.toLong()))
-                is Double -> dao.insert(KeyValueEntry(key = key.name, doubleValue = value))
-                is Boolean -> dao.insert(
-                    KeyValueEntry(
-                        key = key.name,
-                        longValue = if (value) 1 else 0
+        database.withTransaction {
+            keyValues.forEach { (key: Preferences.Key<*>, value: Any) ->
+                when (value) {
+                    is String -> dao.insert(KeyValueEntry(key = key.name, stringValue = value))
+                    is Int -> dao.insert(KeyValueEntry(key = key.name, longValue = value.toLong()))
+                    is Double -> dao.insert(KeyValueEntry(key = key.name, doubleValue = value))
+                    is Boolean -> dao.insert(
+                        KeyValueEntry(
+                            key = key.name,
+                            longValue = if (value) 1 else 0
+                        )
                     )
-                )
-                is Float -> dao.insert(
-                    KeyValueEntry(
-                        key = key.name,
-                        doubleValue = value.toDouble()
+                    is Float -> dao.insert(
+                        KeyValueEntry(
+                            key = key.name,
+                            doubleValue = value.toDouble()
+                        )
                     )
-                )
-                is Long -> dao.insert(KeyValueEntry(key = key.name, longValue = value))
+                    is Long -> dao.insert(KeyValueEntry(key = key.name, longValue = value))
+                }
             }
         }
+        traceManager.endTrace(MigrateKeyValueTTI)
     }
+
+    object MigrateKeyValueTTI : TraceParam(key = "migrate_key_value", name = "migrate_key_value")
 
     fun waitMigrate() {
         countDownLatch.await()
