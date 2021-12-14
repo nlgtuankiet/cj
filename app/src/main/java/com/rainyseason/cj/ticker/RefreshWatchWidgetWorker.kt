@@ -28,6 +28,7 @@ import com.rainyseason.cj.widget.watch.WatchWidgetRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -91,16 +92,20 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
         try {
             updateWidget(widgetId)
         } catch (ex: Throwable) {
-            tracker.logKeyParamsEvent(
-                "widget_refresh_fail",
-                mapOf(
-                    "reason" to "unknown",
-                    "message" to ex.message
-                )
-            )
-            firebaseCrashlytics.recordException(ex)
-            if (BuildConfig.DEBUG) {
+            if (ex is CancellationException) {
                 throw ex
+            } else {
+                tracker.logKeyParamsEvent(
+                    "widget_refresh_fail",
+                    mapOf(
+                        "reason" to "unknown",
+                        "message" to ex.message
+                    )
+                )
+                firebaseCrashlytics.recordException(ex)
+                if (BuildConfig.DEBUG) {
+                    throw ex
+                }
             }
         }
 

@@ -17,6 +17,7 @@ import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.CancellationException
 
 /**
  * Refresh
@@ -72,16 +73,20 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         try {
             updateWidget(widgetId)
         } catch (ex: Throwable) {
-            tracker.logKeyParamsEvent(
-                "widget_refresh_fail",
-                mapOf(
-                    "reason" to "unknown",
-                    "message" to ex.message
-                )
-            )
-            firebaseCrashlytics.recordException(ex)
-            if (BuildConfig.DEBUG) {
+            if (ex is CancellationException) {
                 throw ex
+            } else {
+                tracker.logKeyParamsEvent(
+                    "widget_refresh_fail",
+                    mapOf(
+                        "reason" to "unknown",
+                        "message" to ex.message
+                    )
+                )
+                firebaseCrashlytics.recordException(ex)
+                if (BuildConfig.DEBUG) {
+                    throw ex
+                }
             }
         }
 

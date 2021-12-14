@@ -140,23 +140,11 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         scope.launch {
             runCatching {
                 firebaseRemoteConfig.fetch(1).await()
-            }.onFailure {
-                if (BuildConfig.DEBUG) {
-                    throw it
-                } else {
-                    FirebaseCrashlytics.getInstance().recordException(it)
-                }
             }
 
             runCatching {
                 firebaseRemoteConfig.activate().await()
                 configChangeManager.notifyListeners()
-            }.onFailure {
-                if (BuildConfig.DEBUG) {
-                    throw it
-                } else {
-                    FirebaseCrashlytics.getInstance().recordException(it)
-                }
             }
         }
     }
