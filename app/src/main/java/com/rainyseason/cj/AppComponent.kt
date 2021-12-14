@@ -1,6 +1,5 @@
 package com.rainyseason.cj
 
-import android.app.Application
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.os.Looper
@@ -8,10 +7,6 @@ import android.os.PowerManager
 import android.util.Log
 import android.util.Log.VERBOSE
 import androidx.core.content.getSystemService
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
 import androidx.work.Configuration
 import androidx.work.WorkManager
@@ -26,18 +21,14 @@ import com.ihsanbal.logging.LoggingInterceptor
 import com.rainyseason.cj.coinselect.CoinSelectFragmentModule
 import com.rainyseason.cj.coinstat.CoinStatFragmentModule
 import com.rainyseason.cj.common.AppDnsSelector
-import com.rainyseason.cj.common.CoinTickerStorage
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.model.BackendJsonAdapter
 import com.rainyseason.cj.common.model.ThemeJsonAdapter
 import com.rainyseason.cj.common.model.TimeIntervalJsonAdapter
-import com.rainyseason.cj.data.CoinHistory
 import com.rainyseason.cj.data.CoinHistoryEntry
-import com.rainyseason.cj.data.CommonStorage
 import com.rainyseason.cj.data.ForceCacheInterceptor
 import com.rainyseason.cj.data.NetworkUrlLoggerInterceptor
 import com.rainyseason.cj.data.NoMustRevalidateInterceptor
-import com.rainyseason.cj.data.UserSettingStorage
 import com.rainyseason.cj.data.binance.BinanceService
 import com.rainyseason.cj.data.binance.BinanceServiceWrapper
 import com.rainyseason.cj.data.cmc.CmcService
@@ -55,7 +46,6 @@ import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
 import com.rainyseason.cj.tracking.AppTracker
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.watch.WatchListFragmentModule
-import com.rainyseason.cj.widget.watch.Watch
 import com.rainyseason.cj.widget.watch.WatchClickActionJsonAdapter
 import com.rainyseason.cj.widget.watch.WatchPreviewFragmentModule
 import com.rainyseason.cj.widget.watch.WatchSettingActivityModule
@@ -69,9 +59,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import okhttp3.Cache
 import okhttp3.Call
 import okhttp3.OkHttpClient
@@ -86,7 +73,21 @@ import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Component(
-    modules = [
+    modules = [AllModules::class]
+)
+@Singleton
+interface AppComponent : AndroidInjector<CJApplication>, CoreComponent {
+
+    @Component.Factory
+    interface Factory {
+        fun create(
+            @BindsInstance context: Context,
+        ): AppComponent
+    }
+}
+
+@Module(
+    includes = [
         AndroidSupportInjectionModule::class,
         MainActivityModule::class,
         CoinTickerSettingActivityModule::class,
@@ -103,16 +104,7 @@ import javax.inject.Singleton
         CoinSelectFragmentModule::class,
     ]
 )
-@Singleton
-interface AppComponent : AndroidInjector<CJApplication>, CoreComponent {
-
-    @Component.Factory
-    interface Factory {
-        fun create(
-            @BindsInstance application: Application,
-        ): AppComponent
-    }
-}
+interface AllModules
 
 @Module
 interface AppBinds {
@@ -295,60 +287,9 @@ object AppProvides {
     }
 
     @Provides
-    fun context(application: Application): Context {
-        return application
-    }
-
-    @Provides
     @Singleton
     fun widgetManager(context: Context): AppWidgetManager {
         return AppWidgetManager.getInstance(context)
-    }
-
-    @Provides
-    @Singleton
-    fun provideCoinTickerStorage(context: Context): CoinTickerStorage {
-        val pref = createStorage(context, "coin_ticker_storage")
-        return CoinTickerStorage(pref)
-    }
-
-    private fun createStorage(context: Context, name: String): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create(
-            corruptionHandler = null,
-            migrations = emptyList(),
-            scope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-            produceFile = {
-                context.preferencesDataStoreFile(name)
-            }
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideUserSettingStorage(context: Context): UserSettingStorage {
-        val pref = createStorage(context, "user_setting_storage")
-        return UserSettingStorage(pref)
-    }
-
-    @Provides
-    @CommonStorage
-    @Singleton
-    fun provideCommonStorage(context: Context): DataStore<Preferences> {
-        return createStorage(context, "common")
-    }
-
-    @Provides
-    @Watch
-    @Singleton
-    fun provideWatchStorage(context: Context): DataStore<Preferences> {
-        return createStorage(context, "watch_storage")
-    }
-
-    @Provides
-    @CoinHistory
-    @Singleton
-    fun provideCoinHistoryStorage(context: Context): DataStore<Preferences> {
-        return createStorage(context, "coin_history")
     }
 
     @Provides
@@ -380,6 +321,8 @@ object AppProvides {
 
 fun checkNotMainThread() {
     if (BuildConfig.DEBUG) {
-        check(Looper.myLooper() !== Looper.getMainLooper())
+        check(Looper.myLooper() !== Looper.getMainLooper()) {
+            "Invoke on main thread"
+        }
     }
 }

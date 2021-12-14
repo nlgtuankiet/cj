@@ -1,10 +1,7 @@
 package com.rainyseason.cj.data
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
+import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.Moshi
@@ -44,20 +41,18 @@ data class UserSetting(
 val UserSetting.locale: Locale
     get() = SUPPORTED_CURRENCY[currencyCode]!!.locale
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("BlockingMethodInNonBlockingContext")
 @Singleton
 class UserSettingRepository @Inject constructor(
-    private val store: UserSettingStorage,
+    private val keyValueStore: KeyValueStore,
     moshi: Moshi,
 ) {
 
-    private val settingsKey = stringPreferencesKey("settings")
+    private val settingsKey = "settings"
     private val settingsAdapter = moshi.adapter(UserSetting::class.java)
 
     suspend fun setUserSetting(userSetting: UserSetting) {
-        store.edit {
-            it[settingsKey] = settingsAdapter.toJson(userSetting)
-        }
+        keyValueStore.setString(settingsKey, settingsAdapter.toJson(userSetting))
     }
 
     suspend fun getUserSetting(): UserSetting {
@@ -65,17 +60,14 @@ class UserSettingRepository @Inject constructor(
     }
 
     fun getUserSettingFlow(): Flow<UserSetting> {
-        return store.data.map { pref ->
-            if (pref.contains(settingsKey)) {
-                @Suppress("BlockingMethodInNonBlockingContext")
-                settingsAdapter.fromJson(pref[settingsKey]!!)!!
-            } else {
-                UserSetting()
+        return keyValueStore.getStringFlow(settingsKey)
+            .map {
+                if (it.isNullOrEmpty()) {
+                    UserSetting()
+                } else {
+                    settingsAdapter.fromJson(it)!!
+                }
             }
-        }.distinctUntilChanged()
+            .distinctUntilChanged()
     }
 }
-
-class UserSettingStorage(
-    private val delegate: DataStore<Preferences>,
-) : DataStore<Preferences> by delegate

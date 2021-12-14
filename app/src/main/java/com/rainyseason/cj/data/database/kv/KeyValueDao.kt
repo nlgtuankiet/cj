@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import org.threeten.bp.Instant
 
 @Dao
 interface KeyValueDao {
@@ -16,9 +15,9 @@ interface KeyValueDao {
     @Query("select * from entry where `key` = :key")
     suspend fun select(key: String): KeyValueEntry?
 
+    @Query("delete from entry where `key` = :key")
+    suspend fun delete(key: String)
+
     @Query("select * from entry where `key` = :key limit 1")
     fun selectFlow(key: String): Flow<KeyValueEntry?>
-
-    @Query("select update_at from entry where `key` = :key")
-    fun selectUpdateAt(key: String): Instant?
 }

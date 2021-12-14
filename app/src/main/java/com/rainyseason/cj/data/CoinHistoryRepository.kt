@@ -1,10 +1,7 @@
 package com.rainyseason.cj.data
 
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonClass
@@ -13,49 +10,42 @@ import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
 @Singleton
+@Suppress("BlockingMethodInNonBlockingContext")
 class CoinHistoryRepository @Inject constructor(
-    @CoinHistory
-    private val storage: DataStore<Preferences>,
-    private val moshi: Moshi,
+    private val keyValueStore: KeyValueStore,
+    moshi: Moshi,
 ) {
-    private val key = stringPreferencesKey("entries")
+    private val key = "entries"
     private val entriesAdapter = moshi.adapter(CoinHistoryEntries::class.java)
 
     fun getHistory(): Flow<List<CoinHistoryEntry>> {
-        return storage.data.map {
-            val oldEntryJson = storage.data.first()[key]
-            val oldEntries = if (oldEntryJson == null) {
-                emptyList()
-            } else {
-                @Suppress("BlockingMethodInNonBlockingContext")
-                entriesAdapter.fromJson(oldEntryJson)?.entries.orEmpty()
+        return keyValueStore.getStringFlow(key)
+            .map { json ->
+                if (json.isNullOrEmpty()) {
+                    emptyList()
+                } else {
+                    entriesAdapter.fromJson(json)?.entries.orEmpty().distinctBy { it.id }
+                }
             }
-            oldEntries.distinctBy { it.id }
-        }.distinctUntilChanged()
     }
 
     private suspend fun updateEntries(
         block: (List<CoinHistoryEntry>) -> List<CoinHistoryEntry>,
     ) {
-        val oldEntryJson = storage.data.first()[key]
-        val oldEntries = if (oldEntryJson == null) {
+        val oldEntryJson = keyValueStore.getString(key)
+        val oldEntries = if (oldEntryJson.isNullOrBlank()) {
             emptyList()
         } else {
-            @Suppress("BlockingMethodInNonBlockingContext")
             entriesAdapter.fromJson(oldEntryJson)?.entries.orEmpty()
         }
         val newEntries = block.invoke(oldEntries).take(5)
-        storage.edit {
-            it[key] = entriesAdapter.toJson(CoinHistoryEntries(newEntries))
-        }
+        keyValueStore.setString(key, entriesAdapter.toJson(CoinHistoryEntries(newEntries)))
     }
 
     suspend fun add(

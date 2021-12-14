@@ -22,6 +22,7 @@ import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
 import com.rainyseason.cj.data.CommonRepository
+import com.rainyseason.cj.data.KeyValueDatabaseMigrator
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.featureflag.MainFlagValueProvider
@@ -78,6 +79,9 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     @Inject
     lateinit var commonRepository: Provider<CommonRepository>
 
+    @Inject
+    lateinit var keyValueDatabaseMigrator: KeyValueDatabaseMigrator
+
     private lateinit var appComponent: AppComponent
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -87,6 +91,7 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         appComponent = DaggerAppComponent.factory().create(this)
         checkFirebaseApp()
         injectIfNecessary()
+        keyValueDatabaseMigrator.migrate()
         initRemoteConfig()
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
 
@@ -207,5 +212,9 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
                     .build()
             )
         }
+    }
+
+    companion object {
+        var isInTest = false
     }
 }
