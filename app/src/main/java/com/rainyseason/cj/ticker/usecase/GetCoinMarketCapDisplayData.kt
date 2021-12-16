@@ -39,6 +39,7 @@ class GetCoinMarketCapDisplayData @Inject constructor(
                     (it.value.c ?: it.value.v).first()
                 )
             }
+                .sortedBy { it[0] }
 
             val quoteData = quote.quotes.first()
             CoinTickerDisplayData(

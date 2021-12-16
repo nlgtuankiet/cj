@@ -1,6 +1,7 @@
 ### 1.10.4 Release
 
 🛠 Improve coin select screen performance, now become more responsive
+🛠 Fix sometime display wrong graph for CoinMarketCap ticker widgets
 
 ### 1.10.3 Release
 
