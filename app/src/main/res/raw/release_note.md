@@ -1,3 +1,7 @@
+### 1.10.4 Release
+
+🛠 Improve coin select screen performance, now become more responsive
+
 ### 1.10.3 Release
 
 🛠 Improve overall performance, now app uses less memory and less storage  
