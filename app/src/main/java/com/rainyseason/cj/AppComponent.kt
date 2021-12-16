@@ -27,8 +27,8 @@ import com.rainyseason.cj.common.model.ThemeJsonAdapter
 import com.rainyseason.cj.common.model.TimeIntervalJsonAdapter
 import com.rainyseason.cj.data.CoinHistoryEntry
 import com.rainyseason.cj.data.ForceCacheInterceptor
-import com.rainyseason.cj.data.NetworkUrlLoggerInterceptor
 import com.rainyseason.cj.data.NoMustRevalidateInterceptor
+import com.rainyseason.cj.data.UrlLoggerInterceptor
 import com.rainyseason.cj.data.binance.BinanceService
 import com.rainyseason.cj.data.binance.BinanceServiceWrapper
 import com.rainyseason.cj.data.cmc.CmcService
@@ -131,7 +131,7 @@ object AppProvides {
     @Singleton
     fun provideBaseClientBuilder(
         forceCacheInterceptor: ForceCacheInterceptor,
-        networkUrlLoggerInterceptor: NetworkUrlLoggerInterceptor,
+        urlLoggerInterceptor: UrlLoggerInterceptor,
         noMustRevalidateInterceptor: NoMustRevalidateInterceptor,
         appDnsSelector: AppDnsSelector,
     ): OkHttpClient.Builder {
@@ -144,21 +144,29 @@ object AppProvides {
         builder.readTimeout(1, TimeUnit.MINUTES)
         builder.writeTimeout(1, TimeUnit.MINUTES)
         if (BuildConfig.DEBUG) {
-            val logging = LoggingInterceptor.Builder()
-                .setLevel(Level.BODY)
-                .tag("OkHttp")
-                .log(VERBOSE)
-                .build()
-            val networkLogging = HttpLoggingInterceptor { message ->
-                Timber.tag("OkHttpN").d(message)
-            }
-            networkLogging.level = HttpLoggingInterceptor.Level.HEADERS
+            builder.addInterceptor(urlLoggerInterceptor)
 
             if (DebugFlag.SHOW_HTTP_LOG.isEnable) {
-                builder.addInterceptor(logging.synchronized())
+                if (DebugFlag.SHOW_HTTP_LOG_JSON.isEnable) {
+                    val logging = LoggingInterceptor.Builder()
+                        .setLevel(Level.BODY)
+                        .tag("OkHttp")
+                        .log(VERBOSE)
+                        .build()
+                    builder.addInterceptor(logging.synchronized())
+                } else {
+                    val logging = HttpLoggingInterceptor { message ->
+                        Timber.tag("OkHttp").d(message)
+                    }
+                    builder.addInterceptor(logging.synchronized())
+                }
+
                 if (DebugFlag.SHOW_NETWORK_LOG.isEnable) {
-                    builder.addNetworkInterceptor(networkLogging)
-                    builder.addNetworkInterceptor(networkUrlLoggerInterceptor)
+                    val networkLogging = HttpLoggingInterceptor { message ->
+                        Timber.tag("OkHttpN").d(message)
+                    }
+                    networkLogging.level = HttpLoggingInterceptor.Level.HEADERS
+                    builder.addNetworkInterceptor(networkLogging.synchronized())
                 }
             }
         }

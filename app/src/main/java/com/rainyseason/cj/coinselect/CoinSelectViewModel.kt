@@ -11,12 +11,6 @@ import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.CoinHistoryEntry
 import com.rainyseason.cj.data.CoinHistoryRepository
-import com.rainyseason.cj.data.UserSettingRepository
-import com.rainyseason.cj.data.coingecko.CoinGeckoService
-import com.rainyseason.cj.data.coingecko.CoinListEntry
-import com.rainyseason.cj.data.coingecko.MarketsResponseEntry
-import com.rainyseason.cj.data.coingecko.getCoinListFlow
-import com.rainyseason.cj.data.coingecko.getCoinMarketsFlow
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -32,30 +26,25 @@ import java.util.Collections
 import java.util.UUID
 
 data class CoinSelectState(
-    val markets: Async<List<MarketsResponseEntry>> = Uninitialized,
-    val list: Async<List<CoinListEntry>> = Uninitialized,
     val history: Async<List<CoinHistoryEntry>> = Uninitialized,
     val keyword: String = "",
     val backend: Backend,
     val backendProductMap: Map<Backend, Async<List<BackendProduct>>> = emptyMap(),
+    val currentPage: Int = 0,
 ) : MavericksState
 
 class CoinSelectViewModel @AssistedInject constructor(
     @Assisted private val initState: CoinSelectState,
-    private val userSettingRepository: UserSettingRepository,
-    private val coinGeckoService: CoinGeckoService,
     private val coinHistoryRepository: CoinHistoryRepository,
     private val getBackendProducts: GetBackendProducts,
 ) : MavericksViewModel<CoinSelectState>(initState) {
 
     val id = UUID.randomUUID().toString()
-
-    @AssistedFactory
-    interface Factory {
-        fun create(initState: CoinSelectState): CoinSelectViewModel
-    }
-
     private val keywordDebound = MutableStateFlow("")
+    private val loadBackendJobs: MutableMap<Backend, Job> = Collections
+        .synchronizedMap(mutableMapOf())
+    private var historyJob: Job? = null
+    private var listenBackendChangeJob: Job? = null
 
     init {
         reload()
@@ -66,9 +55,19 @@ class CoinSelectViewModel @AssistedInject constructor(
                 .distinctUntilChanged()
                 .collect { setState { copy(keyword = it) } }
         }
+
+        onEach(
+            CoinSelectState::keyword,
+            CoinSelectState::backend,
+        ) { _, _ ->
+            setState { copy(currentPage = 0) }
+        }
     }
 
-    private var listenBackendChangeJob: Job? = null
+    fun displayNextPage() {
+        setState { copy(currentPage = currentPage + 1) }
+    }
+
     private fun listenBackendChange() {
         listenBackendChangeJob?.cancel()
         setState { copy(backendProductMap = emptyMap()) }
@@ -77,13 +76,7 @@ class CoinSelectViewModel @AssistedInject constructor(
         }
     }
 
-    private val loadBackendJobs: MutableMap<Backend, Job> = Collections
-        .synchronizedMap(mutableMapOf())
-
     private fun loadBackendProducts(backend: Backend) {
-        if (backend.isDefault) {
-            return
-        }
         withState { state ->
             val oldDataAsync = state.backendProductMap[backend]
             if (oldDataAsync != null && !oldDataAsync.shouldLoad) {
@@ -101,7 +94,12 @@ class CoinSelectViewModel @AssistedInject constructor(
     }
 
     fun back() {
-        setState { copy(backend = Backend.CoinGecko) }
+        setState {
+            copy(
+                backend = Backend.CoinGecko,
+                keyword = "",
+            )
+        }
     }
 
     fun submitNewKeyword(newKeyword: String) {
@@ -124,10 +122,6 @@ class CoinSelectViewModel @AssistedInject constructor(
         }
     }
 
-    private var listJob: Job? = null
-    private var marketJob: Job? = null
-    private var historyJob: Job? = null
-
     fun reload() {
         listenBackendChange()
 
@@ -136,16 +130,6 @@ class CoinSelectViewModel @AssistedInject constructor(
             .execute {
                 copy(history = it)
             }
-
-        listJob?.cancel()
-        listJob = coinGeckoService.getCoinListFlow().execute { copy(list = it) }
-
-        marketJob?.cancel()
-        marketJob = viewModelScope.launch {
-            val setting = userSettingRepository.getUserSetting()
-            coinGeckoService.getCoinMarketsFlow(vsCurrency = setting.currencyCode, perPage = 1000)
-                .execute { copy(markets = it) }
-        }
     }
 
     companion object : MavericksViewModelFactory<CoinSelectViewModel, CoinSelectState> {
@@ -163,5 +147,10 @@ class CoinSelectViewModel @AssistedInject constructor(
                 backend = Backend.from(fragment.arguments?.getString("backend_id"))
             )
         }
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(initState: CoinSelectState): CoinSelectViewModel
     }
 }
