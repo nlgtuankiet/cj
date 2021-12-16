@@ -240,11 +240,7 @@ class CoinSelectController @AssistedInject constructor(
                 if (entry.backend.isExchange) {
                     subTitle(entry.backend.displayName)
                 } else {
-                    if (entry.backend.isDefault) {
-                        subTitle(entry.symbol.uppercase())
-                    } else {
-                        subTitle("${entry.symbol.uppercase()} (${entry.backend.displayName})")
-                    }
+                    subTitle("${entry.symbol.uppercase()} (${entry.backend.displayName})")
                 }
                 iconUrl(entry.iconUrl)
                 onClearClickListener { _ ->
