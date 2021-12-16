@@ -23,6 +23,8 @@ import com.rainyseason.cj.common.view.emptyView
 import com.rainyseason.cj.common.view.retryView
 import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.data.CoinHistoryEntry
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -33,6 +35,7 @@ class CoinSelectController @AssistedInject constructor(
     @Assisted private val viewModel: CoinSelectViewModel,
     @Assisted private val resultDestination: Int,
     private val context: Context,
+    private val tracker: Tracker,
     private val traceManager: TraceManager,
 ) : AsyncEpoxyController() {
 
@@ -259,6 +262,13 @@ class CoinSelectController @AssistedInject constructor(
     private fun moveToResult(view: View, coinId: String, backend: Backend = Backend.CoinGecko) {
         view.dismissKeyboard()
         val controller = view.findNavController()
+        tracker.logKeyParamsEvent(
+            "coin_select",
+            mapOf(
+                "coin_id" to coinId,
+                "backend_id" to backend.id
+            )
+        )
         controller.navigate(
             resultDestination,
             Bundle().apply {
