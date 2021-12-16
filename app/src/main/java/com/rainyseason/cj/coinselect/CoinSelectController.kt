@@ -29,7 +29,9 @@ import com.rainyseason.cj.data.coingecko.MarketsResponseEntry
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import timber.log.Timber
 import kotlin.math.max
+import kotlin.system.measureTimeMillis
 
 class CoinSelectController @AssistedInject constructor(
     @Assisted private val viewModel: CoinSelectViewModel,
@@ -47,6 +49,17 @@ class CoinSelectController @AssistedInject constructor(
     }
 
     override fun buildModels() {
+        if (BuildConfig.DEBUG) {
+            val buildModelTime = measureTimeMillis {
+                buildModelsInternal()
+            }
+            Timber.d("build model take ${buildModelTime}ms")
+        } else {
+            buildModelsInternal()
+        }
+    }
+
+    private fun buildModelsInternal() {
         val state = withState(viewModel) { it }
         emptyView {
             id("holder")
