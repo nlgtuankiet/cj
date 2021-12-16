@@ -4,6 +4,7 @@ import android.view.Gravity
 import android.view.View
 import androidx.appcompat.widget.PopupMenu
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
@@ -29,6 +30,9 @@ class WatchListController @AssistedInject constructor(
     @Assisted val viewModel: WatchListViewModel,
     private val tracker: Tracker,
 ) : AsyncEpoxyController() {
+
+    var touchHelper: ItemTouchHelper? = null
+
     override fun buildModels() {
         emptyView { id("holder") }
         val state = withState(viewModel) { it }
@@ -62,6 +66,11 @@ class WatchListController @AssistedInject constructor(
                         )
                     )
                     viewModel.onRemoveClick(coinId)
+                }
+                onHandleTouch { model, _, _, _ ->
+                    adapter.boundViewHolders.getHolderForModel(model)?.let {
+                        touchHelper?.startDrag(it)
+                    }
                 }
             }
         }

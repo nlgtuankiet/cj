@@ -1,7 +1,9 @@
 package com.rainyseason.cj.watch.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.widget.FrameLayout
 import androidx.core.view.isGone
 import com.airbnb.epoxy.CallbackProp
@@ -38,9 +40,20 @@ class WatchEditEntryView @JvmOverloads constructor(
         binding.deleteButton.setOnClickListener(l)
     }
 
-    data class PriceModel(
-        val price: Double,
-        val changePercent: Double?,
-        val currency: String,
-    )
+    @SuppressLint("ClickableViewAccessibility")
+    @CallbackProp
+    fun setOnHandleTouch(l: OnClickListener?) {
+        if (l == null) {
+            binding.dragHandler.setOnTouchListener(null)
+        } else {
+            binding.dragHandler.setOnTouchListener { _, event ->
+                if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+                    l.onClick(this)
+                    true
+                } else {
+                    false
+                }
+            }
+        }
+    }
 }

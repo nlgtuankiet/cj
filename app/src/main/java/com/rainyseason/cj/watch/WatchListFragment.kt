@@ -58,7 +58,7 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
         val binding = FragmentWatchListBinding.bind(view)
         setupSearchAnimation(binding)
         binding.contentRecyclerView.setController(controller)
-        setUpEdit(binding)
+        setUpEdit(binding, viewModel, controller)
         tracker.logScreenEnter(SCREEN_NAME)
         setupRefreshLayout(binding)
     }

@@ -1,6 +1,7 @@
 package com.rainyseason.cj.watch
 
 import android.view.View
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.airbnb.epoxy.EpoxyControllerAdapter
 import com.airbnb.epoxy.EpoxyTouchHelper
 import com.rainyseason.cj.R
@@ -11,15 +12,22 @@ import com.rainyseason.cj.watch.view.WatchEditEntryViewModel_
 
 fun WatchListFragment.setUpEdit(
     binding: FragmentWatchListBinding,
+    viewModel: WatchListViewModel,
+    controller: WatchListController,
 ) {
     val editButton = binding.searchGroup.editButton
     val recyclerView = binding.contentRecyclerView
+    val pullToRefreshLayout = binding.refreshLayout
+
+    viewModel.onEach(WatchListState::isInEditMode) { isInEditMode ->
+        pullToRefreshLayout.isEnabled = !isInEditMode
+    }
 
     var moveFrom: Int? = null
     var moveTo: Int? = null
     var mapping: Map<Int, String>? = null
 
-    val helper = EpoxyTouchHelper.initDragging(controller)
+    val helper: ItemTouchHelper = EpoxyTouchHelper.initDragging(controller)
         .withRecyclerView(recyclerView)
         .forVerticalList()
         .withTarget(WatchEditEntryViewModel_::class.java)
@@ -79,6 +87,7 @@ fun WatchListFragment.setUpEdit(
                 }
             }
         })
+    controller.touchHelper = helper
 
     viewModel.onEach(WatchListState::isInEditMode) { isInEditMode ->
         editButton.setImageResource(
