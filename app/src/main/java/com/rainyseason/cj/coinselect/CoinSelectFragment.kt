@@ -105,6 +105,14 @@ class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksVie
             searchBox.setTextIfDifferent(keyword)
             clearButton.isVisible = keyword.isNotBlank()
         }
+        viewModel.onEach(CoinSelectState::backend) { backend ->
+            val hintRes = when {
+                backend.isDefault -> R.string.search_hint_all
+                backend.isExchange -> R.string.search_hint_pair
+                else -> R.string.search_hint_coins
+            }
+            searchBox.setHint(hintRes)
+        }
 
         recyclerView.setController(controller)
         EpoxyVisibilityTracker().attach(recyclerView)

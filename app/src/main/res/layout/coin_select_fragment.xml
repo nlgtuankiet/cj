@@ -32,7 +32,6 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
         android:background="@null"
-        android:hint="@string/search_hint"
         android:inputType="text"
         android:textCursorDrawable="@null"
         app:layout_constraintBottom_toBottomOf="@id/toolbar_container"
