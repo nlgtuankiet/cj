@@ -1,6 +1,6 @@
 package com.rainyseason.cj.ticker.usecase
 
-import com.google.firebase.crashlytics.BuildConfig
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import timber.log.Timber
 import kotlin.math.abs

@@ -11,6 +11,7 @@ class GetBackendProducts @Inject constructor(
     private val getCoinMarketCapProducts: GetCoinMarketCapProducts,
     private val getCoinGeckoProducts: GetCoinGeckoProducts,
     private val getCoinbaseProducts: GetCoinbaseProducts,
+    private val getFtxProducts: GetFtxProducts,
 ) {
 
     operator fun invoke(backend: Backend): Flow<List<BackendProduct>> {
@@ -19,6 +20,7 @@ class GetBackendProducts @Inject constructor(
             Backend.CoinMarketCap -> getCoinMarketCapProducts.invoke()
             Backend.CoinGecko -> getCoinGeckoProducts.invoke()
             Backend.Coinbase -> getCoinbaseProducts.invoke()
+            Backend.Ftx -> getFtxProducts.invoke()
         }
     }
 }

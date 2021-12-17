@@ -38,6 +38,7 @@ import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.CoinGeckoServiceWrapper
 import com.rainyseason.cj.data.database.kv.KeyValueDao
 import com.rainyseason.cj.data.database.kv.KeyValueDatabase
+import com.rainyseason.cj.data.ftx.FtxService
 import com.rainyseason.cj.data.interceptor.synchronized
 import com.rainyseason.cj.detail.CoinDetailModule
 import com.rainyseason.cj.featureflag.DebugFlag
@@ -281,6 +282,20 @@ object AppProvides {
             .build()
             .create(CoinbaseService::class.java)
         return CoinbaseServiceWrapper(service)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFtxService(
+        moshi: Moshi,
+        clientProvider: Provider<OkHttpClient>,
+    ): FtxService {
+        return Retrofit.Builder()
+            .baseUrl(FtxService.BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .callFactory { clientProvider.get().newCall(it) }
+            .build()
+            .create(FtxService::class.java)
     }
 
     @Provides
