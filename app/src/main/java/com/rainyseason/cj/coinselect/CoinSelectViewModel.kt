@@ -4,6 +4,7 @@ import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
+import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.fragment
@@ -79,7 +80,7 @@ class CoinSelectViewModel @AssistedInject constructor(
     private fun loadBackendProducts(backend: Backend) {
         withState { state ->
             val oldDataAsync = state.backendProductMap[backend]
-            if (oldDataAsync != null && !oldDataAsync.shouldLoad) {
+            if (oldDataAsync != null && oldDataAsync is Success) {
                 return@withState
             }
             loadBackendJobs[backend]?.cancel()

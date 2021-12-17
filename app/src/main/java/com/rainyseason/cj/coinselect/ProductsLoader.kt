@@ -1,10 +1,11 @@
 package com.rainyseason.cj.coinselect
 
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.common.SchemeLoader
 import com.rainyseason.cj.common.model.Backend
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -20,7 +21,7 @@ class ProductsLoader(
     private val cacheTimeMilis: Long = TimeUnit.MINUTES.toMillis(5),
 ) {
     private val loadMutex = Mutex()
-    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + Job())
+    private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val loader = SchemeLoader(
         localSource = object : SchemeLoader.LocalSource<Backend, BackendProduct> {
@@ -63,7 +64,12 @@ class ProductsLoader(
     }
 
     private suspend fun loadWithScheme(scheme: List<Int>) {
-        loader.invoke(backend, scheme)
+        try {
+            loader.invoke(backend, scheme)
+        } catch (ex: Exception) {
+            // usually network error
+            FirebaseCrashlytics.getInstance().recordException(ex)
+        }
     }
 
     operator fun invoke(): Flow<List<BackendProduct>> {
