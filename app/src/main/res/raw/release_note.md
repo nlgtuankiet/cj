@@ -1,3 +1,6 @@
+### 1.10.5 Release
+✨ Add Coinbase support, now you can add widgets that displays data from Coinbase
+
 ### 1.10.4 Release
 
 🛠 Improve coin select screen performance, now become more responsive
