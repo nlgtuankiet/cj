@@ -294,5 +294,32 @@ fun List<List<Double>>.reverseValue(): List<List<Double>> {
     }
 }
 
+fun List<List<Double>>.findApproxIndex(approxTime: Double): Int {
+    var low = 0
+    var high = size - 1
+    var minDelta = Double.MAX_VALUE
+    var minIndex = 0
+
+    while (low <= high) {
+        val mid = (low + high).ushr(1) // safe from overflows
+        val midVal = this[mid]
+        val time = midVal[0]
+        val delta = abs(time - approxTime)
+        if (delta < minDelta) {
+            minIndex = mid
+            minDelta = delta
+        }
+
+        val cmp = time.compareTo(approxTime)
+
+        when {
+            cmp < 0 -> low = mid + 1
+            cmp > 0 -> high = mid - 1
+            else -> return mid
+        } // key found
+    }
+    return minIndex
+}
+
 fun <F : Fragment> ViewModelContext.fragment(): F =
     (this as FragmentViewModelContext).fragment()

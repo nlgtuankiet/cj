@@ -3,6 +3,7 @@ package com.rainyseason.cj.common.model
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
+import java.util.concurrent.TimeUnit
 
 enum class TimeInterval(val id: String) {
     I_1H("1h"),
@@ -14,6 +15,23 @@ enum class TimeInterval(val id: String) {
     I_1Y("1y"),
     I_ALL("all"),
     ;
+
+    fun toMilis(): Long {
+        return when (this) {
+            I_1H -> TimeUnit.HOURS.toMillis(1)
+            I_24H -> TimeUnit.HOURS.toMillis(24)
+            I_7D -> TimeUnit.DAYS.toMillis(7)
+            I_14D -> TimeUnit.DAYS.toMillis(14)
+            I_30D -> TimeUnit.DAYS.toMillis(30)
+            I_90D -> TimeUnit.DAYS.toMillis(90)
+            I_1Y -> TimeUnit.DAYS.toMillis(365)
+            else -> error("not support")
+        }
+    }
+
+    fun toSeconds(): Long {
+        return toMilis() / 1000
+    }
 }
 
 private val intervalToDayString = mapOf(

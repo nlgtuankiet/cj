@@ -42,6 +42,7 @@ class GetBinanceDisplayData @Inject constructor(
 
             val tickerPriceAsync = async { binanceService.getTickerPrice(param.coinId) }
 
+            // TODO no need to call another api for display name only
             val symbolDetail = symbolDetailAsync.await().symbols.first()
             val kLinesResponse = kLinesResponseAsync.await()
             val tickerPrice = tickerPriceAsync.await()

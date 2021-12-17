@@ -2,37 +2,37 @@ package com.rainyseason.cj.coinselect
 
 import com.rainyseason.cj.common.SchemeLoader
 import com.rainyseason.cj.common.model.Backend
-import com.rainyseason.cj.data.cmc.CmcService
+import com.rainyseason.cj.data.coinbase.CoinbaseService
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class GetCoinMarketCapProducts @Inject constructor(
+class GetCoinbaseProducts @Inject constructor(
     backendProductStore: BackendProductStore,
-    private val cmcService: CmcService,
+    private val coinbaseService: CoinbaseService
 ) {
 
     private val remoteSource = object : SchemeLoader.RemoteSource<BackendProduct> {
         override suspend fun get(fromIndex: Int, limit: Int): List<BackendProduct> {
-            return cmcService.getMap(start = fromIndex + 1, limit = limit)
-                .data.cryptoCurrencyMap.map { crypto ->
+            return coinbaseService.getProducts()
+                .map {
                     BackendProduct(
-                        id = crypto.id,
-                        symbol = crypto.symbol,
-                        displayName = crypto.name,
-                        backend = Backend.CoinMarketCap,
-                        iconUrl = CmcService.getCmcIconUrl(crypto.id)
+                        id = it.id,
+                        symbol = it.id,
+                        displayName = it.displayName,
+                        backend = Backend.Coinbase,
+                        iconUrl = Backend.Coinbase.iconUrl
                     )
                 }
         }
     }
 
     private val loader = ProductsLoader(
-        backend = Backend.CoinMarketCap,
+        backend = Backend.Coinbase,
         backendProductStore = backendProductStore,
         remoteSource = remoteSource,
-        loadScheme = listOf(1_000, 5_000, 10_000)
+        loadScheme = listOf(Int.MAX_VALUE),
     )
 
     operator fun invoke(): Flow<List<BackendProduct>> {

@@ -30,6 +30,12 @@ enum class Backend(
         iconUrl = "https://coinmarketcap.com/apple-touch-icon.png",
         isExchange = false
     ),
+    Coinbase(
+        id = "coinbase",
+        displayName = "Coinbase",
+        iconUrl = "https://s2.coinmarketcap.com/static/img/exchanges/128x128/89.png",
+        isExchange = true
+    ),
     ;
 
     companion object {
