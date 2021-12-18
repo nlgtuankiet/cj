@@ -17,8 +17,8 @@ class ProductsLoader(
     private val backend: Backend,
     private val backendProductStore: BackendProductStore,
     remoteSource: SchemeLoader.RemoteSource<BackendProduct>,
-    private val loadScheme: List<Int>,
-    private val cacheTimeMilis: Long = TimeUnit.MINUTES.toMillis(5),
+    private val loadScheme: List<Int> = listOf(Int.MAX_VALUE),
+    private val cacheTimeMilis: Long = TimeUnit.HOURS.toMillis(1),
 ) {
     private val loadMutex = Mutex()
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())

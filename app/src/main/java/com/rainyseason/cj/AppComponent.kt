@@ -40,6 +40,9 @@ import com.rainyseason.cj.data.database.kv.KeyValueDao
 import com.rainyseason.cj.data.database.kv.KeyValueDatabase
 import com.rainyseason.cj.data.ftx.FtxService
 import com.rainyseason.cj.data.interceptor.synchronized
+import com.rainyseason.cj.data.kraken.Kraken
+import com.rainyseason.cj.data.kraken.KrakenInterceptor
+import com.rainyseason.cj.data.kraken.KrakenService
 import com.rainyseason.cj.detail.CoinDetailModule
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
@@ -207,6 +210,21 @@ object AppProvides {
     }
 
     @Provides
+    @Kraken
+    @Singleton
+    fun krakenClient(
+        clientProvider: Provider<OkHttpClient>,
+        krakenInterceptor: KrakenInterceptor,
+    ): Call.Factory {
+        val krakenClient: OkHttpClient by lazy {
+            clientProvider.get().newBuilder()
+                .addNetworkInterceptor(krakenInterceptor)
+                .build()
+        }
+        return Call.Factory { krakenClient.newCall(it) }
+    }
+
+    @Provides
     @Singleton
     fun provideBaseClient(builder: OkHttpClient.Builder): OkHttpClient {
         checkNotMainThread()
@@ -310,6 +328,21 @@ object AppProvides {
             .callFactory { clientProvider.get().newCall(it) }
             .build()
             .create(CmcService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideKrakenService(
+        moshi: Moshi,
+        @Kraken
+        callFactory: Call.Factory,
+    ): KrakenService {
+        return Retrofit.Builder()
+            .baseUrl(KrakenService.BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .callFactory(callFactory)
+            .build()
+            .create(KrakenService::class.java)
     }
 
     @Provides

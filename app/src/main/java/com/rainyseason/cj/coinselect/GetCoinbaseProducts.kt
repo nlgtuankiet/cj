@@ -32,7 +32,6 @@ class GetCoinbaseProducts @Inject constructor(
         backend = Backend.Coinbase,
         backendProductStore = backendProductStore,
         remoteSource = remoteSource,
-        loadScheme = listOf(Int.MAX_VALUE),
     )
 
     operator fun invoke(): Flow<List<BackendProduct>> {

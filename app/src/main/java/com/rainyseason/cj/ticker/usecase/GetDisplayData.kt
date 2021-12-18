@@ -10,6 +10,7 @@ class GetDisplayData @Inject constructor(
     private val getCoinMarketCapDisplayData: GetCoinMarketCapDisplayData,
     private val getCoinbaseDisplayData: GetCoinbaseDisplayData,
     private val getFtxDisplayData: GetFtxDisplayData,
+    private val getKrakenDisplayData: GetKrakenDisplayData,
 ) {
 
     suspend operator fun invoke(param: CoinTickerDisplayData.LoadParam): CoinTickerDisplayData {
@@ -19,6 +20,7 @@ class GetDisplayData @Inject constructor(
             Backend.CoinMarketCap -> getCoinMarketCapDisplayData(param)
             Backend.Coinbase -> getCoinbaseDisplayData(param)
             Backend.Ftx -> getFtxDisplayData(param)
+            Backend.Kraken -> getKrakenDisplayData(param)
         }
     }
 }

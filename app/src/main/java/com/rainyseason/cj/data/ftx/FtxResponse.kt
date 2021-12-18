@@ -4,12 +4,6 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class FtxResponse<T>(
-    @Json(name = "result")
-    val result: T
-)
-
-@JsonClass(generateAdapter = true)
 data class FtxMarket(
     @Json(name = "name")
     val id: String,

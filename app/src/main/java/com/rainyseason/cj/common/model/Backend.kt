@@ -42,6 +42,12 @@ enum class Backend(
         iconUrl = "https://s2.coinmarketcap.com/static/img/exchanges/128x128/524.png",
         isExchange = true
     ),
+    Kraken(
+        id = "kraken",
+        displayName = "Kraken",
+        iconUrl = "https://s2.coinmarketcap.com/static/img/exchanges/128x128/24.png",
+        isExchange = true
+    ),
     ;
 
     companion object {
