@@ -1,6 +1,7 @@
 ### 1.10.5 Release
-✨ Add Coinbase support, now you can add widgets that displays data from Coinbase
-✨ Add FTX support, now you can add widgets that displays data from FTX
+✨ Add Coinbase support, now you can add widgets that displays data from Coinbase  
+✨ Add FTX support, now you can add widgets that displays data from FTX  
+✨ Add Kraken support, now you can add widgets that displays data from Kraken  
 
 ### 1.10.4 Release
 
