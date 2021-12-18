@@ -36,7 +36,7 @@ class CoinbaseServiceWrapper(
 ) : CoinbaseService by service {
     override suspend fun getCandles(id: String, granularity: Int): List<List<Double>> {
         return service.getCandles(id, granularity)
-            .filter { it.size == 6 && it[0] > 0 }
+            .filter { it.size >= 6 && it[0] > 0 }
             .reversed()
     }
 }

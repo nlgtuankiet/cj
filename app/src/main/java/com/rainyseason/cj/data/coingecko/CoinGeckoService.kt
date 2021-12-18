@@ -137,7 +137,7 @@ private fun List<List<Double>>.reverseValueIfNegative(): List<List<Double>> {
 @Suppress("NOTHING_TO_INLINE")
 private inline fun List<List<Double>>.filterValidValue(): List<List<Double>> {
     @Suppress("SENSELESS_COMPARISON")
-    return filter { it.size == 2 && it[0] != null && it[1] != null && it[0] != 0.0 }
+    return filter { it.size >= 2 && it[0] != null && it[1] != null && it[0] != 0.0 }
 }
 
 private fun <T> fastResponseFlow(

@@ -49,6 +49,6 @@ class BinanceServiceWrapper(
         limit: Int
     ): List<List<Double>> {
         val response = binanceService.getKLines(symbol, interval, limit)
-        return response.filter { it.size == 12 && it[0] > 0 && it[6] > 0 }
+        return response.filter { it.size >= 12 && it[0] > 0 && it[6] > 0 }
     }
 }
