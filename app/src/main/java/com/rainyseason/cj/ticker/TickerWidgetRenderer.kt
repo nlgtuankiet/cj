@@ -631,6 +631,19 @@ class TickerWidgetRenderer @Inject constructor(
         layout(0, 0, specsWidth, specsHeight)
     }
 
+    fun getWidgetRatio(config: CoinTickerConfig): Size {
+        when (config.layout) {
+            CoinTickerConfig.Layout.MINI -> Size(2, 1)
+            CoinTickerConfig.Layout.ICON_SMALL -> Size(2, 1)
+            CoinTickerConfig.Layout.DEFAULT -> Size(2, 2)
+            CoinTickerConfig.Layout.GRAPH -> Size(2, 2)
+            CoinTickerConfig.Layout.COIN360 -> Size(2, 2)
+            CoinTickerConfig.Layout.COIN360_NANO -> Size(1, 1)
+            CoinTickerConfig.Layout.NANO -> Size(1, 1)
+            else -> error("Unknown layout")
+        }
+    }
+
     fun getWidgetSize(config: CoinTickerConfig): Size {
         val options = appWidgetManager.getAppWidgetOptions(config.widgetId)
         val minWidth = context

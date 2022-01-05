@@ -16,13 +16,13 @@ import com.rainyseason.cj.coinstat.CoinStatArgs
 import com.rainyseason.cj.coinstat.CoinStatFragment
 import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.contact.ContactFragment
-import com.rainyseason.cj.common.home.HomeFragment
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.detail.CoinDetailFragment
 import com.rainyseason.cj.detail.about.CoinDetailAboutFragment
 import com.rainyseason.cj.setting.SettingFragment
 import com.rainyseason.cj.watch.WatchListFragment
+import com.rainyseason.cj.widget.manage.ManageWidgetFragment
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.ContributesAndroidInjector
@@ -57,9 +57,9 @@ class MainActivity : AppCompatActivity() {
 
         navController.graph = navController.createGraph(
             R.id.main_nav_graph,
-            R.id.watch_list_screen,
+            R.id.manage_widgets_screen,
         ) {
-            fragment<HomeFragment>(R.id.home_screen)
+            fragment<ManageWidgetFragment>(R.id.manage_widgets_screen)
             fragment<ContactFragment>(R.id.contact_screen)
             fragment<WatchListFragment>(R.id.watch_list_screen)
             fragment<CoinDetailFragment>(R.id.detail_screen)

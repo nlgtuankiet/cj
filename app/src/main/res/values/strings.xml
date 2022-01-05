@@ -124,5 +124,7 @@
 
 
     <string name="coin_stat_title">%s Statistics</string>
+    <string name="manage_widgets">Manage Widgets</string>
+    <string name="manage_widgets_short">Manage</string>
 
 </resources>
