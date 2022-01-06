@@ -1,32 +1,37 @@
+### 1.11.0 Release
+
+✨ Add Manage widgets screen, now you can edit added widgets without delete and create now one.
+
 ### 1.10.5 Release
+
 ✨ Add Coinbase support, now you can add widgets that displays data from Coinbase  
 ✨ Add FTX support, now you can add widgets that displays data from FTX  
-✨ Add Kraken support, now you can add widgets that displays data from Kraken  
+✨ Add Kraken support, now you can add widgets that displays data from Kraken
 
 ### 1.10.4 Release
 
-🛠 Improve coin select screen performance, now become more responsive
-🛠 Fix some time display wrong graph for CoinMarketCap ticker widgets
+🛠 Improve coin select screen performance, now become more responsive 🛠 Fix some time display wrong
+graph for CoinMarketCap ticker widgets
 🛠 Some minor changes to improve the usability
 
 ### 1.10.3 Release
 
-🛠 Improve overall performance, now app uses less memory and less storage  
+🛠 Improve overall performance, now app uses less memory and less storage
 
 ### 1.10.1 Release
 
 🛠 Fix crash when select price change interval  
-🛠 Fix display wrong graph on CoinMarketCap  
+🛠 Fix display wrong graph on CoinMarketCap
 
 ### 1.10.0 Release
 
-✨ Add CoinMarketCap support, now you can add widgets that displays data from CoinMarketCap  
+✨ Add CoinMarketCap support, now you can add widgets that displays data from CoinMarketCap
 
 ### 1.9.10 Release
 
 ✨ Add Binance trading pairs widgets (create a widget then in "coin select" screen, select Binance  
 under Exchanges section)  
-🛠 Fix crash when create widget with "Preview only" coin  
+🛠 Fix crash when create widget with "Preview only" coin
 
 ### 1.9.9 Release
 
