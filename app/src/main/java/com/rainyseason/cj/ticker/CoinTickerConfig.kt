@@ -75,6 +75,24 @@ data class CoinTickerConfig(
 ) {
 
     companion object {
+        val LayoutToString2x2 = mapOf(
+            Layout.GRAPH to R.string.coin_ticket_style_graph,
+            Layout.DEFAULT to R.string.coin_ticket_style_default,
+            Layout.COIN360 to R.string.coin_ticket_style_coin360,
+        )
+
+        val LayoutToString2x1 = mapOf(
+            Layout.MINI to R.string.coin_ticket_style_mini,
+            Layout.ICON_SMALL to R.string.coin_ticket_style_icon_small,
+        )
+
+        val LayoutToString1x1 = mapOf(
+            Layout.NANO to R.string.coin_ticket_style_nano,
+            Layout.COIN360_NANO to R.string.coin_ticket_style_coin360_mini,
+        )
+
+        val LayoutToString = LayoutToString2x2 + LayoutToString2x1 + LayoutToString1x1
+
         val AllowedChangeInterval = mapOf(
             TimeInterval.I_24H
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,

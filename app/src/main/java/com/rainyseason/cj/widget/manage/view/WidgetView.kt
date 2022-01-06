@@ -10,16 +10,15 @@ import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.airbnb.epoxy.TextProp
-import com.bumptech.glide.request.target.Target
 import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.inflater
+import com.rainyseason.cj.common.model.WidgetRenderParams
 import com.rainyseason.cj.databinding.ManageWidgetWidgetViewBinding
-import com.rainyseason.cj.ticker.CoinTickerRenderParams
 
-data class WidgetRenderParam(
+data class WidgetParam(
     val ratio: Size,
-    val coinTickerRenderParams: CoinTickerRenderParams? = null
+    val widgetRenderParam: WidgetRenderParams
 )
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
@@ -46,21 +45,19 @@ class WidgetView @JvmOverloads constructor(
         binding.subtitle.text = charSequence
     }
 
-    private var target: Target<*>? = null
-
     @ModelProp
-    fun setTickerWidgetParams(params: WidgetRenderParam) {
-        GlideApp.with(binding.widgetContainer).clear(target)
+    fun setWidgetParams(params: WidgetParam) {
+        val max = 3
+        val ratioMax = params.ratio.width.coerceAtLeast(params.ratio.height)
+        val scaleFactor = (1.0 * 3 / ratioMax).coerceAtMost(1.0)
+
         binding.widgetContainer.updateLayoutParams<MarginLayoutParams> {
-            width = dimenMultiplier * params.ratio.width
-            height = dimenMultiplier * params.ratio.height
+            width = (dimenMultiplier * params.ratio.width * scaleFactor).toInt()
+            height = (dimenMultiplier * params.ratio.height * scaleFactor).toInt()
         }
-        val tickerParams = params.coinTickerRenderParams
-        if (tickerParams != null) {
-            target = GlideApp.with(binding.widgetContainer)
-                .load(tickerParams)
-                .into(binding.widgetContainer)
-        }
+        GlideApp.with(binding.widgetContainer)
+            .load(params.widgetRenderParam)
+            .into(binding.widgetContainer)
     }
 
     @CallbackProp

@@ -11,6 +11,7 @@ enum class WatchWidgetLayout(
     val previewScale: Double,
     val entryLimit: Int,
     val providerName: String,
+    val nameRes: Int,
 ) {
     Watch4x2(
         id = "watch_4x2",
@@ -18,6 +19,7 @@ enum class WatchWidgetLayout(
         previewScale = 0.75,
         entryLimit = 3,
         providerName = WatchWidget4x2Provider::class.java.name,
+        nameRes = R.string.watch_widget_4x2,
     ),
     Watch4x4(
         id = "watch_4x4",
@@ -25,6 +27,7 @@ enum class WatchWidgetLayout(
         previewScale = 0.75,
         entryLimit = 6,
         providerName = WatchWidget4x4Provider::class.java.name,
+        nameRes = R.string.watch_widget_4x4,
     ),
     ;
 

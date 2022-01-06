@@ -90,6 +90,13 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
         binding.saveButton.setOnClickListener {
             save()
         }
+        binding.saveButton.setText(
+            if ((requireActivity() as WatchWidgetSaver).widgetSaved()) {
+                R.string.coin_ticker_preview_auto_save_widget
+            } else {
+                R.string.coin_ticker_preview_save_widget
+            }
+        )
         binding.backButton.setOnClickListener {
             requireActivity().onBackPressed()
         }
@@ -120,4 +127,6 @@ interface WatchWidgetSaver {
         config: WatchConfig,
         data: WatchDisplayData,
     )
+
+    fun widgetSaved(): Boolean
 }

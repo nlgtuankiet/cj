@@ -1,7 +1,6 @@
 package com.rainyseason.cj.coinselect
 
 import android.content.Context
-import android.os.Bundle
 import android.view.View
 import androidx.navigation.findNavController
 import com.airbnb.epoxy.AsyncEpoxyController

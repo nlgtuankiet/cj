@@ -166,22 +166,20 @@ class CoinTickerSettingActivity :
                 coinTickerRepository.clearAllData(getWidgetId() ?: 0)
             }
         } else {
-          if (!refreshed) {
-              runBlocking {
-                  withContext(Dispatchers.IO) {
-                      coinTickerHandler.enqueueRefreshWidget(widgetId = getWidgetId() ?: 0)
-                      commonRepository.increaseWidgetUsed()
-                  }
-              }
-          }
+            if (!refreshed) {
+                runBlocking {
+                    withContext(Dispatchers.IO) {
+                        coinTickerHandler.enqueueRefreshWidget(widgetId = getWidgetId() ?: 0)
+                        commonRepository.increaseWidgetUsed()
+                    }
+                }
+            }
         }
     }
 
     override fun androidInjector(): AndroidInjector<Any> {
         return androidInjector
     }
-
-
 
     companion object {
         private const val COIN_ID_EXTRA = "coin_id"

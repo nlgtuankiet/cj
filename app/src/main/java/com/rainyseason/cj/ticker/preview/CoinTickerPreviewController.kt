@@ -10,7 +10,6 @@ import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
-import com.rainyseason.cj.coinselect.CoinSelectFragment
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.RefreshIntervals
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
@@ -295,28 +294,12 @@ class CoinTickerPreviewController(
     private fun buildLayout(state: CoinTickerPreviewState) {
         val config = state.config ?: return
 
-        val layoutToString2x2 = listOf(
-            CoinTickerConfig.Layout.GRAPH to R.string.coin_ticket_style_graph,
-            CoinTickerConfig.Layout.DEFAULT to R.string.coin_ticket_style_default,
-            CoinTickerConfig.Layout.COIN360 to R.string.coin_ticket_style_coin360,
-        )
-
-        val layoutToString2x1 = listOf(
-            CoinTickerConfig.Layout.MINI to R.string.coin_ticket_style_mini,
-            CoinTickerConfig.Layout.ICON_SMALL to R.string.coin_ticket_style_icon_small,
-        )
-
-        val layoutToString1x1 = listOf(
-            CoinTickerConfig.Layout.NANO to R.string.coin_ticket_style_nano,
-            CoinTickerConfig.Layout.COIN360_NANO to R.string.coin_ticket_style_coin360_mini,
-        )
-
         val layoutToString = listOf(
-            layoutToString2x2,
-            layoutToString2x1,
-            layoutToString1x1,
-        ).first { it.any { entry -> entry.first == config.layout } }
-            .map { it.first to context.getString(it.second) }
+            CoinTickerConfig.LayoutToString2x2,
+            CoinTickerConfig.LayoutToString2x1,
+            CoinTickerConfig.LayoutToString1x1,
+        ).first { it.any { entry -> entry.key == config.layout } }
+            .map { it.key to context.getString(it.value) }
 
         maybeBuildHorizontalSeparator(id = "header_layout_separator")
 

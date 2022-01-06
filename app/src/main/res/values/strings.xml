@@ -102,6 +102,9 @@
     <string name="watch_add">Add</string>
     <string name="watch_added">Added</string>
 
+    <string name="watch_widget_4x2">Watchlist 4x2</string>
+    <string name="watch_widget_4x4">Watchlist 4x4</string>
+
     <string name="coin_ticker_preview_amount">Amount</string>
     <string name="coin_preview_only">Preview only</string>
 
@@ -129,6 +132,7 @@
 
     <string name="coin_stat_title">%s Statistics</string>
     <string name="manage_widgets">Manage Widgets</string>
+    <string name="manage_widgets_empty">You haven\'t add any widgets yet</string>
     <string name="manage_widgets_short">Manage</string>
 
 </resources>

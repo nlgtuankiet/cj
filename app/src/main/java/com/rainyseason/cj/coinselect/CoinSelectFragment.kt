@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import androidx.activity.OnBackPressedCallback
-import androidx.annotation.IdRes
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
@@ -130,5 +129,4 @@ class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksVie
     override fun invalidate() {
         controller.requestModelBuild()
     }
-
 }

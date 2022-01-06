@@ -35,6 +35,7 @@ import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
+import com.rainyseason.cj.common.model.WidgetRenderParams
 import com.rainyseason.cj.common.verticalPadding
 import com.rainyseason.cj.databinding.WidgetCoinTicker1x1Coin360MiniBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker1x1NanoBinding
@@ -54,7 +55,7 @@ data class CoinTickerRenderParams(
     val data: CoinTickerDisplayData,
     val showLoading: Boolean = false,
     val isPreview: Boolean = false,
-)
+) : WidgetRenderParams
 
 @Singleton
 class TickerWidgetRenderer @Inject constructor(
@@ -228,7 +229,6 @@ class TickerWidgetRenderer @Inject constructor(
 
         container.mesureAndLayout(config)
 
-
         // bind container
         binding.container.setBackgroundResource(
             select(
@@ -238,7 +238,6 @@ class TickerWidgetRenderer @Inject constructor(
             )
         )
         applyBackgroundTransparency(binding.container, config)
-
 
         // bind symbol
         binding.symbol.text = if (config.backend.isExchange) {
@@ -424,7 +423,6 @@ class TickerWidgetRenderer @Inject constructor(
 
         container.mesureAndLayout(config)
 
-
         // bind container
         binding.container.setBackgroundResource(
             select(
@@ -496,7 +494,6 @@ class TickerWidgetRenderer @Inject constructor(
         val renderData = params.data
 
         container.mesureAndLayout(config)
-
 
         // bind container
         binding.container.setBackgroundResource(

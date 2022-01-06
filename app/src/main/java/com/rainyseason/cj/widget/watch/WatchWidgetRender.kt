@@ -199,7 +199,6 @@ class WatchWidgetRender @Inject constructor(
 
     private fun render4x2(
         container: FrameLayout,
-        remoteViews: RemoteViews,
         params: WatchWidgetRenderParams
     ) {
         val binding = WidgetWatchBinding
@@ -207,8 +206,6 @@ class WatchWidgetRender @Inject constructor(
         val config = params.config
         val theme = config.theme
         val renderData = params.data
-
-        remoteViews.bindLoading(params)
 
         // bind container
         binding.container.setBackgroundResource(
@@ -259,8 +256,6 @@ class WatchWidgetRender @Inject constructor(
         container.measureAndLayout(config)
 
         applyBackgroundTransparency(binding.container, config)
-
-        remoteViews.applyClickAction(params)
     }
 
     private fun RemoteViews.applyClickAction(params: WatchWidgetRenderParams) {
@@ -309,27 +304,40 @@ class WatchWidgetRender @Inject constructor(
         }
     }
 
+    private fun createContainer(inputParams: WatchWidgetRenderParams): View {
+        val container = FrameLayout(context)
+        container.measureAndLayout(inputParams.config)
+        when (inputParams.config.layout) {
+            WatchWidgetLayout.Watch4x2 -> render4x2(container, inputParams)
+            WatchWidgetLayout.Watch4x4 -> render4x2(container, inputParams)
+        }
+        container.measureAndLayout(inputParams.config)
+
+        return container
+    }
+
+    fun createBitmap(inputParams: WatchWidgetRenderParams): Bitmap {
+        val container = createContainer(inputParams)
+        val size = getWidgetSize(inputParams.config)
+        val bitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        container.draw(canvas)
+        return bitmap
+    }
+
     fun render(
         remoteView: RemoteViews,
         inputParams: WatchWidgetRenderParams
     ) {
-        val container = FrameLayout(context)
-        container.measureAndLayout(inputParams.config)
-        when (inputParams.config.layout) {
-            WatchWidgetLayout.Watch4x2 -> render4x2(container, remoteView, inputParams)
-            WatchWidgetLayout.Watch4x4 -> render4x2(container, remoteView, inputParams)
-        }
-        container.measureAndLayout(inputParams.config)
-        val size = getWidgetSize(inputParams.config)
+        remoteView.bindLoading(inputParams)
+        remoteView.applyClickAction(inputParams)
 
         if (inputParams.isPreview && DebugFlag.SHOW_PREVIEW_LAYOUT_BOUNDS.isEnable) {
             remoteView as LocalRemoteViews
             remoteView.container.removeAllViews()
-            remoteView.container.addView(container)
+            remoteView.container.addView(createContainer(inputParams))
         } else {
-            val bitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
-            container.draw(canvas)
+            val bitmap = createBitmap(inputParams)
             remoteView.setImageViewBitmap(R.id.image_view, bitmap)
         }
     }
@@ -346,5 +354,12 @@ class WatchWidgetRender @Inject constructor(
             return dark
         }
         return light
+    }
+
+    fun getWidgetRatio(config: WatchConfig): Size {
+        return when (config.layout) {
+            WatchWidgetLayout.Watch4x2 -> Size(4, 2)
+            WatchWidgetLayout.Watch4x4 -> Size(4, 4)
+        }
     }
 }

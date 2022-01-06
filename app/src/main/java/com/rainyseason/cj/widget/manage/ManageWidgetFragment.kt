@@ -39,6 +39,11 @@ class ManageWidgetFragment : Fragment(R.layout.manage_widget_fragment), Maverick
         AndroidSupportInjection.inject(this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewModel.reload()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding = ManageWidgetFragmentBinding.bind(view)

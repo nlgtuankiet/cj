@@ -47,10 +47,14 @@ class WatchWidgetHandler @Inject constructor(
             )
             .build()
         workManager.enqueueUniquePeriodicWork(
-            "refresh_watch_$widgetId",
+            getWorkName(widgetId),
             ExistingPeriodicWorkPolicy.REPLACE,
             request
         ).await()
+    }
+
+    fun getWorkName(widgetId: Int): String {
+        return "refresh_watch_$widgetId"
     }
 
     suspend fun handleClickAction(context: Context, intent: Intent) {
@@ -67,7 +71,7 @@ class WatchWidgetHandler @Inject constructor(
     }
 
     suspend fun removeRefreshWork(widgetId: Int) {
-        workManager.cancelUniqueWork("refresh_watch_$widgetId").await()
+        workManager.cancelUniqueWork(getWorkName(widgetId)).await()
     }
 
     suspend fun rerender(widgetId: Int) {
