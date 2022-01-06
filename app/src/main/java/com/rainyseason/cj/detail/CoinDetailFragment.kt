@@ -12,6 +12,8 @@ import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.getDrawableCompat
 import com.rainyseason.cj.common.requireArgs
+import com.rainyseason.cj.common.setupBottomNav
+import com.rainyseason.cj.common.setupSystemWindows
 import com.rainyseason.cj.databinding.FragmentCoinDetailBinding
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logClick
@@ -63,6 +65,8 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
             SCREEN_NAME,
             mapOf("coin_id" to args.coinId)
         )
+        setupBottomNav()
+        setupSystemWindows()
     }
 
     private fun bindButton() {

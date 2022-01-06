@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.setupBottomNav
+import com.rainyseason.cj.common.setupSystemWindows
 import com.rainyseason.cj.databinding.SettingFragmentBinding
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -43,6 +45,8 @@ class SettingFragment : Fragment(R.layout.setting_fragment), MavericksView {
         super.onViewCreated(view, savedInstanceState)
         binding = SettingFragmentBinding.bind(view)
         binding.epoxyRecyclerView.setController(controller)
+        setupBottomNav()
+        setupSystemWindows()
     }
 
     override fun invalidate() {

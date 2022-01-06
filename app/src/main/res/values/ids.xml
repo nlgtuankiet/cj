@@ -2,6 +2,9 @@
 <resources>
     <item name="default_debounce_key" type="id" />
     <item name="watch_list_screen" type="id" />
+    <item name="chat_history_screen" type="id" />
+    <item name="chat_list_screen" type="id" />
+    <item name="chat_login_screen" type="id" />
     <item name="manage_widgets_screen" type="id" />
     <item name="home_screen" type="id" />
     <item name="detail_screen" type="id" />

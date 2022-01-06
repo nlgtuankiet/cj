@@ -3,7 +3,10 @@ package com.rainyseason.cj.common
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.view.View
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.firestore.FirebaseFirestore
+import com.rainyseason.cj.chat.ChatRepository
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
@@ -34,6 +37,9 @@ interface CoreComponent {
     val commonRepository: CommonRepository
     val userSettingRepository: UserSettingRepository
     val firebaseCrashlytics: FirebaseCrashlytics
+    val firebaseAuth: FirebaseAuth
+    val firebaseFirestore: FirebaseFirestore
+    val chatRepository: ChatRepository
     val numberFormater: NumberFormater
     val graphRenderer: GraphRenderer
     val widgetGlideLoader: WidgetGlideLoader

@@ -12,9 +12,9 @@
         android:title="@string/bottom_nav_watch_list" />
 
     <item
-        android:id="@id/contact_screen"
+        android:id="@id/chat_history_screen"
         android:icon="@drawable/ic_baseline_chat_24"
-        android:title="@string/bottom_nav_contact" />
+        android:title="@string/bottom_nav_chat" />
 
     <item
         android:id="@id/release_note_screen"

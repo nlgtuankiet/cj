@@ -5,6 +5,8 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.rainyseason.cj.common.coreComponent
+import com.rainyseason.cj.common.setupBottomNav
+import com.rainyseason.cj.common.setupSystemWindows
 import com.rainyseason.cj.databinding.FragmentReleaseNoteBinding
 import com.rainyseason.cj.tracking.logScreenEnter
 import io.noties.markwon.Markwon
@@ -32,5 +34,7 @@ class ReleaseNoteFragment : Fragment(R.layout.fragment_release_note) {
 
         requireContext().coreComponent.tracker
             .logScreenEnter("release_note")
+        setupBottomNav()
+        setupSystemWindows()
     }
 }

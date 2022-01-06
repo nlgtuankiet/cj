@@ -2,46 +2,47 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <View
-        android:background="@color/gray_800"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         android:id="@+id/toolbar"
+        android:background="@color/gray_800"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         android:layout_width="0dp"
         android:layout_height="56dp"/>
 
-    <TextView
-        style="@style/TextAppearance.MaterialComponents.Headline6"
-        android:text="@string/manage_widgets"
-        android:layout_marginStart="12dp"
+    <ImageView
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_baseline_arrow_back_white_24"
         app:layout_constraintBottom_toBottomOf="@id/toolbar"
+        android:id="@+id/back"
         app:layout_constraintTop_toTopOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="56dp"
+        android:layout_height="56dp"/>
+
+    <TextView
+        android:id="@+id/title"
+        style="@style/TextAppearance.MaterialComponents.Body1"
+        tools:text="Chat List"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-
     <com.airbnb.epoxy.EpoxyRecyclerView
         android:id="@+id/content"
-        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_width="0dp"
-        android:layout_height="0dp"/>
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_nav"
-        app:labelVisibilityMode="labeled"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:menu="@menu/bottom_nav" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

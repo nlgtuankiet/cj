@@ -5,17 +5,21 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
 import androidx.navigation.createGraph
+import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.fragment
-import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.rainyseason.cj.chat.history.ChatHistoryArgs
+import com.rainyseason.cj.chat.history.ChatHistoryFragment
+import com.rainyseason.cj.chat.list.ChatListFragment
+import com.rainyseason.cj.chat.login.ChatLoginFragment
 import com.rainyseason.cj.coinstat.CoinStatArgs
 import com.rainyseason.cj.coinstat.CoinStatFragment
 import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.contact.ContactFragment
+import com.rainyseason.cj.common.notNull
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.detail.CoinDetailFragment
@@ -26,10 +30,6 @@ import com.rainyseason.cj.widget.manage.ManageWidgetFragment
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.ContributesAndroidInjector
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -54,11 +54,21 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-
+        if (BuildConfig.DEBUG) {
+            navController.addOnDestinationChangedListener { _, destination, arguments ->
+                val className = Class.forName(
+                    (destination as FragmentNavigator.Destination).className
+                ).simpleName
+                Timber.d("Navigation: destination $className args: $arguments")
+            }
+        }
         navController.graph = navController.createGraph(
             R.id.main_nav_graph,
             R.id.manage_widgets_screen,
         ) {
+            fragment<ChatHistoryFragment>(R.id.chat_history_screen)
+            fragment<ChatListFragment>(R.id.chat_list_screen)
+            fragment<ChatLoginFragment>(R.id.chat_login_screen)
             fragment<ManageWidgetFragment>(R.id.manage_widgets_screen)
             fragment<ContactFragment>(R.id.contact_screen)
             fragment<WatchListFragment>(R.id.watch_list_screen)
@@ -68,23 +78,10 @@ class MainActivity : AppCompatActivity() {
             fragment<CoinStatFragment>(R.id.coin_stat_screen)
             fragment<CoinDetailAboutFragment>(R.id.detail_about_screen)
         }
-
-        val bottomNav = findViewById<BottomNavigationView>(R.id.bottom_nav)
-        bottomNav.setupWithNavController(navController)
-        bottomNav.setOnItemReselectedListener { }
         if (savedInstanceState == null) {
             navigateNewIntent(intent)
         }
-
-        lifecycleScope.launch {
-            commonRepository.hasUnreadReleaseNoteFlow()
-                .flowOn(Dispatchers.IO)
-                .collect {
-                    Timber.d("hasUnreadReleaseNoteFlow: $it")
-                    val badge = bottomNav.getOrCreateBadge(R.id.release_note_screen)
-                    badge.isVisible = it
-                }
-        }
+        WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 
     private fun navigateNewIntent(intent: Intent) {
@@ -95,11 +92,21 @@ class MainActivity : AppCompatActivity() {
             WatchListFragment.SCREEN_NAME -> R.id.watch_list_screen
             CoinDetailFragment.SCREEN_NAME -> R.id.detail_screen
             CoinStatFragment.SCREEN_NAME -> R.id.coin_stat_screen
+            ChatHistoryFragment.SCREEN_NAME -> R.id.chat_history_screen
+            ChatListFragment.SCREEN_NAME -> R.id.chat_list_screen
             else -> null
         }
         Timber.d("onNewIntent: $intent screen = $screen")
 
         when (screenId) {
+            R.id.chat_history_screen -> {
+                val chatId = intent.extras?.getString("chat_id").notNull()
+                val args = ChatHistoryArgs(chatId)
+                navController.navigate(screenId, args.asArgs())
+            }
+            R.id.chat_list_screen -> {
+                navController.navigate(screenId)
+            }
             R.id.watch_list_screen -> navController.navigate(screenId)
             R.id.coin_stat_screen -> {
                 if (coinId != null) {
@@ -137,6 +144,12 @@ class MainActivity : AppCompatActivity() {
             return Intent(context, MainActivity::class.java).apply {
                 putExtra(SCREEN_TO_OPEN_EXTRA, CoinDetailFragment.SCREEN_NAME)
                 putExtra(COIN_ID_EXTRA, coinId)
+            }.maybeNewTask(context)
+        }
+
+        fun chatListIntent(context: Context): Intent {
+            return Intent(context, MainActivity::class.java).apply {
+                putExtra(SCREEN_TO_OPEN_EXTRA, ChatListFragment.SCREEN_NAME)
             }.maybeNewTask(context)
         }
 

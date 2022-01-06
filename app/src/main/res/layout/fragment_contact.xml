@@ -24,7 +24,7 @@
         android:id="@+id/sub_title"
         android:layout_marginStart="16dp"
         android:textSize="16sp"
-        android:text="To request feature and report bug"
+        android:text="For request feature and bug report"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_width="0dp"

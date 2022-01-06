@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.setOnClickToNavigateBack
+import com.rainyseason.cj.common.setupSystemWindows
 import com.rainyseason.cj.databinding.CoinDetailAboutFragmentBinding
 
 class CoinDetailAboutFragment : Fragment(R.layout.coin_detail_about_fragment) {
@@ -21,5 +22,6 @@ class CoinDetailAboutFragment : Fragment(R.layout.coin_detail_about_fragment) {
         binding.content.text = HtmlCompat.fromHtml(args.content, HtmlCompat.FROM_HTML_MODE_COMPACT)
         binding.content.movementMethod = LinkMovementMethod.getInstance()
         binding.backButton.setOnClickToNavigateBack()
+        setupSystemWindows()
     }
 }

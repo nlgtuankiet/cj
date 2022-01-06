@@ -85,7 +85,7 @@
 
     <string name="bottom_nav_home">Tutorial</string>
     <string name="bottom_nav_watch_list">Watchlist</string>
-    <string name="bottom_nav_contact">Contact</string>
+    <string name="bottom_nav_chat">Chat</string>
     <string name="home_add_widget">Add widget</string>
     <string name="drag_and_drop_to_add_widget">Long press in home screen to add widget!</string>
 
@@ -134,5 +134,9 @@
     <string name="manage_widgets">Manage Widgets</string>
     <string name="manage_widgets_empty">You haven\'t add any widgets yet</string>
     <string name="manage_widgets_short">Manage</string>
+
+    <string name="chat_history_title_admin">Customer Support</string>
+    <string name="chat_login_title">Login anonymously</string>
+    <string name="retry">Retry</string>
 
 </resources>

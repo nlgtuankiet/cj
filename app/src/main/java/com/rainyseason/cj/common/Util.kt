@@ -42,8 +42,13 @@ import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.ModelCollector
 import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.ViewModelContext
+import com.google.firebase.auth.FirebaseAuth
 import com.rainyseason.cj.R
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.net.UnknownHostException
@@ -323,3 +328,20 @@ fun List<List<Double>>.findApproxIndex(approxTime: Double): Int {
 
 fun <F : Fragment> ViewModelContext.fragment(): F =
     (this as FragmentViewModelContext).fragment()
+
+@Suppress("NOTHING_TO_INLINE")
+inline fun <T> T?.notNull(): T {
+    return checkNotNull(this)
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+fun FirebaseAuth.isUserLoginFlow(): Flow<Boolean> {
+    return callbackFlow {
+        trySend(currentUser != null)
+        val listener = FirebaseAuth.AuthStateListener { trySend(currentUser != null) }
+        addAuthStateListener(listener)
+        awaitClose {
+            removeAuthStateListener(listener)
+        }
+    }
+}

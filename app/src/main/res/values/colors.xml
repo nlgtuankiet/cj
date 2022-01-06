@@ -8,7 +8,9 @@
     <color name="dark_background">#121212</color>
     <color name="amber_200">#FFE082</color>
     <color name="amber_700">#FFA000</color>
+    <color name="amber_900">#FF6F00</color>
 
+    <color name="orange_900">#E65100</color>
 
     <color name="teal_500">#009688</color>
     <color name="teal_700">#00796B</color>

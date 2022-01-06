@@ -10,6 +10,7 @@ import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.requireArgs
+import com.rainyseason.cj.common.setupSystemWindows
 import com.rainyseason.cj.databinding.CoinStatFragmentBinding
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
@@ -60,6 +61,7 @@ class CoinStatFragment : Fragment(R.layout.coin_stat_fragment), MavericksView {
         }
 
         binding.epoxyRecyclerView.setController(controller)
+        setupSystemWindows()
     }
 
     override fun invalidate() {

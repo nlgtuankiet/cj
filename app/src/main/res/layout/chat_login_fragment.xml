@@ -4,34 +4,35 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <View
-        android:background="@color/gray_800"
+    <ProgressBar
+        android:id="@+id/progress_bar"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:id="@+id/toolbar"
-        android:layout_width="0dp"
-        android:layout_height="56dp"/>
-
-    <TextView
-        style="@style/TextAppearance.MaterialComponents.Headline6"
-        android:text="@string/manage_widgets"
-        android:layout_marginStart="12dp"
-        app:layout_constraintBottom_toBottomOf="@id/toolbar"
-        app:layout_constraintTop_toTopOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
-
-    <com.airbnb.epoxy.EpoxyRecyclerView
-        android:id="@+id/content"
-        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
+    <TextView
+        android:id="@+id/title"
+        android:text="@string/chat_login_title"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_width="0dp"
-        android:layout_height="0dp"/>
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:text="@string/retry"
+        android:id="@+id/retry"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_nav"
@@ -42,6 +43,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:menu="@menu/bottom_nav" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

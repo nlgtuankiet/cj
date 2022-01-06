@@ -15,6 +15,8 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.dismissKeyboard
 import com.rainyseason.cj.common.setTextIfDifferent
+import com.rainyseason.cj.common.setupBottomNav
+import com.rainyseason.cj.common.setupSystemWindows
 import com.rainyseason.cj.databinding.FragmentWatchListBinding
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logClick
@@ -61,6 +63,8 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
         setUpEdit(binding, viewModel, controller)
         tracker.logScreenEnter(SCREEN_NAME)
         setupRefreshLayout(binding)
+        setupBottomNav()
+        setupSystemWindows()
     }
 
     private fun setupRefreshLayout(binding: FragmentWatchListBinding) {

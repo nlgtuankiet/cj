@@ -19,9 +19,9 @@
         android:layout_height="wrap_content" />
 
     <ScrollView
+        app:layout_constraintBottom_toTopOf="@id/bottom_nav"
         android:layout_marginTop="16dp"
         app:layout_constraintTop_toBottomOf="@id/title"
-        app:layout_constraintBottom_toBottomOf="parent"
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
         android:layout_height="0dp">
@@ -35,4 +35,14 @@
             android:textSize="16sp" />
 
     </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_nav"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav" />
 </androidx.constraintlayout.widget.ConstraintLayout>

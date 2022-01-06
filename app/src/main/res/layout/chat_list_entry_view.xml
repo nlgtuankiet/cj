@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:padding="12dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <TextView
+        tools:text="Adam"
+        style="@style/TextAppearance.MaterialComponents.Body1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:textColor="@color/text_secondary"
+        app:layout_constraintTop_toBottomOf="@id/title"
+        tools:text="Hello!"
+        app:layout_constraintEnd_toEndOf="parent"
+        style="@style/TextAppearance.MaterialComponents.Body2"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="4dp"
+        android:id="@+id/text"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"/>
+
+    <ImageView
+        android:id="@+id/read_indicator"
+        android:src="@drawable/chat_message_entry_me_background"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="8dp"
+        android:layout_height="8dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

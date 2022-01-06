@@ -11,13 +11,21 @@ import androidx.room.Room
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.ihsanbal.logging.Level
 import com.ihsanbal.logging.LoggingInterceptor
+import com.rainyseason.cj.chat.admin.ChatAdminActivityModule
+import com.rainyseason.cj.chat.history.ChatHistoryModule
+import com.rainyseason.cj.chat.list.ChatListModule
+import com.rainyseason.cj.chat.login.ChatLoginModule
 import com.rainyseason.cj.coinselect.CoinSelectFragmentModule
 import com.rainyseason.cj.coinstat.CoinStatFragmentModule
 import com.rainyseason.cj.common.AppDnsSelector
@@ -108,6 +116,10 @@ interface AppComponent : AndroidInjector<CJApplication>, CoreComponent {
         WatchSettingActivityModule::class,
         WatchPreviewFragmentModule::class,
         ManageWidgetFragmentModule::class,
+        ChatHistoryModule::class,
+        ChatListModule::class,
+        ChatLoginModule::class,
+        ChatAdminActivityModule::class,
         CoinTickerPreviewFragmentModule::class,
         CoinSelectFragmentModule::class,
     ]
@@ -133,6 +145,18 @@ object AppProvides {
     @Singleton
     fun firebaseRemoteConfig(): FirebaseRemoteConfig {
         return Firebase.remoteConfig
+    }
+
+    @Provides
+    @Singleton
+    fun firebaseAuth(): FirebaseAuth {
+        return Firebase.auth
+    }
+
+    @Provides
+    @Singleton
+    fun firebaseFirestore(): FirebaseFirestore {
+        return Firebase.firestore
     }
 
     @Provides
