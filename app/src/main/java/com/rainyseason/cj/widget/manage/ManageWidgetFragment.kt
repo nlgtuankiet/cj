@@ -8,8 +8,16 @@ import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
 import com.rainyseason.cj.databinding.ManageWidgetFragmentBinding
+import dagger.Module
+import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
+
+@Module
+interface ManageWidgetFragmentModule {
+    @ContributesAndroidInjector
+    fun fragment(): ManageWidgetFragment
+}
 
 class ManageWidgetFragment : Fragment(R.layout.manage_widget_fragment), MavericksView {
     private lateinit var binding: ManageWidgetFragmentBinding

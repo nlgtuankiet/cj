@@ -13,12 +13,16 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.airbnb.mvrx.MavericksView
+import com.airbnb.mvrx.asMavericksArgs
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.coinselect.CoinSelectResult
 import com.rainyseason.cj.common.CoinTickerPreviewTTI
 import com.rainyseason.cj.common.TraceManager
+import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.saveOrShowWarning
 import com.rainyseason.cj.databinding.CoinTickerPreviewFragmentBinding
 import com.rainyseason.cj.ticker.CoinTickerConfig
@@ -37,6 +41,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @Module
@@ -64,18 +69,7 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
     @Inject
     lateinit var appWidgetManager: AppWidgetManager
 
-    val args by lazy {
-        val widgetId = requireActivity().getWidgetId() ?: error("Missing widget id")
-        val componentName = appWidgetManager.getAppWidgetInfo(widgetId)?.provider
-            ?: ComponentName(requireContext(), CoinTickerProviderGraph::class.java)
-        val layout = CoinTickerConfig.Layout.fromComponentName(componentName.className)
-        CoinTickerPreviewArgs(
-            widgetId = widgetId,
-            coinId = arguments?.getString("coin_id") ?: error("Missing coin id"),
-            layout = layout,
-            backend = Backend.from(arguments?.getString("backend_id"))
-        )
-    }
+    val args: CoinTickerPreviewArgs by lazy { requireArgs() }
 
     private val controller: CoinTickerPreviewController by lazy {
         CoinTickerPreviewController(viewModel, requireContext())
@@ -102,12 +96,31 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         binding.backButton.setOnClickListener {
-            findNavController().popBackStack()
+            requireActivity().finish()
         }
 
         binding.saveButton.setOnClickListener {
             save()
         }
+        findNavController().currentBackStackEntry?.savedStateHandle?.let { savedStateHandle ->
+            savedStateHandle.getLiveData<CoinSelectResult?>("result")
+                .observe(viewLifecycleOwner) { result: CoinSelectResult? ->
+                    Timber.d("result: $result")
+                    if (result == null) {
+                        return@observe
+                    }
+                    viewModel.setCoinId(result.coinId, result.backend)
+                    savedStateHandle.set("result", null)
+                }
+        }
+        val autoSaved = args.coinId != null
+        binding.saveButton.setText(
+            if (autoSaved) {
+                R.string.coin_ticker_preview_auto_save_widget
+            } else {
+                R.string.coin_ticker_preview_save_widget
+            }
+        )
 
         val previewView = binding.previewView
         viewLifecycleOwner.lifecycleScope.launch {
@@ -120,7 +133,7 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
                             CoinTickerRenderParams(
                                 config = savedConfig,
                                 data = savedDisplayData,
-                                showLoading = false,
+                                showLoading = state.currentDisplayData == null,
                                 isPreview = true,
                             )
                         } else {

@@ -47,11 +47,7 @@ class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksVie
     lateinit var traceManager: TraceManager
 
     private val controller: CoinSelectController by lazy {
-        val resultDestination = arguments?.getInt("result_destination")
-        if (resultDestination == null || resultDestination == 0) {
-            error("Invalid result_destination: $resultDestination")
-        }
-        controllerFactory.create(viewModel, resultDestination)
+        controllerFactory.create(viewModel)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -135,14 +131,4 @@ class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksVie
         controller.requestModelBuild()
     }
 
-    companion object {
-        @JvmStatic
-        fun createArgs(
-            @IdRes resultDestination: Int
-        ): Bundle {
-            return Bundle().apply {
-                putInt("result_destination", resultDestination)
-            }
-        }
-    }
 }

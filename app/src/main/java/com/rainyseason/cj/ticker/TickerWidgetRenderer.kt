@@ -110,15 +110,7 @@ class TickerWidgetRenderer @Inject constructor(
                 )
             }
             CoinTickerConfig.ClickAction.SETTING -> {
-                val intent = Intent(context, CoinTickerSettingActivity::class.java)
-                intent.putExtra(
-                    AppWidgetManager.EXTRA_APPWIDGET_ID,
-                    params.config.widgetId,
-                )
-                intent.putExtra(
-                    CoinTickerSettingActivity.COIN_ID_EXTRA,
-                    params.config.coinId,
-                )
+                val intent = CoinTickerSettingActivity.starterIntent(context, config)
                 PendingIntent.getActivity(
                     context,
                     params.config.widgetId,
@@ -144,7 +136,6 @@ class TickerWidgetRenderer @Inject constructor(
 
     private fun renderCoin360Mini(
         container: ViewGroup,
-        remoteViews: RemoteViews,
         params: CoinTickerRenderParams,
     ) {
         val binding = WidgetCoinTicker1x1Coin360MiniBinding
@@ -153,9 +144,6 @@ class TickerWidgetRenderer @Inject constructor(
         val renderData = params.data
 
         container.mesureAndLayout(config)
-
-        // bind loading
-        remoteViews.bindLoading(params)
 
         // bind container
         val backgroundRes = if ((renderData.priceChangePercent ?: 0.0) > 0) {
@@ -173,9 +161,6 @@ class TickerWidgetRenderer @Inject constructor(
         }
         binding.container.setBackgroundResource(backgroundRes)
         applyBackgroundTransparency(binding.container, config)
-
-        // bind remote view
-        remoteViews.applyClickAction(params)
 
         // bind symbol
         binding.symbol.text = renderData.symbol
@@ -186,7 +171,6 @@ class TickerWidgetRenderer @Inject constructor(
 
     private fun renderCoin360(
         container: ViewGroup,
-        remoteViews: RemoteViews,
         params: CoinTickerRenderParams,
     ) {
         val binding = WidgetCoinTicker2x2Coin360Binding
@@ -195,9 +179,6 @@ class TickerWidgetRenderer @Inject constructor(
         val renderData = params.data
 
         container.mesureAndLayout(config)
-
-        // bind loading
-        remoteViews.bindLoading(params)
 
         // bind container
         val backgroundRes = if ((renderData.priceChangePercent ?: 0.0) > 0) {
@@ -215,9 +196,6 @@ class TickerWidgetRenderer @Inject constructor(
         }
         binding.container.setBackgroundResource(backgroundRes)
         applyBackgroundTransparency(binding.container, config)
-
-        // bind remote view
-        remoteViews.applyClickAction(params)
 
         // bind symbol
         binding.symbol.text = renderData.symbol
@@ -240,7 +218,6 @@ class TickerWidgetRenderer @Inject constructor(
 
     private fun renderDefault(
         container: ViewGroup,
-        remoteViews: RemoteViews,
         params: CoinTickerRenderParams,
     ) {
         val binding = WidgetCoinTicker2x2DefaultBinding
@@ -251,7 +228,6 @@ class TickerWidgetRenderer @Inject constructor(
 
         container.mesureAndLayout(config)
 
-        remoteViews.bindLoading(params)
 
         // bind container
         binding.container.setBackgroundResource(
@@ -263,7 +239,6 @@ class TickerWidgetRenderer @Inject constructor(
         )
         applyBackgroundTransparency(binding.container, config)
 
-        remoteViews.applyClickAction(params)
 
         // bind symbol
         binding.symbol.text = if (config.backend.isExchange) {
@@ -333,7 +308,6 @@ class TickerWidgetRenderer @Inject constructor(
 
     private fun renderNano(
         container: ViewGroup,
-        remoteViews: RemoteViews,
         params: CoinTickerRenderParams,
     ) {
         val binding = WidgetCoinTicker1x1NanoBinding
@@ -344,8 +318,6 @@ class TickerWidgetRenderer @Inject constructor(
 
         container.mesureAndLayout(config)
 
-        remoteViews.bindLoading(params)
-
         // bind container
         binding.container.setBackgroundResource(
             select(
@@ -355,7 +327,6 @@ class TickerWidgetRenderer @Inject constructor(
             )
         )
         applyBackgroundTransparency(binding.container, config)
-        remoteViews.applyClickAction(params)
 
         // bind symbol
         binding.symbol.text = renderData.symbol
@@ -386,7 +357,6 @@ class TickerWidgetRenderer @Inject constructor(
 
     private fun renderIconSmall(
         container: ViewGroup,
-        remoteViews: RemoteViews,
         params: CoinTickerRenderParams,
         icon: Bitmap?
     ) {
@@ -398,8 +368,6 @@ class TickerWidgetRenderer @Inject constructor(
 
         container.mesureAndLayout(config)
 
-        remoteViews.bindLoading(params)
-
         // bind container
         binding.container.setBackgroundResource(
             select(
@@ -409,7 +377,6 @@ class TickerWidgetRenderer @Inject constructor(
             )
         )
         applyBackgroundTransparency(binding.container, config)
-        remoteViews.applyClickAction(params)
 
         // bind amount
         binding.amount.text = formatAmount(params)
@@ -447,7 +414,6 @@ class TickerWidgetRenderer @Inject constructor(
 
     private fun renderMini(
         container: ViewGroup,
-        remoteViews: RemoteViews,
         params: CoinTickerRenderParams,
     ) {
         val binding = WidgetCoinTicker2x1MiniBinding
@@ -458,7 +424,6 @@ class TickerWidgetRenderer @Inject constructor(
 
         container.mesureAndLayout(config)
 
-        remoteViews.bindLoading(params)
 
         // bind container
         binding.container.setBackgroundResource(
@@ -469,7 +434,6 @@ class TickerWidgetRenderer @Inject constructor(
             )
         )
         applyBackgroundTransparency(binding.container, config)
-        remoteViews.applyClickAction(params)
 
         // bind symbol
         binding.symbol.text = renderData.symbol
@@ -523,7 +487,6 @@ class TickerWidgetRenderer @Inject constructor(
 
     private fun renderGraph(
         container: ViewGroup,
-        remoteViews: RemoteViews,
         params: CoinTickerRenderParams,
     ) {
         val binding = WidgetCoinTicker2x2GraphBinding
@@ -534,7 +497,6 @@ class TickerWidgetRenderer @Inject constructor(
 
         container.mesureAndLayout(config)
 
-        remoteViews.bindLoading(params)
 
         // bind container
         binding.container.setBackgroundResource(
@@ -545,7 +507,6 @@ class TickerWidgetRenderer @Inject constructor(
             )
         )
         applyBackgroundTransparency(binding.container, config)
-        remoteViews.applyClickAction(params)
 
         // bind symbol
         binding.symbol.text = renderData.symbol
@@ -632,7 +593,7 @@ class TickerWidgetRenderer @Inject constructor(
     }
 
     fun getWidgetRatio(config: CoinTickerConfig): Size {
-        when (config.layout) {
+        return when (config.layout) {
             CoinTickerConfig.Layout.MINI -> Size(2, 1)
             CoinTickerConfig.Layout.ICON_SMALL -> Size(2, 1)
             CoinTickerConfig.Layout.DEFAULT -> Size(2, 2)
@@ -702,38 +663,54 @@ class TickerWidgetRenderer @Inject constructor(
         }
     }
 
+    fun getContainer(
+        inputParams: CoinTickerRenderParams,
+        icon: Bitmap? = null
+    ): View {
+        val container = FrameLayout(context)
+        container.mesureAndLayout(inputParams.config)
+        when (inputParams.config.layout) {
+            CoinTickerConfig.Layout.DEFAULT -> renderDefault(container, inputParams)
+            CoinTickerConfig.Layout.GRAPH -> renderGraph(container, inputParams)
+            CoinTickerConfig.Layout.COIN360 -> renderCoin360(container, inputParams)
+            CoinTickerConfig.Layout.COIN360_NANO -> renderCoin360Mini(container, inputParams)
+            CoinTickerConfig.Layout.MINI -> renderMini(container, inputParams)
+            CoinTickerConfig.Layout.ICON_SMALL ->
+                renderIconSmall(container, inputParams, icon)
+            CoinTickerConfig.Layout.NANO -> renderNano(container, inputParams)
+            else -> error("Unknown layout: ${inputParams.config.layout}")
+        }
+
+        container.mesureAndLayout(inputParams.config)
+        return container
+    }
+
     fun render(
         view: RemoteViews,
         inputParams: CoinTickerRenderParams,
         icon: Bitmap? = null,
     ) {
-        val container = FrameLayout(context)
-        container.mesureAndLayout(inputParams.config)
-        when (inputParams.config.layout) {
-            CoinTickerConfig.Layout.DEFAULT -> renderDefault(container, view, inputParams)
-            CoinTickerConfig.Layout.GRAPH -> renderGraph(container, view, inputParams)
-            CoinTickerConfig.Layout.COIN360 -> renderCoin360(container, view, inputParams)
-            CoinTickerConfig.Layout.COIN360_NANO -> renderCoin360Mini(container, view, inputParams)
-            CoinTickerConfig.Layout.MINI -> renderMini(container, view, inputParams)
-            CoinTickerConfig.Layout.ICON_SMALL ->
-                renderIconSmall(container, view, inputParams, icon)
-            CoinTickerConfig.Layout.NANO -> renderNano(container, view, inputParams)
-            else -> error("Unknown layout: ${inputParams.config.layout}")
-        }
-
-        container.mesureAndLayout(inputParams.config)
-        val size = getWidgetSize(inputParams.config)
+        view.bindLoading(inputParams)
+        view.applyClickAction(inputParams)
 
         if (inputParams.isPreview && DebugFlag.SHOW_PREVIEW_LAYOUT_BOUNDS.isEnable) {
             view as LocalRemoteViews
+            val container = getContainer(inputParams, icon)
             view.container.removeAllViews()
             view.container.addView(container)
         } else {
-            val bitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
-            container.draw(canvas)
+            val bitmap = createBitmap(inputParams, icon)
             view.setImageViewBitmap(R.id.image_view, bitmap)
         }
+    }
+
+    fun createBitmap(inputParams: CoinTickerRenderParams, icon: Bitmap?): Bitmap {
+        val container = getContainer(inputParams, icon)
+        val size = getWidgetSize(inputParams.config)
+        val bitmap = Bitmap.createBitmap(size.width, size.height, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        container.draw(canvas)
+        return bitmap
     }
 
     private fun formatChange(

@@ -16,6 +16,7 @@
     <string name="coin_ticker_preview_setting_show_thousands_separator">Show thousands separator</string>
 
     <string name="coin_ticker_preview_setting_layout">Layout</string>
+    <string name="coin_ticker_preview_setting_coin_id">Coin or trading pair</string>
 
     <string name="coin_ticker_preview_setting_header_bottom">Bottom content</string>
     <string name="coin_ticker_preview_setting_header_style">Style</string>
@@ -60,6 +61,7 @@
     <string name="coin_ticker_preview_setting_hide_decimal">Hide decimals on large price</string>
 
     <string name="reload">Reload</string>
+    <string name="loading">Loading</string>
     <string name="error_no_network">No internet connection, try to enable WIFI!</string>
     <string name="error_rate_limit">Too many network response, please wait for a moment and try again!</string>
     <string name="error_unknown">Unknown error, please try again!</string>
@@ -90,6 +92,7 @@
     <string name="coin_ticker_preview_battery_saver_warning">Widget can\'t update under battery saver\nPlease exclude app from battery saver\nApp info ➜ Battery ➜ Unrestricted</string>
     <string name="coin_ticker_preview_go_to_app_info">App Info</string>
     <string name="coin_ticker_preview_save_widget">Save</string>
+    <string name="coin_ticker_preview_auto_save_widget">Auto saved</string>
     <string name="coin_ticker_preview_save_widget_anyway">Save anyway</string>
     <string name="coin_ticker_preview_battery_saver_warning_dialog_title">Battery saver warning</string>
     <string name="warning_refresh_interval">Refresh interval warning</string>
@@ -114,6 +117,7 @@
     <string name="setting_price_change_percent_title">Change percent</string>
     <string name="setting_behavior_title">Behavior</string>
     <string name="setting_content_title">Content</string>
+    <string name="setting_style_title">Style</string>
 
     <string name="watch_preview_click_action_open_watchlist">Open watchlist</string>
     <string name="watch_edit_watch_list">Edit watchlist</string>

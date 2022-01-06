@@ -1,6 +1,7 @@
 package com.rainyseason.cj
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.util.Log
 import com.bumptech.glide.Glide
 import com.bumptech.glide.GlideBuilder
@@ -10,12 +11,18 @@ import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.module.AppGlideModule
 import com.rainyseason.cj.common.coreComponent
+import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import java.io.InputStream
 
 @GlideModule
 class CJGlideModule : AppGlideModule() {
     override fun registerComponents(context: Context, glide: Glide, registry: Registry) {
         val coreComponent = context.coreComponent
+        registry.append(
+            CoinTickerRenderParams::class.java,
+            Bitmap::class.java,
+            coreComponent.tickerWidgetGlideLoader
+        )
         registry.replace(
             GlideUrl::class.java,
             InputStream::class.java,

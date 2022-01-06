@@ -74,6 +74,51 @@ data class CoinTickerConfig(
     val amount: Double? = 1.0,
 ) {
 
+    companion object {
+        val AllowedChangeInterval = mapOf(
+            TimeInterval.I_24H
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
+            TimeInterval.I_7D
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
+            TimeInterval.I_30D
+                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
+        )
+    }
+
+    fun ensureValid(): CoinTickerConfig {
+        return ensureClickAction()
+            .ensureChangeInterval()
+            .ensureShowCurrency()
+    }
+
+    private fun ensureShowCurrency(): CoinTickerConfig {
+        return if (backend.isExchange && showCurrencySymbol) {
+            copy(showCurrencySymbol = false)
+        } else {
+            this
+        }
+    }
+
+    private fun ensureClickAction(): CoinTickerConfig {
+        return if (backend.isDefault) {
+            this
+        } else {
+            if (clickAction == ClickAction.OPEN_COIN_DETAIL) {
+                copy(clickAction = ClickAction.REFRESH)
+            } else {
+                this
+            }
+        }
+    }
+
+    private fun ensureChangeInterval(): CoinTickerConfig {
+        return if (changeInterval in AllowedChangeInterval.keys) {
+            this
+        } else {
+            copy(changeInterval = TimeInterval.I_24H)
+        }
+    }
+
     fun asDataLoadParams(): CoinTickerDisplayData.LoadParam {
         return CoinTickerDisplayData.LoadParam(
             coinId = coinId,

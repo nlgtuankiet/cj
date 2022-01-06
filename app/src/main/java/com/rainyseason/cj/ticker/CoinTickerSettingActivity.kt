@@ -2,6 +2,8 @@ package com.rainyseason.cj.ticker
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.RemoteViews
@@ -13,8 +15,11 @@ import androidx.navigation.fragment.fragment
 import com.rainyseason.cj.R
 import com.rainyseason.cj.coinselect.CoinSelectFragment
 import com.rainyseason.cj.common.TraceManager
+import com.rainyseason.cj.common.asArgs
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.data.local.CoinTickerRepository
+import com.rainyseason.cj.ticker.preview.CoinTickerPreviewArgs
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragment
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
@@ -73,6 +78,7 @@ class CoinTickerSettingActivity :
     lateinit var commonRepository: CommonRepository
 
     private var widgetSaved = false
+    private var refreshed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -89,28 +95,29 @@ class CoinTickerSettingActivity :
         val navController = navHostFragment.findNavController()
         val graph = navController.createGraph(
             R.id.coin_ticker_nav_graph,
-            R.id.coin_select_screen,
+            R.id.coin_ticker_preview_screen,
         ) {
             fragment<CoinSelectFragment>(R.id.coin_select_screen)
             fragment<CoinTickerPreviewFragment>(R.id.coin_ticker_preview_screen)
         }
+        val coinId = intent.extras?.getString(COIN_ID_EXTRA)
+        val backend = intent.extras?.getString(BACKEND_ID_EXTRA)?.let {
+            Backend.from(it)
+        }
+        val componentName = appWidgetManager.getAppWidgetInfo(widgetId)?.provider
+            ?: ComponentName(this, CoinTickerProviderGraph::class.java)
+        val layout = CoinTickerConfig.Layout.fromComponentName(componentName.className)
+        val args = CoinTickerPreviewArgs(
+            widgetId = widgetId,
+            coinId = coinId,
+            backend = backend,
+            layout = layout
+        ).asArgs()
         navController.setGraph(
             graph,
-            CoinSelectFragment.createArgs(R.id.coin_ticker_preview_screen)
+            args,
         )
-
-        val coinId = intent.extras?.getString(COIN_ID_EXTRA)
-        if (coinId != null) {
-            widgetSaved = true
-            if (savedInstanceState == null) {
-                // on recreate we are already at preview screen
-                val args = Bundle().apply {
-                    putString("coin_id", coinId)
-                    putString("backend_id", intent.extras?.getString("backend_id"))
-                }
-                navController.navigate(R.id.coin_ticker_preview_screen, args)
-            }
-        }
+        widgetSaved = coinId != null
     }
 
     override fun saveWidget(
@@ -143,6 +150,7 @@ class CoinTickerSettingActivity :
                 commonRepository.increaseWidgetUsed()
             }
             widgetSaved = true
+            refreshed = true
             setResult(Activity.RESULT_OK, resultValue)
             finish()
         }
@@ -157,6 +165,15 @@ class CoinTickerSettingActivity :
             runBlocking {
                 coinTickerRepository.clearAllData(getWidgetId() ?: 0)
             }
+        } else {
+          if (!refreshed) {
+              runBlocking {
+                  withContext(Dispatchers.IO) {
+                      coinTickerHandler.enqueueRefreshWidget(widgetId = getWidgetId() ?: 0)
+                      commonRepository.increaseWidgetUsed()
+                  }
+              }
+          }
         }
     }
 
@@ -164,8 +181,44 @@ class CoinTickerSettingActivity :
         return androidInjector
     }
 
+
+
     companion object {
-        const val COIN_ID_EXTRA = "coin_id"
+        private const val COIN_ID_EXTRA = "coin_id"
+        private const val BACKEND_ID_EXTRA = "backend_id"
+
+        fun starterIntent(
+            context: Context,
+            config: CoinTickerConfig,
+        ): Intent {
+            return starterIntent(context, config.widgetId, config.coinId, config.backend)
+        }
+
+        fun starterIntent(
+            context: Context,
+            widgetId: Int,
+            coinId: String?,
+            backend: Backend?
+        ): Intent {
+            val intent = Intent(context, CoinTickerSettingActivity::class.java)
+            intent.putExtra(
+                AppWidgetManager.EXTRA_APPWIDGET_ID,
+                widgetId,
+            )
+            if (coinId != null) {
+                intent.putExtra(
+                    COIN_ID_EXTRA,
+                    coinId,
+                )
+            }
+            if (backend != null) {
+                intent.putExtra(
+                    BACKEND_ID_EXTRA,
+                    backend.id,
+                )
+            }
+            return intent
+        }
     }
 }
 

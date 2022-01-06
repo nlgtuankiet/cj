@@ -7,7 +7,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class CoinTickerPreviewArgs(
     val widgetId: Int,
-    val coinId: String,
+    val coinId: String?,
     val layout: String,
-    val backend: Backend
+    val backend: Backend?
 ) : Parcelable

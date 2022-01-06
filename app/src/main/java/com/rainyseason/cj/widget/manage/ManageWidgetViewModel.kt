@@ -3,6 +3,9 @@ package com.rainyseason.cj.widget.manage
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
+import androidx.lifecycle.asFlow
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
@@ -13,12 +16,16 @@ import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
+import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.widget.watch.WatchConfig
 import com.rainyseason.cj.widget.watch.WatchDisplayData
+import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.ticker
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 
 data class ManageWidgetState(
     val id: Int = 0,
@@ -26,14 +33,21 @@ data class ManageWidgetState(
     val tickerDisplayData: Map<Int, Async<CoinTickerDisplayData>> = emptyMap(),
     val watchConfig: Map<Int, Async<WatchConfig>> = emptyMap(),
     val watchDisplayData: Map<Int, Async<WatchDisplayData>> = emptyMap(),
+    val widgetLoading: Map<Int, Async<Boolean>> = emptyMap(),
 ): MavericksState
 
 class ManageWidgetViewModel @AssistedInject constructor(
-    initState: ManageWidgetState,
+    @Assisted initState: ManageWidgetState,
     private val appWidgetManager: AppWidgetManager,
     private val coinTickerRepository: CoinTickerRepository,
+    private val coinTickerHandler: CoinTickerHandler,
+    private val workManager: WorkManager,
     private val context: Context,
 ) : MavericksViewModel<ManageWidgetState>(initState) {
+
+    private val getConfigJobs = mutableMapOf<Int, Job?>()
+    private val getDataJobs = mutableMapOf<Int, Job?>()
+    private val getLoadingJobs = mutableMapOf<Int, Job?>()
 
     init {
         reload()
@@ -42,9 +56,6 @@ class ManageWidgetViewModel @AssistedInject constructor(
     private fun reload() {
         loadWidgets()
     }
-
-    private val getConfigJobs = mutableMapOf<Int, Job?>()
-    private val getDataJobs = mutableMapOf<Int, Job?>()
 
     private fun loadWidgets() {
         CoinTickerConfig.Layout.clazzToLayout.keys.forEach { clazz ->
@@ -62,7 +73,24 @@ class ManageWidgetViewModel @AssistedInject constructor(
                         .execute {
                             copy(tickerDisplayData = tickerDisplayData.update { put(widgetId, it) })
                         }
+
+                    getLoadingJobs[widgetId]?.cancel()
+                    getDataJobs[widgetId] = workManager.getWorkInfosForUniqueWorkLiveData(
+                        coinTickerHandler.getWorkName(widgetId)
+                    ).asFlow()
+                        .map { infos ->
+                            infos.firstOrNull()?.state == WorkInfo.State.RUNNING
+                        }
+                        .execute {
+                            copy(widgetLoading = widgetLoading.update { put(widgetId, it) })
+                        }
                 }
+        }
+    }
+
+     fun refreshTickerWidget(widgetId: Int) {
+        viewModelScope.launch {
+            coinTickerHandler.enqueueRefreshWidget(widgetId, null)
         }
     }
 

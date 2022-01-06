@@ -4,11 +4,13 @@ import android.content.Context
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.doOnPreDraw
+import androidx.navigation.findNavController
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
+import com.rainyseason.cj.coinselect.CoinSelectFragment
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.RefreshIntervals
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
@@ -55,26 +57,60 @@ class CoinTickerPreviewController(
         if (buildRetryResult == BuildState.Stop) {
             return
         }
-
-        buildLayout(state)
+        buildCoinId(state)
         buildRefreshInternal(state)
         buildCurrency(state)
+        buildShowCurrencySymbol(state)
         buildTheme(state)
-        buildSizeAdjustment(state)
-        buildBackgroundTransparency(state)
+        buildLayout(state)
 
         buildAdvanceHeader(state)
         buildAdvanceSettings(state)
+    }
+
+    private fun buildCoinId(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+
+        val summary = if (config.backend.isExchange) {
+            state.currentDisplayData?.symbol
+        } else {
+            state.currentDisplayData?.name
+        }?.let {
+            "$it (${config.backend.displayName})"
+        }
+        settingTitleSummaryView {
+            id("setting_coin_id")
+            title(R.string.coin_ticker_preview_setting_coin_id)
+            if (summary.isNullOrBlank()) {
+                summary(R.string.loading)
+            } else {
+                summary(summary)
+            }
+            onClickListener { view ->
+                view.findNavController()
+                    .navigate(R.id.coin_select_screen)
+            }
+        }
     }
 
     private fun buildAdvanceSettings(state: CoinTickerPreviewState) {
         if (!state.showAdvanceSetting) {
             return
         }
-        buildPriceFormatGroup(state)
         buildChangePercentGroup(state)
+        buildPriceFormatGroup(state)
+        buildStyleGroup(state)
         buildBehaviorGroup(state)
         buildContentGroup(state)
+    }
+
+    private fun buildStyleGroup(state: CoinTickerPreviewState) {
+        settingHeaderView {
+            id("setting_header_style")
+            content(R.string.setting_style_title)
+        }
+        buildSizeAdjustment(state)
+        buildBackgroundTransparency(state)
     }
 
     private fun buildContentGroup(state: CoinTickerPreviewState) {
@@ -112,10 +148,9 @@ class CoinTickerPreviewController(
             content(R.string.setting_price_format_title)
         }
         buildAmountDecimal(state)
+        buildHideDecimalOnLargePrice(state)
         buildRoundToMillion(state)
         buildShowThousandSeparator(state)
-        buildHideDecimalOnLargePrice(state)
-        buildShowCurrencySymbol(state)
     }
 
     private fun buildAdvanceHeader(state: CoinTickerPreviewState) {
@@ -485,14 +520,8 @@ class CoinTickerPreviewController(
 
     private fun buildChangePercentInternal(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        val mapping = listOf(
-            TimeInterval.I_24H
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
-            TimeInterval.I_7D
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
-            TimeInterval.I_30D
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
-        )
+        val mapping = CoinTickerConfig.AllowedChangeInterval
+        val defaultSummary = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h
 
         val interval = config.changeInterval
 
@@ -501,12 +530,7 @@ class CoinTickerPreviewController(
         settingTitleSummaryView {
             id("bottom_change_interval")
             title(R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header)
-            summary(
-                context.getString(
-                    mapping.firstOrNull { it.first == interval }?.second
-                        ?: R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h
-                )
-            )
+            summary(mapping[interval] ?: defaultSummary)
             onClickListener { _ ->
                 val currentState = withState(viewModel) { it }
                 val currentConfig = currentState.config!!
@@ -517,11 +541,11 @@ class CoinTickerPreviewController(
                     )
                     .setCancelButton()
                     .setSingleChoiceItems(
-                        mapping.map { context.getString(it.second) }.toTypedArray(),
+                        mapping.values.map { context.getString(it) }.toTypedArray(),
                         mapping.toList().indexOfFirst { it.first == currentInterval }
                     ) { dialog, which ->
-                        val selectedInterval = mapping.map { it.first }
-                            .getOrNull(which) ?: TimeInterval.I_24H
+                        val selectedInterval = mapping.keys.toList().getOrNull(which)
+                            ?: TimeInterval.I_24H
                         viewModel.setPriceChangeInterval(selectedInterval)
                         dialog.dismiss()
                     }

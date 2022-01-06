@@ -1,6 +1,5 @@
 package com.rainyseason.cj.ticker.preview
 
-import android.appwidget.AppWidgetManager
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.Loading
@@ -10,6 +9,7 @@ import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSettingRepository
@@ -48,12 +48,10 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     @Assisted private val initState: CoinTickerPreviewState,
     @Assisted private val args: CoinTickerPreviewArgs,
     private val coinTickerRepository: CoinTickerRepository,
-    private val appWidgetManager: AppWidgetManager,
     private val userSettingRepository: UserSettingRepository,
     private val getDisplayData: GetDisplayData,
-) : MavericksViewModel<CoinTickerPreviewState>(CoinTickerPreviewState()) {
+) : MavericksViewModel<CoinTickerPreviewState>(initState) {
 
-    private val widgetId = args.widgetId
     private var saved = false
     val id = UUID.randomUUID().toString()
 
@@ -105,64 +103,36 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     private suspend fun saveInitialConfig() {
         val lastConfig = coinTickerRepository.getConfig(widgetId = args.widgetId)
-        val allowedChangeInterval = setOf(
-            TimeInterval.I_24H,
-            TimeInterval.I_7D,
-            TimeInterval.I_30D,
-        )
-        if (lastConfig == null) {
+        val (coinId, backend) = if (args.coinId != null) {
+            args.coinId to (args.backend ?: Backend.CoinGecko)
+        } else {
+            "bitcoin" to Backend.CoinGecko
+        }
+        val config = if (lastConfig == null) {
             val userSetting = userSettingRepository.getUserSetting()
-            val config = CoinTickerConfig(
+            CoinTickerConfig(
                 widgetId = args.widgetId,
-                coinId = args.coinId,
+                coinId = coinId,
                 layout = args.layout,
-                backend = args.backend,
+                backend = backend,
                 numberOfAmountDecimal = userSetting.amountDecimals,
                 numberOfChangePercentDecimal = userSetting.numberOfChangePercentDecimal,
                 refreshInterval = userSetting.refreshInterval,
                 refreshIntervalUnit = userSetting.refreshIntervalUnit,
                 showThousandsSeparator = userSetting.showThousandsSeparator,
-                showCurrencySymbol = if (args.backend.isExchange) {
-                    false
-                } else {
-                    userSetting.showCurrencySymbol
-                },
+                showCurrencySymbol = userSetting.showCurrencySymbol,
                 roundToMillion = userSetting.roundToMillion,
                 currency = userSetting.currencyCode,
                 sizeAdjustment = userSetting.sizeAdjustment,
-                clickAction = if (args.backend.isDefault) {
-                    CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL
-                } else {
-                    CoinTickerConfig.ClickAction.REFRESH
-                }
             )
-            coinTickerRepository.setConfig(args.widgetId, config)
         } else {
-            val newConfig = lastConfig.copy(
-                coinId = args.coinId,
-                backend = args.backend,
-                showCurrencySymbol = if (args.backend.isExchange) {
-                    false
-                } else {
-                    lastConfig.showCurrencySymbol
-                },
-                clickAction = if (args.backend.isDefault) {
-                    lastConfig.clickAction
-                } else {
-                    if (lastConfig.clickAction == CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL) {
-                        CoinTickerConfig.ClickAction.REFRESH
-                    } else {
-                        lastConfig.clickAction
-                    }
-                },
-                changeInterval = if (lastConfig.changeInterval in allowedChangeInterval) {
-                    lastConfig.changeInterval
-                } else {
-                    TimeInterval.I_24H
-                }
+            lastConfig.copy(
+                coinId = coinId,
+                backend = backend,
             )
-            coinTickerRepository.setConfig(widgetId, newConfig)
-        }
+        }.ensureValid()
+
+        coinTickerRepository.setConfig(args.widgetId, config)
 
         loadConfig()
     }
@@ -171,7 +141,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         withState { state ->
             val config = state.savedConfig.invoke()
             if (config != null) {
-                val newConfig = block.invoke(config)
+                val newConfig = block.invoke(config).ensureValid()
                 maybeSaveConfig(newConfig)
             }
         }
@@ -271,7 +241,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             return
         }
         viewModelScope.launch {
-            coinTickerRepository.setDisplayData(widgetId, data)
+            coinTickerRepository.setDisplayData(args.widgetId, data)
         }
     }
 
@@ -294,6 +264,12 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     fun showAdvanced() {
         setState { copy(showAdvanceSetting = true) }
+    }
+
+    fun setCoinId(coinId: String, backend: Backend) {
+        updateConfig {
+            copy(coinId = coinId, backend = backend,)
+        }
     }
 
     @AssistedFactory

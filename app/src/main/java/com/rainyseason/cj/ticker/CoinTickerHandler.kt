@@ -40,14 +40,18 @@ class CoinTickerHandler @Inject constructor(
             )
             .build()
         workManager.enqueueUniquePeriodicWork(
-            "refresh_$widgetId",
+            getWorkName(widgetId),
             ExistingPeriodicWorkPolicy.REPLACE,
             request
         ).await()
     }
 
+    fun getWorkName(widgetId: Int): String {
+        return "refresh_$widgetId"
+    }
+
     suspend fun removeRefreshWork(widgetId: Int) {
-        workManager.cancelUniqueWork("refresh_$widgetId").await()
+        workManager.cancelUniqueWork(getWorkName(widgetId)).await()
     }
 
     suspend fun rerender(widgetId: Int) {

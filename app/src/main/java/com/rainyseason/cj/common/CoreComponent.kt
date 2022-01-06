@@ -10,6 +10,7 @@ import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.ticker.CoinTickerHandler
+import com.rainyseason.cj.ticker.TickerWidgetGlideLoader
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.widget.watch.WatchWidgetHandler
@@ -35,6 +36,7 @@ interface CoreComponent {
     val firebaseCrashlytics: FirebaseCrashlytics
     val numberFormater: NumberFormater
     val graphRenderer: GraphRenderer
+    val tickerWidgetGlideLoader: TickerWidgetGlideLoader
 }
 
 interface HasCoreComponent {

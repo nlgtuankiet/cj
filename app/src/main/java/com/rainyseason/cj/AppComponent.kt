@@ -52,6 +52,7 @@ import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
 import com.rainyseason.cj.tracking.AppTracker
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.watch.WatchListFragmentModule
+import com.rainyseason.cj.widget.manage.ManageWidgetFragmentModule
 import com.rainyseason.cj.widget.watch.WatchClickActionJsonAdapter
 import com.rainyseason.cj.widget.watch.WatchPreviewFragmentModule
 import com.rainyseason.cj.widget.watch.WatchSettingActivityModule
@@ -106,6 +107,7 @@ interface AppComponent : AndroidInjector<CJApplication>, CoreComponent {
         SettingFragmentModule::class,
         WatchSettingActivityModule::class,
         WatchPreviewFragmentModule::class,
+        ManageWidgetFragmentModule::class,
         CoinTickerPreviewFragmentModule::class,
         CoinSelectFragmentModule::class,
     ]

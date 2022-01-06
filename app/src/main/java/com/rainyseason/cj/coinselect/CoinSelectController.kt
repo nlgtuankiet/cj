@@ -33,7 +33,6 @@ import kotlin.system.measureTimeMillis
 
 class CoinSelectController @AssistedInject constructor(
     @Assisted private val viewModel: CoinSelectViewModel,
-    @Assisted private val resultDestination: Int,
     private val context: Context,
     private val tracker: Tracker,
     private val traceManager: TraceManager,
@@ -43,7 +42,6 @@ class CoinSelectController @AssistedInject constructor(
     interface Factory {
         fun create(
             viewModel: CoinSelectViewModel,
-            resultDestination: Int,
         ): CoinSelectController
     }
 
@@ -269,12 +267,8 @@ class CoinSelectController @AssistedInject constructor(
                 "backend_id" to backend.id
             )
         )
-        controller.navigate(
-            resultDestination,
-            Bundle().apply {
-                putString("coin_id", coinId)
-                putString("backend_id", backend.id)
-            }
-        )
+        controller.previousBackStackEntry?.savedStateHandle
+            ?.set("result", CoinSelectResult(coinId, backend))
+        controller.popBackStack()
     }
 }
