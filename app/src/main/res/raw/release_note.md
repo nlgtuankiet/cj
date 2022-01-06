@@ -1,6 +1,6 @@
 ### 1.11.0 Release
 
-✨ Add Manage widgets screen, now you can edit added widgets without delete and create now one.
+✨ Add Manage widgets screen, now you can edit added widgets without delete and create now one.  
 
 ### 1.10.5 Release
 
