@@ -1,3 +1,7 @@
+### 1.12.0 Release
+
+✨ Add chat screen, now you can chat with us directly for feature requests and bug reports.
+
 ### 1.11.0 Release
 
 ✨ Add Manage widgets screen, now you can edit added widgets without deleting and create a new one.  
