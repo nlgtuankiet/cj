@@ -8,7 +8,6 @@ import androidx.navigation.findNavController
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.withState
-import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.RefreshIntervals
@@ -38,6 +37,10 @@ class CoinTickerPreviewController(
 ) : AsyncEpoxyController() {
 
     private var addSeparator = true
+
+    companion object {
+        const val COIN_SELECT_ID = "setting_coin_id"
+    }
 
     private fun maybeBuildHorizontalSeparator(id: String) {
         if (!addSeparator) {
@@ -78,7 +81,7 @@ class CoinTickerPreviewController(
             "$it (${config.backend.displayName})"
         }
         settingTitleSummaryView {
-            id("setting_coin_id")
+            id(COIN_SELECT_ID)
             title(R.string.coin_ticker_preview_setting_coin_id)
             if (summary.isNullOrBlank()) {
                 summary(R.string.loading)
@@ -170,9 +173,6 @@ class CoinTickerPreviewController(
         val loadDataParams = state.loadDataParams ?: return BuildState.Stop
         val data = state.displayDataCache[loadDataParams]
         val error = (data as? Fail)?.error ?: return BuildState.Next
-        if (BuildConfig.DEBUG) {
-            throw error
-        }
         retryView {
             id("retry")
             reason(error.getUserErrorMessage(context = context))

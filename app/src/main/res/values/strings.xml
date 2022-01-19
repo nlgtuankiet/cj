@@ -138,5 +138,8 @@
     <string name="chat_history_title_admin">Customer Support</string>
     <string name="chat_login_title">Login anonymously</string>
     <string name="retry">Retry</string>
+    <string name="ok">OK</string>
+    <string name="coin_ticker_onboard_coin_select_title">Select your favorite coin!</string>
+    <string name="coin_ticker_onboard_coin_select_description">Like Ethereum, Dogecoin\nOr trading pair from various exchange</string>
 
 </resources>

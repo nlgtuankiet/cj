@@ -13,6 +13,7 @@ import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSettingRepository
+import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
@@ -23,6 +24,8 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.util.Collections
 import java.util.UUID
@@ -50,10 +53,14 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private val coinTickerRepository: CoinTickerRepository,
     private val userSettingRepository: UserSettingRepository,
     private val getDisplayData: GetDisplayData,
+    private val keyValueStore: KeyValueStore,
 ) : MavericksViewModel<CoinTickerPreviewState>(initState) {
 
     private var saved = false
     val id = UUID.randomUUID().toString()
+
+    private val _onBoardCoinSelect = Channel<Unit>(Channel.CONFLATED)
+    val onBoardCoinSelect = _onBoardCoinSelect.receiveAsFlow()
 
     init {
         loadDisplayData()
@@ -63,6 +70,26 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
 
         reload()
+        checkIntroduceCoinSelect()
+    }
+
+    private fun checkIntroduceCoinSelect() {
+        var onEachDisplayDataJob: Job? = null
+        onEachDisplayDataJob = onEach(CoinTickerPreviewState::savedDisplayData) { displayData ->
+            if (displayData.invoke() != null) {
+                val checked = keyValueStore.getBoolean("onboard_done_coin_select")
+                if (checked != true) {
+                    _onBoardCoinSelect.trySend(Unit)
+                }
+                onEachDisplayDataJob?.cancel()
+            }
+        }
+    }
+
+    fun onBoardCoinSelectDone() {
+        viewModelScope.launch {
+            keyValueStore.setBoolean("onboard_done_coin_select", true)
+        }
     }
 
     fun reload() {
@@ -268,7 +295,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     fun setCoinId(coinId: String, backend: Backend) {
         updateConfig {
-            copy(coinId = coinId, backend = backend,)
+            copy(coinId = coinId, backend = backend)
         }
     }
 

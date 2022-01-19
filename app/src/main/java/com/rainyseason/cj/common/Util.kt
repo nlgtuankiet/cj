@@ -18,6 +18,7 @@ import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.LinearInterpolator
 import android.view.inputmethod.InputMethodManager
 import android.widget.RemoteViews
 import android.widget.TextView
@@ -50,8 +51,10 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import retrofit2.HttpException
 import java.net.UnknownHostException
+import kotlin.coroutines.resume
 import kotlin.math.abs
 
 /**
@@ -59,7 +62,7 @@ import kotlin.math.abs
  * is in and out of `minActiveState` lifecycle state.
  */
 inline fun Fragment.launchAndRepeatWithViewLifecycle(
-    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
+    minActiveState: Lifecycle.State = Lifecycle.State.RESUMED,
     crossinline block: suspend CoroutineScope.() -> Unit,
 ) {
     viewLifecycleOwner.lifecycleScope.launch {
@@ -343,5 +346,40 @@ fun FirebaseAuth.isUserLoginFlow(): Flow<Boolean> {
         awaitClose {
             removeAuthStateListener(listener)
         }
+    }
+}
+
+suspend fun View.showWithAnimation() {
+    animateShow(this)
+}
+
+suspend fun View.hideWithAnimation() {
+    animateShow(this, true)
+}
+
+private suspend fun animateShow(view: View, reverse: Boolean = false) {
+    // 0 complete transparent
+    // 1 show 100%
+    if (reverse) {
+        view.alpha = 1f
+    } else {
+        view.alpha = 0f
+    }
+    suspendCancellableCoroutine<Unit> { cont ->
+        val animator = view.animate()
+            .apply {
+                if (reverse) {
+                    alpha(0f)
+                } else {
+                    alpha(1f)
+                }
+            }
+            .setDuration(300)
+            .setInterpolator(LinearInterpolator())
+            .withEndAction {
+                cont.resume(Unit)
+            }
+        cont.invokeOnCancellation { animator.cancel() }
+        animator.start()
     }
 }

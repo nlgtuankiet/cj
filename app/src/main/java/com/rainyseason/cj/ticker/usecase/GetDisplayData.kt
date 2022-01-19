@@ -1,7 +1,10 @@
 package com.rainyseason.cj.ticker.usecase
 
 import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.featureflag.DebugFlag
+import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 
 class GetDisplayData @Inject constructor(
@@ -14,7 +17,7 @@ class GetDisplayData @Inject constructor(
 ) {
 
     suspend operator fun invoke(param: CoinTickerDisplayData.LoadParam): CoinTickerDisplayData {
-        return when (param.backend) {
+        val result = when (param.backend) {
             Backend.Binance -> getBinanceDisplayData(param)
             Backend.CoinGecko -> getCoinGeckoDisplayData(param)
             Backend.CoinMarketCap -> getCoinMarketCapDisplayData(param)
@@ -22,5 +25,9 @@ class GetDisplayData @Inject constructor(
             Backend.Ftx -> getFtxDisplayData(param)
             Backend.Kraken -> getKrakenDisplayData(param)
         }
+        if (DebugFlag.SLOW_TICKER_PREVIEW.isEnable) {
+            delay(3000)
+        }
+        return result
     }
 }

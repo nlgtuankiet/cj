@@ -61,6 +61,7 @@ class CoinTickerPreviewView @JvmOverloads constructor(
     }
 
     // work around auto text size problem
+    // TODO add on render done listener for onboard UI (size changes will affect onboard focus UI)
     @ModelProp
     fun setRenderParams(params: CoinTickerRenderParams?) {
         Timber.d("render config ${params?.config}")
