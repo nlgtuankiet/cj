@@ -1,3 +1,7 @@
+### 1.12.1 Release
+
+✨ Add onboarding UI (for coin select option)
+
 ### 1.12.0 Release
 
 ✨ Add chat screen, now you can chat with us directly for feature requests and bug reports.
