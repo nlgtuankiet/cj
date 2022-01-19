@@ -68,7 +68,7 @@
     <string name="coin_ticker_preview_setting_show_battery_warning">Show battery optimization warning</string>
 
 
-    <string name="coin_ticker_preview_setting_size_adjustment">Size adjustmnet</string>
+    <string name="coin_ticker_preview_setting_size_adjustment">Size adjustment</string>
     <string name="coin_ticker_preview_setting_background_transparency">Background transparency</string>
     <string name="coin_history_header">History</string>
     <string name="coin_select_exchange_header">Exchanges</string>
