@@ -1,6 +1,7 @@
 ### 1.12.1 Release
 
 ✨ Add onboarding UI (for coin select option)
+🛠 Fix spelling error, thank Jaes Overley
 
 ### 1.12.0 Release
 
