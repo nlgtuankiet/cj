@@ -17,6 +17,7 @@ import com.rainyseason.cj.coinselect.CoinSelectFragment
 import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.common.widgetId
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewArgs
@@ -221,12 +222,5 @@ class CoinTickerSettingActivity :
 }
 
 fun Activity.getWidgetId(): Int? {
-    val widgetId = intent?.extras?.getInt(
-        AppWidgetManager.EXTRA_APPWIDGET_ID,
-        AppWidgetManager.INVALID_APPWIDGET_ID
-    ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
-    if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
-        return null
-    }
-    return widgetId
+    return intent?.widgetId()
 }

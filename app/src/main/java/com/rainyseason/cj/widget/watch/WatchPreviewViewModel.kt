@@ -24,10 +24,12 @@ import com.rainyseason.cj.data.coingecko.MarketChartResponse
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.launch
@@ -190,10 +192,22 @@ class WatchPreviewViewModel @AssistedInject constructor(
         return WatchWidgetLayout.fromProviderName(providerName)
     }
 
+    @ExperimentalCoroutinesApi
     private fun loadWatchList() {
-        watchListRepository.getWatchList()
-            .map { it.take(getLayout().entryLimit) }
-            .execute { copy(watchlist = it) }
+        stateFlow.mapNotNull {
+            it.config?.fullSize
+        }.flatMapLatest { fullSize ->
+            watchListRepository.getWatchList()
+                .map {
+                    it.take(
+                        if (fullSize) {
+                            Int.MAX_VALUE
+                        } else {
+                            getLayout().entryLimit
+                        }
+                    )
+                }
+        }.execute { copy(watchlist = it) }
     }
 
     fun switchScalePreview() {
@@ -203,7 +217,8 @@ class WatchPreviewViewModel @AssistedInject constructor(
     private suspend fun saveInitialConfig() {
         val userSetting = userSettingRepository.getUserSetting()
         val layout = getLayout()
-        val config = WatchConfig(
+        val previousConfig = watchWidgetRepository.getConfig(args.widgetId)
+        val config = previousConfig ?: WatchConfig(
             widgetId = args.widgetId,
             interval = TimeInterval.I_24H,
             currency = userSetting.currencyCode,
@@ -212,6 +227,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
             numberOfChangePercentDecimal = userSetting.numberOfChangePercentDecimal ?: 1,
             layout = layout
         )
+
         watchWidgetRepository.setConfig(args.widgetId, config)
         setState { copy(previewScale = layout.previewScale) }
         loadConfig()
@@ -318,6 +334,10 @@ class WatchPreviewViewModel @AssistedInject constructor(
 
     fun switchShowCurrency() {
         updateConfig { copy(showCurrencySymbol = !showCurrencySymbol) }
+    }
+
+    fun toggleFullSize() {
+        updateConfig { copy(fullSize = !fullSize) }
     }
 
     @AssistedFactory

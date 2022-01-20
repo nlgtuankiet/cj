@@ -8,6 +8,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.BuildConfig
+import com.rainyseason.cj.R
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.hasValidNetworkConnection
@@ -128,17 +129,12 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
         val oldDisplayData = watchWidgetRepository.getDisplayData(widgetId)
 
         if (oldDisplayData != null) {
-            val loadingView = RemoteViews(appContext.packageName, config.layout.layout)
             val loadingParams = WatchWidgetRenderParams(
                 config = config,
                 data = oldDisplayData,
                 showLoading = true,
             )
-            render.render(
-                remoteView = loadingView,
-                inputParams = loadingParams,
-            )
-            appWidgetManager.updateAppWidget(widgetId, loadingView)
+            updateWidget(widgetId, loadingParams)
         } else {
             firebaseCrashlytics.recordException(
                 IllegalStateException("missing display data ${config.layout}")
@@ -147,7 +143,13 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
 
         try {
             val watchList = watchListRepository.getWatchList().first()
-                .take(config.layout.entryLimit)
+                .take(
+                    if (config.fullSize) {
+                        Int.MAX_VALUE
+                    } else {
+                        config.layout.entryLimit
+                    }
+                )
             val entries = coroutineScope {
                 watchList.map { coinId ->
                     async {
@@ -174,34 +176,43 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
             }.awaitAll()
             val data = WatchDisplayData(entries)
             watchWidgetRepository.setDisplayData(widgetId, data)
-            val newView = RemoteViews(appContext.packageName, config.layout.layout)
             val newParams = WatchWidgetRenderParams(
                 config = config,
                 data = data,
                 showLoading = false,
                 isPreview = false
             )
-            render.render(
-                remoteView = newView,
-                inputParams = newParams
-            )
-            appWidgetManager.updateAppWidget(config.widgetId, newView)
+            updateWidget(widgetId, newParams)
         } catch (ex: Exception) {
             if (oldDisplayData != null) {
-                val errorView = RemoteViews(appContext.packageName, config.layout.layout)
                 val oldParams = WatchWidgetRenderParams(
                     config = config,
                     data = oldDisplayData,
                     showLoading = false,
                     isPreview = false
                 )
-                render.render(
-                    remoteView = errorView,
-                    inputParams = oldParams,
-                )
-                appWidgetManager.updateAppWidget(widgetId, errorView)
+                updateWidget(widgetId, oldParams)
             }
             throw ex
+        }
+    }
+
+    private fun updateWidget(
+        widgetId: Int,
+        params: WatchWidgetRenderParams
+    ) {
+        val config = params.config
+        if (config.fullSize) {
+            val view = render.createFullSizeContainerView(params)
+            appWidgetManager.updateAppWidget(widgetId, view)
+            appWidgetManager.notifyAppWidgetViewDataChanged(widgetId, R.id.content)
+        } else {
+            val view = RemoteViews(appContext.packageName, config.layout.layout)
+            render.render(
+                remoteView = view,
+                inputParams = params,
+            )
+            appWidgetManager.updateAppWidget(widgetId, view)
         }
     }
 

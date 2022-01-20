@@ -124,6 +124,7 @@
 
     <string name="watch_preview_click_action_open_watchlist">Open watchlist</string>
     <string name="watch_edit_watch_list">Edit watchlist</string>
+    <string name="watch_full_size">Full size</string>
     <string name="watch_edit_watch_list_summary">Add or remove coin, rearrange items</string>
 
     <string name="watchlist_update_rate">Watchlist update rate (in watchlist screen)</string>

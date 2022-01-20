@@ -177,6 +177,10 @@ fun List<List<Double>>.changePercent(): Double? {
     return 1.0 * diff / open
 }
 
+fun RemoteViews.setBackgroundColor(@IdRes id: Int, @ColorInt value: Int) {
+    setInt(id, "setBackgroundColor", value)
+}
+
 fun RemoteViews.setBackgroundResource(@IdRes id: Int, @DrawableRes value: Int) {
     setInt(id, "setBackgroundResource", value)
 }
@@ -382,4 +386,15 @@ private suspend fun animateShow(view: View, reverse: Boolean = false) {
         cont.invokeOnCancellation { animator.cancel() }
         animator.start()
     }
+}
+
+fun Intent.widgetId(): Int? {
+    val widgetId = extras?.getInt(
+        AppWidgetManager.EXTRA_APPWIDGET_ID,
+        AppWidgetManager.INVALID_APPWIDGET_ID
+    ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
+    if (widgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
+        return null
+    }
+    return widgetId
 }

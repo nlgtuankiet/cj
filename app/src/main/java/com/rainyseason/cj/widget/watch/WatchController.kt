@@ -31,6 +31,7 @@ class WatchController @AssistedInject constructor(
     override fun buildModels() {
         val state: WatchPreviewState = withState(viewModel) { it }
         buildEditWatchList(state)
+        buildFullSize(state)
         buildRefreshInternal(state)
         buildCurrency(state)
         buildTheme(state)
@@ -39,6 +40,19 @@ class WatchController @AssistedInject constructor(
 
         buildAdvanceSettingTitle(state)
         buildAdvanceSettings(state)
+    }
+
+    private fun buildFullSize(state: WatchPreviewState) {
+        val config = state.config ?: return
+        maybeBuildHorizontalSeparator(id = "full_style_separator")
+        settingSwitchView {
+            id("full_style")
+            title(R.string.watch_full_size)
+            checked(config.fullSize)
+            onClickListener { _ ->
+                viewModel.toggleFullSize()
+            }
+        }
     }
 
     private fun buildEditWatchList(state: WatchPreviewState) {

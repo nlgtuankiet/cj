@@ -65,6 +65,7 @@ import com.rainyseason.cj.widget.watch.WatchClickActionJsonAdapter
 import com.rainyseason.cj.widget.watch.WatchPreviewFragmentModule
 import com.rainyseason.cj.widget.watch.WatchSettingActivityModule
 import com.rainyseason.cj.widget.watch.WatchWidgetLayoutJsonAdapter
+import com.rainyseason.cj.widget.watch.fullsize.WatchWidgetServiceModule
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.addAdapter
 import dagger.Binds
@@ -113,6 +114,7 @@ interface AppComponent : AndroidInjector<CJApplication>, CoreComponent {
         DrawSampleActivityModule::class,
         CoinStatFragmentModule::class,
         SettingFragmentModule::class,
+        WatchWidgetServiceModule::class,
         WatchSettingActivityModule::class,
         WatchPreviewFragmentModule::class,
         ManageWidgetFragmentModule::class,

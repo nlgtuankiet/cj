@@ -29,11 +29,14 @@ import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.Theme
-import com.rainyseason.cj.databinding.WatchWidgetEntryDividerBinding
+import com.rainyseason.cj.common.setBackgroundColor
+import com.rainyseason.cj.common.setBackgroundResource
 import com.rainyseason.cj.databinding.WidgetWatchBinding
 import com.rainyseason.cj.databinding.WidgetWatchEntryBinding
+import com.rainyseason.cj.databinding.WidgetWatchEntryDividerBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
+import com.rainyseason.cj.widget.watch.fullsize.WatchWidgetService
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -87,7 +90,7 @@ class WatchWidgetRender @Inject constructor(
         )
     }
 
-    private fun createEntryView(
+    private fun createFullSizeEntryView(
         params: WatchWidgetRenderParams,
         container: ViewGroup,
         height: Int,
@@ -241,12 +244,12 @@ class WatchWidgetRender @Inject constructor(
         val height = ((widgetHeight - totalSeparatorHeight) / entryLimit).toInt()
 
         renderData.entries.forEachIndexed { index, watchDisplayEntry ->
-            val view = createEntryView(params, container, height, watchDisplayEntry.content)
+            val view = createFullSizeEntryView(params, container, height, watchDisplayEntry.content)
             Timber.d("add iew with height $height")
             binding.listContainer.addView(view)
 
             if (index != renderData.entries.lastIndex) {
-                val dividerView = WatchWidgetEntryDividerBinding.inflate(view.inflater)
+                val dividerView = WidgetWatchEntryDividerBinding.inflate(view.inflater)
                 dividerView.divider.setBackgroundColor(
                     context.getColorCompat(select(config.theme, R.color.gray_300, R.color.gray_700))
                 )
@@ -264,6 +267,7 @@ class WatchWidgetRender @Inject constructor(
         }
 
         val config = params.config
+
         @SuppressLint("UnspecifiedImmutableFlag")
         val pendingIntent = when (config.clickAction) {
             WatchClickAction.Refresh -> {
@@ -323,6 +327,136 @@ class WatchWidgetRender @Inject constructor(
         val canvas = Canvas(bitmap)
         container.draw(canvas)
         return bitmap
+    }
+
+    @SuppressLint("UnspecifiedImmutableFlag")
+    fun createFullSizeContainerView(params: WatchWidgetRenderParams): RemoteViews {
+        val remoteView = RemoteViews(context.packageName, R.layout.widget_watch_full_size)
+        val config = params.config
+        val theme = params.config.theme
+        remoteView.setBackgroundResource(
+            R.id.container,
+            select(
+                theme,
+                R.drawable.coin_ticker_background,
+                R.drawable.coin_ticker_background_dark
+            )
+        )
+
+        remoteView.setViewVisibility(
+            R.id.progress_bar,
+            if (params.showLoading) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        )
+        val adapterIntent = Intent(context, WatchWidgetService::class.java).apply {
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, config.widgetId)
+        }
+        remoteView.setRemoteAdapter(
+            R.id.content,
+            adapterIntent
+        )
+
+        val intent = Intent(context, MainActivity::class.java)
+        val pendingClickTemplate = PendingIntent.getActivity(
+            context,
+            params.config.widgetId,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        remoteView.setPendingIntentTemplate(R.id.content, pendingClickTemplate)
+        return remoteView
+    }
+
+    fun createEmptyView(): RemoteViews {
+        return RemoteViews(context.packageName, R.layout.widget_empty_view)
+    }
+
+    @SuppressLint("UnspecifiedImmutableFlag")
+    fun createFullSizeEntryView(
+        entry: WatchDisplayEntry,
+        config: WatchConfig,
+    ): RemoteViews {
+        val remoteView = RemoteViews(context.packageName, R.layout.widget_watch_full_size_item)
+        val theme = config.theme
+        val data = entry.content
+
+        remoteView.setTextViewText(R.id.symbol, data?.symbol ?: "")
+        remoteView.setTextColor(
+            R.id.symbol,
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+
+        remoteView.setTextViewText(R.id.name, data?.name ?: "")
+        remoteView.setTextColor(
+            R.id.name,
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_500),
+                context.getColorCompat(R.color.text_secondary),
+            )
+        )
+
+        val graph = data?.graph
+        if (graph != null && graph.size >= 2) {
+            val graphWidth = context.dpToPx(55)
+            val graphHeight = context.dpToPx(20)
+            val bitmap = graphRenderer.createGraphBitmap(
+                context,
+                graphWidth.toFloat(),
+                graphHeight.toFloat(),
+                graph,
+            )
+            remoteView.setImageViewBitmap(R.id.graph, bitmap)
+        }
+
+        val price = data?.price
+        val priceContent = if (price != null) {
+            numberFormater.formatAmount(
+                price,
+                currencyCode = config.currency,
+                roundToMillion = config.roundToMillion,
+                numberOfDecimal = config.numberOfAmountDecimal,
+                hideOnLargeAmount = config.hideDecimalOnLargePrice,
+                showCurrencySymbol = config.showCurrencySymbol,
+                showThousandsSeparator = config.showThousandsSeparator
+            )
+        } else {
+            ""
+        }
+
+        remoteView.setTextViewText(R.id.price, priceContent)
+        remoteView.setTextColor(
+            R.id.price,
+            select(
+                theme,
+                context.getColorCompat(R.color.gray_900),
+                context.getColorCompat(R.color.gray_50),
+            )
+        )
+        val changePercentContent = formatChangePercent(data?.changePercent, config)
+        remoteView.setTextViewText(R.id.change_percent, changePercentContent)
+
+        val intent = MainActivity.coinDetailIntent(context, entry.coinId)
+        remoteView.setOnClickFillInIntent(R.id.container, intent)
+
+        return remoteView
+    }
+
+    fun createFullSizeSeparatorView(config: WatchConfig): RemoteViews {
+        val remoteView = RemoteViews(context.packageName, R.layout.widget_watch_entry_divider)
+        remoteView.setBackgroundColor(
+            R.id.divider,
+            context.getColorCompat(select(config.theme, R.color.gray_300, R.color.gray_700))
+        )
+        return remoteView
     }
 
     fun render(

@@ -57,7 +57,10 @@ data class WatchConfig(
     val showBatteryWarning: Boolean = true,
 
     @Json(name = "click_action")
-    val clickAction: WatchClickAction = WatchClickAction.OpenWatchlist
+    val clickAction: WatchClickAction = WatchClickAction.OpenWatchlist,
+
+    @Json(name = "full_size")
+    val fullSize: Boolean = false,
 
 ) {
 
@@ -68,6 +71,7 @@ data class WatchConfig(
     fun getTrackingParams(): Map<String, Any?> {
         return mapOf(
             "widget_id" to widgetId,
+            "full_size" to fullSize,
             "number_of_price_decimal" to numberOfAmountDecimal,
             "number_of_change_percent_decimal" to numberOfChangePercentDecimal,
             "refresh_interval_seconds" to refreshIntervalUnit.toSeconds(refreshInterval),
