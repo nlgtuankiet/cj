@@ -12,6 +12,7 @@ import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.epoxy.IdUtils
 import com.airbnb.epoxy.OnModelBuildFinishedListener
+import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.rainyseason.cj.databinding.OnboardFeatureLayoutBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -31,6 +32,14 @@ class OnBoardParam(
     val onBoardDescriptionRes: Int,
     val onDoneListener: () -> Unit = {}
 )
+
+suspend fun KeyValueStore.isOnboardDone(featureName: String): Boolean {
+    return getBoolean("onboard_done_$featureName") == true
+}
+
+suspend fun KeyValueStore.setOnboardDone(featureName: String) {
+    setBoolean("onboard_done_$featureName", true)
+}
 
 suspend fun OnBoardParam.show() {
     showOnBoard(this)

@@ -9,14 +9,14 @@ import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.rainyseason.cj.common.isOnboardDone
 import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.TimeInterval
+import com.rainyseason.cj.common.setOnboardDone
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.rainyseason.cj.data.local.CoinTickerRepository
-import com.rainyseason.cj.featureflag.DebugFlag
-import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import com.rainyseason.cj.ticker.CoinTickerDisplayData.LoadParam
@@ -27,7 +27,6 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.util.Collections
@@ -61,6 +60,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     private var saved = false
     val id = UUID.randomUUID().toString()
+    private val coinSelectFeature = "coin_select"
 
     private val _onBoardCoinSelect = Channel<Unit>(Channel.CONFLATED)
     val onBoardCoinSelect = _onBoardCoinSelect.receiveAsFlow()
@@ -80,11 +80,8 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         var onEachDisplayDataJob: Job? = null
         onEachDisplayDataJob = onEach(CoinTickerPreviewState::savedDisplayData) { displayData ->
             if (displayData.invoke() != null) {
-                val checked = keyValueStore.getBoolean("onboard_done_coin_select")
-                if (checked != true) {
-                    if (DebugFlag.SLOW_TICKER_PREVIEW.isEnable) {
-                        delay(3000)
-                    }
+                val done = keyValueStore.isOnboardDone(coinSelectFeature)
+                if (!done) {
                     _onBoardCoinSelect.trySend(Unit)
                 }
                 onEachDisplayDataJob?.cancel()
@@ -94,7 +91,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     fun onBoardCoinSelectDone() {
         viewModelScope.launch {
-            keyValueStore.setBoolean("onboard_done_coin_select", true)
+            keyValueStore.setOnboardDone(coinSelectFeature)
         }
     }
 
