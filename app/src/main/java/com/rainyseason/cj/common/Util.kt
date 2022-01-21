@@ -39,6 +39,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.ModelCollector
 import com.airbnb.mvrx.FragmentViewModelContext
@@ -52,6 +53,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.yield
 import retrofit2.HttpException
 import java.net.UnknownHostException
 import kotlin.coroutines.resume
@@ -397,4 +399,26 @@ fun Intent.widgetId(): Int? {
         return null
     }
     return widgetId
+}
+
+suspend fun RecyclerView.awaitScrollState(state: Int) {
+    yield()
+    if (state == scrollState) {
+        return
+    }
+    suspendCancellableCoroutine<Unit> { cont ->
+        val listener = object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+                if (newState == state) {
+                    removeOnScrollListener(this)
+                    cont.resume(Unit)
+                }
+            }
+        }
+        cont.invokeOnCancellation {
+            removeOnScrollListener(listener)
+        }
+        addOnScrollListener(listener)
+    }
 }

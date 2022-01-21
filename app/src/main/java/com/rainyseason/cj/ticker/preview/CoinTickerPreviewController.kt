@@ -40,6 +40,7 @@ class CoinTickerPreviewController(
 
     companion object {
         const val COIN_SELECT_ID = "setting_coin_id"
+        const val REFRESH_ID = "setting_refresh_id"
     }
 
     private fun maybeBuildHorizontalSeparator(id: String) {
@@ -397,7 +398,7 @@ class CoinTickerPreviewController(
         val refreshInternalUnit = config.refreshIntervalUnit
         maybeBuildHorizontalSeparator(id = "refresh_internal_separator")
         settingTitleSummaryView {
-            id("refresh_internal")
+            id(REFRESH_ID)
             title(R.string.coin_ticker_preview_refresh_interval)
             summary(RefreshIntervals.createString(context, refreshInterval, refreshInternalUnit))
             onClickListener { _ ->

@@ -15,6 +15,8 @@ import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.rainyseason.cj.data.local.CoinTickerRepository
+import com.rainyseason.cj.featureflag.DebugFlag
+import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import com.rainyseason.cj.ticker.CoinTickerDisplayData.LoadParam
@@ -25,6 +27,7 @@ import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.util.Collections
@@ -79,6 +82,9 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             if (displayData.invoke() != null) {
                 val checked = keyValueStore.getBoolean("onboard_done_coin_select")
                 if (checked != true) {
+                    if (DebugFlag.SLOW_TICKER_PREVIEW.isEnable) {
+                        delay(3000)
+                    }
                     _onBoardCoinSelect.trySend(Unit)
                 }
                 onEachDisplayDataJob?.cancel()
