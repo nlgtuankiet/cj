@@ -1,3 +1,8 @@
+### 1.13.0 Release
+
+✨ Add full size watchlist widget (request from Paolo Pellecchia)
+🛠 Fix watchlist widget config reset bug when re-config the widget 
+
 ### 1.12.1 Release
 
 ✨ Add onboarding UI (for coin select option)

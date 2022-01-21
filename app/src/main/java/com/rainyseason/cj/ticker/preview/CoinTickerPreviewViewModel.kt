@@ -62,7 +62,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     val id = UUID.randomUUID().toString()
     private val coinSelectFeature = "coin_select"
 
-    private val _onBoardCoinSelect = Channel<Unit>(Channel.CONFLATED)
+    private val _onBoardCoinSelect = Channel<Unit>()
     val onBoardCoinSelect = _onBoardCoinSelect.receiveAsFlow()
 
     init {
@@ -82,7 +82,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             if (displayData.invoke() != null) {
                 val done = keyValueStore.isOnboardDone(coinSelectFeature)
                 if (!done) {
-                    _onBoardCoinSelect.trySend(Unit)
+                    _onBoardCoinSelect.send(Unit)
                 }
                 onEachDisplayDataJob?.cancel()
             }
