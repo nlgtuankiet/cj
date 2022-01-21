@@ -9,11 +9,15 @@ import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.OnBoardParam
+import com.rainyseason.cj.common.launchAndRepeatWithViewLifecycle
 import com.rainyseason.cj.common.saveOrShowWarning
+import com.rainyseason.cj.common.show
 import com.rainyseason.cj.databinding.WatchPreviewFragmentBinding
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
+import kotlinx.coroutines.flow.collect
 import javax.inject.Inject
 
 @Module
@@ -28,7 +32,7 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
     lateinit var viewModelFactory: WatchPreviewViewModel.Factory
 
     @Inject
-    lateinit var controllerFactory: WatchController.Factory
+    lateinit var controllerFactory: WatchPreviewController.Factory
 
     val viewModel: WatchPreviewViewModel by fragmentViewModel()
 
@@ -99,6 +103,25 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
         )
         binding.backButton.setOnClickListener {
             requireActivity().onBackPressed()
+        }
+
+        launchAndRepeatWithViewLifecycle {
+            viewModel.onBoardFeature.collect { feature ->
+                OnBoardParam(
+                    this,
+                    focusId = feature.viewId,
+                    epoxyRecyclerView = binding.settingContent,
+                    controller = controller,
+                    parentView = binding.parent,
+                    blockerView = binding.blockerView,
+                    onboardContainer = binding.onboardContainer,
+                    onBoardTitleRes = R.string.widget_watch_onboard_full_size_title,
+                    onBoardDescriptionRes = R.string.widget_watch_onboard_full_size_description,
+                    onDoneListener = {
+                        viewModel.onOnBoardDone(feature)
+                    }
+                ).show()
+            }
         }
     }
 

@@ -23,7 +23,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 
-class WatchController @AssistedInject constructor(
+class WatchPreviewController @AssistedInject constructor(
     @Assisted val viewModel: WatchPreviewViewModel,
     @Assisted private val context: Context,
 ) : AsyncEpoxyController() {
@@ -46,7 +46,7 @@ class WatchController @AssistedInject constructor(
         val config = state.config ?: return
         maybeBuildHorizontalSeparator(id = "full_style_separator")
         settingSwitchView {
-            id("full_style")
+            id(WatchOnboardFeature.FullSize.viewId)
             title(R.string.watch_full_size)
             checked(config.fullSize)
             onClickListener { _ ->
@@ -472,6 +472,6 @@ class WatchController @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(viewModel: WatchPreviewViewModel, context: Context): WatchController
+        fun create(viewModel: WatchPreviewViewModel, context: Context): WatchPreviewController
     }
 }

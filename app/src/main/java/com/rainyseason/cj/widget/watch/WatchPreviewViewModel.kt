@@ -12,26 +12,31 @@ import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.getWidgetId
+import com.rainyseason.cj.common.isOnboardDone
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.model.asDayString
+import com.rainyseason.cj.common.setOnboardDone
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSetting
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.coingecko.CoinDetailResponse
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.MarketChartResponse
+import com.rainyseason.cj.data.database.kv.KeyValueStore
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import java.util.concurrent.TimeUnit
@@ -44,7 +49,7 @@ data class WatchPreviewState(
     val coinDetail: Map<String, Async<CoinDetailResponse>> = emptyMap(),
     val coinMarket: Map<String, Async<MarketChartResponse>> = emptyMap(),
     val previewScale: Double? = null,
-    val scalePreview: Boolean = false,
+    val scalePreview: Boolean = true,
     val showAdvanceSetting: Boolean = false,
 ) : MavericksState {
     val config: WatchConfig?
@@ -68,6 +73,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
     private val userSettingRepository: UserSettingRepository,
     private val coinGeckoService: CoinGeckoService,
     private val appWidgetManager: AppWidgetManager,
+    private val keyValueStore: KeyValueStore,
 ) : MavericksViewModel<WatchPreviewState>(initState) {
     private var saved = false
 
@@ -75,6 +81,9 @@ class WatchPreviewViewModel @AssistedInject constructor(
     private val loadCoinDetailJobs = mutableMapOf<String, Job>()
     private var loadEachEntryDataJob: Job? = null
     private val loadCoinMarketJobs = mutableMapOf<String, Job>()
+
+    private val _onBoardFeature = Channel<WatchOnboardFeature>()
+    val onBoardFeature = _onBoardFeature.receiveAsFlow()
 
     init {
         loadDisplayData()
@@ -86,6 +95,23 @@ class WatchPreviewViewModel @AssistedInject constructor(
         }
 
         reload()
+        checkNextOnBoard()
+    }
+
+    private fun checkNextOnBoard() {
+        viewModelScope.launch {
+            val features = WatchOnboardFeature.values()
+            var currentFeatureIndex = 0
+            while (currentFeatureIndex <= features.lastIndex) {
+                val feature = features[currentFeatureIndex]
+                val done = keyValueStore.isOnboardDone(feature.featureName)
+                if (!done) {
+                    _onBoardFeature.send(feature)
+                    return@launch
+                }
+                currentFeatureIndex++
+            }
+        }
     }
 
     private fun reload() {
@@ -338,6 +364,13 @@ class WatchPreviewViewModel @AssistedInject constructor(
 
     fun toggleFullSize() {
         updateConfig { copy(fullSize = !fullSize) }
+    }
+
+    fun onOnBoardDone(feature: WatchOnboardFeature) {
+        viewModelScope.launch {
+            keyValueStore.setOnboardDone(feature.featureName)
+            checkNextOnBoard()
+        }
     }
 
     @AssistedFactory
