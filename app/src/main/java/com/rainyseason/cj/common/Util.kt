@@ -3,6 +3,7 @@
 package com.rainyseason.cj.common
 
 import android.app.Activity
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.ContextWrapper
@@ -420,5 +421,13 @@ suspend fun RecyclerView.awaitScrollState(state: Int) {
             removeOnScrollListener(listener)
         }
         addOnScrollListener(listener)
+    }
+}
+
+fun Int.addFlagMutable(): Int {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        this or PendingIntent.FLAG_MUTABLE
+    } else {
+        this
     }
 }

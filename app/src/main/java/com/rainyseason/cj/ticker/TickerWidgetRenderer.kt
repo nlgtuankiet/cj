@@ -32,6 +32,7 @@ import com.rainyseason.cj.common.GraphRenderer
 import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.Theme
+import com.rainyseason.cj.common.addFlagMutable
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
@@ -107,7 +108,7 @@ class TickerWidgetRenderer @Inject constructor(
                     context,
                     params.config.widgetId,
                     intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
                 )
             }
             CoinTickerConfig.ClickAction.SETTING -> {
@@ -116,7 +117,7 @@ class TickerWidgetRenderer @Inject constructor(
                     context,
                     params.config.widgetId,
                     intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
                 )
             }
             // migrate switch action to open coin detail
@@ -127,7 +128,7 @@ class TickerWidgetRenderer @Inject constructor(
                     context,
                     params.config.widgetId,
                     intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
                 )
             }
             else -> error("Unknown action ${params.config.clickAction}")

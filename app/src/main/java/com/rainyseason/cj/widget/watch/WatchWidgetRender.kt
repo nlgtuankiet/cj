@@ -24,6 +24,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.GraphRenderer
 import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
+import com.rainyseason.cj.common.addFlagMutable
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getColorCompat
@@ -283,7 +284,7 @@ class WatchWidgetRender @Inject constructor(
                     context,
                     params.config.widgetId,
                     intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
                 )
             }
             WatchClickAction.OpenWatchlist -> {
@@ -292,7 +293,7 @@ class WatchWidgetRender @Inject constructor(
                     context,
                     params.config.widgetId,
                     intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT
+                    PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
                 )
             }
         }
@@ -364,7 +365,7 @@ class WatchWidgetRender @Inject constructor(
             context,
             params.config.widgetId,
             intent,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
         )
 
         remoteView.setPendingIntentTemplate(R.id.content, pendingClickTemplate)

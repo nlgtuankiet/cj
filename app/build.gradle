@@ -42,7 +42,7 @@ static def generateVersionCode() {
 
 
 android {
-    compileSdk 30
+    compileSdk 31
 
     testOptions {
         unitTests.all {
@@ -58,7 +58,7 @@ android {
     defaultConfig {
         applicationId "com.rainyseason.cj"
         minSdk 21
-        targetSdk 30
+        targetSdk 31
         if (isPlayStore) {
             versionCode generateVersionCode()
         } else {
@@ -177,7 +177,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.3.1'
 
     //noinspection GradleDependency
-    implementation "androidx.work:work-runtime-ktx:2.6.0-rc01"
+    implementation "androidx.work:work-runtime-ktx:2.7.1"
 
     def epoxyVersion = "4.6.2"
     implementation "com.airbnb.android:epoxy:$epoxyVersion"
