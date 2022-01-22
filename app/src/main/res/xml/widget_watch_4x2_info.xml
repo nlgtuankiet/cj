@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:configure="com.rainyseason.cj.widget.watch.WatchSettingActivity"
     android:initialLayout="@layout/widget_watch_4x2_frame"
     android:previewImage="@drawable/watch_widget_preview_4x2"
     android:minWidth="250dp"
+    tools:ignore="UnusedAttribute"
+    android:widgetFeatures="reconfigurable"
     android:minHeight="110dp"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="86400000"
