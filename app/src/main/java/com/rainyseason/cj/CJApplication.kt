@@ -16,6 +16,7 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jakewharton.threetenabp.AndroidThreeTen
+import com.rainyseason.cj.app.AppViewModel
 import com.rainyseason.cj.common.AppDnsSelector
 import com.rainyseason.cj.common.ConfigChangeManager
 import com.rainyseason.cj.common.CoreComponent
@@ -82,6 +83,9 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     @Inject
     lateinit var keyValueDatabaseMigrator: KeyValueDatabaseMigrator
 
+    @Inject
+    lateinit var appViewModelProvider: Provider<AppViewModel>
+
     private lateinit var appComponent: AppComponent
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -122,6 +126,7 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
                 contextOverride = Dispatchers.IO
             )
         )
+        registerComponentCallbacks(appViewModelProvider.get())
 
         enqueueNoopWorker()
 

@@ -12,6 +12,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.await
 import com.rainyseason.cj.MainActivity
+import com.rainyseason.cj.R
 import com.rainyseason.cj.common.getWidgetId
 import com.rainyseason.cj.ticker.RefreshWatchWidgetWorker
 import javax.inject.Inject
@@ -77,15 +78,18 @@ class WatchWidgetHandler @Inject constructor(
     suspend fun rerender(widgetId: Int) {
         val config = watchWidgetRepository.getConfig(widgetId = widgetId) ?: return
         val displayData = watchWidgetRepository.getDisplayData(widgetId = widgetId) ?: return
+        val params = WatchWidgetRenderParams(
+            config = config,
+            data = displayData,
+            showLoading = false,
+            isPreview = false,
+        )
         if (config.fullSize) {
-            // do nothing
+            val view = watchWidgetRender.createFullSizeContainerView(params)
+            appWidgetManager.updateAppWidget(widgetId, view)
+            appWidgetManager.notifyAppWidgetViewDataChanged(widgetId, R.id.content)
         } else {
-            val params = WatchWidgetRenderParams(
-                config = config,
-                data = displayData,
-                showLoading = false,
-                isPreview = false,
-            )
+
             val view = RemoteViews(context.packageName, config.layout.layout)
             watchWidgetRender.render(view, params)
             appWidgetManager.updateAppWidget(widgetId, view)

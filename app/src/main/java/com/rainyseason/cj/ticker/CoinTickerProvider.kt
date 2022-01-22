@@ -19,6 +19,18 @@ class CoinTickerProviderIconSmall : CoinTickerProvider()
 
 abstract class CoinTickerProvider : AppWidgetProvider() {
 
+    companion object {
+        val PROVIDERS = listOf(
+            CoinTickerProviderDefault::class.java,
+            CoinTickerProviderGraph::class.java,
+            CoinTickerProviderCoin360::class.java,
+            CoinTickerProviderCoin360Mini::class.java,
+            CoinTickerProviderMini::class.java,
+            CoinTickerProviderNano::class.java,
+            CoinTickerProviderIconSmall::class.java,
+        )
+    }
+
     private lateinit var coinTickerHandler: CoinTickerHandler
 
     private lateinit var coinTickerRepository: CoinTickerRepository
