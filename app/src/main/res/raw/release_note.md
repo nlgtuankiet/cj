@@ -1,3 +1,8 @@
+### 1.13.1 Release
+✨ Add Material You theme (request from Sascha)
+✨ Add re-config widget button when tap and hold widget on home screen (Android 12 and above)
+🛠 Fix multiple watchlist render issue 
+
 ### 1.13.0 Release
 
 ✨ Add full size watchlist widget (request from Paolo Pellecchia)
