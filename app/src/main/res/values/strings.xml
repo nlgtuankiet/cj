@@ -145,6 +145,8 @@
     <string name="ok">OK</string>
     <string name="coin_ticker_onboard_coin_select_title">Select your favorite coin!</string>
     <string name="coin_ticker_onboard_coin_select_description">Like Ethereum, Dogecoin\nOr trading pair from various exchange</string>
+    <string name="coin_ticker_onboard_mu_theme_title">Select theme</string>
+    <string name="coin_ticker_onboard_mu_theme_description">Light/Dark/Material You</string>
 
     <string name="widget_watch_onboard_full_size_title">Full size widget</string>
     <string name="widget_watch_onboard_full_size_description">When on, widget will expand to full size. Scrolling is also enabled.\n(Resize the widget after create to see the result)</string>

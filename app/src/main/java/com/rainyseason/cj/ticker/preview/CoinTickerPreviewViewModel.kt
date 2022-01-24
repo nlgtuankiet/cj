@@ -21,6 +21,7 @@ import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import com.rainyseason.cj.ticker.CoinTickerDisplayData.LoadParam
+import com.rainyseason.cj.ticker.TickerWidgetFeature
 import com.rainyseason.cj.ticker.usecase.GetDisplayData
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
@@ -61,10 +62,9 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     private var saved = false
     val id = UUID.randomUUID().toString()
-    private val coinSelectFeature = "coin_select"
 
-    private val _onBoardCoinSelect = Channel<Unit>()
-    val onBoardCoinSelect = _onBoardCoinSelect.receiveAsFlow()
+    private val _onBoardFeature = Channel<TickerWidgetFeature>()
+    val onBoardFeature = _onBoardFeature.receiveAsFlow()
 
     init {
         loadDisplayData()
@@ -74,25 +74,30 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
 
         reload()
-        checkIntroduceCoinSelect()
+        checkOnBoardFeature()
     }
 
-    private fun checkIntroduceCoinSelect() {
-        var onEachDisplayDataJob: Job? = null
+    var onEachDisplayDataJob: Job? = null
+    private fun checkOnBoardFeature() {
+        onEachDisplayDataJob?.cancel()
         onEachDisplayDataJob = onEach(CoinTickerPreviewState::savedDisplayData) { displayData ->
             if (displayData.invoke() != null) {
-                val done = keyValueStore.isOnboardDone(coinSelectFeature)
-                if (!done) {
-                    _onBoardCoinSelect.send(Unit)
+                TickerWidgetFeature.values().forEach { feature ->
+                    val done = keyValueStore.isOnboardDone(feature.featureName)
+                    if (!done && feature.predicate.invoke()) {
+                        _onBoardFeature.send(feature)
+                        onEachDisplayDataJob?.cancel()
+                        return@forEach
+                    }
                 }
-                onEachDisplayDataJob?.cancel()
             }
         }
     }
 
-    fun onBoardCoinSelectDone() {
+    fun onBoardFeatureDone(feature: TickerWidgetFeature) {
         viewModelScope.launch {
-            keyValueStore.setOnboardDone(coinSelectFeature)
+            keyValueStore.setOnboardDone(feature.featureName)
+            checkOnBoardFeature()
         }
     }
 

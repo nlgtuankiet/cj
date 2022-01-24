@@ -41,6 +41,7 @@ class CoinTickerPreviewController(
     companion object {
         const val COIN_SELECT_ID = "setting_coin_id"
         const val REFRESH_ID = "setting_refresh_id"
+        const val THEME_ID = "setting_theme_id"
     }
 
     private fun maybeBuildHorizontalSeparator(id: String) {
@@ -364,7 +365,7 @@ class CoinTickerPreviewController(
         val theme = config.theme
         maybeBuildHorizontalSeparator(id = "setting_theme_separator")
         settingTitleSummaryView {
-            id("setting-theme")
+            id(THEME_ID)
             title(R.string.coin_ticker_preview_setting_theme)
             summary(context.getString(theme.titleRes))
             onClickListener { _ ->

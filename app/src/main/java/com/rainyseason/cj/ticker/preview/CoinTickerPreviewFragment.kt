@@ -145,19 +145,19 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
                 }
         }
         launchAndRepeatWithViewLifecycle {
-            viewModel.onBoardCoinSelect.collect {
+            viewModel.onBoardFeature.collect { feature ->
                 val params = OnBoardParam(
                     coroutineScope = this,
-                    focusId = CoinTickerPreviewController.COIN_SELECT_ID,
+                    focusId = feature.viewId,
                     epoxyRecyclerView = binding.settingContent,
                     controller = controller,
                     parentView = binding.parent,
                     blockerView = binding.blockerView,
                     onboardContainer = binding.onboardContainer,
-                    onBoardTitleRes = R.string.coin_ticker_onboard_coin_select_title,
-                    onBoardDescriptionRes = R.string.coin_ticker_onboard_coin_select_description,
+                    onBoardTitleRes = feature.titleRes,
+                    onBoardDescriptionRes = feature.descriptionRes,
                     onDoneListener = {
-                        viewModel.onBoardCoinSelectDone()
+                        viewModel.onBoardFeatureDone(feature)
                     }
                 )
                 params.show()
