@@ -254,7 +254,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
             layout = layout
         )
 
-        watchWidgetRepository.setConfig(args.widgetId, config)
+        watchWidgetRepository.setConfig(args.widgetId, config.ensureValid())
         setState { copy(previewScale = layout.previewScale) }
         loadConfig()
     }
@@ -290,7 +290,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
         withState { state ->
             val config = state.savedConfig.invoke()
             if (config != null) {
-                val newConfig = block.invoke(config)
+                val newConfig = block.invoke(config).ensureValid()
                 maybeSaveConfig(newConfig)
             }
         }

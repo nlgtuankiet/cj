@@ -1,5 +1,6 @@
 package com.rainyseason.cj.widget.watch
 
+import androidx.core.os.BuildCompat
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.squareup.moshi.Json
@@ -63,6 +64,18 @@ data class WatchConfig(
     val fullSize: Boolean = false,
 
 ) {
+
+    fun ensureValid(): WatchConfig {
+        return ensureTheme()
+    }
+
+    private fun ensureTheme(): WatchConfig {
+        return if (theme.isMaterialYou && !BuildCompat.isAtLeastS()) {
+            copy(theme = Theme.Auto)
+        } else {
+            this
+        }
+    }
 
     fun getRefreshMilis(): Long {
         return refreshIntervalUnit.toMillis(refreshInterval)
