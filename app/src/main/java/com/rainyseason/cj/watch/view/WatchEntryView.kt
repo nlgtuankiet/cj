@@ -13,6 +13,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.inflater
+import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.databinding.ViewWatchEntryBinding
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
@@ -48,6 +49,7 @@ class WatchEntryView @JvmOverloads constructor(
             binding.graph.doOnPreDraw {
                 val bitmap = graphRenderer.createGraphBitmap(
                     context = context,
+                    theme = Theme.Dark,
                     width = binding.graph.measuredWidth.toFloat(),
                     height = binding.graph.measuredHeight.toFloat(),
                     data = value

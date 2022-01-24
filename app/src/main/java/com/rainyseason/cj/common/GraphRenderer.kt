@@ -8,14 +8,18 @@ import android.graphics.Path
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.withClip
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.model.Theme
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
 
 @Singleton
-class GraphRenderer @Inject constructor() {
+class GraphRenderer @Inject constructor(
+    private val colorResolver: WidgetColorResolver,
+) {
     fun createGraphBitmap(
         context: Context,
+        theme: Theme,
         width: Float,
         height: Float,
         data: List<List<Double>>,
@@ -33,11 +37,7 @@ class GraphRenderer @Inject constructor() {
         paint.style = Paint.Style.STROKE
         paint.isAntiAlias = true
         paint.strokeCap = Paint.Cap.ROUND
-        paint.color = if (isPositive) {
-            context.getColorCompat(R.color.ticket_line_green)
-        } else {
-            context.getColorCompat(R.color.ticket_line_red)
-        }
+        paint.color = colorResolver.getTickerLineColor(theme, isPositive)
         val minTime = data.minOf { it[0] }
         val maxTime = data.maxOf { it[0] }
         val timeInterval = maxTime - minTime

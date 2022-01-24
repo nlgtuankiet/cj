@@ -11,6 +11,7 @@ import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.isOnboardDone
 import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.setOnboardDone
 import com.rainyseason.cj.common.update
@@ -201,7 +202,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         updateConfig { copy(layout = value) }
     }
 
-    fun setTheme(theme: String) {
+    fun setTheme(theme: Theme) {
         updateConfig {
             copy(theme = theme)
         }

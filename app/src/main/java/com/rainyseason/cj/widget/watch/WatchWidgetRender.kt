@@ -6,15 +6,14 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.net.Uri
 import android.util.Size
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.RemoteViews
-import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
@@ -24,12 +23,12 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.GraphRenderer
 import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
+import com.rainyseason.cj.common.WidgetColorResolver
 import com.rainyseason.cj.common.addFlagMutable
+import com.rainyseason.cj.common.asColorStateList
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.dpToPxF
-import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
-import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.setBackgroundColor
 import com.rainyseason.cj.common.setBackgroundResource
 import com.rainyseason.cj.databinding.WidgetWatchBinding
@@ -48,6 +47,7 @@ class WatchWidgetRender @Inject constructor(
     private val appWidgetManager: AppWidgetManager,
     private val graphRenderer: GraphRenderer,
     private val numberFormater: NumberFormater,
+    private val colorResolver: WidgetColorResolver,
 ) {
 
     private fun FrameLayout.measureAndLayout(config: WatchConfig) {
@@ -110,27 +110,16 @@ class WatchWidgetRender @Inject constructor(
         val theme = config.theme
 
         binding.symbol.text = data?.symbol
-        binding.symbol.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.symbol.setTextColor(colorResolver.getTextPrimaryColor(theme))
 
         binding.name.text = data?.name
-        binding.name.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_500),
-                context.getColorCompat(R.color.text_secondary),
-            )
-        )
+        binding.name.setTextColor(colorResolver.getTextSecondaryColor(theme))
 
         val graph = data?.graph
         if (graph != null && graph.size >= 2) {
             val bitmap = graphRenderer.createGraphBitmap(
                 context,
+                config.theme,
                 binding.graph.width.toFloat(),
                 binding.graph.height.toFloat(),
                 graph,
@@ -154,13 +143,7 @@ class WatchWidgetRender @Inject constructor(
         }
 
         binding.price.text = priceContent
-        binding.price.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.price.setTextColor(colorResolver.getTextPrimaryColor(theme))
 
         val changePercentContent = formatChangePercent(data?.changePercent, params.config)
         binding.changePercent.text = changePercentContent
@@ -173,11 +156,7 @@ class WatchWidgetRender @Inject constructor(
     ): CharSequence {
         return buildSpannedString {
             if (amount != null) {
-                val color = if (amount > 0) {
-                    ContextCompat.getColor(context, R.color.green_700)
-                } else {
-                    ContextCompat.getColor(context, R.color.red_600)
-                }
+                val color = colorResolver.getChangePercentColor(config.theme, amount)
                 val locate = SUPPORTED_CURRENCY[config.currency]!!.locale
                 val content = numberFormater.formatPercent(
                     amount = amount,
@@ -189,11 +168,7 @@ class WatchWidgetRender @Inject constructor(
                     append(content)
                 }
             } else {
-                val color = select(
-                    config.theme,
-                    context.getColorCompat(R.color.gray_500),
-                    context.getColorCompat(R.color.text_secondary),
-                )
+                val color = colorResolver.getTextSecondaryColor(config.theme)
                 color(color) {
                     append("--")
                 }
@@ -212,14 +187,8 @@ class WatchWidgetRender @Inject constructor(
         val renderData = params.data
 
         // bind container
-        binding.container.setBackgroundResource(
-            select(
-                theme,
-                R.drawable.coin_ticker_background,
-                R.drawable.coin_ticker_background_dark
-            )
-        )
-
+        binding.container.backgroundTintList = colorResolver.getBackgroundColor(theme)
+            .asColorStateList()
         val widgetSize = getWidgetSize(params.config)
 
         run {
@@ -251,9 +220,7 @@ class WatchWidgetRender @Inject constructor(
 
             if (index != renderData.entries.lastIndex) {
                 val dividerView = WidgetWatchEntryDividerBinding.inflate(view.inflater)
-                dividerView.divider.setBackgroundColor(
-                    context.getColorCompat(select(config.theme, R.color.gray_300, R.color.gray_700))
-                )
+                dividerView.divider.setBackgroundColor(colorResolver.getDividerColor(theme))
                 binding.listContainer.addView(dividerView.root)
             }
         }
@@ -337,11 +304,7 @@ class WatchWidgetRender @Inject constructor(
         val theme = params.config.theme
         remoteView.setBackgroundResource(
             R.id.container,
-            select(
-                theme,
-                R.drawable.coin_ticker_background,
-                R.drawable.coin_ticker_background_dark
-            )
+            colorResolver.getBackgroundResource(theme)
         )
 
         remoteView.setViewVisibility(
@@ -354,6 +317,7 @@ class WatchWidgetRender @Inject constructor(
         )
         val adapterIntent = Intent(context, WatchWidgetService::class.java).apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, config.widgetId)
+            data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
         }
         remoteView.setRemoteAdapter(
             R.id.content,
@@ -386,24 +350,10 @@ class WatchWidgetRender @Inject constructor(
         val data = entry.content
 
         remoteView.setTextViewText(R.id.symbol, data?.symbol ?: "")
-        remoteView.setTextColor(
-            R.id.symbol,
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        remoteView.setTextColor(R.id.symbol, colorResolver.getTextPrimaryColor(theme))
 
         remoteView.setTextViewText(R.id.name, data?.name ?: "")
-        remoteView.setTextColor(
-            R.id.name,
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_500),
-                context.getColorCompat(R.color.text_secondary),
-            )
-        )
+        remoteView.setTextColor(R.id.name, colorResolver.getTextSecondaryColor(theme))
 
         val graph = data?.graph
         if (graph != null && graph.size >= 2) {
@@ -411,6 +361,7 @@ class WatchWidgetRender @Inject constructor(
             val graphHeight = context.dpToPx(20)
             val bitmap = graphRenderer.createGraphBitmap(
                 context,
+                config.theme,
                 graphWidth.toFloat(),
                 graphHeight.toFloat(),
                 graph,
@@ -434,14 +385,7 @@ class WatchWidgetRender @Inject constructor(
         }
 
         remoteView.setTextViewText(R.id.price, priceContent)
-        remoteView.setTextColor(
-            R.id.price,
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        remoteView.setTextColor(R.id.price, colorResolver.getTextPrimaryColor(theme))
         val changePercentContent = formatChangePercent(data?.changePercent, config)
         remoteView.setTextViewText(R.id.change_percent, changePercentContent)
 
@@ -455,7 +399,7 @@ class WatchWidgetRender @Inject constructor(
         val remoteView = RemoteViews(context.packageName, R.layout.widget_watch_entry_divider)
         remoteView.setBackgroundColor(
             R.id.divider,
-            context.getColorCompat(select(config.theme, R.color.gray_300, R.color.gray_700))
+            colorResolver.getDividerColor(config.theme)
         )
         return remoteView
     }
@@ -475,20 +419,6 @@ class WatchWidgetRender @Inject constructor(
             val bitmap = createBitmap(inputParams)
             remoteView.setImageViewBitmap(R.id.image_view, bitmap)
         }
-    }
-
-    private fun <T> select(theme: Theme, light: T, dark: T): T {
-        if (theme == Theme.Light) {
-            return light
-        }
-        if (theme == Theme.Dark) {
-            return dark
-        }
-        val mode = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        if (mode == Configuration.UI_MODE_NIGHT_YES) {
-            return dark
-        }
-        return light
     }
 
     fun getWidgetRatio(config: WatchConfig): Size {

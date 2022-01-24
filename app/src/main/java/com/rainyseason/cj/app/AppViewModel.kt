@@ -5,8 +5,11 @@ import android.content.ComponentCallbacks
 import android.content.ComponentName
 import android.content.Context
 import android.content.res.Configuration
+import androidx.core.os.BuildCompat
+import com.airbnb.epoxy.IdUtils
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
+import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.ticker.CoinTickerProvider
@@ -49,11 +52,28 @@ class AppViewModel @Inject constructor(
     }
 
     private suspend fun onUiModeChange(config: Configuration) {
-        val oldUiMode = keyValueStore.getLong("ui_mode_night")
-        val newUiMode = (config.uiMode and Configuration.UI_MODE_NIGHT_MASK).toLong()
-        Timber.d("oldUiMode $oldUiMode newUiMode $newUiMode")
-        keyValueStore.setLong("ui_mode_night", newUiMode)
-        if (newUiMode != oldUiMode) {
+        val oldUiHash = keyValueStore.getLong("widget_ui_color_hash")
+        val darkLight = (config.uiMode and Configuration.UI_MODE_NIGHT_MASK).toLong()
+        val muColor = if (BuildCompat.isAtLeastS()) {
+            val builder = StringBuilder()
+            listOf(
+                android.R.color.system_accent1_500,
+                android.R.color.system_accent2_500,
+                android.R.color.system_accent3_500,
+                android.R.color.system_neutral1_500,
+                android.R.color.system_neutral2_500,
+            ).forEach {
+                val colorInt = context.getColorCompat(it)
+                val colorHex = Integer.toHexString(colorInt)
+                builder.append(colorHex)
+            }
+            builder.toString()
+        } else {
+            ""
+        }
+        val newUiHash = IdUtils.hashString64Bit("${darkLight}_$muColor")
+        keyValueStore.setLong("widget_ui_color_hash", newUiHash)
+        if (oldUiHash != newUiHash) {
             // ui mode may change from light to dark so widget need to re-render
             renderAllWidget()
         }

@@ -361,19 +361,16 @@ class WatchPreviewController @AssistedInject constructor(
     private fun buildTheme(state: WatchPreviewState) {
         val config = state.config ?: return
         val theme = config.theme
-        val themeToSummary = mapOf(
-            Theme.Auto to R.string.coin_ticker_preview_setting_theme_default,
-            Theme.Light to R.string.coin_ticker_preview_setting_theme_light,
-            Theme.Dark to R.string.coin_ticker_preview_setting_theme_dark,
-        )
+
         maybeBuildHorizontalSeparator(id = "setting_theme_separator")
         settingTitleSummaryView {
             id("setting-theme")
             title(R.string.coin_ticker_preview_setting_theme)
-            summary(context.getString(themeToSummary[theme]!!))
+            summary(theme.titleRes)
             onClickListener { _ ->
                 val currentConfig = withState(viewModel) { it.config } ?: return@onClickListener
-                val themeToSummaryString = themeToSummary.mapValues { context.getString(it.value) }
+                val themeToSummaryString = Theme.VALUES_COMPAT
+                    .associate { it to context.getString(it.titleRes) }
                 val selectedTheme = currentConfig.theme
                 AlertDialog.Builder(context)
                     .setTitle(R.string.coin_ticker_preview_setting_theme)

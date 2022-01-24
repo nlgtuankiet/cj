@@ -1,8 +1,9 @@
 package com.rainyseason.cj.ticker
 
+import androidx.core.os.BuildCompat
 import com.rainyseason.cj.R
-import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -35,7 +36,7 @@ data class CoinTickerConfig(
     val refreshIntervalUnit: TimeUnit = TimeUnit.HOURS,
 
     @Json(name = "theme")
-    val theme: String = Theme.AUTO,
+    val theme: Theme = Theme.Auto,
 
     @Json(name = "show_thousands_separator")
     val showThousandsSeparator: Boolean = true,
@@ -107,6 +108,15 @@ data class CoinTickerConfig(
         return ensureClickAction()
             .ensureChangeInterval()
             .ensureShowCurrency()
+            .ensureTheme()
+    }
+
+    private fun ensureTheme(): CoinTickerConfig {
+        return if (theme.isMaterialYou && !BuildCompat.isAtLeastS()) {
+            copy(theme = Theme.Auto)
+        } else {
+            this
+        }
     }
 
     private fun ensureShowCurrency(): CoinTickerConfig {
@@ -158,7 +168,7 @@ data class CoinTickerConfig(
             "number_of_price_decimal" to numberOfAmountDecimal,
             "number_of_change_percent_decimal" to numberOfChangePercentDecimal,
             "refresh_interval_seconds" to refreshIntervalUnit.toSeconds(refreshInterval),
-            "theme" to theme,
+            "theme" to theme.id,
             "show_thousands_separator" to showThousandsSeparator,
             "change_interval" to changeInterval.id,
             "layout" to layout,

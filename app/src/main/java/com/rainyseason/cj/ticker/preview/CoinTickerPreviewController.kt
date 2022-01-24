@@ -12,9 +12,9 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.RefreshIntervals
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
-import com.rainyseason.cj.common.Theme
 import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.inflater
+import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.setCancelButton
 import com.rainyseason.cj.common.showKeyboard
@@ -362,19 +362,15 @@ class CoinTickerPreviewController(
     private fun buildTheme(state: CoinTickerPreviewState) {
         val config = state.config ?: return
         val theme = config.theme
-        val themeToSummary = mapOf(
-            Theme.AUTO to R.string.coin_ticker_preview_setting_theme_default,
-            Theme.LIGHT to R.string.coin_ticker_preview_setting_theme_light,
-            Theme.DARK to R.string.coin_ticker_preview_setting_theme_dark,
-        )
         maybeBuildHorizontalSeparator(id = "setting_theme_separator")
         settingTitleSummaryView {
             id("setting-theme")
             title(R.string.coin_ticker_preview_setting_theme)
-            summary(context.getString(themeToSummary[theme]!!))
+            summary(context.getString(theme.titleRes))
             onClickListener { _ ->
                 val currentConfig = withState(viewModel) { it.config } ?: return@onClickListener
-                val themeToSummaryString = themeToSummary.mapValues { context.getString(it.value) }
+                val themeToSummaryString = Theme.VALUES_COMPAT
+                    .associate { it to context.getString(it.titleRes) }
                 val selectedTheme = currentConfig.theme
                 AlertDialog.Builder(context)
                     .setTitle(R.string.coin_ticker_preview_setting_theme)

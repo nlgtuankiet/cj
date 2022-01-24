@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:id="@+id/container"
-    tools:background="@drawable/coin_ticker_background"
+    tools:background="@drawable/widget_background_light"
     android:layout_height="match_parent">
 
     <ListView

@@ -8,6 +8,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -430,4 +431,8 @@ fun Int.addFlagMutable(): Int {
     } else {
         this
     }
+}
+
+fun Int.asColorStateList(): ColorStateList {
+    return ColorStateList.valueOf(this)
 }

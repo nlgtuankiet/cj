@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Looper
@@ -19,7 +18,6 @@ import android.widget.ImageView
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.annotation.LayoutRes
-import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
@@ -31,10 +29,9 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.GraphRenderer
 import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
-import com.rainyseason.cj.common.Theme
+import com.rainyseason.cj.common.WidgetColorResolver
 import com.rainyseason.cj.common.addFlagMutable
 import com.rainyseason.cj.common.dpToPx
-import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.WidgetRenderParams
 import com.rainyseason.cj.common.verticalPadding
@@ -65,25 +62,12 @@ class TickerWidgetRenderer @Inject constructor(
     private val tracker: Tracker,
     private val numberFormater: NumberFormater,
     private val graphRenderer: GraphRenderer,
+    private val colorResolver: WidgetColorResolver,
 ) {
 
     @LayoutRes
     fun selectLayout(config: CoinTickerConfig): Int {
         return CoinTickerConfig.Layout.getLayoutRes(config.layout)
-    }
-
-    private fun <T> select(theme: String, light: T, dark: T): T {
-        if (theme == Theme.LIGHT) {
-            return light
-        }
-        if (theme == Theme.DARK) {
-            return dark
-        }
-        val mode = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-        if (mode == Configuration.UI_MODE_NIGHT_YES) {
-            return dark
-        }
-        return light
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")
@@ -148,19 +132,10 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        val backgroundRes = if ((renderData.priceChangePercent ?: 0.0) > 0) {
-            select(
-                config.theme,
-                R.drawable.coin_ticker_background_positive_light,
-                R.drawable.coin_ticker_background_positive_dark
-            )
-        } else {
-            select(
-                config.theme,
-                R.drawable.coin_ticker_background_negative_light,
-                R.drawable.coin_ticker_background_negative_dark
-            )
-        }
+        val backgroundRes = colorResolver.getBackgroundPositiveResource(
+            theme = config.theme,
+            isPositive = (renderData.priceChangePercent ?: 0.0) > 0
+        )
         binding.container.setBackgroundResource(backgroundRes)
         applyBackgroundTransparency(binding.container, config)
 
@@ -183,19 +158,10 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        val backgroundRes = if ((renderData.priceChangePercent ?: 0.0) > 0) {
-            select(
-                config.theme,
-                R.drawable.coin_ticker_background_positive_light,
-                R.drawable.coin_ticker_background_positive_dark
-            )
-        } else {
-            select(
-                config.theme,
-                R.drawable.coin_ticker_background_negative_light,
-                R.drawable.coin_ticker_background_negative_dark
-            )
-        }
+        val backgroundRes = colorResolver.getBackgroundPositiveResource(
+            theme = config.theme,
+            isPositive = (renderData.priceChangePercent ?: 0.0) > 0
+        )
         binding.container.setBackgroundResource(backgroundRes)
         applyBackgroundTransparency(binding.container, config)
 
@@ -231,13 +197,7 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        binding.container.setBackgroundResource(
-            select(
-                theme,
-                R.drawable.coin_ticker_background,
-                R.drawable.coin_ticker_background_dark
-            )
-        )
+        binding.container.setBackgroundResource(colorResolver.getBackgroundResource(theme))
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
@@ -246,24 +206,12 @@ class TickerWidgetRenderer @Inject constructor(
         } else {
             renderData.symbol.uppercase()
         }
-        binding.symbol.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.symbol.setTextColor(colorResolver.getTextPrimaryColor(theme))
         binding.symbol.updateVertialFontMargin(updateTop = true)
 
         // bind amount
         binding.amount.text = formatAmount(params)
-        binding.amount.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.amount.setTextColor(colorResolver.getTextPrimaryColor(theme))
         binding.amount.updateVertialFontMargin(updateBottom = true)
 
         // bind change percent
@@ -275,13 +223,7 @@ class TickerWidgetRenderer @Inject constructor(
         } else {
             renderData.name
         }
-        binding.name.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_500),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.name.setTextColor(colorResolver.getTextSecondaryColor(theme))
 
         container.mesureAndLayout(config)
 
@@ -319,34 +261,16 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        binding.container.setBackgroundResource(
-            select(
-                theme,
-                R.drawable.coin_ticker_background,
-                R.drawable.coin_ticker_background_dark
-            )
-        )
+        binding.container.setBackgroundResource(colorResolver.getBackgroundResource(theme))
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
         binding.symbol.text = renderData.symbol
-        binding.symbol.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.symbol.setTextColor(colorResolver.getTextPrimaryColor(theme))
 
         // bind amount
         binding.amount.text = formatAmount(params)
-        binding.amount.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.amount.setTextColor(colorResolver.getTextPrimaryColor(theme))
 
         // bind change percent
         binding.changePercent.text = formatChange(params)
@@ -369,24 +293,12 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        binding.container.setBackgroundResource(
-            select(
-                theme,
-                R.drawable.coin_ticker_background,
-                R.drawable.coin_ticker_background_dark
-            )
-        )
+        binding.container.setBackgroundResource(colorResolver.getBackgroundResource(theme))
         applyBackgroundTransparency(binding.container, config)
 
         // bind amount
         binding.amount.text = formatAmount(params)
-        binding.amount.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.amount.setTextColor(colorResolver.getTextPrimaryColor(theme))
 
         // bind change percent
         binding.changePercent.text = formatChange(params)
@@ -425,35 +337,17 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        binding.container.setBackgroundResource(
-            select(
-                theme,
-                R.drawable.coin_ticker_background,
-                R.drawable.coin_ticker_background_dark
-            )
-        )
+        binding.container.setBackgroundResource(colorResolver.getBackgroundResource(theme))
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
         binding.symbol.text = renderData.symbol
-        binding.symbol.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.symbol.setTextColor(colorResolver.getTextPrimaryColor(theme))
         binding.symbol.updateVertialFontMargin(updateTop = true)
 
         // bind amount
         binding.amount.text = formatAmount(params)
-        binding.amount.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.amount.setTextColor(colorResolver.getTextPrimaryColor(theme))
 
         // bind change percent
         binding.changePercent.text = formatChange(params)
@@ -476,6 +370,7 @@ class TickerWidgetRenderer @Inject constructor(
             val height = imageView.measuredHeight.toFloat()
             val bitmap = graphRenderer.createGraphBitmap(
                 context = context,
+                theme = params.config.theme,
                 width = width,
                 height = height,
                 data = graphData
@@ -497,35 +392,17 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        binding.container.setBackgroundResource(
-            select(
-                theme,
-                R.drawable.coin_ticker_background,
-                R.drawable.coin_ticker_background_dark
-            )
-        )
+        binding.container.setBackgroundResource(colorResolver.getBackgroundResource(theme))
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
         binding.symbol.text = renderData.symbol
-        binding.symbol.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.symbol.setTextColor(colorResolver.getTextPrimaryColor(theme))
         binding.symbol.updateVertialFontMargin(updateTop = true)
 
         // bind amount
         binding.amount.text = formatAmount(params)
-        binding.amount.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_900),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.amount.setTextColor(colorResolver.getTextPrimaryColor(theme))
         binding.amount.updateVertialFontMargin(updateBottom = true)
 
         // bind change percent
@@ -534,13 +411,7 @@ class TickerWidgetRenderer @Inject constructor(
 
         // bind name
         binding.name.text = renderData.name
-        binding.name.setTextColor(
-            select(
-                theme,
-                context.getColorCompat(R.color.gray_500),
-                context.getColorCompat(R.color.gray_50),
-            )
-        )
+        binding.name.setTextColor(colorResolver.getTextSecondaryColor(theme))
 
         container.mesureAndLayout(config)
 
@@ -723,11 +594,7 @@ class TickerWidgetRenderer @Inject constructor(
             val amount = data.priceChangePercent
 
             if (amount != null) {
-                val color = if (amount > 0) {
-                    ContextCompat.getColor(context, R.color.green_700)
-                } else {
-                    ContextCompat.getColor(context, R.color.red_600)
-                }
+                val color = colorResolver.getChangePercentColor(config.theme, amount)
                 val locate = SUPPORTED_CURRENCY[config.currency]!!.locale
                 val content = numberFormater.formatPercent(
                     amount = amount,
@@ -742,11 +609,7 @@ class TickerWidgetRenderer @Inject constructor(
                     append(content)
                 }
             } else {
-                val color = select(
-                    config.theme,
-                    context.getColorCompat(R.color.gray_900),
-                    context.getColorCompat(R.color.gray_50),
-                )
+                val color = colorResolver.getTextPrimaryColor(config.theme)
                 color(color) {
                     append("--")
                 }

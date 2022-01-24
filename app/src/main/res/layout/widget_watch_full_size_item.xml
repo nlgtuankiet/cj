@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:id="@+id/container"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:background="@drawable/coin_ticker_background"
+    tools:background="@drawable/widget_background_light"
     android:layout_height="wrap_content">
 
     <TextView
