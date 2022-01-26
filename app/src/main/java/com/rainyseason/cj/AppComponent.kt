@@ -55,6 +55,7 @@ import com.rainyseason.cj.detail.CoinDetailModule
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.setting.SettingFragmentModule
+import com.rainyseason.cj.ticker.CoinTickerLayoutJsonAdapter
 import com.rainyseason.cj.ticker.CoinTickerSettingActivityModule
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragmentModule
 import com.rainyseason.cj.tracking.AppTracker
@@ -277,6 +278,7 @@ object AppProvides {
             )
             .addAdapter(TimeIntervalJsonAdapter)
             .addAdapter(WatchWidgetLayoutJsonAdapter)
+            .addAdapter(CoinTickerLayoutJsonAdapter)
             .addAdapter(ThemeJsonAdapter)
             .addAdapter(BackendJsonAdapter)
             .addAdapter(WatchClickActionJsonAdapter)

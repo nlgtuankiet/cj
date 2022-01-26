@@ -1,7 +1,6 @@
 package com.rainyseason.cj.widget.manage
 
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import androidx.lifecycle.asFlow
 import androidx.work.WorkInfo
@@ -12,11 +11,13 @@ import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.fragment
+import com.rainyseason.cj.common.model.getWidgetIds
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import com.rainyseason.cj.ticker.CoinTickerHandler
+import com.rainyseason.cj.ticker.CoinTickerLayout
 import com.rainyseason.cj.widget.watch.WatchConfig
 import com.rainyseason.cj.widget.watch.WatchDisplayData
 import com.rainyseason.cj.widget.watch.WatchWidgetHandler
@@ -64,60 +65,53 @@ class ManageWidgetViewModel @AssistedInject constructor(
     }
 
     private fun loadWidgets() {
-        CoinTickerConfig.Layout.clazzToLayout.keys.forEach { clazz ->
-            appWidgetManager.getAppWidgetIds(ComponentName(context, clazz))
-                .filter { it != 0 }
-                .forEach { widgetId ->
-                    getConfigJobs[widgetId]?.cancel()
-                    getConfigJobs[widgetId] = coinTickerRepository.getConfigStream(widgetId)
-                        .execute {
-                            copy(tickerConfigs = tickerConfigs.update { put(widgetId, it) })
-                        }
+        CoinTickerLayout.values().getWidgetIds(context)
+            .forEach { widgetId ->
+                getConfigJobs[widgetId]?.cancel()
+                getConfigJobs[widgetId] = coinTickerRepository.getConfigStream(widgetId)
+                    .execute {
+                        copy(tickerConfigs = tickerConfigs.update { put(widgetId, it) })
+                    }
 
-                    getDataJobs[widgetId]?.cancel()
-                    getDataJobs[widgetId] = coinTickerRepository.getDisplayDataStream(widgetId)
-                        .execute {
-                            copy(tickerDisplayData = tickerDisplayData.update { put(widgetId, it) })
-                        }
+                getDataJobs[widgetId]?.cancel()
+                getDataJobs[widgetId] = coinTickerRepository.getDisplayDataStream(widgetId)
+                    .execute {
+                        copy(tickerDisplayData = tickerDisplayData.update { put(widgetId, it) })
+                    }
 
-                    getLoadingJobs[widgetId]?.cancel()
-                    getDataJobs[widgetId] = workManager.getWorkInfosForUniqueWorkLiveData(
-                        coinTickerHandler.getWorkName(widgetId)
-                    ).asFlow()
-                        .map { infos ->
-                            infos.firstOrNull()?.state == WorkInfo.State.RUNNING
-                        }
-                        .execute {
-                            copy(widgetLoading = widgetLoading.update { put(widgetId, it) })
-                        }
+                getLoadingJobs[widgetId]?.cancel()
+                getDataJobs[widgetId] = workManager.getWorkInfosForUniqueWorkLiveData(
+                    coinTickerHandler.getWorkName(widgetId)
+                ).asFlow()
+                    .map { infos ->
+                        infos.firstOrNull()?.state == WorkInfo.State.RUNNING
+                    }
+                    .execute {
+                        copy(widgetLoading = widgetLoading.update { put(widgetId, it) })
+                    }
+            }
+        WatchWidgetLayout.values().getWidgetIds(context).forEach { widgetId ->
+            getConfigJobs[widgetId]?.cancel()
+            getConfigJobs[widgetId] = watchWidgetRepository.getConfigStream(widgetId)
+                .execute {
+                    copy(watchConfig = watchConfig.update { put(widgetId, it) })
                 }
-        }
-        WatchWidgetLayout.values().forEach { layout ->
-            appWidgetManager.getAppWidgetIds(ComponentName(context, layout.providerName))
-                .filter { it != 0 }
-                .forEach { widgetId ->
-                    getConfigJobs[widgetId]?.cancel()
-                    getConfigJobs[widgetId] = watchWidgetRepository.getConfigStream(widgetId)
-                        .execute {
-                            copy(watchConfig = watchConfig.update { put(widgetId, it) })
-                        }
 
-                    getDataJobs[widgetId]?.cancel()
-                    getDataJobs[widgetId] = watchWidgetRepository.getDisplayDataStream(widgetId)
-                        .execute {
-                            copy(watchDisplayData = watchDisplayData.update { put(widgetId, it) })
-                        }
+            getDataJobs[widgetId]?.cancel()
+            getDataJobs[widgetId] = watchWidgetRepository.getDisplayDataStream(widgetId)
+                .execute {
+                    copy(watchDisplayData = watchDisplayData.update { put(widgetId, it) })
+                }
 
-                    getLoadingJobs[widgetId]?.cancel()
-                    getDataJobs[widgetId] = workManager.getWorkInfosForUniqueWorkLiveData(
-                        watchWidgetHandler.getWorkName(widgetId)
-                    ).asFlow()
-                        .map { infos ->
-                            infos.firstOrNull()?.state == WorkInfo.State.RUNNING
-                        }
-                        .execute {
-                            copy(widgetLoading = widgetLoading.update { put(widgetId, it) })
-                        }
+            getLoadingJobs[widgetId]?.cancel()
+            getDataJobs[widgetId] = workManager.getWorkInfosForUniqueWorkLiveData(
+                watchWidgetHandler.getWorkName(widgetId)
+            ).asFlow()
+                .map { infos ->
+                    infos.firstOrNull()?.state == WorkInfo.State.RUNNING
+                }
+                .execute {
+                    copy(widgetLoading = widgetLoading.update { put(widgetId, it) })
                 }
         }
         setState { copy(loadWidgetsDone = true) }

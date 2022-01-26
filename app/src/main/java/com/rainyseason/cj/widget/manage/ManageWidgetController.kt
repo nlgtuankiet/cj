@@ -7,7 +7,6 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.view.centerText
 import com.rainyseason.cj.common.view.verticalSpacerView
-import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.CoinTickerSettingActivity
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
@@ -113,9 +112,8 @@ class ManageWidgetController @AssistedInject constructor(
             showLoading = false,
             isPreview = false
         )
-        val ratio = tickerWidgetRenderer.getWidgetRatio(config)
-        val layoutNameRes = CoinTickerConfig.LayoutToString[config.layout]
-            ?: R.string.coin_ticket_style_graph
+        val ratio = config.layout.ratio
+        val layoutNameRes = config.layout.titleRes
         widgetView {
             id(config.widgetId)
             title("#$widgetId")

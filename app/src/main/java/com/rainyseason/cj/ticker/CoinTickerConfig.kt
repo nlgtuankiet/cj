@@ -45,7 +45,7 @@ data class CoinTickerConfig(
     val changeInterval: TimeInterval = TimeInterval.I_24H,
 
     @Json(name = "layout")
-    val layout: String = Layout.GRAPH,
+    val layout: CoinTickerLayout = CoinTickerLayout.Graph2x2,
 
     @Json(name = "click_action")
     val clickAction: String = ClickAction.OPEN_COIN_DETAIL,
@@ -76,24 +76,6 @@ data class CoinTickerConfig(
 ) {
 
     companion object {
-        val LayoutToString2x2 = mapOf(
-            Layout.GRAPH to R.string.coin_ticket_style_graph,
-            Layout.DEFAULT to R.string.coin_ticket_style_default,
-            Layout.COIN360 to R.string.coin_ticket_style_coin360,
-        )
-
-        val LayoutToString2x1 = mapOf(
-            Layout.MINI to R.string.coin_ticket_style_mini,
-            Layout.ICON_SMALL to R.string.coin_ticket_style_icon_small,
-        )
-
-        val LayoutToString1x1 = mapOf(
-            Layout.NANO to R.string.coin_ticket_style_nano,
-            Layout.COIN360_NANO to R.string.coin_ticket_style_coin360_mini,
-        )
-
-        val LayoutToString = LayoutToString2x2 + LayoutToString2x1 + LayoutToString1x1
-
         val AllowedChangeInterval = mapOf(
             TimeInterval.I_24H
                 to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
@@ -171,7 +153,7 @@ data class CoinTickerConfig(
             "theme" to theme.id,
             "show_thousands_separator" to showThousandsSeparator,
             "change_interval" to changeInterval.id,
-            "layout" to layout,
+            "layout" to layout.id,
             "click_action" to clickAction,
             "show_currency_symbol" to showCurrencySymbol,
             "currency" to currency,
@@ -182,44 +164,6 @@ data class CoinTickerConfig(
             "hide_decimal_on_large_price" to hideDecimalOnLargePrice,
             "amount" to amount,
         )
-    }
-
-    object Layout {
-        const val DEFAULT = "default"
-        const val GRAPH = "graph"
-        const val COIN360 = "coin360"
-        const val COIN360_NANO = "coin360_mini"
-        const val MINI = "mini"
-        const val NANO = "nano"
-        const val ICON_SMALL = "icon_small"
-
-        val clazzToLayout = mapOf(
-            CoinTickerProviderDefault::class.java.name to DEFAULT,
-            CoinTickerProviderGraph::class.java.name to GRAPH,
-            CoinTickerProviderCoin360::class.java.name to COIN360,
-            CoinTickerProviderCoin360Mini::class.java.name to COIN360_NANO,
-            CoinTickerProviderMini::class.java.name to MINI,
-            CoinTickerProviderNano::class.java.name to NANO,
-            CoinTickerProviderIconSmall::class.java.name to ICON_SMALL,
-        )
-
-        private val layoutToLayoutRes = mapOf(
-            DEFAULT to R.layout.widget_coin_ticker_2x2,
-            GRAPH to R.layout.widget_coin_ticker_2x2,
-            COIN360 to R.layout.widget_coin_ticker_2x2,
-            COIN360_NANO to R.layout.widget_coin_ticker_1x1,
-            MINI to R.layout.widget_coin_ticker_2x1,
-            NANO to R.layout.widget_coin_ticker_1x1,
-            ICON_SMALL to R.layout.widget_coin_ticker_2x1,
-        )
-
-        fun fromComponentName(name: String): String {
-            return clazzToLayout[name]!!
-        }
-
-        fun getLayoutRes(layout: String): Int {
-            return layoutToLayoutRes[layout]!!
-        }
     }
 
     object ClickAction {

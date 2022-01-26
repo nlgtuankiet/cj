@@ -1,14 +1,13 @@
 package com.rainyseason.cj
 
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.goBackground
-import com.rainyseason.cj.ticker.CoinTickerConfig
+import com.rainyseason.cj.common.model.getWidgetIds
+import com.rainyseason.cj.ticker.CoinTickerLayout
 import com.rainyseason.cj.widget.watch.WatchWidgetLayout
-import timber.log.Timber
 
 class BootRefreshReceiver : RefreshReceiver()
 class PackageReplaceRefreshReceiver : RefreshReceiver()
@@ -30,20 +29,19 @@ abstract class RefreshReceiver : BroadcastReceiver() {
     }
 
     private suspend fun handle(context: Context) {
-        // refresh add ticker widget
-        val widgetManager = context.coreComponent.appWidgetManager
         val tickerHandler = context.coreComponent.coinTickerHandler
+        val watchHandler = context.coreComponent.watchWidgetHandler
 
-        listOf(
-            *CoinTickerConfig.Layout.clazzToLayout.keys.toTypedArray(),
-            *WatchWidgetLayout.values().map { it.providerName }.toTypedArray()
-        ).flatMap { clazz ->
-            val tickerComponent = ComponentName(context, clazz)
-            widgetManager.getAppWidgetIds(tickerComponent).toList().also {
-                Timber.d("refresh widget after boot $tickerComponent $it   ")
+        CoinTickerLayout.values().getWidgetIds(context)
+            .forEach { widgetId ->
+                tickerHandler.rerender(widgetId)
+                tickerHandler.enqueueRefreshWidget(widgetId)
             }
-        }.forEach { widgetId ->
-            tickerHandler.enqueueRefreshWidget(widgetId)
-        }
+
+        WatchWidgetLayout.values().getWidgetIds(context)
+            .forEach { widgetId ->
+                watchHandler.rerender(widgetId)
+                watchHandler.enqueueRefreshWidget(widgetId)
+            }
     }
 }

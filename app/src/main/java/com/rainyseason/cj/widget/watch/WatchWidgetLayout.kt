@@ -1,6 +1,7 @@
 package com.rainyseason.cj.widget.watch
 
 import com.rainyseason.cj.R
+import com.rainyseason.cj.common.model.WidgetLayout
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
@@ -10,9 +11,9 @@ enum class WatchWidgetLayout(
     val layout: Int,
     val previewScale: Double,
     val entryLimit: Int,
-    val providerName: String,
+    override val providerName: String,
     val nameRes: Int,
-) {
+) : WidgetLayout {
     Watch4x2(
         id = "watch_4x2",
         layout = R.layout.widget_watch_4x2_frame,

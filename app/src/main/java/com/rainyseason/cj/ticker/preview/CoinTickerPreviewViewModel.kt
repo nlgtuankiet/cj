@@ -21,6 +21,7 @@ import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import com.rainyseason.cj.ticker.CoinTickerDisplayData.LoadParam
+import com.rainyseason.cj.ticker.CoinTickerLayout
 import com.rainyseason.cj.ticker.TickerWidgetFeature
 import com.rainyseason.cj.ticker.usecase.GetDisplayData
 import dagger.assisted.Assisted
@@ -203,7 +204,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         updateConfig { copy(sizeAdjustment = value) }
     }
 
-    fun setLayout(value: String) {
+    fun setLayout(value: CoinTickerLayout) {
         updateConfig { copy(layout = value) }
     }
 

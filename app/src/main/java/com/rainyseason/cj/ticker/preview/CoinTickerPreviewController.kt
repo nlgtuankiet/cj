@@ -8,6 +8,7 @@ import androidx.navigation.findNavController
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.withState
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.RefreshIntervals
@@ -183,6 +184,9 @@ class CoinTickerPreviewController(
                 viewModel.reload()
             }
         }
+        if (BuildConfig.DEBUG) {
+            error.printStackTrace()
+        }
         return BuildState.Stop
     }
 
@@ -255,12 +259,7 @@ class CoinTickerPreviewController(
 
     private fun buildSizeAdjustment(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        val miniLayouts = listOf(
-            CoinTickerConfig.Layout.COIN360_NANO,
-            CoinTickerConfig.Layout.NANO,
-        )
-
-        if (config.layout in miniLayouts) {
+        if (config.layout.isNano) {
             return
         }
         maybeBuildHorizontalSeparator(id = "size_adjustment_separator")
@@ -296,30 +295,25 @@ class CoinTickerPreviewController(
     private fun buildLayout(state: CoinTickerPreviewState) {
         val config = state.config ?: return
 
-        val layoutToString = listOf(
-            CoinTickerConfig.LayoutToString2x2,
-            CoinTickerConfig.LayoutToString2x1,
-            CoinTickerConfig.LayoutToString1x1,
-        ).first { it.any { entry -> entry.key == config.layout } }
-            .map { it.key to context.getString(it.value) }
-
         maybeBuildHorizontalSeparator(id = "header_layout_separator")
 
         settingTitleSummaryView {
             id("setting_layout")
             title(R.string.coin_ticker_preview_setting_layout)
-            summary(layoutToString.first { it.first == config.layout }.second)
+            summary(config.layout.titleRes)
             onClickListener { _ ->
                 val currentLayout =
                     withState(viewModel) { it.config?.layout } ?: return@onClickListener
+                val alternativeLayouts = currentLayout.alternativeLayouts()
                 AlertDialog.Builder(context)
                     .setTitle(R.string.coin_ticker_preview_setting_layout)
                     .setCancelButton()
                     .setSingleChoiceItems(
-                        layoutToString.map { it.second }.toTypedArray(),
-                        layoutToString.indexOfFirst { currentLayout == it.first },
+                        alternativeLayouts.map { context.getString(it.titleRes) }
+                            .toTypedArray(),
+                        alternativeLayouts.indexOfFirst { currentLayout == it },
                     ) { dialog, which ->
-                        val select = layoutToString[which].first
+                        val select = alternativeLayouts[which]
                         viewModel.setLayout(select)
                         dialog.dismiss()
                     }

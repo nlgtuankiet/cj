@@ -107,7 +107,7 @@ class CoinTickerSettingActivity :
         }
         val componentName = appWidgetManager.getAppWidgetInfo(widgetId)?.provider
             ?: ComponentName(this, CoinTickerProviderGraph::class.java)
-        val layout = CoinTickerConfig.Layout.fromComponentName(componentName.className)
+        val layout = CoinTickerLayout.fromComponentName(componentName.className)
         val args = CoinTickerPreviewArgs(
             widgetId = widgetId,
             coinId = coinId,

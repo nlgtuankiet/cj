@@ -23,7 +23,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.inflateAndAdd
-import com.rainyseason.cj.ticker.CoinTickerConfig
+import com.rainyseason.cj.ticker.CoinTickerLayout
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import timber.log.Timber
 import java.io.File
@@ -85,7 +85,7 @@ class CoinTickerPreviewView @JvmOverloads constructor(
             height = widgetSize.height + context.dpToPx(12 * 2)
         }
         val iconLayouts = listOf(
-            CoinTickerConfig.Layout.ICON_SMALL
+            CoinTickerLayout.Icon2x1
         )
         if (params.config.layout in iconLayouts && params.data.iconUrl.isNotBlank()) {
             progressBar.isGone = false

@@ -1,7 +1,6 @@
 package com.rainyseason.cj.ticker
 
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
@@ -14,15 +13,15 @@ import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.hasValidNetworkConnection
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.model.asDayString
+import com.rainyseason.cj.common.model.getWidgetIds
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
 import com.rainyseason.cj.widget.watch.WatchDisplayData
 import com.rainyseason.cj.widget.watch.WatchDisplayEntry
 import com.rainyseason.cj.widget.watch.WatchDisplayEntryContent
-import com.rainyseason.cj.widget.watch.WatchWidget4x2Provider
-import com.rainyseason.cj.widget.watch.WatchWidget4x4Provider
 import com.rainyseason.cj.widget.watch.WatchWidgetHandler
+import com.rainyseason.cj.widget.watch.WatchWidgetLayout
 import com.rainyseason.cj.widget.watch.WatchWidgetRender
 import com.rainyseason.cj.widget.watch.WatchWidgetRenderParams
 import com.rainyseason.cj.widget.watch.WatchWidgetRepository
@@ -61,11 +60,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
         }
 
         // check if widget has been removed
-        val widgetIds = listOf(
-            WatchWidget4x2Provider::class.java,
-            WatchWidget4x4Provider::class.java,
-        ).map { appWidgetManager.getAppWidgetIds(ComponentName(appContext, it)).toList() }
-            .flatten()
+        val widgetIds = WatchWidgetLayout.values().getWidgetIds(appContext)
 
         if (widgetId !in widgetIds) {
             handler.removeRefreshWork(widgetId)

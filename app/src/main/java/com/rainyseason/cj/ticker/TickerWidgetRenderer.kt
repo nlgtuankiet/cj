@@ -67,7 +67,7 @@ class TickerWidgetRenderer @Inject constructor(
 
     @LayoutRes
     fun selectLayout(config: CoinTickerConfig): Int {
-        return CoinTickerConfig.Layout.getLayoutRes(config.layout)
+        return config.layout.layout
     }
 
     @SuppressLint("UnspecifiedImmutableFlag")
@@ -461,19 +461,9 @@ class TickerWidgetRenderer @Inject constructor(
         layout(0, 0, specsWidth, specsHeight)
     }
 
-    fun getWidgetRatio(config: CoinTickerConfig): Size {
-        return when (config.layout) {
-            CoinTickerConfig.Layout.MINI -> Size(2, 1)
-            CoinTickerConfig.Layout.ICON_SMALL -> Size(2, 1)
-            CoinTickerConfig.Layout.DEFAULT -> Size(2, 2)
-            CoinTickerConfig.Layout.GRAPH -> Size(2, 2)
-            CoinTickerConfig.Layout.COIN360 -> Size(2, 2)
-            CoinTickerConfig.Layout.COIN360_NANO -> Size(1, 1)
-            CoinTickerConfig.Layout.NANO -> Size(1, 1)
-            else -> error("Unknown layout")
-        }
-    }
-
+    /**
+     * TODO compat widget size follow ratio spec
+     */
     fun getWidgetSize(config: CoinTickerConfig): Size {
         val options = appWidgetManager.getAppWidgetOptions(config.widgetId)
         val minWidth = context
@@ -483,11 +473,7 @@ class TickerWidgetRenderer @Inject constructor(
         val size = minHeight.coerceAtMost(minWidth)
             .coerceAtMost(context.dpToPx(155))
             .coerceAtLeast(context.dpToPx(145))
-        val nanoLayouts = listOf(
-            CoinTickerConfig.Layout.COIN360_NANO,
-            CoinTickerConfig.Layout.NANO,
-        )
-        val finalSize = if (config.layout in nanoLayouts) {
+        val finalSize = if (config.layout.isNano) {
             val height = context.dpToPx(75) + context.dpToPx(config.sizeAdjustment)
             val width = if (minWidth / minHeight >= 2) {
                 height * 2
@@ -498,11 +484,11 @@ class TickerWidgetRenderer @Inject constructor(
         } else {
             val finalWidth = size + context.dpToPx(config.sizeAdjustment)
             val finalHeight = when (config.layout) {
-                CoinTickerConfig.Layout.MINI -> finalWidth / 2
-                CoinTickerConfig.Layout.ICON_SMALL -> finalWidth / 2
-                CoinTickerConfig.Layout.DEFAULT -> finalWidth
-                CoinTickerConfig.Layout.GRAPH -> finalWidth
-                CoinTickerConfig.Layout.COIN360 -> finalWidth
+                CoinTickerLayout.Graph2x1 -> finalWidth / 2
+                CoinTickerLayout.Icon2x1 -> finalWidth / 2
+                CoinTickerLayout.Default2x2 -> finalWidth
+                CoinTickerLayout.Graph2x2 -> finalWidth
+                CoinTickerLayout.Coin3602x2 -> finalWidth
                 else -> error("Unknown layout")
             }
             Size(finalWidth, finalHeight)
@@ -539,15 +525,14 @@ class TickerWidgetRenderer @Inject constructor(
         val container = FrameLayout(context)
         container.mesureAndLayout(inputParams.config)
         when (inputParams.config.layout) {
-            CoinTickerConfig.Layout.DEFAULT -> renderDefault(container, inputParams)
-            CoinTickerConfig.Layout.GRAPH -> renderGraph(container, inputParams)
-            CoinTickerConfig.Layout.COIN360 -> renderCoin360(container, inputParams)
-            CoinTickerConfig.Layout.COIN360_NANO -> renderCoin360Mini(container, inputParams)
-            CoinTickerConfig.Layout.MINI -> renderMini(container, inputParams)
-            CoinTickerConfig.Layout.ICON_SMALL ->
+            CoinTickerLayout.Default2x2 -> renderDefault(container, inputParams)
+            CoinTickerLayout.Graph2x2 -> renderGraph(container, inputParams)
+            CoinTickerLayout.Coin3602x2 -> renderCoin360(container, inputParams)
+            CoinTickerLayout.Coin3601x1 -> renderCoin360Mini(container, inputParams)
+            CoinTickerLayout.Graph2x1 -> renderMini(container, inputParams)
+            CoinTickerLayout.Icon2x1 ->
                 renderIconSmall(container, inputParams, icon)
-            CoinTickerConfig.Layout.NANO -> renderNano(container, inputParams)
-            else -> error("Unknown layout: ${inputParams.config.layout}")
+            CoinTickerLayout.Nano1x1 -> renderNano(container, inputParams)
         }
 
         container.mesureAndLayout(inputParams.config)
