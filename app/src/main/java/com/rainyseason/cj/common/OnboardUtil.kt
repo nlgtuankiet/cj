@@ -101,10 +101,16 @@ private suspend fun showOnBoard(
         itemView = findItemView()
     }
 
-    if (recyclerView.canScrollVertically(1)) {
-        val scrollAmount = itemView.top
-        recyclerView.smoothScrollBy(0, scrollAmount)
-        recyclerView.awaitScrollState(RecyclerView.SCROLL_STATE_IDLE)
+    val bottomAmount = recyclerView.height - itemView.bottom
+    Timber.d("bottomAmount $bottomAmount")
+    // TODO do not show onboard ui if bottom space less than 56dp (user can not press "ok" button)
+    if (bottomAmount < recyclerView.context.dpToPx(56)) {
+        // no space left to show onboard ui, scroll up a bit
+        if (recyclerView.canScrollVertically(1)) {
+            val scrollAmount = itemView.top
+            recyclerView.smoothScrollBy(0, scrollAmount)
+            recyclerView.awaitScrollState(RecyclerView.SCROLL_STATE_IDLE)
+        }
     }
 
     fun findMarginTop(targetView: View, parentView: View): Int {
