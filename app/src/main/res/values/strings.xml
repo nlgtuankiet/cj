@@ -150,4 +150,5 @@
 
     <string name="widget_watch_onboard_full_size_title">Full size widget</string>
     <string name="widget_watch_onboard_full_size_description">When on, widget will expand to full size. Scrolling is also enabled.\n(Resize the widget after create to see the result)</string>
+    <string name="widget_ticker_onboard_full_size_description">When on, widget will expand to full size.\n(This feature is highly experimental)</string>
 </resources>

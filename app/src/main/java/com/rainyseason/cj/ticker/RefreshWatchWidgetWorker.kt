@@ -10,6 +10,7 @@ import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.changePercent
+import com.rainyseason.cj.common.getTrackingParams
 import com.rainyseason.cj.common.hasValidNetworkConnection
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.model.asDayString
@@ -117,7 +118,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
 
         tracker.logKeyParamsEvent(
             key = "widget_refresh",
-            params = config.getTrackingParams(),
+            params = config.getTrackingParams() + appWidgetManager.getTrackingParams(widgetId),
         )
 
         val configCurrency = config.currency

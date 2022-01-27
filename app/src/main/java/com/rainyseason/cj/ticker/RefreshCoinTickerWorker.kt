@@ -7,6 +7,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.BuildConfig
+import com.rainyseason.cj.common.getTrackingParams
 import com.rainyseason.cj.common.hasValidNetworkConnection
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.common.model.getWidgetIds
@@ -99,7 +100,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
 
         tracker.logKeyParamsEvent(
             key = "widget_refresh",
-            params = config.getTrackingParams(),
+            params = config.getTrackingParams() + appWidgetManager.getTrackingParams(widgetId),
         )
 
         val oldDisplayData = coinTickerRepository.getDisplayData(widgetId)

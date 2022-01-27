@@ -94,7 +94,7 @@ class DebugTracker @Inject constructor() : Tracker {
 
     private fun logKeyParamsEvent(event: KeyParamsEvent) {
         val params = event.params.toList().sortedBy { it.first }
-        Timber.tag("DebugEvent").d("""Log "${event.key}" values $params""")
+        Timber.d("""Log "${event.key}" values $params""")
     }
 }
 

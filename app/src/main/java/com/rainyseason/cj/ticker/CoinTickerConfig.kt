@@ -73,6 +73,9 @@ data class CoinTickerConfig(
 
     @Json(name = "amount")
     val amount: Double? = 1.0,
+
+    @Json(name = "full_size")
+    val fullSize: Boolean = false,
 ) {
 
     companion object {

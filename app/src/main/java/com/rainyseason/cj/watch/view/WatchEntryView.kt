@@ -50,8 +50,8 @@ class WatchEntryView @JvmOverloads constructor(
                 val bitmap = graphRenderer.createGraphBitmap(
                     context = context,
                     theme = Theme.Dark,
-                    width = binding.graph.measuredWidth.toFloat(),
-                    height = binding.graph.measuredHeight.toFloat(),
+                    inputWidth = binding.graph.measuredWidth.toFloat(),
+                    inputHeight = binding.graph.measuredHeight.toFloat(),
                     data = value
                 )
                 binding.graph.setImageBitmap(bitmap)

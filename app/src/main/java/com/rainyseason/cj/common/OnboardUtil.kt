@@ -101,6 +101,12 @@ private suspend fun showOnBoard(
         itemView = findItemView()
     }
 
+    if (recyclerView.canScrollVertically(1)) {
+        val scrollAmount = itemView.top
+        recyclerView.smoothScrollBy(0, scrollAmount)
+        recyclerView.awaitScrollState(RecyclerView.SCROLL_STATE_IDLE)
+    }
+
     fun findMarginTop(targetView: View, parentView: View): Int {
         var margin = 0
         var currentChild: View? = targetView

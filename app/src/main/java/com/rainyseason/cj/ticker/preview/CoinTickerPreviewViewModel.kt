@@ -309,6 +309,12 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
+    fun toggleFullSize() {
+        updateConfig {
+            copy(fullSize = !fullSize)
+        }
+    }
+
     @AssistedFactory
     interface Factory {
         fun create(

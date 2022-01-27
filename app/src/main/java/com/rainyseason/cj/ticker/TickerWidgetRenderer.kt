@@ -22,6 +22,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.MainActivity
@@ -32,6 +33,7 @@ import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.WidgetColorResolver
 import com.rainyseason.cj.common.addFlagMutable
 import com.rainyseason.cj.common.dpToPx
+import com.rainyseason.cj.common.getAppWidgetSizes
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.WidgetRenderParams
 import com.rainyseason.cj.common.verticalPadding
@@ -45,6 +47,7 @@ import com.rainyseason.cj.databinding.WidgetCoinTicker2x2GraphBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.tracking.Tracker
+import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -371,8 +374,8 @@ class TickerWidgetRenderer @Inject constructor(
             val bitmap = graphRenderer.createGraphBitmap(
                 context = context,
                 theme = params.config.theme,
-                width = width,
-                height = height,
+                inputWidth = width,
+                inputHeight = height,
                 data = graphData
             )
             imageView.setImageBitmap(bitmap)
@@ -466,6 +469,30 @@ class TickerWidgetRenderer @Inject constructor(
      */
     fun getWidgetSize(config: CoinTickerConfig): Size {
         val options = appWidgetManager.getAppWidgetOptions(config.widgetId)
+        if (BuildConfig.DEBUG) {
+            val keyValue = options.keySet().map { it to options.get(it) }.toMap()
+            Timber.d("options: $keyValue}")
+        }
+
+        if (config.fullSize) {
+            val size = options.getAppWidgetSizes()?.firstOrNull()
+            if (size != null && size.width > 0 && size.height > 0) {
+                return Size(
+                    context.dpToPx(size.width),
+                    context.dpToPx(size.height),
+                )
+            }
+
+            val height = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT)
+            val width = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH)
+            if (height > 0 && width > 0) {
+                return Size(
+                    context.dpToPx(width),
+                    context.dpToPx(height),
+                )
+            }
+        }
+
         val minWidth = context
             .dpToPx((options[AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH] as? Int) ?: 155)
         val minHeight = context

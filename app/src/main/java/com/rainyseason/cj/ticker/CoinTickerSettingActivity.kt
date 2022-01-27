@@ -6,12 +6,15 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.DisplayMetrics
+import android.view.Display
 import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.createGraph
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.fragment
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.coinselect.CoinSelectFragment
 import com.rainyseason.cj.common.TraceManager
@@ -119,6 +122,7 @@ class CoinTickerSettingActivity :
             args,
         )
         widgetSaved = coinId != null
+        logDisplay()
     }
 
     override fun saveWidget(
@@ -155,6 +159,20 @@ class CoinTickerSettingActivity :
             setResult(Activity.RESULT_OK, resultValue)
             finish()
         }
+    }
+
+    private fun logDisplay() {
+        if (!BuildConfig.DEBUG) {
+            return
+        }
+        val display: Display = windowManager.defaultDisplay
+        val outMetrics = DisplayMetrics()
+        display.getMetrics(outMetrics)
+
+        val density = resources.displayMetrics.density
+        val dpHeight = outMetrics.heightPixels / density
+        val dpWidth = outMetrics.widthPixels / density
+        Timber.d("Screen size dp: ${dpWidth}x$dpHeight")
     }
 
     override fun onDestroy() {

@@ -20,13 +20,19 @@ class GraphRenderer @Inject constructor(
     fun createGraphBitmap(
         context: Context,
         theme: Theme,
-        width: Float,
-        height: Float,
+        inputWidth: Float,
+        inputHeight: Float,
         data: List<List<Double>>,
     ): Bitmap {
         // [0] timestamp
         // [1] price
-        val bitmap = Bitmap.createBitmap(width.toInt(), height.toInt(), Bitmap.Config.ARGB_8888)
+        val width = inputWidth.coerceAtLeast(1f)
+        val height = inputHeight.coerceAtLeast(1f)
+        val bitmap = Bitmap.createBitmap(
+            width.toInt(),
+            height.toInt(),
+            Bitmap.Config.ARGB_8888
+        )
         if (data.size <= 2) {
             return bitmap
         }

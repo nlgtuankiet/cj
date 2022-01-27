@@ -29,6 +29,7 @@ import com.rainyseason.cj.common.view.settingSliderView
 import com.rainyseason.cj.common.view.settingSwitchView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
 import com.rainyseason.cj.ticker.CoinTickerConfig
+import com.rainyseason.cj.ticker.TickerWidgetFeature
 import com.rainyseason.cj.ticker.view.CoinTickerPreviewViewModel_
 import java.util.Locale
 
@@ -43,6 +44,7 @@ class CoinTickerPreviewController(
         const val COIN_SELECT_ID = "setting_coin_id"
         const val REFRESH_ID = "setting_refresh_id"
         const val THEME_ID = "setting_theme_id"
+        const val FULL_SIZE_ID = "setting_full_size_id"
     }
 
     private fun maybeBuildHorizontalSeparator(id: String) {
@@ -63,10 +65,11 @@ class CoinTickerPreviewController(
             return
         }
         buildCoinId(state)
+        buildTheme(state)
+        buildFullSize(state)
         buildRefreshInternal(state)
         buildCurrency(state)
         buildShowCurrencySymbol(state)
-        buildTheme(state)
         buildLayout(state)
 
         buildAdvanceHeader(state)
@@ -288,6 +291,19 @@ class CoinTickerPreviewController(
             checked(config.showBatteryWarning)
             onClickListener { _ ->
                 viewModel.switchShowBatteryWarning()
+            }
+        }
+    }
+
+    private fun buildFullSize(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        maybeBuildHorizontalSeparator(id = "full_size_separator")
+        settingSwitchView {
+            id(TickerWidgetFeature.FullSize.viewId)
+            title(R.string.watch_full_size)
+            checked(config.fullSize)
+            onClickListener { _ ->
+                viewModel.toggleFullSize()
             }
         }
     }

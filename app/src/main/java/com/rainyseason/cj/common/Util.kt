@@ -15,6 +15,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.os.PowerManager
+import android.util.SizeF
 import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
@@ -34,6 +35,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import androidx.core.os.BuildCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
@@ -111,7 +113,7 @@ fun ViewGroup.inflateAndAdd(@LayoutRes layoutRes: Int): View {
 val View.inflater: LayoutInflater
     get() = LayoutInflater.from(context)
 
-fun Context.dpToPx(value: Int): Int {
+fun Context.dpToPx(value: Number): Int {
     return TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,
         value.toFloat(),
@@ -435,4 +437,24 @@ fun Int.addFlagMutable(): Int {
 
 fun Int.asColorStateList(): ColorStateList {
     return ColorStateList.valueOf(this)
+}
+
+fun Bundle.getAppWidgetSizes(): ArrayList<SizeF>? {
+    return if (BuildCompat.isAtLeastS()) {
+        getParcelableArrayList(AppWidgetManager.OPTION_APPWIDGET_SIZES)
+    } else {
+        null
+    }
+}
+
+fun AppWidgetManager.getTrackingParams(widgetId: Int): Map<String, Any?> {
+    val result = mutableMapOf<String, Any?>()
+    val hasAppWidgetSizes = if (BuildCompat.isAtLeastS()) {
+        val option = getAppWidgetOptions(widgetId)
+        !option.getAppWidgetSizes().isNullOrEmpty()
+    } else {
+        false
+    }
+    result["has_app_widget_sizes"] = hasAppWidgetSizes
+    return result
 }
