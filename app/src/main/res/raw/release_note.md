@@ -1,21 +1,25 @@
+### 1.13.2 Release
+✨ Add full-size ticker widget, now ticker widget can expand to full size  
+🛠 Fix widget not refresh after device restart or app update  
+
 ### 1.13.1 Release
-✨ Add Material You theme (request from Sascha)
-✨ Add re-config widget button when tap and hold widget on home screen (Android 12 and above)
-🛠 Fix multiple watchlist render issue 
+✨ Add Material You theme (request from Sascha)  
+✨ Add re-config widget button when tap and hold widget on home screen (Android 12 and above)  
+🛠 Fix multiple watchlist render issue  
 
 ### 1.13.0 Release
 
-✨ Add full size watchlist widget (request from Paolo Pellecchia)
-🛠 Fix watchlist widget config reset bug when re-config the widget 
+✨ Add full size watchlist widget (request from Paolo Pellecchia)  
+🛠 Fix watchlist widget config reset bug when re-config the widget  
 
 ### 1.12.1 Release
 
-✨ Add onboarding UI (for coin select option)
-🛠 Fix spelling error, thank Jaes Overley
+✨ Add onboarding UI (for coin select option)  
+🛠 Fix spelling error, thank Jaes Overley  
 
 ### 1.12.0 Release
 
-✨ Add chat screen, now you can chat with us directly for feature requests and bug reports.
+✨ Add chat screen, now you can chat with us directly for feature requests and bug reports.  
 
 ### 1.11.0 Release
 
@@ -25,7 +29,7 @@
 
 ✨ Add Coinbase support, now you can add widgets that displays data from Coinbase  
 ✨ Add FTX support, now you can add widgets that displays data from FTX  
-✨ Add Kraken support, now you can add widgets that displays data from Kraken
+✨ Add Kraken support, now you can add widgets that displays data from Kraken  
 
 ### 1.10.4 Release
 
