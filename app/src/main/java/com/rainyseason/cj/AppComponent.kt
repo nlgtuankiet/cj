@@ -51,6 +51,9 @@ import com.rainyseason.cj.data.interceptor.synchronized
 import com.rainyseason.cj.data.kraken.Kraken
 import com.rainyseason.cj.data.kraken.KrakenInterceptor
 import com.rainyseason.cj.data.kraken.KrakenService
+import com.rainyseason.cj.data.luno.LunoService
+import com.rainyseason.cj.data.luno.LunoWebService
+import com.rainyseason.cj.data.luno.LunoWebServiceWrapper
 import com.rainyseason.cj.detail.CoinDetailModule
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
@@ -358,6 +361,35 @@ object AppProvides {
             .callFactory { clientProvider.get().newCall(it) }
             .build()
             .create(CmcService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLunoWebService(
+        moshi: Moshi,
+        clientProvider: Provider<OkHttpClient>,
+    ): LunoWebService {
+        val service = Retrofit.Builder()
+            .baseUrl(LunoWebService.BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .callFactory { clientProvider.get().newCall(it) }
+            .build()
+            .create(LunoWebService::class.java)
+        return LunoWebServiceWrapper(service)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLunoService(
+        moshi: Moshi,
+        clientProvider: Provider<OkHttpClient>,
+    ): LunoService {
+        return Retrofit.Builder()
+            .baseUrl(LunoService.BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .callFactory { clientProvider.get().newCall(it) }
+            .build()
+            .create(LunoService::class.java)
     }
 
     @Provides

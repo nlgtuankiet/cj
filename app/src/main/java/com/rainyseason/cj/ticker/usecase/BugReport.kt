@@ -16,5 +16,7 @@ inline fun reportIntervalPercent(
     val expectedIntervalMilis = loadParams.changeInterval.toMilis()
     val outputIntervalMilis = actualGraph.last()[0] - actualGraph.first()[0]
     val percent = abs(1 - outputIntervalMilis * 1.0 / expectedIntervalMilis)
+    Timber.d("start time: ${actualGraph.first()[0].toLong()}")
+    Timber.d("end time: ${actualGraph.last()[0].toLong()}")
     Timber.d("candle percent: $percent")
 }
