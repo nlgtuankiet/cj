@@ -27,6 +27,7 @@ class IntervalSegmentedView @JvmOverloads constructor(
         TimeInterval.I_7D to binding.i7d,
         TimeInterval.I_30D to binding.i30d,
         TimeInterval.I_90D to binding.i90d,
+        TimeInterval.I_180D to binding.i180d,
         TimeInterval.I_1Y to binding.i1y,
         TimeInterval.I_ALL to binding.iall,
     )

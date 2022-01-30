@@ -90,9 +90,24 @@
         android:textColor="@color/white"
 
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/i1y"
+        app:layout_constraintEnd_toStartOf="@id/i180d"
         app:layout_constraintStart_toEndOf="@id/i30d"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/i180d"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:text="180d"
+        android:textAlignment="gravity"
+        android:textColor="@color/white"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/i1y"
+        app:layout_constraintStart_toEndOf="@id/i90d"
+        app:layout_constraintTop_toTopOf="parent" />
+
 
     <TextView
         android:id="@+id/i1y"
@@ -105,7 +120,7 @@
 
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/iall"
-        app:layout_constraintStart_toEndOf="@id/i90d"
+        app:layout_constraintStart_toEndOf="@id/i180d"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView

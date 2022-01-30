@@ -34,6 +34,10 @@ enum class TimeInterval(
         id = "90d",
         titleRes = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_90d
     ),
+    I_180D(
+        id = "180d",
+        titleRes = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_180d
+    ),
     I_1Y(
         id = "1y",
         titleRes = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_1y
@@ -52,6 +56,7 @@ enum class TimeInterval(
             I_14D -> TimeUnit.DAYS.toMillis(14)
             I_30D -> TimeUnit.DAYS.toMillis(30)
             I_90D -> TimeUnit.DAYS.toMillis(90)
+            I_180D -> TimeUnit.DAYS.toMillis(180)
             I_1Y -> TimeUnit.DAYS.toMillis(365)
             else -> error("not support")
         }
@@ -69,6 +74,7 @@ private val intervalToDayString = mapOf(
     TimeInterval.I_14D to "14",
     TimeInterval.I_30D to "30",
     TimeInterval.I_90D to "90",
+    TimeInterval.I_180D to "180",
     TimeInterval.I_1Y to "365",
     TimeInterval.I_ALL to "max",
 )

@@ -23,7 +23,16 @@ enum class Backend(
         displayName = "CoinGecko",
         iconUrl = "https://www.coingecko.com/favicon-96x96.png",
         isExchange = false,
-        isDefault = true
+        isDefault = true,
+        supportedTimeRange = setOf(
+            TimeInterval.I_24H,
+            TimeInterval.I_7D,
+            TimeInterval.I_14D,
+            TimeInterval.I_30D,
+            TimeInterval.I_90D,
+            TimeInterval.I_180D,
+            TimeInterval.I_1Y,
+        )
     ),
     Binance(
         id = "binance",

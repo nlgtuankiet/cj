@@ -6,9 +6,11 @@ import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
+import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.WatchListRepository
+import com.rainyseason.cj.common.findApproxIndex
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.model.asDayString
 import com.rainyseason.cj.common.update
@@ -22,7 +24,6 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.concurrent.TimeUnit
 
 private typealias State = CoinDetailState
 
@@ -90,6 +91,31 @@ class CoinDetailViewModel @AssistedInject constructor(
         }
     }
 
+    private fun maybeLoadMarketChart(code: String, interval: TimeInterval) {
+        withState { state ->
+            val actualInterval = when (interval) {
+                TimeInterval.I_1H -> TimeInterval.I_24H
+                else -> interval
+            }
+            val previousAsync = state.marketChartResponse[actualInterval]
+            if (previousAsync is Success || previousAsync is Loading) {
+                return@withState
+            }
+            loadGraphJobs[actualInterval]?.cancel()
+            loadGraphJobs[actualInterval] = suspend {
+                coinGeckoService.getMarketChart(
+                    id = args.coinId,
+                    vsCurrency = code,
+                    day = actualInterval.asDayString()!!
+                )
+            }.execute {
+                copy(
+                    marketChartResponse = marketChartResponse.update { set(actualInterval, it) }
+                )
+            }
+        }
+    }
+
     fun onSelectLowHigh(interval: TimeInterval) {
         setState { copy(selectedLowHighInterval = interval) }
     }
@@ -100,13 +126,7 @@ class CoinDetailViewModel @AssistedInject constructor(
     ): List<List<Double>> {
         val responseInterval = when (selectedInterval) {
             TimeInterval.I_1H -> TimeInterval.I_24H
-            TimeInterval.I_24H -> TimeInterval.I_24H
-            TimeInterval.I_7D -> TimeInterval.I_30D
-            TimeInterval.I_14D -> TimeInterval.I_30D
-            TimeInterval.I_30D -> TimeInterval.I_30D
-            TimeInterval.I_90D -> TimeInterval.I_1Y
-            TimeInterval.I_1Y -> TimeInterval.I_1Y
-            TimeInterval.I_ALL -> TimeInterval.I_ALL
+            else -> selectedInterval
         }
 
         val priceGraph = marketChartResponse[responseInterval]?.invoke()
@@ -116,29 +136,25 @@ class CoinDetailViewModel @AssistedInject constructor(
             return emptyList()
         }
 
-        // TODO fine better way to filter data
-        val currentTime = System.currentTimeMillis()
         val graphData = when (selectedInterval) {
-            TimeInterval.I_1H -> priceGraph.filter {
-                it[0] > currentTime - TimeUnit.HOURS.toMillis(1)
+            TimeInterval.I_1H -> {
+                if (priceGraph.isEmpty()) {
+                    return emptyList()
+                }
+                val lastTime = priceGraph.lastOrNull()?.get(0) ?: return emptyList()
+                val startTime = lastTime - selectedInterval.toMilis()
+                val index = priceGraph.findApproxIndex(startTime)
+                priceGraph.subList(index, priceGraph.size)
             }
-            TimeInterval.I_24H -> priceGraph
-            TimeInterval.I_7D -> priceGraph.filter {
-                it[0] > currentTime - TimeUnit.DAYS.toMillis(7)
-            }
-            TimeInterval.I_14D -> priceGraph.filter {
-                it[0] > currentTime - TimeUnit.DAYS.toMillis(14)
-            }
-            TimeInterval.I_30D -> priceGraph
-            TimeInterval.I_90D -> priceGraph.filter {
-                it[0] > currentTime - TimeUnit.DAYS.toMillis(90)
-            }
-            TimeInterval.I_1Y -> priceGraph
-            TimeInterval.I_ALL -> priceGraph
+            else -> priceGraph
         }
         return graphData
     }
 
+    /**
+     * TODO respect currency code
+     */
+    private var onEachSelectedInterval: Job? = null
     private fun reload() {
         coinDetailJob?.cancel()
         coinDetailJob = suspend {
@@ -147,23 +163,12 @@ class CoinDetailViewModel @AssistedInject constructor(
 
         viewModelScope.launch {
             val currencyCode = userSettingRepository.getUserSetting().currencyCode
-
-            listOf(
-                TimeInterval.I_24H,
-                TimeInterval.I_30D,
-                TimeInterval.I_1Y,
-                TimeInterval.I_ALL,
-            ).forEach { interval ->
-                loadGraphJobs[interval]?.cancel()
-                loadGraphJobs[interval] = suspend {
-                    coinGeckoService.getMarketChart(
-                        id = args.coinId,
-                        vsCurrency = currencyCode,
-                        day = interval.asDayString()!!
-                    )
-                }.execute {
-                    copy(marketChartResponse = marketChartResponse.update { set(interval, it) })
-                }
+            maybeLoadMarketChart(currencyCode, TimeInterval.I_24H)
+            maybeLoadMarketChart(currencyCode, TimeInterval.I_30D)
+            maybeLoadMarketChart(currencyCode, TimeInterval.I_1Y)
+            onEachSelectedInterval?.cancel()
+            onEachSelectedInterval = onEach(CoinDetailState::selectedInterval) { interval ->
+                maybeLoadMarketChart(currencyCode, interval)
             }
         }
 
