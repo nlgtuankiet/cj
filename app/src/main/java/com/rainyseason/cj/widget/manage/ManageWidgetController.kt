@@ -1,11 +1,12 @@
 package com.rainyseason.cj.widget.manage
 
 import android.content.Context
+import android.widget.TextView
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.getColorCompat
-import com.rainyseason.cj.common.view.centerText
+import com.rainyseason.cj.common.view.textView
 import com.rainyseason.cj.common.view.verticalSpacerView
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.CoinTickerSettingActivity
@@ -41,10 +42,19 @@ class ManageWidgetController @AssistedInject constructor(
         }
 
         if (allWidgetIds.isEmpty()) {
-            centerText {
-                id("empty")
+            textView {
+                id("empty_text")
                 content(R.string.manage_widgets_empty)
-                paddingVertical(32)
+                alignment(TextView.TEXT_ALIGNMENT_CENTER)
+                paddingVertical(48)
+                textColor(context.getColorCompat(R.color.text_secondary))
+            }
+
+            textView {
+                id("tutorial_text")
+                content(R.string.manage_widgets_how_to_add_widget)
+                alignment(TextView.TEXT_ALIGNMENT_TEXT_START)
+                paddingHorizontal(16)
                 textColor(context.getColorCompat(R.color.text_secondary))
             }
         }

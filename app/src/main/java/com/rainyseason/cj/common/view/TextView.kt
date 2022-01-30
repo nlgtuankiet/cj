@@ -10,18 +10,20 @@ import com.google.android.material.textview.MaterialTextView
 import com.rainyseason.cj.common.dpToPx
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
-class CenterText @JvmOverloads constructor(
+class TextView @JvmOverloads constructor(
     context: Context,
     attributeSet: AttributeSet? = null
 ) : MaterialTextView(context, attributeSet) {
 
-    init {
-        textAlignment = TEXT_ALIGNMENT_CENTER
-    }
-
     @ModelProp
     override fun setTextColor(color: Int) {
         super.setTextColor(color)
+    }
+
+    @ModelProp
+    @JvmOverloads
+    fun setAlignment(textAlignment: Int = TEXT_ALIGNMENT_TEXT_START) {
+        super.setTextAlignment(textAlignment)
     }
 
     @TextProp
@@ -30,8 +32,16 @@ class CenterText @JvmOverloads constructor(
     }
 
     @ModelProp
-    fun setPaddingVertical(value: Int) {
+    @JvmOverloads
+    fun setPaddingVertical(value: Int = 0) {
         val px = context.dpToPx(value)
         updatePadding(top = px, bottom = px)
+    }
+
+    @ModelProp
+    @JvmOverloads
+    fun setPaddingHorizontal(value: Int = 0) {
+        val px = context.dpToPx(value)
+        updatePadding(left = px, right = px)
     }
 }

@@ -140,6 +140,7 @@
     <string name="coin_stat_title">%s Statistics</string>
     <string name="manage_widgets">Manage Widgets</string>
     <string name="manage_widgets_empty">You haven\'t add any widgets yet</string>
+    <string name="manage_widgets_how_to_add_widget">How to add a widget?\n1. Long press on your home screen\n2. Select \"Widgets\" from the popup menu\n3. Long click on a widget then drag and drop it to your home screen</string>
     <string name="manage_widgets_short">Manage</string>
 
     <string name="chat_history_title_admin">Customer Support</string>
