@@ -63,3 +63,8 @@ val FlagKey.isEnable: Boolean
         }
         return false
     }
+
+val FlagKey.stringValue: String?
+    get() {
+        return MainFlagValueProvider.get(this) ?: DefaultValues.get(this)
+    }

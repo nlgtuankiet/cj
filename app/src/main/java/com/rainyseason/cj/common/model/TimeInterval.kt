@@ -1,19 +1,47 @@
 package com.rainyseason.cj.common.model
 
+import com.rainyseason.cj.R
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 import java.util.concurrent.TimeUnit
 
-enum class TimeInterval(val id: String) {
-    I_1H("1h"),
-    I_24H("24h"),
-    I_7D("7d"),
-    I_14D("14d"),
-    I_30D("30d"),
-    I_90D("90d"),
-    I_1Y("1y"),
-    I_ALL("all"),
+enum class TimeInterval(
+    val id: String,
+    val titleRes: Int,
+) {
+    I_1H(
+        id = "1h",
+        titleRes = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_1h,
+    ),
+    I_24H(
+        id = "24h",
+        titleRes = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
+    ),
+    I_7D(
+        id = "7d",
+        titleRes = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d
+    ),
+    I_14D(
+        id = "14d",
+        titleRes = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_14d
+    ),
+    I_30D(
+        id = "30d",
+        titleRes = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d
+    ),
+    I_90D(
+        id = "90d",
+        titleRes = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_90d
+    ),
+    I_1Y(
+        id = "1y",
+        titleRes = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_1y
+    ),
+    I_ALL(
+        id = "all",
+        titleRes = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_all
+    ),
     ;
 
     fun toMilis(): Long {

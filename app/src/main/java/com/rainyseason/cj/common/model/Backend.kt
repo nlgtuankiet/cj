@@ -4,12 +4,19 @@ import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
 
+private val defaultTimeRanges = setOf(
+    TimeInterval.I_24H,
+    TimeInterval.I_7D,
+    TimeInterval.I_30D,
+)
+
 enum class Backend(
     val id: String,
     val displayName: String,
     val iconUrl: String,
     val isExchange: Boolean,
     val isDefault: Boolean = false,
+    val supportedTimeRange: Set<TimeInterval> = defaultTimeRanges
 ) {
     CoinGecko(
         id = "coin_gecko",

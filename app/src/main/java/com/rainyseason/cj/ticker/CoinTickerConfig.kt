@@ -1,7 +1,6 @@
 package com.rainyseason.cj.ticker
 
 import androidx.core.os.BuildCompat
-import com.rainyseason.cj.R
 import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
@@ -78,17 +77,6 @@ data class CoinTickerConfig(
     val fullSize: Boolean = false,
 ) {
 
-    companion object {
-        val AllowedChangeInterval = mapOf(
-            TimeInterval.I_24H
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
-            TimeInterval.I_7D
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
-            TimeInterval.I_30D
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
-        )
-    }
-
     fun ensureValid(): CoinTickerConfig {
         return ensureClickAction()
             .ensureChangeInterval()
@@ -125,7 +113,7 @@ data class CoinTickerConfig(
     }
 
     private fun ensureChangeInterval(): CoinTickerConfig {
-        return if (changeInterval in AllowedChangeInterval.keys) {
+        return if (changeInterval in backend.supportedTimeRange) {
             this
         } else {
             copy(changeInterval = TimeInterval.I_24H)
@@ -172,6 +160,7 @@ data class CoinTickerConfig(
     object ClickAction {
         const val REFRESH = "refresh"
         const val SETTING = "setting"
+
         @Deprecated(message = "Will remove this after some versio")
         const val SWITCH_PRICE_MARKET_CAP = "switch_price_market_cap"
         const val OPEN_COIN_DETAIL = "open_coin_detail"

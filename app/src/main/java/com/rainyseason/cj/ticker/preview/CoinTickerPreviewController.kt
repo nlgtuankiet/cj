@@ -28,6 +28,8 @@ import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.common.view.settingSliderView
 import com.rainyseason.cj.common.view.settingSwitchView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
+import com.rainyseason.cj.featureflag.DebugFlag
+import com.rainyseason.cj.featureflag.stringValue
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.TickerWidgetFeature
 import com.rainyseason.cj.ticker.view.CoinTickerPreviewViewModel_
@@ -64,6 +66,8 @@ class CoinTickerPreviewController(
         if (buildRetryResult == BuildState.Stop) {
             return
         }
+        buildDebugConfig(state)
+
         buildCoinId(state)
         buildTheme(state)
         buildFullSize(state)
@@ -74,6 +78,16 @@ class CoinTickerPreviewController(
 
         buildAdvanceHeader(state)
         buildAdvanceSettings(state)
+    }
+
+    private fun buildDebugConfig(state: CoinTickerPreviewState) {
+        if (!BuildConfig.DEBUG) {
+            return
+        }
+        val debugConfig = DebugFlag.DEBUG_COIN_TICKER_CONFIG.stringValue ?: return
+        when (debugConfig) {
+            "change_interval" -> buildChangePercentGroup(state)
+        }
     }
 
     private fun buildCoinId(state: CoinTickerPreviewState) {
@@ -511,32 +525,31 @@ class CoinTickerPreviewController(
 
     private fun buildChangePercentInternal(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        val mapping = CoinTickerConfig.AllowedChangeInterval
-        val defaultSummary = R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h
-
-        val interval = config.changeInterval
 
         maybeBuildHorizontalSeparator(id = "bottom_change_interval_separator")
 
         settingTitleSummaryView {
             id("bottom_change_interval")
             title(R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header)
-            summary(mapping[interval] ?: defaultSummary)
+            summary(config.changeInterval.titleRes)
             onClickListener { _ ->
                 val currentState = withState(viewModel) { it }
                 val currentConfig = currentState.config!!
                 val currentInterval = currentConfig.changeInterval
+                val currentBackend = currentConfig.backend
                 AlertDialog.Builder(context)
                     .setTitle(
                         R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header
                     )
                     .setCancelButton()
                     .setSingleChoiceItems(
-                        mapping.values.map { context.getString(it) }.toTypedArray(),
-                        mapping.toList().indexOfFirst { it.first == currentInterval }
+                        currentBackend.supportedTimeRange.map {
+                            context.getString(it.titleRes)
+                        }.toTypedArray(),
+                        currentBackend.supportedTimeRange.indexOfFirst { it == currentInterval }
                     ) { dialog, which ->
-                        val selectedInterval = mapping.keys.toList().getOrNull(which)
-                            ?: TimeInterval.I_24H
+                        val selectedInterval = currentBackend.supportedTimeRange.toList()
+                            .getOrNull(which) ?: TimeInterval.I_24H
                         viewModel.setPriceChangeInterval(selectedInterval)
                         dialog.dismiss()
                     }

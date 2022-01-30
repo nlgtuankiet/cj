@@ -109,6 +109,7 @@ object DebugFlag {
     val USE_REMOTE_CONFIG = DebugKey("use_remote_config")
     val SHOW_HTTP_LOG_JSON = DebugKey("show_http_log_json").withDefault("false")
     val SLOW_TICKER_PREVIEW = DebugKey("slow_ticker_preview").withDefault("false")
+    val DEBUG_COIN_TICKER_CONFIG = DebugKey("debug_coin_ticker_config")
 }
 
 class DebugFlagSetter : AppCompatActivity() {
