@@ -57,9 +57,10 @@ class ContactFragment : Fragment(R.layout.fragment_contact) {
                 val appHash = requireContext().coreComponent.commonRepository.getAppHash()
                 withContext(Dispatchers.Main) {
                     try {
+                        val email = "rainyseasonstudio@gmail.com"
                         val intent = Intent(Intent.ACTION_SENDTO)
                         intent.data = Uri.parse("mailto:")
-                        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("nlg.tuan.kiet@gmail.com"))
+                        intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(email))
                         intent.putExtra(Intent.EXTRA_SUBJECT, "Hello!")
                         intent.putExtra(Intent.EXTRA_TEXT, "App hash: $appHash \n")
                         startActivity(intent)
