@@ -110,7 +110,7 @@
 
     <string name="watch_widget_4x2">Watchlist 4x2</string>
     <string name="watch_widget_4x4">Watchlist 4x4</string>
-    <string name="watch_widget_full_size_transparency_warning">Transparency in \"full size\" mode only works in Android 12 and above.\nWe will backport this feature to lower Android versions in the future.</string>
+    <string name="watch_widget_full_size_transparency_warning">Transparency in \"full size\" mode is not supported in Android 11 and below.</string>
 
     <string name="coin_ticker_preview_amount">Amount</string>
     <string name="coin_preview_only">Preview only</string>

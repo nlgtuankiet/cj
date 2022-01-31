@@ -351,7 +351,6 @@ class WatchPreviewController @AssistedInject constructor(
             BuildCompat.isAtLeastS()
         }
         val shouldShowWarning = config.fullSize &&
-            config.backgroundTransparency > 0 &&
             !isAndroid12AndAbove
         if (shouldShowWarning) {
             textView {
