@@ -30,7 +30,7 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.GraphRenderer
 import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
-import com.rainyseason.cj.common.WidgetColorResolver
+import com.rainyseason.cj.common.WidgetRenderUtil
 import com.rainyseason.cj.common.addFlagMutable
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getAppWidgetSizes
@@ -65,7 +65,7 @@ class TickerWidgetRenderer @Inject constructor(
     private val tracker: Tracker,
     private val numberFormater: NumberFormater,
     private val graphRenderer: GraphRenderer,
-    private val colorResolver: WidgetColorResolver,
+    private val renderUtil: WidgetRenderUtil,
 ) {
 
     @LayoutRes
@@ -135,7 +135,7 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        val backgroundRes = colorResolver.getBackgroundPositiveResource(
+        val backgroundRes = renderUtil.getBackgroundPositiveResource(
             theme = config.theme,
             isPositive = (renderData.priceChangePercent ?: 0.0) > 0
         )
@@ -161,7 +161,7 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        val backgroundRes = colorResolver.getBackgroundPositiveResource(
+        val backgroundRes = renderUtil.getBackgroundPositiveResource(
             theme = config.theme,
             isPositive = (renderData.priceChangePercent ?: 0.0) > 0
         )
@@ -200,7 +200,7 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        binding.container.setBackgroundResource(colorResolver.getBackgroundResource(theme))
+        binding.container.setBackgroundResource(renderUtil.getBackgroundResource(theme))
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
@@ -209,12 +209,12 @@ class TickerWidgetRenderer @Inject constructor(
         } else {
             renderData.symbol.uppercase()
         }
-        binding.symbol.setTextColor(colorResolver.getTextPrimaryColor(theme))
+        binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
         binding.symbol.updateVertialFontMargin(updateTop = true)
 
         // bind amount
         binding.amount.text = formatAmount(params)
-        binding.amount.setTextColor(colorResolver.getTextPrimaryColor(theme))
+        binding.amount.setTextColor(renderUtil.getTextPrimaryColor(theme))
         binding.amount.updateVertialFontMargin(updateBottom = true)
 
         // bind change percent
@@ -226,7 +226,7 @@ class TickerWidgetRenderer @Inject constructor(
         } else {
             renderData.name
         }
-        binding.name.setTextColor(colorResolver.getTextSecondaryColor(theme))
+        binding.name.setTextColor(renderUtil.getTextSecondaryColor(theme))
 
         container.mesureAndLayout(config)
 
@@ -264,16 +264,16 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        binding.container.setBackgroundResource(colorResolver.getBackgroundResource(theme))
+        binding.container.setBackgroundResource(renderUtil.getBackgroundResource(theme))
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
         binding.symbol.text = renderData.symbol
-        binding.symbol.setTextColor(colorResolver.getTextPrimaryColor(theme))
+        binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
 
         // bind amount
         binding.amount.text = formatAmount(params)
-        binding.amount.setTextColor(colorResolver.getTextPrimaryColor(theme))
+        binding.amount.setTextColor(renderUtil.getTextPrimaryColor(theme))
 
         // bind change percent
         binding.changePercent.text = formatChange(params)
@@ -296,12 +296,12 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        binding.container.setBackgroundResource(colorResolver.getBackgroundResource(theme))
+        binding.container.setBackgroundResource(renderUtil.getBackgroundResource(theme))
         applyBackgroundTransparency(binding.container, config)
 
         // bind amount
         binding.amount.text = formatAmount(params)
-        binding.amount.setTextColor(colorResolver.getTextPrimaryColor(theme))
+        binding.amount.setTextColor(renderUtil.getTextPrimaryColor(theme))
 
         // bind change percent
         binding.changePercent.text = formatChange(params)
@@ -340,17 +340,17 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        binding.container.setBackgroundResource(colorResolver.getBackgroundResource(theme))
+        binding.container.setBackgroundResource(renderUtil.getBackgroundResource(theme))
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
         binding.symbol.text = renderData.symbol
-        binding.symbol.setTextColor(colorResolver.getTextPrimaryColor(theme))
+        binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
         binding.symbol.updateVertialFontMargin(updateTop = true)
 
         // bind amount
         binding.amount.text = formatAmount(params)
-        binding.amount.setTextColor(colorResolver.getTextPrimaryColor(theme))
+        binding.amount.setTextColor(renderUtil.getTextPrimaryColor(theme))
 
         // bind change percent
         binding.changePercent.text = formatChange(params)
@@ -395,17 +395,17 @@ class TickerWidgetRenderer @Inject constructor(
         container.mesureAndLayout(config)
 
         // bind container
-        binding.container.setBackgroundResource(colorResolver.getBackgroundResource(theme))
+        binding.container.setBackgroundResource(renderUtil.getBackgroundResource(theme))
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
         binding.symbol.text = renderData.symbol
-        binding.symbol.setTextColor(colorResolver.getTextPrimaryColor(theme))
+        binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
         binding.symbol.updateVertialFontMargin(updateTop = true)
 
         // bind amount
         binding.amount.text = formatAmount(params)
-        binding.amount.setTextColor(colorResolver.getTextPrimaryColor(theme))
+        binding.amount.setTextColor(renderUtil.getTextPrimaryColor(theme))
         binding.amount.updateVertialFontMargin(updateBottom = true)
 
         // bind change percent
@@ -414,7 +414,7 @@ class TickerWidgetRenderer @Inject constructor(
 
         // bind name
         binding.name.text = renderData.name
-        binding.name.setTextColor(colorResolver.getTextSecondaryColor(theme))
+        binding.name.setTextColor(renderUtil.getTextSecondaryColor(theme))
 
         container.mesureAndLayout(config)
 
@@ -606,7 +606,7 @@ class TickerWidgetRenderer @Inject constructor(
             val amount = data.priceChangePercent
 
             if (amount != null) {
-                val color = colorResolver.getChangePercentColor(config.theme, amount)
+                val color = renderUtil.getChangePercentColor(config.theme, amount)
                 val locate = SUPPORTED_CURRENCY[config.currency]!!.locale
                 val content = numberFormater.formatPercent(
                     amount = amount,
@@ -621,7 +621,7 @@ class TickerWidgetRenderer @Inject constructor(
                     append(content)
                 }
             } else {
-                val color = colorResolver.getTextPrimaryColor(config.theme)
+                val color = renderUtil.getTextPrimaryColor(config.theme)
                 color(color) {
                     append("--")
                 }

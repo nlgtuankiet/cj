@@ -23,14 +23,13 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.GraphRenderer
 import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
-import com.rainyseason.cj.common.WidgetColorResolver
+import com.rainyseason.cj.common.WidgetRenderUtil
 import com.rainyseason.cj.common.addFlagMutable
 import com.rainyseason.cj.common.asColorStateList
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.setBackgroundColor
-import com.rainyseason.cj.common.setBackgroundResource
 import com.rainyseason.cj.databinding.WidgetWatchBinding
 import com.rainyseason.cj.databinding.WidgetWatchEntryBinding
 import com.rainyseason.cj.databinding.WidgetWatchEntryDividerBinding
@@ -47,7 +46,7 @@ class WatchWidgetRender @Inject constructor(
     private val appWidgetManager: AppWidgetManager,
     private val graphRenderer: GraphRenderer,
     private val numberFormater: NumberFormater,
-    private val colorResolver: WidgetColorResolver,
+    private val renderUtil: WidgetRenderUtil,
 ) {
 
     private fun FrameLayout.measureAndLayout(config: WatchConfig) {
@@ -110,10 +109,10 @@ class WatchWidgetRender @Inject constructor(
         val theme = config.theme
 
         binding.symbol.text = data?.symbol
-        binding.symbol.setTextColor(colorResolver.getTextPrimaryColor(theme))
+        binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
 
         binding.name.text = data?.name
-        binding.name.setTextColor(colorResolver.getTextSecondaryColor(theme))
+        binding.name.setTextColor(renderUtil.getTextSecondaryColor(theme))
 
         val graph = data?.graph
         if (graph != null && graph.size >= 2) {
@@ -143,7 +142,7 @@ class WatchWidgetRender @Inject constructor(
         }
 
         binding.price.text = priceContent
-        binding.price.setTextColor(colorResolver.getTextPrimaryColor(theme))
+        binding.price.setTextColor(renderUtil.getTextPrimaryColor(theme))
 
         val changePercentContent = formatChangePercent(data?.changePercent, params.config)
         binding.changePercent.text = changePercentContent
@@ -156,7 +155,7 @@ class WatchWidgetRender @Inject constructor(
     ): CharSequence {
         return buildSpannedString {
             if (amount != null) {
-                val color = colorResolver.getChangePercentColor(config.theme, amount)
+                val color = renderUtil.getChangePercentColor(config.theme, amount)
                 val locate = SUPPORTED_CURRENCY[config.currency]!!.locale
                 val content = numberFormater.formatPercent(
                     amount = amount,
@@ -168,7 +167,7 @@ class WatchWidgetRender @Inject constructor(
                     append(content)
                 }
             } else {
-                val color = colorResolver.getTextSecondaryColor(config.theme)
+                val color = renderUtil.getTextSecondaryColor(config.theme)
                 color(color) {
                     append("--")
                 }
@@ -187,7 +186,7 @@ class WatchWidgetRender @Inject constructor(
         val renderData = params.data
 
         // bind container
-        binding.container.backgroundTintList = colorResolver.getBackgroundColor(theme)
+        binding.container.backgroundTintList = renderUtil.getBackgroundColor(theme)
             .asColorStateList()
         val widgetSize = getWidgetSize(params.config)
 
@@ -220,7 +219,7 @@ class WatchWidgetRender @Inject constructor(
 
             if (index != renderData.entries.lastIndex) {
                 val dividerView = WidgetWatchEntryDividerBinding.inflate(view.inflater)
-                dividerView.divider.setBackgroundColor(colorResolver.getDividerColor(theme))
+                dividerView.divider.setBackgroundColor(renderUtil.getDividerColor(theme))
                 binding.listContainer.addView(dividerView.root)
             }
         }
@@ -302,9 +301,12 @@ class WatchWidgetRender @Inject constructor(
         val remoteView = RemoteViews(context.packageName, R.layout.widget_watch_full_size)
         val config = params.config
         val theme = params.config.theme
-        remoteView.setBackgroundResource(
+
+        renderUtil.setBackground(
+            remoteView,
             R.id.container,
-            colorResolver.getBackgroundResource(theme)
+            theme,
+            config.backgroundTransparency
         )
 
         remoteView.setViewVisibility(
@@ -350,10 +352,10 @@ class WatchWidgetRender @Inject constructor(
         val data = entry.content
 
         remoteView.setTextViewText(R.id.symbol, data?.symbol ?: "")
-        remoteView.setTextColor(R.id.symbol, colorResolver.getTextPrimaryColor(theme))
+        remoteView.setTextColor(R.id.symbol, renderUtil.getTextPrimaryColor(theme))
 
         remoteView.setTextViewText(R.id.name, data?.name ?: "")
-        remoteView.setTextColor(R.id.name, colorResolver.getTextSecondaryColor(theme))
+        remoteView.setTextColor(R.id.name, renderUtil.getTextSecondaryColor(theme))
 
         val graph = data?.graph
         if (graph != null && graph.size >= 2) {
@@ -385,7 +387,7 @@ class WatchWidgetRender @Inject constructor(
         }
 
         remoteView.setTextViewText(R.id.price, priceContent)
-        remoteView.setTextColor(R.id.price, colorResolver.getTextPrimaryColor(theme))
+        remoteView.setTextColor(R.id.price, renderUtil.getTextPrimaryColor(theme))
         val changePercentContent = formatChangePercent(data?.changePercent, config)
         remoteView.setTextViewText(R.id.change_percent, changePercentContent)
 
@@ -399,7 +401,7 @@ class WatchWidgetRender @Inject constructor(
         val remoteView = RemoteViews(context.packageName, R.layout.widget_watch_entry_divider)
         remoteView.setBackgroundColor(
             R.id.divider,
-            colorResolver.getDividerColor(config.theme)
+            renderUtil.getDividerColor(config.theme)
         )
         return remoteView
     }

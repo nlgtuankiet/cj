@@ -1,9 +1,14 @@
 package com.rainyseason.cj.common
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.graphics.Color
+import android.os.Build
+import android.widget.RemoteViews
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.annotation.RequiresApi
 import androidx.core.graphics.ColorUtils
 import androidx.core.os.BuildCompat
 import com.rainyseason.cj.R
@@ -12,7 +17,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class WidgetColorResolver @Inject constructor(
+class WidgetRenderUtil @Inject constructor(
     private val context: Context,
 ) {
 
@@ -62,6 +67,44 @@ class WidgetColorResolver @Inject constructor(
             { R.drawable.widget_background_mu_light },
             { R.drawable.widget_background_mu_dark },
         )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.S)
+    fun RemoteViews.setBackgroundTint(
+        id: Int,
+        color: Int,
+    ) {
+        setColorStateList(id, "setBackgroundTintList", ColorStateList.valueOf(color))
+    }
+
+    fun setBackground(
+        remoteViews: RemoteViews,
+        id: Int,
+        theme: Theme,
+        transparency: Int
+    ) {
+        remoteViews.setBackgroundResource(
+            id,
+            getBackgroundResource(theme)
+        )
+        if (!BuildCompat.isAtLeastS()) {
+            return
+        }
+        val baseColor = select(
+            theme,
+            R.color.gray_50,
+            R.color.gray_900,
+            { android.R.color.system_accent2_50 },
+            { android.R.color.system_accent2_800 },
+        ).let { context.getColorCompat(it) }
+        val alpha = ((100 - transparency.toDouble()) / 100 * 255).toInt()
+        val alphaColor = Color.argb(
+            alpha,
+            Color.red(baseColor),
+            Color.green(baseColor),
+            Color.blue(baseColor),
+        )
+        remoteViews.setBackgroundTint(id, alphaColor)
     }
 
     fun getBackgroundPositiveResource(theme: Theme, isPositive: Boolean): Int {

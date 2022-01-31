@@ -15,7 +15,7 @@ import kotlin.math.min
 
 @Singleton
 class GraphRenderer @Inject constructor(
-    private val colorResolver: WidgetColorResolver,
+    private val renderUtil: WidgetRenderUtil,
 ) {
     fun createGraphBitmap(
         context: Context,
@@ -43,7 +43,7 @@ class GraphRenderer @Inject constructor(
         paint.style = Paint.Style.STROKE
         paint.isAntiAlias = true
         paint.strokeCap = Paint.Cap.ROUND
-        paint.color = colorResolver.getTickerLineColor(theme, isPositive)
+        paint.color = renderUtil.getTickerLineColor(theme, isPositive)
         val minTime = data.minOf { it[0] }
         val maxTime = data.maxOf { it[0] }
         val timeInterval = maxTime - minTime
