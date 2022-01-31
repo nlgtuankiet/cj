@@ -326,13 +326,33 @@ class WatchWidgetRender @Inject constructor(
             adapterIntent
         )
 
-        val intent = Intent(context, MainActivity::class.java)
-        val pendingClickTemplate = PendingIntent.getActivity(
-            context,
-            params.config.widgetId,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
-        )
+        val pendingClickTemplate = when (config.clickAction) {
+            WatchClickAction.OpenWatchlist -> {
+                val intent = Intent(context, MainActivity::class.java)
+                PendingIntent.getActivity(
+                    context,
+                    params.config.widgetId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
+                )
+            }
+            WatchClickAction.Refresh -> {
+                val intent = Intent()
+                intent.component = ComponentName(context, config.layout.providerName)
+                intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+                intent.putExtra(
+                    AppWidgetManager.EXTRA_APPWIDGET_IDS,
+                    intArrayOf(params.config.widgetId)
+                )
+
+                PendingIntent.getBroadcast(
+                    context,
+                    params.config.widgetId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
+                )
+            }
+        }
 
         remoteView.setPendingIntentTemplate(R.id.content, pendingClickTemplate)
         return remoteView
