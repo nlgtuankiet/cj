@@ -1,13 +1,16 @@
 package com.rainyseason.cj.widget.watch
 
 import android.content.Context
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.os.BuildCompat
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.MainActivity
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.RefreshIntervals
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
+import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.setCancelButton
@@ -19,6 +22,9 @@ import com.rainyseason.cj.common.view.settingHeaderView
 import com.rainyseason.cj.common.view.settingSliderView
 import com.rainyseason.cj.common.view.settingSwitchView
 import com.rainyseason.cj.common.view.settingTitleSummaryView
+import com.rainyseason.cj.common.view.textView
+import com.rainyseason.cj.featureflag.DebugFlag
+import com.rainyseason.cj.featureflag.isEnable
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -336,6 +342,25 @@ class WatchPreviewController @AssistedInject constructor(
             labelFormatter(PercentLabelFormatrer)
             onChangeListener { newValue ->
                 viewModel.setBackgroundTransparency(newValue)
+            }
+        }
+
+        val isAndroid12AndAbove = if (DebugFlag.FORCE_ANDROID_BELOW_12.isEnable) {
+            false
+        } else {
+            BuildCompat.isAtLeastS()
+        }
+        val shouldShowWarning = config.fullSize &&
+            config.backgroundTransparency > 0 &&
+            !isAndroid12AndAbove
+        if (shouldShowWarning) {
+            textView {
+                id("full_size_transparency_warning")
+                alignment(TextView.TEXT_ALIGNMENT_VIEW_START)
+                textColor(context.getColorCompat(R.color.text_secondary))
+                content(R.string.watch_widget_full_size_transparency_warning)
+                paddingHorizontal(12)
+                paddingVertical(8)
             }
         }
     }
