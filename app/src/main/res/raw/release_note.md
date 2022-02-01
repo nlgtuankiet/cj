@@ -1,3 +1,10 @@
+### 1.13.3 Release
+✨ Add Luno exchange support  
+✨ Support more change intervals (range from 30 days to 1 year)  
+✨ Add how to add widget tutorial  
+✨ Add transparency for full size watchlist widget in Android 12 and above  
+🛠 Fix "refresh widget action" not working in full size watchlist widget  
+
 ### 1.13.2 Release
 ✨ Add full-size ticker widget, now ticker widget can expand to full size  
 🛠 Fix widget not refresh after device restart or app update  
