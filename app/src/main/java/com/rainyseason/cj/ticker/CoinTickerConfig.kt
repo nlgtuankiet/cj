@@ -157,6 +157,7 @@ data class CoinTickerConfig(
             "background_transparency" to backgroundTransparency,
             "hide_decimal_on_large_price" to hideDecimalOnLargePrice,
             "show_notification" to showNotification,
+            "full_size" to fullSize,
             "amount" to amount,
         )
     }
