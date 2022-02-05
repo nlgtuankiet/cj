@@ -12,6 +12,7 @@ import androidx.work.await
 import com.rainyseason.cj.common.model.getWidgetIds
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -67,10 +68,10 @@ class CoinTickerHandler @Inject constructor(
 
     suspend fun onDelete(widgetId: Int) {
         coroutineScope {
-            launch {
+            launch(NonCancellable) {
                 coinTickerRepository.clearAllData(widgetId = widgetId)
             }
-            launch {
+            launch(NonCancellable) {
                 removeRefreshWork(widgetId = widgetId)
             }
             renderer.removeNotification(widgetId)
