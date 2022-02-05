@@ -2,7 +2,6 @@ package com.rainyseason.cj.ticker
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
-import android.widget.RemoteViews
 import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -10,7 +9,12 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.await
+import com.rainyseason.cj.common.model.getWidgetIds
 import com.rainyseason.cj.data.local.CoinTickerRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -50,7 +54,30 @@ class CoinTickerHandler @Inject constructor(
         return "refresh_$widgetId"
     }
 
-    suspend fun removeRefreshWork(widgetId: Int) {
+    suspend fun checkWidgetDeleted(widgetId: Int): Boolean {
+        val widgetIds = CoinTickerLayout.values().getWidgetIds(context)
+        if (widgetId in widgetIds) {
+            return false
+        }
+        withContext(Dispatchers.IO) {
+            onDelete(widgetId)
+        }
+        return true
+    }
+
+    suspend fun onDelete(widgetId: Int) {
+        coroutineScope {
+            launch {
+                coinTickerRepository.clearAllData(widgetId = widgetId)
+            }
+            launch {
+                removeRefreshWork(widgetId = widgetId)
+            }
+            renderer.removeNotification(widgetId)
+        }
+    }
+
+    private suspend fun removeRefreshWork(widgetId: Int) {
         workManager.cancelUniqueWork(getWorkName(widgetId)).await()
     }
 
@@ -64,8 +91,6 @@ class CoinTickerHandler @Inject constructor(
             showLoading = false,
             isPreview = false,
         )
-        val view = RemoteViews(context.packageName, renderer.selectLayout(config))
-        renderer.render(view, params)
-        appWidgetManager.updateAppWidget(widgetId, view)
+        renderer.render(params)
     }
 }

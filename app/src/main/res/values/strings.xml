@@ -153,6 +153,11 @@
     <string name="coin_ticker_onboard_mu_theme_title">Select theme</string>
     <string name="coin_ticker_onboard_mu_theme_description">Light/Dark/Material You</string>
 
+    <string name="coin_ticker_setting_noti_title">Sticky notification</string>
+    <string name="coin_ticker_onboard_noti_title">Check coin price right on lock screen!</string>
+    <string name="coin_ticker_onboard_noti_description">Include a sticky notification on your lock screen so that you can check the price without unlocking the phone or open any apps</string>
+    <string name="coin_ticker_notification_channel_name">Ticker Widget</string>
+    <string name="coin_ticker_notification_channel_description">Show coin\'s price in lock screen</string>
     <string name="widget_watch_onboard_full_size_title">Full size widget</string>
     <string name="widget_watch_onboard_full_size_description">When on, widget will expand to full size. Scrolling is also enabled.\n(Resize the widget after create to see the result)</string>
     <string name="widget_ticker_onboard_full_size_description">When on, widget will expand to full size.\n(This feature is highly experimental)</string>

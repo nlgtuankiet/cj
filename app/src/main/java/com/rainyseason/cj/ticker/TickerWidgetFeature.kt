@@ -25,6 +25,12 @@ enum class TickerWidgetFeature(
             androidx.core.os.BuildCompat.isAtLeastS()
         }
     ),
+    StickyNotification(
+        featureName = "widget_ticker_notification",
+        viewId = CoinTickerPreviewController.STICKY_NOTIFICATION,
+        titleRes = R.string.coin_ticker_onboard_noti_title,
+        descriptionRes = R.string.coin_ticker_onboard_noti_description,
+    ),
     FullSize(
         featureName = "widget_ticker_full_size",
         viewId = CoinTickerPreviewController.FULL_SIZE_ID,

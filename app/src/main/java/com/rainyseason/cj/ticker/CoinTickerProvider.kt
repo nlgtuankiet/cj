@@ -8,6 +8,8 @@ import android.os.Bundle
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.goBackground
 import com.rainyseason.cj.data.local.CoinTickerRepository
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 class CoinTickerProviderDefault : CoinTickerProvider()
 class CoinTickerProviderGraph : CoinTickerProvider()
@@ -62,7 +64,10 @@ abstract class CoinTickerProvider : AppWidgetProvider() {
     ) {
         goBackground {
             appWidgetIds.forEach {
-                coinTickerHandler.enqueueRefreshWidget(it)
+                val deleted = coinTickerHandler.checkWidgetDeleted(it)
+                if (!deleted) {
+                    coinTickerHandler.enqueueRefreshWidget(it)
+                }
             }
         }
     }
@@ -70,9 +75,12 @@ abstract class CoinTickerProvider : AppWidgetProvider() {
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         super.onDeleted(context, appWidgetIds)
         goBackground {
-            appWidgetIds.forEach {
-                coinTickerRepository.clearAllData(widgetId = it)
-                coinTickerHandler.removeRefreshWork(widgetId = it)
+            coroutineScope {
+                appWidgetIds.forEach {
+                    launch {
+                        coinTickerHandler.onDelete(widgetId = it)
+                    }
+                }
             }
         }
     }

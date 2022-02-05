@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.createGraph
 import androidx.navigation.fragment.FragmentNavigator
@@ -20,16 +21,19 @@ import com.rainyseason.cj.coinstat.CoinStatFragment
 import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.contact.ContactFragment
 import com.rainyseason.cj.common.notNull
+import com.rainyseason.cj.common.widgetId
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.detail.CoinDetailFragment
 import com.rainyseason.cj.detail.about.CoinDetailAboutFragment
 import com.rainyseason.cj.setting.SettingFragment
+import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.watch.WatchListFragment
 import com.rainyseason.cj.widget.manage.ManageWidgetFragment
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.ContributesAndroidInjector
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -44,6 +48,9 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var commonRepository: CommonRepository
+
+    @Inject
+    lateinit var coinTickerHandler: CoinTickerHandler
 
     private lateinit var navController: NavController
 
@@ -62,6 +69,7 @@ class MainActivity : AppCompatActivity() {
                 Timber.d("Navigation: destination $className args: $arguments")
             }
         }
+        checkWidgetId(intent)
         navController.graph = navController.createGraph(
             R.id.main_nav_graph,
             R.id.manage_widgets_screen,
@@ -127,9 +135,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkWidgetId(intent: Intent?) {
+        val widgetId = intent?.widgetId() ?: return
+        lifecycleScope.launch {
+            coinTickerHandler.checkWidgetDeleted(widgetId)
+        }
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         navigateNewIntent(intent)
+        checkWidgetId(intent)
     }
 
     companion object {

@@ -1,7 +1,9 @@
 package com.rainyseason.cj.ticker.preview
 
+import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.core.view.doOnPreDraw
@@ -22,7 +24,6 @@ import com.rainyseason.cj.common.saveOrShowWarning
 import com.rainyseason.cj.common.show
 import com.rainyseason.cj.databinding.CoinTickerPreviewFragmentBinding
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
-import com.rainyseason.cj.ticker.CoinTickerWidgetSaver
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
 import com.rainyseason.cj.tracking.Tracker
 import dagger.Module
@@ -105,14 +106,15 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
                     savedStateHandle.set("result", null)
                 }
         }
-        val autoSaved = args.coinId != null
-        binding.saveButton.setText(
-            if (autoSaved) {
-                R.string.coin_ticker_preview_auto_save_widget
-            } else {
-                R.string.coin_ticker_preview_save_widget
-            }
-        )
+        viewModel.onEach(CoinTickerPreviewState::widgetSaved) { autoSaved ->
+            binding.saveButton.setText(
+                if (autoSaved) {
+                    R.string.coin_ticker_preview_auto_save_widget
+                } else {
+                    R.string.coin_ticker_preview_save_widget
+                }
+            )
+        }
 
         val previewView = binding.previewView
         binding.blockerView.setOnClickListener { }
@@ -172,10 +174,15 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
 
     private fun save() {
         fun actualSave() {
-            viewModel.save()
             val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
-            val displayData = withState(viewModel) { it.savedDisplayData.invoke() } ?: return
-            (requireActivity() as CoinTickerWidgetSaver).saveWidget(config, displayData)
+            withState(viewModel) { it.savedDisplayData.invoke() } ?: return
+            val activity = activity ?: return
+            viewModel.save()
+            val resultValue = Intent().apply {
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, config.widgetId)
+            }
+            activity.setResult(Activity.RESULT_OK, resultValue)
+            activity.finish()
         }
 
         val config = withState(viewModel) { it.savedConfig.invoke() } ?: return

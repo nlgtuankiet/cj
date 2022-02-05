@@ -48,10 +48,20 @@ import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.ModelCollector
 import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.ViewModelContext
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestFutureTarget
+import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.Transition
 import com.google.firebase.auth.FirebaseAuth
+import com.rainyseason.cj.BuildConfig
+import com.rainyseason.cj.GlideApp
+import com.rainyseason.cj.GlideRequest
 import com.rainyseason.cj.R
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -61,6 +71,7 @@ import kotlinx.coroutines.yield
 import retrofit2.HttpException
 import java.net.UnknownHostException
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.math.abs
 
 /**
@@ -457,4 +468,66 @@ fun AppWidgetManager.getTrackingParams(widgetId: Int): Map<String, Any?> {
     }
     result["has_app_widget_sizes"] = hasAppWidgetSizes
     return result
+}
+
+val View.viewScope: CoroutineScope
+    get() {
+        getTag(R.id.view_scope)?.let {
+            if (it is CoroutineScope) {
+                return it
+            } else {
+                if (BuildConfig.DEBUG) {
+                    error("Check why the value of KEY_VIEW_SCOPE is ${it.javaClass.name}")
+                }
+            }
+        }
+
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        setTag(R.id.view_scope, scope)
+
+        addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(view: View) {}
+
+            override fun onViewDetachedFromWindow(view: View) {
+                removeOnAttachStateChangeListener(this)
+                setTag(R.id.view_scope, null)
+                scope.cancel()
+            }
+        })
+
+        return scope
+    }
+
+suspend fun <T> GlideRequest<T>.await(context: Context): T {
+    return suspendCancellableCoroutine { cont ->
+        val target = object : RequestFutureTarget<T>(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL) {
+            override fun onResourceReady(resource: T, transition: Transition<in T>?) {
+                if (resource != null) {
+                    super.onResourceReady(resource, transition)
+                    cont.resume(resource)
+                } else {
+                    cont.resumeWithException(Exception("Null resource"))
+                }
+            }
+
+            override fun onLoadFailed(
+                e: GlideException?,
+                model: Any?,
+                target: Target<T>?,
+                isFirstResource: Boolean
+            ): Boolean {
+                cont.resumeWithException(e ?: Exception("Unknown error"))
+                return super.onLoadFailed(e, model, target, isFirstResource)
+            }
+
+            override fun onLoadCleared(placeholder: Drawable?) {
+                super.onLoadCleared(placeholder)
+                cont.cancel()
+            }
+        }
+        cont.invokeOnCancellation {
+            GlideApp.with(context).clear(target)
+        }
+        into(target)
+    }
 }

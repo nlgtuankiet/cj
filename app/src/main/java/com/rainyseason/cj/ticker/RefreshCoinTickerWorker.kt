@@ -2,7 +2,6 @@ package com.rainyseason.cj.ticker
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
-import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -10,7 +9,6 @@ import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.common.getTrackingParams
 import com.rainyseason.cj.common.hasValidNetworkConnection
 import com.rainyseason.cj.common.isInBatteryOptimize
-import com.rainyseason.cj.common.model.getWidgetIds
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.usecase.GetDisplayData
 import com.rainyseason.cj.tracking.Tracker
@@ -45,10 +43,8 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         }
 
         // check if widget has been removed
-        val widgetIds = CoinTickerLayout.values().getWidgetIds(appContext)
-
-        if (widgetId !in widgetIds) {
-            handler.removeRefreshWork(widgetId)
+        val deleted = handler.checkWidgetDeleted(widgetId)
+        if (deleted) {
             return Result.success()
         }
 
@@ -94,7 +90,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     private suspend fun updateWidget(widgetId: Int) {
         val config = coinTickerRepository.getConfig(widgetId)
         if (config == null) {
-            handler.removeRefreshWork(widgetId)
+            handler.onDelete(widgetId)
             return
         }
 
@@ -106,17 +102,14 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         val oldDisplayData = coinTickerRepository.getDisplayData(widgetId)
 
         if (oldDisplayData != null) {
-            val loadingView = RemoteViews(appContext.packageName, render.selectLayout(config))
             val loadingParams = CoinTickerRenderParams(
                 config = config,
                 data = oldDisplayData,
                 showLoading = true,
             )
             render.render(
-                view = loadingView,
                 inputParams = loadingParams,
             )
-            appWidgetManager.updateAppWidget(widgetId, loadingView)
         } else {
             firebaseCrashlytics.recordException(
                 IllegalStateException("missing display data ${config.layout}")
@@ -126,20 +119,16 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         try {
             val newDisplayData = getDisplayData(config.asDataLoadParams())
             coinTickerRepository.setDisplayData(widgetId = widgetId, data = newDisplayData)
-            val newView = RemoteViews(appContext.packageName, render.selectLayout(config))
             val newParams = CoinTickerRenderParams(
                 config = config,
                 data = newDisplayData,
                 showLoading = false,
             )
             render.render(
-                view = newView,
                 inputParams = newParams,
             )
-            appWidgetManager.updateAppWidget(widgetId, newView)
         } catch (ex: Exception) {
             if (oldDisplayData != null) {
-                val errorView = RemoteViews(appContext.packageName, render.selectLayout(config))
                 val oldParams = CoinTickerRenderParams(
                     config = config,
                     data = oldDisplayData,
@@ -147,10 +136,8 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
                     isPreview = false
                 )
                 render.render(
-                    view = errorView,
                     inputParams = oldParams,
                 )
-                appWidgetManager.updateAppWidget(widgetId, errorView)
             }
             throw ex
         }

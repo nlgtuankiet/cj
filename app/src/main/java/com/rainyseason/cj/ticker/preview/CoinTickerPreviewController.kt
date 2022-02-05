@@ -47,6 +47,7 @@ class CoinTickerPreviewController(
         const val REFRESH_ID = "setting_refresh_id"
         const val THEME_ID = "setting_theme_id"
         const val FULL_SIZE_ID = "setting_full_size_id"
+        const val STICKY_NOTIFICATION = "setting_sticky_notification"
     }
 
     private fun maybeBuildHorizontalSeparator(id: String) {
@@ -70,6 +71,7 @@ class CoinTickerPreviewController(
 
         buildCoinId(state)
         buildTheme(state)
+        buildStickyNotification(state)
         buildFullSize(state)
         buildRefreshInternal(state)
         buildCurrency(state)
@@ -305,6 +307,19 @@ class CoinTickerPreviewController(
             checked(config.showBatteryWarning)
             onClickListener { _ ->
                 viewModel.switchShowBatteryWarning()
+            }
+        }
+    }
+
+    private fun buildStickyNotification(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        maybeBuildHorizontalSeparator(id = "sticky_noti_separator")
+        settingSwitchView {
+            id(TickerWidgetFeature.StickyNotification.viewId)
+            title(R.string.coin_ticker_setting_noti_title)
+            checked(config.showNotification)
+            onClickListener { _ ->
+                viewModel.toggleNotification()
             }
         }
     }

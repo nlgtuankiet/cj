@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.os.Build
 import android.os.Looper
 import android.util.Size
 import android.view.View
@@ -17,7 +18,10 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RemoteViews
 import android.widget.TextView
-import androidx.annotation.LayoutRes
+import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.graphics.drawable.IconCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
@@ -32,6 +36,7 @@ import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.WidgetRenderUtil
 import com.rainyseason.cj.common.addFlagMutable
+import com.rainyseason.cj.common.await
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getAppWidgetSizes
 import com.rainyseason.cj.common.inflater
@@ -47,6 +52,8 @@ import com.rainyseason.cj.databinding.WidgetCoinTicker2x2GraphBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.tracking.Tracker
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -66,23 +73,144 @@ class TickerWidgetRenderer @Inject constructor(
     private val numberFormater: NumberFormater,
     private val graphRenderer: GraphRenderer,
     private val renderUtil: WidgetRenderUtil,
+    private val notificationManager: NotificationManagerCompat,
 ) {
+    private val notiChannelId = "ticker_widget_channel"
 
-    @LayoutRes
-    fun selectLayout(config: CoinTickerConfig): Int {
-        return config.layout.layout
+    private suspend fun postNotification(
+        params: CoinTickerRenderParams
+    ) {
+        createNotificationChannel()
+        val config = params.config
+        val displayData = params.data
+        val clickIntent = if (params.isPreview) {
+            null
+        } else {
+            getClickIntent(params)
+        }
+
+        val smallView = RemoteViews(
+            context.packageName,
+            R.layout.widget_ticker_notification_small
+        ).apply {
+            val content = buildSpannedString {
+                append(displayData.symbol.uppercase())
+                append(" • ")
+                append(formatAmount(params))
+
+                val color = renderUtil.getChangePercentColor(
+                    theme = config.theme,
+                    amount = displayData.priceChangePercent ?: 0.0
+                )
+                color(color) {
+                    append(" (")
+                    append(formatChange(params))
+                    append(")")
+                }
+
+                if (params.showLoading) {
+                    append(" ⏳")
+                }
+            }
+            setTextViewText(R.id.text, content)
+            if (clickIntent != null) {
+                setOnClickPendingIntent(R.id.content, clickIntent)
+            }
+        }
+
+        val largeView = RemoteViews(
+            context.packageName,
+            R.layout.widget_ticker_notification_large
+        ).apply {
+            val content = buildSpannedString {
+                append(displayData.symbol.uppercase())
+                val color = renderUtil.getChangePercentColor(
+                    theme = config.theme,
+                    amount = displayData.priceChangePercent ?: 0.0
+                )
+                color(color) {
+                    append(" (")
+                    append(formatChange(params))
+                    append(")")
+                }
+
+                if (params.showLoading) {
+                    append(" ⏳")
+                }
+            }
+            setTextViewText(R.id.text, content)
+
+            val subtitle = buildString {
+                append(formatAmount(params))
+            }
+
+            setTextViewText(R.id.subtitle, subtitle)
+
+            val graph = graphRenderer.createGraphBitmap(
+                context,
+                theme = config.theme,
+                inputWidth = context.dpToPx(120).toFloat(),
+                inputHeight = context.dpToPx(40).toFloat(),
+                data = displayData.priceGraph.orEmpty()
+            )
+            setImageViewBitmap(R.id.graph, graph)
+            if (clickIntent != null) {
+                setOnClickPendingIntent(R.id.content, clickIntent)
+            }
+        }
+
+        val noti = NotificationCompat.Builder(context, notiChannelId)
+            .apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    val icon = withContext(Dispatchers.IO) {
+                        GlideApp.with(context)
+                            .asBitmap()
+                            .load(displayData.iconUrl)
+                            .override(context.dpToPx(48), context.dpToPx(48))
+                            .await(context)
+                    }
+                    setSmallIcon(IconCompat.createWithAdaptiveBitmap(icon))
+                }
+
+                setCustomBigContentView(largeView)
+                setCustomContentView(smallView)
+                if (clickIntent != null) {
+                    setContentIntent(clickIntent)
+                }
+                setOngoing(!params.isPreview)
+                setSilent(true)
+                setAutoCancel(false)
+                setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            }
+            .build()
+
+        notificationManager.notify(getNotificationId(widgetId = config.widgetId), noti)
     }
 
-    @SuppressLint("UnspecifiedImmutableFlag")
-    fun RemoteViews.applyClickAction(params: CoinTickerRenderParams) {
-        if (params.isPreview) {
-            return
-        }
+    fun removeNotification(widgetId: Int) {
+        notificationManager.cancel(getNotificationId(widgetId))
+    }
+
+    private fun getNotificationId(widgetId: Int): Int {
+        return "ticker_widget_$widgetId".hashCode()
+    }
+
+    private fun createNotificationChannel() {
+        val channel = NotificationChannelCompat.Builder(
+            notiChannelId,
+            NotificationManagerCompat.IMPORTANCE_DEFAULT
+        ).apply {
+            setName(context.getString(R.string.coin_ticker_notification_channel_name))
+            setDescription(context.getString(R.string.coin_ticker_notification_channel_description))
+        }.build()
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun getClickIntent(params: CoinTickerRenderParams): PendingIntent {
         val config = params.config
         val componentName = appWidgetManager.getAppWidgetInfo(config.widgetId)?.provider
             ?: ComponentName(context, CoinTickerProviderDefault::class.java)
-
-        val pendingIntent = when (params.config.clickAction) {
+        return when (params.config.clickAction) {
             CoinTickerConfig.ClickAction.REFRESH -> {
                 val intent = Intent()
                 intent.component = componentName
@@ -111,6 +239,7 @@ class TickerWidgetRenderer @Inject constructor(
             CoinTickerConfig.ClickAction.OPEN_COIN_DETAIL,
             CoinTickerConfig.ClickAction.SWITCH_PRICE_MARKET_CAP -> {
                 val intent = MainActivity.coinDetailIntent(context, config.coinId)
+                intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, config.widgetId)
                 PendingIntent.getActivity(
                     context,
                     params.config.widgetId,
@@ -120,6 +249,14 @@ class TickerWidgetRenderer @Inject constructor(
             }
             else -> error("Unknown action ${params.config.clickAction}")
         }
+    }
+
+    @SuppressLint("UnspecifiedImmutableFlag")
+    fun RemoteViews.applyClickAction(params: CoinTickerRenderParams) {
+        if (params.isPreview) {
+            return
+        }
+        val pendingIntent = getClickIntent(params)
         setOnClickPendingIntent(R.id.content, pendingIntent)
     }
 
@@ -566,13 +703,26 @@ class TickerWidgetRenderer @Inject constructor(
         return container
     }
 
-    fun render(
-        view: RemoteViews,
+    /**
+     * @param inputRemoteView optional remote view to render (for preview)
+     */
+    suspend fun render(
         inputParams: CoinTickerRenderParams,
-        icon: Bitmap? = null,
+        inputRemoteView: RemoteViews? = null,
     ) {
+        val config = inputParams.config
+        val view = inputRemoteView ?: RemoteViews(context.packageName, config.layout.layout)
         view.bindLoading(inputParams)
         view.applyClickAction(inputParams)
+        val icon: Bitmap? = if (config.layout.hasIcon) {
+            GlideApp.with(context)
+                .asBitmap()
+                .override(context.dpToPx(48), context.dpToPx(48))
+                .load(inputParams.data.iconUrl)
+                .await(context)
+        } else {
+            null
+        }
 
         if (inputParams.isPreview && DebugFlag.SHOW_PREVIEW_LAYOUT_BOUNDS.isEnable) {
             view as LocalRemoteViews
@@ -582,6 +732,13 @@ class TickerWidgetRenderer @Inject constructor(
         } else {
             val bitmap = createBitmap(inputParams, icon)
             view.setImageViewBitmap(R.id.image_view, bitmap)
+        }
+
+        appWidgetManager.updateAppWidget(config.widgetId, view)
+        if (config.showNotification) {
+            postNotification(inputParams)
+        } else {
+            removeNotification(config.widgetId)
         }
     }
 

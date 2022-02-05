@@ -21,4 +21,6 @@
     <item name="coin_ticker_preview_screen" type="id" />
 
     <item name="haptic_feedback" type="id" />
+
+    <item name="view_scope" type="id" />
 </resources>

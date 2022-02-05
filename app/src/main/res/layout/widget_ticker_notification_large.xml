@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/content"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        tools:text="BTC (+4.06%)"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:textColor="@color/system_text_primary"
+        android:id="@+id/text"
+        android:textSize="14sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:fadingEdge="horizontal"
+        android:singleLine="true" />
+
+    <TextView
+        android:layout_marginEnd="4dp"
+        android:layout_toStartOf="@id/graph"
+        android:textSize="20sp"
+        android:layout_marginTop="2dp"
+        tools:text="46.300$"
+        android:layout_below="@id/text"
+        android:layout_alignParentStart="true"
+        android:textColor="@color/system_text_primary"
+        android:id="@+id/subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:fadingEdge="horizontal"
+        android:singleLine="true"
+        tools:ignore="UnusedAttribute" />
+
+    <ImageView
+        android:id="@+id/graph"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@id/subtitle"
+        android:layout_alignParentTop="true"
+        android:layout_width="120dp"
+        android:layout_height="0dp" />
+
+</RelativeLayout>

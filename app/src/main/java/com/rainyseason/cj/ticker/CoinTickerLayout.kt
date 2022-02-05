@@ -13,6 +13,7 @@ enum class CoinTickerLayout(
     val layout: Int,
     val titleRes: Int,
     val ratio: Size,
+    val hasIcon: Boolean = false
 ) : WidgetLayout {
     Default2x2(
         "default",
@@ -62,6 +63,7 @@ enum class CoinTickerLayout(
         R.layout.widget_coin_ticker_2x1,
         R.string.coin_ticket_style_icon_small,
         Size(2, 1),
+        hasIcon = true
     );
 
     val isNano: Boolean

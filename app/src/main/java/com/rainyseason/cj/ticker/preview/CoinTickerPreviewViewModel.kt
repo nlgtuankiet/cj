@@ -1,5 +1,6 @@
 package com.rainyseason.cj.ticker.preview
 
+import android.annotation.SuppressLint
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.Loading
@@ -21,17 +22,23 @@ import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import com.rainyseason.cj.ticker.CoinTickerDisplayData.LoadParam
+import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.ticker.CoinTickerLayout
+import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.TickerWidgetFeature
+import com.rainyseason.cj.ticker.TickerWidgetRenderer
 import com.rainyseason.cj.ticker.usecase.GetDisplayData
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.util.Collections
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -40,7 +47,8 @@ data class CoinTickerPreviewState(
     val savedDisplayData: Async<CoinTickerDisplayData> = Uninitialized,
     val savedConfig: Async<CoinTickerConfig> = Uninitialized,
     val showAdvanceSetting: Boolean = false,
-    val displayDataCache: Map<LoadParam, Async<CoinTickerDisplayData>> = emptyMap()
+    val displayDataCache: Map<LoadParam, Async<CoinTickerDisplayData>> = emptyMap(),
+    val widgetSaved: Boolean = false,
 ) : MavericksState {
     val config: CoinTickerConfig?
         get() = savedConfig.invoke()
@@ -59,9 +67,11 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private val userSettingRepository: UserSettingRepository,
     private val getDisplayData: GetDisplayData,
     private val keyValueStore: KeyValueStore,
+    private val tickerWidgetRenderer: TickerWidgetRenderer,
+    private val coinTickerHandler: CoinTickerHandler,
+    private val tracker: Tracker,
 ) : MavericksViewModel<CoinTickerPreviewState>(initState) {
 
-    private var saved = false
     val id = UUID.randomUUID().toString()
 
     private val _onBoardFeature = Channel<TickerWidgetFeature>()
@@ -140,6 +150,9 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     private suspend fun saveInitialConfig() {
         val lastConfig = coinTickerRepository.getConfig(widgetId = args.widgetId)
+        if (lastConfig != null) {
+            setState { copy(widgetSaved = true) }
+        }
         val (coinId, backend) = if (args.coinId != null) {
             args.coinId to (args.backend ?: Backend.CoinGecko)
         } else {
@@ -283,16 +296,43 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     }
 
     fun save() {
-        saved = true
+        setState { copy(widgetSaved = true) }
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onCleared() {
-        if (!saved) {
-            viewModelScope.launch(NonCancellable) {
-                coinTickerRepository.clearDisplayData(args.widgetId)
+        withState { state ->
+            viewModelScope.launch {
+                if (state.widgetSaved) {
+                    Timber.d("Widget saved")
+                    val config = state.config
+                    val data = state.currentDisplayData
+                    if (config != null && data != null) {
+                        val param = CoinTickerRenderParams(
+                            config = config,
+                            data = data,
+                            showLoading = false,
+                        )
+                        tickerWidgetRenderer.render(inputParams = param)
+                    }
+                    tracker.logKeyParamsEvent(
+                        key = "widget_save",
+                        params = config?.getTrackingParams().orEmpty(),
+                    )
+                    coinTickerHandler.enqueueRefreshWidget(
+                        widgetId = args.widgetId,
+                        config = config
+                    )
+                    viewModelScope.cancel()
+                    Timber.d("Scope canceled")
+                } else {
+                    coinTickerHandler.onDelete(args.widgetId)
+                    Timber.d("Cleared all data")
+                    viewModelScope.cancel()
+                    Timber.d("Scope canceled")
+                }
             }
         }
-        super.onCleared()
     }
 
     fun setAmount(value: String?) {
@@ -312,6 +352,12 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     fun toggleFullSize() {
         updateConfig {
             copy(fullSize = !fullSize)
+        }
+    }
+
+    fun toggleNotification() {
+        updateConfig {
+            copy(showNotification = !showNotification)
         }
     }
 

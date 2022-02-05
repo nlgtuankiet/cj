@@ -6,6 +6,7 @@ import android.os.Looper
 import android.os.PowerManager
 import android.util.Log
 import android.util.Log.VERBOSE
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.getSystemService
 import androidx.room.Room
 import androidx.work.Configuration
@@ -140,6 +141,12 @@ interface AppBinds {
 
 @Module
 object AppProvides {
+
+    @Provides
+    @Singleton
+    fun notificationManager(context: Context): NotificationManagerCompat {
+        return NotificationManagerCompat.from(context)
+    }
 
     @Provides
     @Singleton

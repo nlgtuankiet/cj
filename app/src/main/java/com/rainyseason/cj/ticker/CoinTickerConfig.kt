@@ -75,6 +75,9 @@ data class CoinTickerConfig(
 
     @Json(name = "full_size")
     val fullSize: Boolean = false,
+
+    @Json(name = "show_notification")
+    val showNotification: Boolean = false,
 ) {
 
     fun ensureValid(): CoinTickerConfig {

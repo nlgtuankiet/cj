@@ -8,7 +8,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.Display
-import android.widget.RemoteViews
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.createGraph
@@ -26,17 +25,13 @@ import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewArgs
 import com.rainyseason.cj.ticker.preview.CoinTickerPreviewFragment
 import com.rainyseason.cj.tracking.Tracker
-import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.ContributesAndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -46,17 +41,9 @@ interface CoinTickerSettingActivityModule {
     fun activity(): CoinTickerSettingActivity
 }
 
-interface CoinTickerWidgetSaver {
-    fun saveWidget(
-        config: CoinTickerConfig,
-        data: CoinTickerDisplayData,
-    )
-}
-
 class CoinTickerSettingActivity :
     AppCompatActivity(),
-    HasAndroidInjector,
-    CoinTickerWidgetSaver {
+    HasAndroidInjector {
     @Inject
     lateinit var androidInjector: DispatchingAndroidInjector<Any>
 
@@ -81,9 +68,6 @@ class CoinTickerSettingActivity :
     @Inject
     lateinit var commonRepository: CommonRepository
 
-    private var widgetSaved = false
-    private var refreshed = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
@@ -93,6 +77,15 @@ class CoinTickerSettingActivity :
             finish()
             return
         }
+        if (!BuildConfig.DEBUG) {
+            lifecycleScope.launch {
+                val deleted = coinTickerHandler.checkWidgetDeleted(widgetId)
+                if (deleted) {
+                    finish()
+                }
+            }
+        }
+
         setContentView(R.layout.activity_coin_ticker_setting)
         Timber.d("widgetId: $widgetId")
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)!!
@@ -121,44 +114,7 @@ class CoinTickerSettingActivity :
             graph,
             args,
         )
-        widgetSaved = coinId != null
         logDisplay()
-    }
-
-    override fun saveWidget(
-        config: CoinTickerConfig,
-        data: CoinTickerDisplayData,
-    ) {
-        val param = CoinTickerRenderParams(
-            config = config,
-            data = data,
-            showLoading = false,
-        )
-
-        tracker.logKeyParamsEvent(
-            key = "widget_save",
-            params = config.getTrackingParams(),
-        )
-
-        val remoteView = RemoteViews(packageName, render.selectLayout(config))
-        render.render(
-            view = remoteView,
-            inputParams = param,
-        )
-        appWidgetManager.updateAppWidget(config.widgetId, remoteView)
-        val resultValue = Intent().apply {
-            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, config.widgetId)
-        }
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                coinTickerHandler.enqueueRefreshWidget(widgetId = config.widgetId, config = config)
-                commonRepository.increaseWidgetUsed()
-            }
-            widgetSaved = true
-            refreshed = true
-            setResult(Activity.RESULT_OK, resultValue)
-            finish()
-        }
     }
 
     private fun logDisplay() {
@@ -173,27 +129,6 @@ class CoinTickerSettingActivity :
         val dpHeight = outMetrics.heightPixels / density
         val dpWidth = outMetrics.widthPixels / density
         Timber.d("Screen size dp: ${dpWidth}x$dpHeight")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (isChangingConfigurations) {
-            return
-        }
-        if (!widgetSaved) {
-            runBlocking {
-                coinTickerRepository.clearAllData(getWidgetId() ?: 0)
-            }
-        } else {
-            if (!refreshed) {
-                runBlocking {
-                    withContext(Dispatchers.IO) {
-                        coinTickerHandler.enqueueRefreshWidget(widgetId = getWidgetId() ?: 0)
-                        commonRepository.increaseWidgetUsed()
-                    }
-                }
-            }
-        }
     }
 
     override fun androidInjector(): AndroidInjector<Any> {
@@ -211,7 +146,7 @@ class CoinTickerSettingActivity :
             return starterIntent(context, config.widgetId, config.coinId, config.backend)
         }
 
-        fun starterIntent(
+        private fun starterIntent(
             context: Context,
             widgetId: Int,
             coinId: String?,

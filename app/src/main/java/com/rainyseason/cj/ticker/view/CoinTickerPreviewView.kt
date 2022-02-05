@@ -2,9 +2,7 @@ package com.rainyseason.cj.ticker.view
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.util.AttributeSet
-import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -14,17 +12,16 @@ import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
-import com.bumptech.glide.request.target.CustomViewTarget
-import com.bumptech.glide.request.transition.Transition
 import com.rainyseason.cj.BuildConfig
-import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.inflateAndAdd
-import com.rainyseason.cj.ticker.CoinTickerLayout
+import com.rainyseason.cj.common.viewScope
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
@@ -44,6 +41,7 @@ class CoinTickerPreviewView @JvmOverloads constructor(
     private val mainContainer = findViewById<ConstraintLayout>(R.id.container)
     private val progressBar: ProgressBar by lazy { findViewById(R.id.progress_bar) }
     private val captureButton = findViewById<ImageView>(R.id.capture)
+    private var renderJob: Job? = null
 
     init {
         captureButton.isGone = !BuildConfig.DEBUG
@@ -70,11 +68,10 @@ class CoinTickerPreviewView @JvmOverloads constructor(
         if (params == null) {
             return
         }
-        val layout = renderer.selectLayout(params.config)
         remoteView = LocalRemoteViews(
             context,
             container,
-            layout
+            params.config.layout.layout
         )
         val widgetSize = renderer.getWidgetSize(params.config)
         container.updateLayoutParams<MarginLayoutParams> {
@@ -84,33 +81,14 @@ class CoinTickerPreviewView @JvmOverloads constructor(
         mainContainer.updateLayoutParams<MarginLayoutParams> {
             height = widgetSize.height + context.dpToPx(12 * 2)
         }
-        val iconLayouts = listOf(
-            CoinTickerLayout.Icon2x1
-        )
-        if (params.config.layout in iconLayouts && params.data.iconUrl.isNotBlank()) {
-            progressBar.isGone = false
-            GlideApp.with(this)
-                .asBitmap()
-                .override(context.dpToPx(48), context.dpToPx(48))
-                .load(params.data.iconUrl)
-                .into(object : CustomViewTarget<View, Bitmap>(this) {
-                    override fun onLoadFailed(errorDrawable: Drawable?) {
-                        progressBar.isGone = true
-                    }
-
-                    override fun onResourceReady(
-                        resource: Bitmap,
-                        transition: Transition<in Bitmap>?
-                    ) {
-                        progressBar.isGone = true
-                        renderer.render(remoteView!!, params, resource)
-                    }
-
-                    override fun onResourceCleared(placeholder: Drawable?) {
-                    }
-                })
-        } else {
-            renderer.render(remoteView!!, params)
+        renderJob?.cancel()
+        renderJob = viewScope.launch {
+            // for icon widget, it may fail due to network exception
+            runCatching {
+                renderer.render(params, remoteView)
+            }.onFailure {
+                // TODO show error view
+            }
         }
     }
 }
