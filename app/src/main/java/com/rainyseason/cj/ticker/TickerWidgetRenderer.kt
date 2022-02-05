@@ -40,6 +40,7 @@ import com.rainyseason.cj.common.await
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getAppWidgetSizes
 import com.rainyseason.cj.common.inflater
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.WidgetRenderParams
 import com.rainyseason.cj.common.verticalPadding
 import com.rainyseason.cj.databinding.WidgetCoinTicker1x1Coin360MiniBinding
@@ -76,6 +77,25 @@ class TickerWidgetRenderer @Inject constructor(
     private val notificationManager: NotificationManagerCompat,
 ) {
     private val notiChannelId = "ticker_widget_channel"
+
+    private fun getSmallIcon(config: CoinTickerConfig): IconCompat {
+        val res = when (config.backend) {
+            Backend.CoinGecko -> when(config.coinId) {
+                "bitcoin" -> R.drawable.notification_bitcoin
+                "ethereum" -> R.drawable.notification_eth
+                "binancecoin" -> R.drawable.notification_bnb
+                "cardano" -> R.drawable.notification_ada
+                "solana" -> R.drawable.notification_sol
+                "ripple" -> R.drawable.notification_xrp
+                "polkadot" -> R.drawable.notification_dot
+                "terra-luna" -> R.drawable.notification_luna
+                "dogecoin" -> R.drawable.notification_doge
+                else -> R.drawable.notification_bitcoin
+            }
+            else -> R.drawable.notification_bitcoin
+        }
+        return IconCompat.createWithResource(context, res)
+    }
 
     private suspend fun postNotification(
         params: CoinTickerRenderParams
@@ -162,14 +182,7 @@ class TickerWidgetRenderer @Inject constructor(
         val noti = NotificationCompat.Builder(context, notiChannelId)
             .apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    val icon = withContext(Dispatchers.IO) {
-                        GlideApp.with(context)
-                            .asBitmap()
-                            .load(displayData.iconUrl)
-                            .override(context.dpToPx(48), context.dpToPx(48))
-                            .await(context)
-                    }
-                    setSmallIcon(IconCompat.createWithAdaptiveBitmap(icon))
+                    setSmallIcon(getSmallIcon(config))
                 }
 
                 setCustomBigContentView(largeView)
