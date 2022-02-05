@@ -143,7 +143,7 @@ class ManageWidgetController @AssistedInject constructor(
                 val currentParams = model.widgetParams().widgetRenderParam
                     as? CoinTickerRenderParams ?: return@onClickListener
                 context.startActivity(
-                    CoinTickerSettingActivity.starterIntent(context, currentParams.config)
+                    CoinTickerSettingActivity.starterIntent(context, currentParams.config.widgetId)
                 )
             }
         }

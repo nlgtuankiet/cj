@@ -1,6 +1,9 @@
 package com.rainyseason.cj.ticker.preview
 
 import android.annotation.SuppressLint
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Context
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.Loading
@@ -24,6 +27,7 @@ import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import com.rainyseason.cj.ticker.CoinTickerDisplayData.LoadParam
 import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.ticker.CoinTickerLayout
+import com.rainyseason.cj.ticker.CoinTickerProviderGraph
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.TickerWidgetFeature
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
@@ -70,6 +74,8 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private val tickerWidgetRenderer: TickerWidgetRenderer,
     private val coinTickerHandler: CoinTickerHandler,
     private val tracker: Tracker,
+    private val appWidgetManager: AppWidgetManager,
+    private val context: Context,
 ) : MavericksViewModel<CoinTickerPreviewState>(initState) {
 
     val id = UUID.randomUUID().toString()
@@ -153,17 +159,20 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         if (lastConfig != null) {
             setState { copy(widgetSaved = true) }
         }
-        val (coinId, backend) = if (args.coinId != null) {
-            args.coinId to (args.backend ?: Backend.CoinGecko)
+        val (coinId, backend) = if (lastConfig != null) {
+            lastConfig.coinId to lastConfig.backend
         } else {
             "bitcoin" to Backend.CoinGecko
         }
         val config = if (lastConfig == null) {
             val userSetting = userSettingRepository.getUserSetting()
+            val componentName = appWidgetManager.getAppWidgetInfo(args.widgetId)?.provider
+                ?: ComponentName(context, CoinTickerProviderGraph::class.java)
+            val layout = CoinTickerLayout.fromComponentName(componentName.className)
             CoinTickerConfig(
                 widgetId = args.widgetId,
                 coinId = coinId,
-                layout = args.layout,
+                layout = layout,
                 backend = backend,
                 numberOfAmountDecimal = userSetting.amountDecimals,
                 numberOfChangePercentDecimal = userSetting.numberOfChangePercentDecimal,

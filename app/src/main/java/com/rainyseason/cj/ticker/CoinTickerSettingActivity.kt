@@ -2,7 +2,6 @@ package com.rainyseason.cj.ticker
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -18,7 +17,6 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.coinselect.CoinSelectFragment
 import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.asArgs
-import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.widgetId
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.data.local.CoinTickerRepository
@@ -97,19 +95,7 @@ class CoinTickerSettingActivity :
             fragment<CoinSelectFragment>(R.id.coin_select_screen)
             fragment<CoinTickerPreviewFragment>(R.id.coin_ticker_preview_screen)
         }
-        val coinId = intent.extras?.getString(COIN_ID_EXTRA)
-        val backend = intent.extras?.getString(BACKEND_ID_EXTRA)?.let {
-            Backend.from(it)
-        }
-        val componentName = appWidgetManager.getAppWidgetInfo(widgetId)?.provider
-            ?: ComponentName(this, CoinTickerProviderGraph::class.java)
-        val layout = CoinTickerLayout.fromComponentName(componentName.className)
-        val args = CoinTickerPreviewArgs(
-            widgetId = widgetId,
-            coinId = coinId,
-            backend = backend,
-            layout = layout
-        ).asArgs()
+        val args = CoinTickerPreviewArgs(widgetId).asArgs()
         navController.setGraph(
             graph,
             args,
@@ -136,39 +122,15 @@ class CoinTickerSettingActivity :
     }
 
     companion object {
-        private const val COIN_ID_EXTRA = "coin_id"
-        private const val BACKEND_ID_EXTRA = "backend_id"
-
         fun starterIntent(
             context: Context,
-            config: CoinTickerConfig,
-        ): Intent {
-            return starterIntent(context, config.widgetId, config.coinId, config.backend)
-        }
-
-        private fun starterIntent(
-            context: Context,
             widgetId: Int,
-            coinId: String?,
-            backend: Backend?
         ): Intent {
             val intent = Intent(context, CoinTickerSettingActivity::class.java)
             intent.putExtra(
                 AppWidgetManager.EXTRA_APPWIDGET_ID,
                 widgetId,
             )
-            if (coinId != null) {
-                intent.putExtra(
-                    COIN_ID_EXTRA,
-                    coinId,
-                )
-            }
-            if (backend != null) {
-                intent.putExtra(
-                    BACKEND_ID_EXTRA,
-                    backend.id,
-                )
-            }
             return intent
         }
     }

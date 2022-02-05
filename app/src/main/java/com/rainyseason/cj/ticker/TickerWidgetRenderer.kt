@@ -53,8 +53,6 @@ import com.rainyseason.cj.databinding.WidgetCoinTicker2x2GraphBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.tracking.Tracker
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -80,7 +78,7 @@ class TickerWidgetRenderer @Inject constructor(
 
     private fun getSmallIcon(config: CoinTickerConfig): IconCompat {
         val res = when (config.backend) {
-            Backend.CoinGecko -> when(config.coinId) {
+            Backend.CoinGecko -> when (config.coinId) {
                 "bitcoin" -> R.drawable.notification_bitcoin
                 "ethereum" -> R.drawable.notification_eth
                 "binancecoin" -> R.drawable.notification_bnb
@@ -240,7 +238,7 @@ class TickerWidgetRenderer @Inject constructor(
                 )
             }
             CoinTickerConfig.ClickAction.SETTING -> {
-                val intent = CoinTickerSettingActivity.starterIntent(context, config)
+                val intent = CoinTickerSettingActivity.starterIntent(context, config.widgetId)
                 PendingIntent.getActivity(
                     context,
                     params.config.widgetId,
