@@ -1,3 +1,7 @@
+### 1.14.0 Release
+✨ Add sticky notification, now you can check coin price right on the lock screen!  
+🛠 Fix ticker widget sometimes reset to bitcoin when re-config  
+
 ### 1.13.3 Release
 ✨ Add Luno exchange support  
 ✨ Support more change intervals (range from 30 days to 1 year)  

@@ -183,6 +183,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 roundToMillion = userSetting.roundToMillion,
                 currency = userSetting.currencyCode,
                 sizeAdjustment = userSetting.sizeAdjustment,
+                showNotification = true,
             )
         } else {
             lastConfig.copy(
