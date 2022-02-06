@@ -10,8 +10,8 @@ import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.rainyseason.cj.R
-import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.coreComponent
+import com.rainyseason.cj.common.getNonNullCurrencyInfo
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.databinding.ViewWatchEntryBinding
@@ -74,7 +74,7 @@ class WatchEntryView @JvmOverloads constructor(
         binding.changePercent.isVisible = true
 
         val currency = model.currency
-        val locale = SUPPORTED_CURRENCY[currency]!!.locale
+        val locale = getNonNullCurrencyInfo(currency).locale
         binding.price.text = numberFormater.formatAmount(
             amount = model.price,
             currencyCode = currency,

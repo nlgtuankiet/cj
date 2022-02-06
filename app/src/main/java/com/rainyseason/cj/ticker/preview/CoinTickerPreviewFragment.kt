@@ -102,7 +102,12 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
                     if (result == null) {
                         return@observe
                     }
-                    viewModel.setCoinId(result.coinId, result.backend)
+                    viewModel.setCoinId(
+                        coinId = result.coinId,
+                        backend = result.backend,
+                        network = result.network,
+                        dex = result.dex
+                    )
                     savedStateHandle.set("result", null)
                 }
         }

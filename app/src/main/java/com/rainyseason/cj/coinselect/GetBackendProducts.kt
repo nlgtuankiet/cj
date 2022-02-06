@@ -2,6 +2,7 @@ package com.rainyseason.cj.coinselect
 
 import com.rainyseason.cj.common.model.Backend
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,6 +26,7 @@ class GetBackendProducts @Inject constructor(
             Backend.Ftx -> getFtxProducts.invoke()
             Backend.Kraken -> getKrakenProducts.invoke()
             Backend.Luno -> getLunoProducts.invoke()
+            Backend.DexScreener -> flowOf(emptyList())
         }
     }
 }

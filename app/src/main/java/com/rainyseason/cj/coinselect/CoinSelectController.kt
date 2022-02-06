@@ -2,8 +2,10 @@ package com.rainyseason.cj.coinselect
 
 import android.content.Context
 import android.view.View
+import androidx.core.text.buildSpannedString
 import androidx.navigation.findNavController
 import com.airbnb.epoxy.AsyncEpoxyController
+import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.withState
@@ -27,6 +29,7 @@ import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.channels.Channel
 import timber.log.Timber
 import kotlin.system.measureTimeMillis
 
@@ -36,6 +39,8 @@ class CoinSelectController @AssistedInject constructor(
     private val tracker: Tracker,
     private val traceManager: TraceManager,
 ) : AsyncEpoxyController() {
+
+    val requestSearchBoxFocus = Channel<Unit>(Channel.UNLIMITED)
 
     @AssistedFactory
     interface Factory {
@@ -80,7 +85,11 @@ class CoinSelectController @AssistedInject constructor(
 
     private fun buildBackendEntries(state: CoinSelectState): BuildState {
         val backend = state.backend
-        val data = state.backendProductMap[backend] ?: return BuildState.Next
+        val data: Async<List<BackendProduct>> = if (state.backend.canSearchProduct) {
+            state.backendSearchProduct
+        } else {
+            state.backendProductMap[backend]
+        } ?: return BuildState.Next
 
         if (data is Fail) {
             retryView {
@@ -91,6 +100,9 @@ class CoinSelectController @AssistedInject constructor(
                     viewModel.reload()
                 }
             }
+            if (BuildConfig.DEBUG) {
+                data.error.printStackTrace()
+            }
             return BuildState.Stop
         }
 
@@ -100,9 +112,13 @@ class CoinSelectController @AssistedInject constructor(
 
         val list: List<BackendProduct> = data.invoke() ?: return BuildState.Next
         val keyword = state.keyword
-        val filteredList = list.filter {
-            it.symbol.contains(keyword, true) ||
-                it.displayName.contains(keyword, true)
+        val filteredList = if (backend.canSearchProduct) {
+            list
+        } else {
+            list.filter {
+                it.symbol.contains(keyword, true) ||
+                    it.displayName.contains(keyword, true)
+            }
         }
 
         settingHeaderView {
@@ -121,13 +137,7 @@ class CoinSelectController @AssistedInject constructor(
             entryView {
                 id("backend_product_${entry.uniqueId}")
                 title(entry.displayName)
-                subTitle(
-                    if (entry.backend.isExchange) {
-                        ""
-                    } else {
-                        entry.symbol.uppercase()
-                    }
-                )
+                subTitle(getSubtitle(backend, entry.symbol, entry.network, entry.dex))
                 iconUrl(entry.iconUrl)
                 onClickListener { view ->
                     viewModel.addToHistory(
@@ -136,15 +146,37 @@ class CoinSelectController @AssistedInject constructor(
                             symbol = entry.symbol,
                             name = entry.displayName,
                             iconUrl = entry.iconUrl,
-                            backend = backend
+                            backend = backend,
+                            network = entry.network,
+                            dex = entry.dex
                         )
                     )
-                    moveToResult(view, entry.id, entry.backend)
+                    moveToResult(view, entry.id, entry.backend, entry.network, entry.dex)
                 }
             }
         }
 
         return BuildState.Next
+    }
+
+    private fun getSubtitle(
+        backend: Backend,
+        symbol: String,
+        network: String?,
+        dex: String?
+    ): CharSequence {
+        if (backend.isExchange) {
+            return ""
+        }
+        return buildSpannedString {
+            append(symbol.uppercase())
+            if (!network.isNullOrBlank()) {
+                append(" • ${network.uppercase()}")
+            }
+            if (!dex.isNullOrBlank()) {
+                append(" • ${dex.uppercase()}")
+            }
+        }
     }
 
     private fun buildExchanges(state: CoinSelectState): BuildState {
@@ -173,6 +205,7 @@ class CoinSelectController @AssistedInject constructor(
                 iconUrl(backend.iconUrl)
                 onClickListener { _ ->
                     viewModel.setBackend(backend)
+                    requestSearchBoxFocus.trySend(Unit)
                     viewModel.submitNewKeyword("")
                 }
             }
@@ -207,6 +240,7 @@ class CoinSelectController @AssistedInject constructor(
                 iconUrl(backend.iconUrl)
                 onClickListener { _ ->
                     viewModel.setBackend(backend)
+                    requestSearchBoxFocus.trySend(Unit)
                     viewModel.submitNewKeyword("")
                 }
             }
@@ -240,7 +274,7 @@ class CoinSelectController @AssistedInject constructor(
                 if (entry.backend.isExchange) {
                     subTitle(entry.backend.displayName)
                 } else {
-                    subTitle("${entry.symbol.uppercase()} (${entry.backend.displayName})")
+                    subTitle(getSubtitle(entry.backend, entry.symbol, entry.network, entry.dex))
                 }
                 iconUrl(entry.iconUrl)
                 onClearClickListener { _ ->
@@ -248,7 +282,13 @@ class CoinSelectController @AssistedInject constructor(
                 }
                 onClickListener { view ->
                     viewModel.addToHistory(entry)
-                    moveToResult(view, coinId = entry.id, backend = entry.backend)
+                    moveToResult(
+                        view,
+                        coinId = entry.id,
+                        backend = entry.backend,
+                        network = entry.network,
+                        dex = entry.dex,
+                    )
                 }
             }
         }
@@ -256,18 +296,26 @@ class CoinSelectController @AssistedInject constructor(
         return BuildState.Next
     }
 
-    private fun moveToResult(view: View, coinId: String, backend: Backend = Backend.CoinGecko) {
+    private fun moveToResult(
+        view: View,
+        coinId: String,
+        backend: Backend = Backend.CoinGecko,
+        network: String?,
+        dex: String?,
+    ) {
         view.dismissKeyboard()
         val controller = view.findNavController()
         tracker.logKeyParamsEvent(
             "coin_select",
             mapOf(
                 "coin_id" to coinId,
-                "backend_id" to backend.id
+                "backend_id" to backend.id,
+                "network" to network,
+                "dex" to dex,
             )
         )
         controller.previousBackStackEntry?.savedStateHandle
-            ?.set("result", CoinSelectResult(coinId, backend))
+            ?.set("result", CoinSelectResult(coinId, backend, network, dex))
         controller.popBackStack()
     }
 }

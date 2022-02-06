@@ -8,8 +8,8 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.coinstat.CoinStatArgs
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.NumberFormater
-import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.asArgs
+import com.rainyseason.cj.common.getNonNullCurrencyInfo
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.view.horizontalSeparatorView
 import com.rainyseason.cj.detail.about.CoinDetailAboutArgs
@@ -335,7 +335,7 @@ class CoinDetailController @AssistedInject constructor(
         } else {
             null
         }
-        val currencyInfo = SUPPORTED_CURRENCY[userSetting.currencyCode]!!
+        val currencyInfo = getNonNullCurrencyInfo(userSetting.currencyCode)
 
         // price null on preview coin like terra-shiba
         val coinPrice = coinDetail.marketData.currentPrice[userSetting.currencyCode]
@@ -347,7 +347,7 @@ class CoinDetailController @AssistedInject constructor(
         val changePercentText = if (changePercent != null) {
             numberFormatter.formatPercent(
                 amount = changePercent,
-                locate = SUPPORTED_CURRENCY[userSetting.currencyCode]!!.locale,
+                locate = getNonNullCurrencyInfo(userSetting.currencyCode).locale,
                 numberOfDecimals = 2,
             )
         } else {

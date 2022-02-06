@@ -1,6 +1,7 @@
 package com.rainyseason.cj.ticker
 
 import androidx.core.os.BuildCompat
+import com.rainyseason.cj.common.CurrencyInfo
 import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
@@ -78,6 +79,12 @@ data class CoinTickerConfig(
 
     @Json(name = "show_notification")
     val showNotification: Boolean = false,
+
+    @Json(name = "network")
+    val network: String? = null,
+
+    @Json(name = "dex")
+    val dex: String? = null,
 ) {
 
     fun ensureValid(): CoinTickerConfig {
@@ -85,6 +92,18 @@ data class CoinTickerConfig(
             .ensureChangeInterval()
             .ensureShowCurrency()
             .ensureTheme()
+            .ensureCurrency()
+    }
+
+    private fun ensureCurrency(): CoinTickerConfig {
+        val currencySupported = backend.supportedCurrency.any { it.code == currency }
+        return if (currencySupported) {
+            this
+        } else {
+            val currency = backend.supportedCurrency.firstOrNull { it.code == "usd" }
+                ?: CurrencyInfo.NONE
+            copy(currency = currency.code)
+        }
     }
 
     private fun ensureTheme(): CoinTickerConfig {
@@ -129,6 +148,8 @@ data class CoinTickerConfig(
             backend = backend,
             currency = currency,
             changeInterval = changeInterval,
+            network = network,
+            dex = dex,
         )
     }
 
@@ -159,6 +180,8 @@ data class CoinTickerConfig(
             "show_notification" to showNotification,
             "full_size" to fullSize,
             "amount" to amount,
+            "network" to network,
+            "dex" to dex,
         )
     }
 

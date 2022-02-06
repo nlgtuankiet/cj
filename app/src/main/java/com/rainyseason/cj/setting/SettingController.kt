@@ -6,6 +6,7 @@ import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
+import com.rainyseason.cj.common.getNonNullCurrencyInfo
 import com.rainyseason.cj.common.setCancelButton
 import com.rainyseason.cj.common.view.settingTitleSummaryView
 import dagger.assisted.Assisted
@@ -32,7 +33,7 @@ class SettingController @AssistedInject constructor(
         settingTitleSummaryView {
             id("setting_currency")
             title(R.string.coin_ticker_preview_setting_header_currency)
-            summary(SUPPORTED_CURRENCY[currencyCode]!!.name)
+            summary(getNonNullCurrencyInfo(currencyCode).name)
             onClickListener { _ ->
                 val currentState = withState(viewModel) { it }
                 val currentOption = currentState.userSetting.invoke()?.currencyCode

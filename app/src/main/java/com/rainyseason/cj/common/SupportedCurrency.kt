@@ -58,19 +58,41 @@ data class CurrencyInfo(
     val name: String,
     val locale: Locale,
     val cmcId: String,
-)
+) {
+
+    fun displayName(): String {
+        return if (code.isEmpty()) {
+            name
+        } else {
+            "${code.uppercase()} • $name"
+        }
+    }
+    companion object {
+        val NONE = CurrencyInfo(
+            code = "",
+            name = "None",
+            locale = Locale.US,
+            cmcId = ""
+        )
+        val USD = CurrencyInfo(
+            code = "usd",
+            name = "US Dollar",
+            locale = Locale.US,
+            cmcId = "2781",
+        )
+    }
+}
 
 fun currencyInfoOf(id: String): CurrencyInfo {
-    return SUPPORTED_CURRENCY[id] ?: error("Unknown currency: $id")
+    return getNonNullCurrencyInfo(id)
+}
+
+fun getNonNullCurrencyInfo(code: String): CurrencyInfo {
+    return SUPPORTED_CURRENCY[code] ?: CurrencyInfo.NONE
 }
 
 val SUPPORTED_CURRENCY = mapOf(
-    "usd" to CurrencyInfo(
-        code = "usd",
-        name = "US Dollar",
-        locale = Locale.US,
-        cmcId = "2781",
-    ),
+    "usd" to CurrencyInfo.USD,
     "idr" to CurrencyInfo(
         code = "idr",
         name = "Indonesian Rupiah",
@@ -230,3 +252,5 @@ val SUPPORTED_CURRENCY = mapOf(
         cmcId = "2793",
     ),
 )
+
+val SUPPORTED_CURRENCY_VALUES = SUPPORTED_CURRENCY.values.sortedBy { it.code }

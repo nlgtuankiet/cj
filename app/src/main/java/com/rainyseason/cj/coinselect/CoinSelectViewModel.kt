@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Collections
 import java.util.UUID
@@ -31,6 +32,7 @@ data class CoinSelectState(
     val keyword: String = "",
     val backend: Backend,
     val backendProductMap: Map<Backend, Async<List<BackendProduct>>> = emptyMap(),
+    val backendSearchProduct: Async<List<BackendProduct>> = Uninitialized,
     val currentPage: Int = 0,
 ) : MavericksState
 
@@ -38,6 +40,7 @@ class CoinSelectViewModel @AssistedInject constructor(
     @Assisted private val initState: CoinSelectState,
     private val coinHistoryRepository: CoinHistoryRepository,
     private val getBackendProducts: GetBackendProducts,
+    private val searchBackendProducts: SearchBackendProducts,
 ) : MavericksViewModel<CoinSelectState>(initState) {
 
     val id = UUID.randomUUID().toString()
@@ -63,10 +66,31 @@ class CoinSelectViewModel @AssistedInject constructor(
         ) { _, _ ->
             setState { copy(currentPage = 0) }
         }
+        maybeSearchProduct()
     }
 
     fun displayNextPage() {
         setState { copy(currentPage = currentPage + 1) }
+    }
+
+    private var searchProductJob: Job? = null
+
+    private fun maybeSearchProduct() {
+        viewModelScope.launch {
+            stateFlow.map { it.backend to it.keyword }
+                .distinctUntilChanged()
+                .debounce(300)
+                .collect { (backend, query) ->
+                    searchProductJob?.cancel()
+                    if (query.isEmpty() || !backend.canSearchProduct) {
+                        setState { copy(backendSearchProduct = Uninitialized) }
+                        return@collect
+                    }
+
+                    searchProductJob = searchBackendProducts.invoke(backend, query)
+                        .execute { copy(backendSearchProduct = it) }
+                }
+        }
     }
 
     private fun listenBackendChange() {

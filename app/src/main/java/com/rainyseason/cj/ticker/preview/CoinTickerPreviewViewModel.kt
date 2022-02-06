@@ -13,13 +13,13 @@ import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
+import com.rainyseason.cj.common.CurrencyInfo
 import com.rainyseason.cj.common.isOnboardDone
 import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.setOnboardDone
 import com.rainyseason.cj.common.update
-import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.CoinTickerConfig
@@ -68,7 +68,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     @Assisted private val initState: CoinTickerPreviewState,
     @Assisted private val args: CoinTickerPreviewArgs,
     private val coinTickerRepository: CoinTickerRepository,
-    private val userSettingRepository: UserSettingRepository,
     private val getDisplayData: GetDisplayData,
     private val keyValueStore: KeyValueStore,
     private val tickerWidgetRenderer: TickerWidgetRenderer,
@@ -165,7 +164,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             "bitcoin" to Backend.CoinGecko
         }
         val config = if (lastConfig == null) {
-            val userSetting = userSettingRepository.getUserSetting()
             val componentName = appWidgetManager.getAppWidgetInfo(args.widgetId)?.provider
                 ?: ComponentName(context, CoinTickerProviderGraph::class.java)
             val layout = CoinTickerLayout.fromComponentName(componentName.className)
@@ -174,15 +172,15 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 coinId = coinId,
                 layout = layout,
                 backend = backend,
-                numberOfAmountDecimal = userSetting.amountDecimals,
-                numberOfChangePercentDecimal = userSetting.numberOfChangePercentDecimal,
-                refreshInterval = userSetting.refreshInterval,
-                refreshIntervalUnit = userSetting.refreshIntervalUnit,
-                showThousandsSeparator = userSetting.showThousandsSeparator,
-                showCurrencySymbol = userSetting.showCurrencySymbol,
-                roundToMillion = userSetting.roundToMillion,
-                currency = userSetting.currencyCode,
-                sizeAdjustment = userSetting.sizeAdjustment,
+                numberOfAmountDecimal = 2,
+                numberOfChangePercentDecimal = 1,
+                refreshInterval = 1,
+                refreshIntervalUnit = TimeUnit.HOURS,
+                showThousandsSeparator = true,
+                showCurrencySymbol = true,
+                roundToMillion = true,
+                currency = CurrencyInfo.USD.code,
+                sizeAdjustment = 0,
                 showNotification = true,
             )
         } else {
@@ -353,9 +351,14 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         setState { copy(showAdvanceSetting = true) }
     }
 
-    fun setCoinId(coinId: String, backend: Backend) {
+    fun setCoinId(
+        coinId: String,
+        backend: Backend,
+        network: String?,
+        dex: String?
+    ) {
         updateConfig {
-            copy(coinId = coinId, backend = backend)
+            copy(coinId = coinId, backend = backend, network = network, dex = dex)
         }
     }
 

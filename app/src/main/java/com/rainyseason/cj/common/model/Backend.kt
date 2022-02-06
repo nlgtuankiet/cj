@@ -1,5 +1,7 @@
 package com.rainyseason.cj.common.model
 
+import com.rainyseason.cj.common.CurrencyInfo
+import com.rainyseason.cj.common.SUPPORTED_CURRENCY_VALUES
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
@@ -16,7 +18,9 @@ enum class Backend(
     val iconUrl: String,
     val isExchange: Boolean,
     val isDefault: Boolean = false,
-    val supportedTimeRange: Set<TimeInterval> = defaultTimeRanges
+    val supportedTimeRange: Set<TimeInterval> = defaultTimeRanges,
+    val canSearchProduct: Boolean = false,
+    val supportedCurrency: List<CurrencyInfo> = listOf(CurrencyInfo.NONE),
 ) {
     CoinGecko(
         id = "coin_gecko",
@@ -32,7 +36,8 @@ enum class Backend(
             TimeInterval.I_90D,
             TimeInterval.I_180D,
             TimeInterval.I_1Y,
-        )
+        ),
+        supportedCurrency = SUPPORTED_CURRENCY_VALUES,
     ),
     Binance(
         id = "binance",
@@ -44,7 +49,8 @@ enum class Backend(
         id = "coinmarketcap",
         displayName = "CoinMarketCap",
         iconUrl = "https://coinmarketcap.com/apple-touch-icon.png",
-        isExchange = false
+        isExchange = false,
+        supportedCurrency = SUPPORTED_CURRENCY_VALUES,
     ),
     Coinbase(
         id = "coinbase",
@@ -69,6 +75,17 @@ enum class Backend(
         displayName = "Luno",
         iconUrl = "https://s2.coinmarketcap.com/static/img/exchanges/128x128/171.png",
         isExchange = true
+    ),
+    DexScreener(
+        id = "dex_screener",
+        displayName = "DEX Screener",
+        iconUrl = "https://dexscreener.com/favicon.png",
+        isExchange = false,
+        canSearchProduct = true,
+        supportedCurrency = listOf(
+            CurrencyInfo.NONE,
+            CurrencyInfo.USD,
+        )
     ),
     ;
 

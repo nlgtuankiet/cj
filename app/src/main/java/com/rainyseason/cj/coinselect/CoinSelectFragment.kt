@@ -20,11 +20,15 @@ import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.CoinSelectTTI
 import com.rainyseason.cj.common.TraceManager
+import com.rainyseason.cj.common.launchAndRepeatWithViewLifecycle
 import com.rainyseason.cj.common.setTextIfDifferent
+import com.rainyseason.cj.common.showKeyboard
 import com.rainyseason.cj.databinding.CoinSelectFragmentBinding
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.consumeAsFlow
 import javax.inject.Inject
 
 @Module
@@ -92,6 +96,13 @@ class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksVie
                 viewModel.submitNewKeyword(newKeyword = s.toString())
             }
         })
+        launchAndRepeatWithViewLifecycle {
+            controller.requestSearchBoxFocus.consumeAsFlow()
+                .collect {
+                    searchBox.requestFocus()
+                    searchBox.showKeyboard()
+                }
+        }
 
         val clearButton = view.findViewById<ImageView>(R.id.clear_button)
         clearButton.setOnClickListener { viewModel.submitNewKeyword("") }
@@ -128,5 +139,9 @@ class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksVie
 
     override fun invalidate() {
         controller.requestModelBuild()
+    }
+
+    companion object {
+        const val SCREEN_NAME = "coin_select"
     }
 }

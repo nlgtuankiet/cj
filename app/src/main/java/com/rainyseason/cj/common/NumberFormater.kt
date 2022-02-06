@@ -60,14 +60,11 @@ class NumberFormater @Inject constructor() {
             roundSymbol = "M"
             tmpAmount /= 1_000_000
         }
-        val currencyInfo = SUPPORTED_CURRENCY[currencyCode]
-        if (currencyInfo == null) {
-            error("Unknown $currencyInfo")
-        }
+        val currencyInfo = getNonNullCurrencyInfo(currencyCode)
         val locale = currencyInfo.locale
         val formatter: DecimalFormat = NumberFormat.getCurrencyInstance(locale) as DecimalFormat
         formatter.currency = Currency.getInstance(locale)
-        if (!showCurrencySymbol) {
+        if (!showCurrencySymbol || currencyCode.isEmpty()) {
             val symbol = formatter.decimalFormatSymbols
             symbol.currencySymbol = ""
             formatter.decimalFormatSymbols = symbol

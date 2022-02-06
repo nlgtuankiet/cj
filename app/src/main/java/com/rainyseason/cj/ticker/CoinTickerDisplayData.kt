@@ -39,6 +39,8 @@ data class CoinTickerDisplayData(
         val backend: Backend,
         val currency: String,
         val changeInterval: TimeInterval,
+        val network: String? = null,
+        val dex: String? = null,
     )
 
     fun getAmount(config: CoinTickerConfig): Double? {

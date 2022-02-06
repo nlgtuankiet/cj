@@ -83,9 +83,13 @@ data class CoinHistoryEntry(
     @Json(name = "icon_url")
     val iconUrl: String = Backend.CoinGecko.iconUrl,
     @Json(name = "backend")
-    val backend: Backend = Backend.CoinGecko
+    val backend: Backend = Backend.CoinGecko,
+    @Json(name = "network")
+    val network: String? = null,
+    @Json(name = "dex")
+    val dex: String? = null,
 ) {
-    val uniqueId: String = "${backend.id}_$id"
+    val uniqueId: String = "${backend.id}_${network}_${dex}_$id"
 
     @Retention(AnnotationRetention.RUNTIME)
     @JsonQualifier

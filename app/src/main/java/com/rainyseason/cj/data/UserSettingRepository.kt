@@ -1,6 +1,6 @@
 package com.rainyseason.cj.data
 
-import com.rainyseason.cj.common.SUPPORTED_CURRENCY
+import com.rainyseason.cj.common.getNonNullCurrencyInfo
 import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -39,7 +39,7 @@ data class UserSetting(
 )
 
 val UserSetting.locale: Locale
-    get() = SUPPORTED_CURRENCY[currencyCode]!!.locale
+    get() = getNonNullCurrencyInfo(currencyCode).locale
 
 @Suppress("BlockingMethodInNonBlockingContext")
 @Singleton

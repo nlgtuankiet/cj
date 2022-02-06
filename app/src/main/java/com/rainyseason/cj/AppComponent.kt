@@ -47,6 +47,8 @@ import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.data.coingecko.CoinGeckoServiceWrapper
 import com.rainyseason.cj.data.database.kv.KeyValueDao
 import com.rainyseason.cj.data.database.kv.KeyValueDatabase
+import com.rainyseason.cj.data.dexscreener.DexScreenerService
+import com.rainyseason.cj.data.dexscreener.DexScreenerServiceWrapper
 import com.rainyseason.cj.data.ftx.FtxService
 import com.rainyseason.cj.data.interceptor.synchronized
 import com.rainyseason.cj.data.kraken.Kraken
@@ -383,6 +385,21 @@ object AppProvides {
             .build()
             .create(LunoWebService::class.java)
         return LunoWebServiceWrapper(service)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDexScreenerService(
+        moshi: Moshi,
+        clientProvider: Provider<OkHttpClient>,
+    ): DexScreenerService {
+        val service = Retrofit.Builder()
+            .baseUrl(DexScreenerService.BASE_URL)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .callFactory { clientProvider.get().newCall(it) }
+            .build()
+            .create(DexScreenerService::class.java)
+        return DexScreenerServiceWrapper(service)
     }
 
     @Provides

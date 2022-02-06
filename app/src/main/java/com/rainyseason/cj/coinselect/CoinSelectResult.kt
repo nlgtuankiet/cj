@@ -8,4 +8,6 @@ import kotlinx.parcelize.Parcelize
 data class CoinSelectResult(
     val coinId: String,
     val backend: Backend,
+    val network: String?,
+    val dex: String?,
 ) : Parcelable

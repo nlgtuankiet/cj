@@ -15,6 +15,7 @@ class GetDisplayData @Inject constructor(
     private val getFtxDisplayData: GetFtxDisplayData,
     private val getKrakenDisplayData: GetKrakenDisplayData,
     private val getLunoDisplayData: GetLunoDisplayData,
+    private val getDexScreenerDisplayData: GetDexScreenerDisplayData,
 ) {
 
     suspend operator fun invoke(param: CoinTickerDisplayData.LoadParam): CoinTickerDisplayData {
@@ -26,6 +27,7 @@ class GetDisplayData @Inject constructor(
             Backend.Ftx -> getFtxDisplayData(param)
             Backend.Kraken -> getKrakenDisplayData(param)
             Backend.Luno -> getLunoDisplayData(param)
+            Backend.DexScreener -> getDexScreenerDisplayData(param)
         }
         if (DebugFlag.SLOW_TICKER_PREVIEW.isEnable) {
             delay(3000)

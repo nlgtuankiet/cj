@@ -33,12 +33,12 @@ import com.rainyseason.cj.MainActivity
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.GraphRenderer
 import com.rainyseason.cj.common.NumberFormater
-import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.WidgetRenderUtil
 import com.rainyseason.cj.common.addFlagMutable
 import com.rainyseason.cj.common.await
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getAppWidgetSizes
+import com.rainyseason.cj.common.getNonNullCurrencyInfo
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.WidgetRenderParams
@@ -775,7 +775,7 @@ class TickerWidgetRenderer @Inject constructor(
 
             if (amount != null) {
                 val color = renderUtil.getChangePercentColor(config.theme, amount)
-                val locate = SUPPORTED_CURRENCY[config.currency]!!.locale
+                val locate = getNonNullCurrencyInfo(config.currency).locale
                 val content = numberFormater.formatPercent(
                     amount = amount,
                     locate = locate,

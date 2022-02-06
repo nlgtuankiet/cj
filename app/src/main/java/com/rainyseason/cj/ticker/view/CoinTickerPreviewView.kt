@@ -87,6 +87,9 @@ class CoinTickerPreviewView @JvmOverloads constructor(
             runCatching {
                 renderer.render(params, remoteView)
             }.onFailure {
+                if (BuildConfig.DEBUG) {
+                    throw it
+                }
                 // TODO show error view
             }
         }

@@ -12,7 +12,7 @@ import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.RefreshIntervals
-import com.rainyseason.cj.common.SUPPORTED_CURRENCY
+import com.rainyseason.cj.common.getNonNullCurrencyInfo
 import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.Theme
@@ -100,7 +100,15 @@ class CoinTickerPreviewController(
         } else {
             state.currentDisplayData?.name
         }?.let {
-            "$it (${config.backend.displayName})"
+            buildString {
+                append("$it (${config.backend.displayName})")
+                if (!config.network.isNullOrBlank()) {
+                    append(" • ${config.network.uppercase()}")
+                }
+                if (!config.dex.isNullOrBlank()) {
+                    append(" • ${config.dex.uppercase()}")
+                }
+            }
         }
         settingTitleSummaryView {
             id(COIN_SELECT_ID)
@@ -466,30 +474,25 @@ class CoinTickerPreviewController(
 
     private fun buildCurrency(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        if (config.backend.isExchange) {
-            return
-        }
-        val currencyCodeToString = SUPPORTED_CURRENCY.mapValues {
-            it.value.name
-        }.toList().sortedBy { it.first }
-
-        val selectedOption = config.currency
         maybeBuildHorizontalSeparator(id = "setting_currency_separator")
         settingTitleSummaryView {
             id("setting_currency")
             title(R.string.coin_ticker_preview_setting_header_currency)
-            summary(currencyCodeToString.toMap()[selectedOption]!!)
+            summary(getNonNullCurrencyInfo(config.currency).displayName())
             onClickListener { _ ->
                 val currentState = withState(viewModel) { it }
-                val currentOption = currentState.config!!.currency
+                val currentConfig = currentState.config ?: return@onClickListener
                 AlertDialog.Builder(context)
                     .setTitle(R.string.coin_ticker_preview_setting_header_currency)
                     .setCancelButton()
                     .setSingleChoiceItems(
-                        currencyCodeToString.map { it.second }.toTypedArray(),
-                        currencyCodeToString.indexOfFirst { it.first == currentOption }
+                        currentConfig.backend.supportedCurrency
+                            .map { it.displayName() }
+                            .toTypedArray(),
+                        currentConfig.backend.supportedCurrency
+                            .indexOfFirst { it.code == currentConfig.currency }
                     ) { dialog, which ->
-                        viewModel.setCurrency(currencyCodeToString[which].first)
+                        viewModel.setCurrency(currentConfig.backend.supportedCurrency[which].code)
                         dialog.dismiss()
                     }
                     .show()

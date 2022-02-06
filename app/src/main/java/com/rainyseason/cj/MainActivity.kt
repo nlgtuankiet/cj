@@ -16,6 +16,7 @@ import com.rainyseason.cj.chat.history.ChatHistoryArgs
 import com.rainyseason.cj.chat.history.ChatHistoryFragment
 import com.rainyseason.cj.chat.list.ChatListFragment
 import com.rainyseason.cj.chat.login.ChatLoginFragment
+import com.rainyseason.cj.coinselect.CoinSelectFragment
 import com.rainyseason.cj.coinstat.CoinStatArgs
 import com.rainyseason.cj.coinstat.CoinStatFragment
 import com.rainyseason.cj.common.asArgs
@@ -84,6 +85,7 @@ class MainActivity : AppCompatActivity() {
             fragment<ReleaseNoteFragment>(R.id.release_note_screen)
             fragment<SettingFragment>(R.id.setting_screen)
             fragment<CoinStatFragment>(R.id.coin_stat_screen)
+            fragment<CoinSelectFragment>(R.id.coin_select_screen)
             fragment<CoinDetailAboutFragment>(R.id.detail_about_screen)
         }
         if (savedInstanceState == null) {
@@ -102,6 +104,7 @@ class MainActivity : AppCompatActivity() {
             CoinStatFragment.SCREEN_NAME -> R.id.coin_stat_screen
             ChatHistoryFragment.SCREEN_NAME -> R.id.chat_history_screen
             ChatListFragment.SCREEN_NAME -> R.id.chat_list_screen
+            CoinSelectFragment.SCREEN_NAME -> R.id.coin_select_screen
             else -> null
         }
         Timber.d("onNewIntent: $intent screen = $screen")
@@ -123,6 +126,9 @@ class MainActivity : AppCompatActivity() {
                         CoinStatArgs(coinId).asArgs()
                     )
                 }
+            }
+            R.id.coin_select_screen -> {
+                navController.navigate(R.id.coin_select_screen)
             }
             R.id.detail_screen -> {
                 if (coinId != null) {

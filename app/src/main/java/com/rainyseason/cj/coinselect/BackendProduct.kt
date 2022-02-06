@@ -16,6 +16,10 @@ data class BackendProduct(
     val backend: Backend,
     @Json(name = "icon_url")
     val iconUrl: String,
+    @Json(name = "network")
+    val network: String? = null,
+    @Json(name = "dex")
+    val dex: String? = null,
 ) {
-    val uniqueId: String = "${backend.id}_$id"
+    val uniqueId: String = "${backend.id}_${network}_${dex}_$id"
 }
