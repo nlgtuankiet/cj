@@ -96,6 +96,8 @@ class RemoteConfigFlagProvider @Inject constructor(
 object FeatureFlag {
     val HOME_V2 = FeatureKey("home_v2").withDefault("false")
     val DISABLE_V4_ONLY = FeatureKey("disable_ipv4_only")
+    val SHOW_ADD_WIDGET_TUTORIAL = FeatureKey("show_add_widget_tutorial")
+        .withDefault("false")
 }
 
 object DebugFlag {

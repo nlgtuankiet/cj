@@ -18,7 +18,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.rainyseason.cj.app.AppViewModel
 import com.rainyseason.cj.common.AppDnsSelector
-import com.rainyseason.cj.common.ConfigChangeManager
+import com.rainyseason.cj.common.ConfigManager
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
@@ -37,7 +37,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -71,8 +70,8 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     @Inject
     lateinit var firebaseRemoteConfig: FirebaseRemoteConfig
 
-    @Inject
-    lateinit var configChangeManager: ConfigChangeManager
+    @Inject // inject for init
+    lateinit var configManager: ConfigManager
 
     @Inject
     lateinit var appDnsSelector: Provider<AppDnsSelector>
@@ -96,7 +95,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         checkFirebaseApp()
         injectIfNecessary()
         keyValueDatabaseMigrator.migrate()
-        initRemoteConfig()
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
 
         if (!BuildConfig.IS_PLAY_STORE) {
@@ -144,19 +142,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     private fun initDns() {
         // set mode before lookup
         appDnsSelector.get()
-    }
-
-    private fun initRemoteConfig() {
-        scope.launch {
-            runCatching {
-                firebaseRemoteConfig.fetch(1).await()
-            }
-
-            runCatching {
-                firebaseRemoteConfig.activate().await()
-                configChangeManager.notifyListeners()
-            }
-        }
     }
 
     private fun setAppHash() {

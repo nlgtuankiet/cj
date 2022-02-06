@@ -29,6 +29,7 @@ class CommonRepository @Inject constructor(
     private val watchListIds = "watchlist_ids"
     private val readReleaseNoteVersion = "release_note"
     private val appHashKey = "app_hash"
+    private val doneShowAddWidgetTutorial = "done_show_add_widget_tutorial"
 
     suspend fun getAppHash(): String {
         return keyValueStore.withTransaction {
@@ -41,6 +42,14 @@ class CommonRepository @Inject constructor(
             }
             appHash
         }
+    }
+
+    suspend fun isDoneShowAddWidgetTutorial(): Boolean {
+        return keyValueStore.getBoolean(doneShowAddWidgetTutorial) ?: false
+    }
+
+    suspend fun setDoneShowAddWidgetTutorial() {
+        keyValueStore.setBoolean(doneShowAddWidgetTutorial, true)
     }
 
     fun hasUnreadReleaseNoteFlow(): Flow<Boolean> {

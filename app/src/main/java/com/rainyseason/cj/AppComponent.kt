@@ -31,6 +31,7 @@ import com.rainyseason.cj.coinselect.CoinSelectFragmentModule
 import com.rainyseason.cj.coinstat.CoinStatFragmentModule
 import com.rainyseason.cj.common.AppDnsSelector
 import com.rainyseason.cj.common.CoreComponent
+import com.rainyseason.cj.common.home.AddWidgetTutorialFragmentModule
 import com.rainyseason.cj.common.model.BackendJsonAdapter
 import com.rainyseason.cj.common.model.ThemeJsonAdapter
 import com.rainyseason.cj.common.model.TimeIntervalJsonAdapter
@@ -130,6 +131,7 @@ interface AppComponent : AndroidInjector<CJApplication>, CoreComponent {
         ChatLoginModule::class,
         ChatAdminActivityModule::class,
         CoinTickerPreviewFragmentModule::class,
+        AddWidgetTutorialFragmentModule::class,
         CoinSelectFragmentModule::class,
     ]
 )

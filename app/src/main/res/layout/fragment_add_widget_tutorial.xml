@@ -5,19 +5,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
-    <ImageView
-        android:id="@+id/background"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+    <TextView
+        android:textSize="24sp"
+        android:layout_marginTop="24dp"
+        android:text="How to add a widget?"
+        android:id="@+id/title"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ContentDescription" />
-
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:ignore="HardcodedText" />
 
     <com.airbnb.epoxy.Carousel
+        app:layout_constraintTop_toBottomOf="@id/title"
         android:id="@+id/carousel"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -26,23 +27,23 @@
         app:layout_constraintBottom_toTopOf="@id/indicator"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+         />
 
     <me.relex.circleindicator.CircleIndicator2
         android:id="@+id/indicator"
         android:layout_width="wrap_content"
         android:layout_height="16dp"
         android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@id/add_widget_button"
+        app:layout_constraintBottom_toTopOf="@id/done_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/add_widget_button"
+        android:id="@+id/done_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:text="@string/home_add_widget"
+        android:text="@string/tutorial_add_widget_done"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

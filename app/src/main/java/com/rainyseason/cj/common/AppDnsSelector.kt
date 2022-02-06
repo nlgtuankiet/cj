@@ -15,12 +15,12 @@ import javax.inject.Singleton
 
 @Singleton
 class AppDnsSelector @Inject constructor(
-    configChangeManager: ConfigChangeManager
+    configManager: ConfigManager
 ) : Dns, ConfigChangeListener {
     private var mode: Mode = Mode.IPV4_ONLY
 
     init {
-        configChangeManager.registerListener(this)
+        configManager.registerListener(this)
     }
 
     enum class Mode {

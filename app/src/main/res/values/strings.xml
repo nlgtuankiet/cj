@@ -92,7 +92,7 @@
     <string name="bottom_nav_home">Tutorial</string>
     <string name="bottom_nav_watch_list">Watchlist</string>
     <string name="bottom_nav_chat">Chat</string>
-    <string name="home_add_widget">Add widget</string>
+    <string name="tutorial_add_widget_done">Got it!</string>
     <string name="drag_and_drop_to_add_widget">Long press in home screen to add widget!</string>
 
     <string name="coin_ticker_preview_battery_saver_warning">Widget can\'t update under battery saver\nPlease exclude app from battery saver\nApp info ➜ Battery ➜ Unrestricted</string>

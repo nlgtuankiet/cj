@@ -19,14 +19,18 @@ import com.rainyseason.cj.chat.login.ChatLoginFragment
 import com.rainyseason.cj.coinselect.CoinSelectFragment
 import com.rainyseason.cj.coinstat.CoinStatArgs
 import com.rainyseason.cj.coinstat.CoinStatFragment
+import com.rainyseason.cj.common.ConfigManager
 import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.contact.ContactFragment
+import com.rainyseason.cj.common.home.AddWidgetTutorialFragment
 import com.rainyseason.cj.common.notNull
 import com.rainyseason.cj.common.widgetId
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.detail.CoinDetailFragment
 import com.rainyseason.cj.detail.about.CoinDetailAboutFragment
+import com.rainyseason.cj.featureflag.FeatureFlag
+import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.setting.SettingFragment
 import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.watch.WatchListFragment
@@ -34,7 +38,9 @@ import com.rainyseason.cj.widget.manage.ManageWidgetFragment
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.ContributesAndroidInjector
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -52,6 +58,9 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var coinTickerHandler: CoinTickerHandler
+
+    @Inject
+    lateinit var configManager: ConfigManager
 
     private lateinit var navController: NavController
 
@@ -87,11 +96,30 @@ class MainActivity : AppCompatActivity() {
             fragment<CoinStatFragment>(R.id.coin_stat_screen)
             fragment<CoinSelectFragment>(R.id.coin_select_screen)
             fragment<CoinDetailAboutFragment>(R.id.detail_about_screen)
+            fragment<AddWidgetTutorialFragment>(R.id.add_widget_tutorial_screen)
         }
         if (savedInstanceState == null) {
             navigateNewIntent(intent)
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        maybeShowTutorial()
+    }
+
+    private fun maybeShowTutorial() {
+        lifecycleScope.launch {
+            configManager.awaitFirstFetch()
+            val isDoneShowAddWidgetTutorial = withContext(Dispatchers.IO) {
+                commonRepository.isDoneShowAddWidgetTutorial()
+            }
+            if (!isDoneShowAddWidgetTutorial) {
+                lifecycleScope.launchWhenResumed {
+                    if (FeatureFlag.SHOW_ADD_WIDGET_TUTORIAL.isEnable) {
+                        navController.navigate(R.id.add_widget_tutorial_screen)
+                    }
+                }
+            }
+        }
     }
 
     private fun navigateNewIntent(intent: Intent) {
