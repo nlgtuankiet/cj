@@ -1,4 +1,8 @@
-### 1.14.0 Release
+### 1.14.2 Release
+✨ Add support for DexScreener, now you can monitor trading pair from DexScreener.  
+✨ Add tutorial screen about how to add new widget.  
+
+### 1.14.1 Release
 ✨ Add sticky notification, now you can check coin price right on the lock screen!  
 🛠 Fix ticker widget sometimes reset to bitcoin when re-config  
 
