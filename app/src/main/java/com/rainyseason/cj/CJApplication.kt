@@ -17,6 +17,7 @@ import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.rainyseason.cj.app.AppViewModel
+import com.rainyseason.cj.app.OneSignalInitializer
 import com.rainyseason.cj.common.AppDnsSelector
 import com.rainyseason.cj.common.ConfigManager
 import com.rainyseason.cj.common.CoreComponent
@@ -85,6 +86,9 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     @Inject
     lateinit var appViewModelProvider: Provider<AppViewModel>
 
+    @Inject
+    lateinit var oneSignalInitializer: OneSignalInitializer
+
     private lateinit var appComponent: AppComponent
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -137,6 +141,7 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
                 deleteUnsentReports()
             }
         }
+        oneSignalInitializer.invoke()
     }
 
     private fun initDns() {

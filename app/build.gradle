@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'kotlin-parcelize'
     id 'com.rainyseason.wmmp'
+    id 'com.onesignal.androidsdk.onesignal-gradle-plugin'
 }
 
 if (System.getenv('CI') != 'true') {
@@ -24,6 +25,9 @@ def getBooleanProp(name) {
     }
     return false
 }
+
+def localProperties = new Properties()
+localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 
 def isPlayStore = getBooleanProp("playstore")
 
@@ -73,6 +77,11 @@ android {
         }
         println "Version name is $versionName"
         buildConfigField "boolean", "IS_PLAY_STORE", "$isPlayStore"
+
+        def oneSignalAppId = localProperties.get("onesignal.appid")
+        println "oneSignalAppId is $oneSignalAppId"
+        buildConfigField "String", "ONESIGNAL_APP_ID", "\"$oneSignalAppId\""
+
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
@@ -138,6 +147,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
     implementation 'com.jakewharton.timber:timber:5.0.1'
+    implementation 'com.onesignal:OneSignal:[4.0.0, 4.99.99]'
 
     implementation 'jp.wasabeef:glide-transformations:4.3.0'
 
