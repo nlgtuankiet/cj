@@ -114,6 +114,7 @@ object DebugFlag {
     val DEBUG_COIN_TICKER_CONFIG = DebugKey("debug_coin_ticker_config")
     val FORCE_ANDROID_BELOW_12 = DebugKey("debug_force_android_below_12")
         .withDefault("false")
+    val DISABLE_ONESIGNAL = DebugKey("debug_disable_one_signal").withDefault("true")
 }
 
 class DebugFlagSetter : AppCompatActivity() {
