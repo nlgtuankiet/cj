@@ -317,7 +317,7 @@ object AppProvides {
     ): CoinGeckoService {
         val service = Retrofit.Builder()
             .baseUrl(CoinGeckoService.BASE_URL)
-            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
             .callFactory(callFactory)
             .build()
             .create(CoinGeckoService::class.java)
