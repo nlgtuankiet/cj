@@ -1,3 +1,7 @@
+### 1.14.3 Release
+✨ Add "Add widget shortcut" now you can add widget from the Manage Widget screen.  
+🛠 Fix can not load LUSE token on CoinGecko.  
+
 ### 1.14.2 Release
 ✨ Add support for DexScreener, now you can monitor trading pair from DexScreener.  
 ✨ Add tutorial screen about how to add new widget.  
