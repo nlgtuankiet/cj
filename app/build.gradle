@@ -192,6 +192,7 @@ dependencies {
     def epoxyVersion = "4.6.2"
     implementation "com.airbnb.android:epoxy:$epoxyVersion"
     kapt "com.airbnb.android:epoxy-processor:$epoxyVersion"
+    implementation 'com.github.rubensousa:gravitysnaphelper:2.2.2'
 
     //noinspection GradleDependency
     implementation 'com.google.android.material:material:1.5.0-alpha02'

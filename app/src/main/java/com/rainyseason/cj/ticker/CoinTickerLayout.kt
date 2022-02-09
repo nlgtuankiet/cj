@@ -1,5 +1,8 @@
 package com.rainyseason.cj.ticker
 
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
+import android.content.Context
 import android.util.Size
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.model.WidgetLayout
@@ -74,8 +77,27 @@ enum class CoinTickerLayout(
     }
 
     companion object {
-        fun fromComponentName(name: String): CoinTickerLayout {
-            return values().first { it.providerName == name }
+        val ALL_2X2_LAYOUT = listOf(
+            Graph2x2,
+            Default2x2,
+            Coin3602x2,
+        )
+
+        val ALL_2X1_LAYOUT = listOf(
+            Graph2x1,
+            Icon2x1,
+        )
+
+        val ALL_1X1_LAYOUT = listOf(
+            Nano1x1,
+            Coin3601x1,
+        )
+
+        fun fromWidgetId(context: Context, widgetId: Int): CoinTickerLayout {
+            val componentName = AppWidgetManager.getInstance(context)
+                .getAppWidgetInfo(widgetId)?.provider
+                ?: ComponentName(context, CoinTickerProviderGraph::class.java)
+            return values().first { it.providerName == componentName.className }
         }
     }
 }

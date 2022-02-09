@@ -57,4 +57,8 @@ class ManageWidgetFragment : Fragment(R.layout.manage_widget_fragment), Maverick
     override fun invalidate() {
         binding.content.requestModelBuild()
     }
+
+    companion object {
+        const val SCREEN_NAME = "manage_widget"
+    }
 }

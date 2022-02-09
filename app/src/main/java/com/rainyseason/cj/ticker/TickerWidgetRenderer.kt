@@ -714,6 +714,16 @@ class TickerWidgetRenderer @Inject constructor(
         return container
     }
 
+    fun createPreviewRemoteView(
+        layout: CoinTickerLayout,
+        bitmap: Bitmap,
+    ): RemoteViews {
+        val view = RemoteViews(context.packageName, layout.layout)
+        view.setImageViewBitmap(R.id.image_view, bitmap)
+        view.setViewVisibility(R.id.progress_bar, View.GONE)
+        return view
+    }
+
     /**
      * @param inputRemoteView optional remote view to render (for preview)
      */

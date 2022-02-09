@@ -27,6 +27,7 @@
     <color name="white_a50">#80FFFFFF</color>
     <color name="white_a80">#80FFFFFF</color>
     <color name="text_secondary">@color/white_a80</color>
+    <color name="text_primary">@color/white</color>
 
     <color name="gray_50">#FAFAFAFA</color>
     <color name="gray_300">#E0E0E0</color>

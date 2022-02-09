@@ -115,6 +115,7 @@ object DebugFlag {
     val FORCE_ANDROID_BELOW_12 = DebugKey("debug_force_android_below_12")
         .withDefault("false")
     val DISABLE_ONESIGNAL = DebugKey("debug_disable_one_signal").withDefault("true")
+    val FORCE_NOT_SUPPORT_WIDGET_PIN = DebugKey("force_not_support_widget_pin")
 }
 
 class DebugFlagSetter : AppCompatActivity() {

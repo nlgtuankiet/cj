@@ -141,7 +141,7 @@
     <string name="coin_stat_title">%s Statistics</string>
     <string name="manage_widgets">Manage Widgets</string>
     <string name="manage_widgets_empty">You haven\'t add any widgets yet</string>
-    <string name="manage_widgets_how_to_add_widget">How to add a widget?\n1. Long press on your home screen\n2. Select \"Widgets\" from the popup menu\n3. Long click on a widget then drag and drop it to your home screen</string>
+    <string name="manage_widgets_how_to_add_widget">How to add a widget?\n1. Long touch on your home screen\n2. Select \"Widgets\" from the popup menu\n3. Touch &amp; hold the widget then drag it to the Home Screen</string>
     <string name="manage_widgets_short">Manage</string>
 
     <string name="chat_history_title_admin">Customer Support</string>
@@ -161,4 +161,5 @@
     <string name="widget_watch_onboard_full_size_title">Full size widget</string>
     <string name="widget_watch_onboard_full_size_description">When on, widget will expand to full size. Scrolling is also enabled.\n(Resize the widget after create to see the result)</string>
     <string name="widget_ticker_onboard_full_size_description">When on, widget will expand to full size.\n(This feature is highly experimental)</string>
+    <string name="coin_ticker_config_added_widget">Widget created!\nCheck it out on your home screen!</string>
 </resources>

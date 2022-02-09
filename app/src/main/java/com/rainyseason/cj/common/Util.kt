@@ -57,6 +57,8 @@ import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.GlideRequest
 import com.rainyseason.cj.R
+import com.rainyseason.cj.featureflag.DebugFlag
+import com.rainyseason.cj.featureflag.isEnable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -529,5 +531,16 @@ suspend fun <T> GlideRequest<T>.await(context: Context): T {
             GlideApp.with(context).clear(target)
         }
         into(target)
+    }
+}
+
+fun AppWidgetManager.isRequestPinAppWidgetSupportedCompat(): Boolean {
+    if (DebugFlag.FORCE_NOT_SUPPORT_WIDGET_PIN.isEnable) {
+        return false
+    }
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        isRequestPinAppWidgetSupported
+    } else {
+        false
     }
 }

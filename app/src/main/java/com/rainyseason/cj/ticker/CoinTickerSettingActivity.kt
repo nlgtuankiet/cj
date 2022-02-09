@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.Display
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.createGraph
@@ -117,20 +118,34 @@ class CoinTickerSettingActivity :
         Timber.d("Screen size dp: ${dpWidth}x$dpHeight")
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if (intent.extras?.getBoolean(SHOW_TOAST_EXTRA) == true) {
+            Toast.makeText(
+                this,
+                R.string.coin_ticker_config_added_widget,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
     override fun androidInjector(): AndroidInjector<Any> {
         return androidInjector
     }
 
     companion object {
+        private const val SHOW_TOAST_EXTRA = "show_toast"
         fun starterIntent(
             context: Context,
             widgetId: Int,
+            showSuccessToast: Boolean = false,
         ): Intent {
             val intent = Intent(context, CoinTickerSettingActivity::class.java)
             intent.putExtra(
                 AppWidgetManager.EXTRA_APPWIDGET_ID,
                 widgetId,
             )
+            intent.putExtra(SHOW_TOAST_EXTRA, showSuccessToast)
             return intent
         }
     }

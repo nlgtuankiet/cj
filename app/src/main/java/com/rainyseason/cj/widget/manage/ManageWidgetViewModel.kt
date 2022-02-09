@@ -9,6 +9,7 @@ import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
+import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.fragment
 import com.rainyseason.cj.common.model.getWidgetIds
@@ -18,6 +19,7 @@ import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.ticker.CoinTickerLayout
+import com.rainyseason.cj.ticker.usecase.GetDisplayData
 import com.rainyseason.cj.widget.watch.WatchConfig
 import com.rainyseason.cj.widget.watch.WatchDisplayData
 import com.rainyseason.cj.widget.watch.WatchWidgetHandler
@@ -37,7 +39,9 @@ data class ManageWidgetState(
     val watchConfig: Map<Int, Async<WatchConfig>> = emptyMap(),
     val watchDisplayData: Map<Int, Async<WatchDisplayData>> = emptyMap(),
     val widgetLoading: Map<Int, Async<Boolean>> = emptyMap(),
-    val loadWidgetsDone: Boolean = false
+    val loadWidgetsDone: Boolean = false,
+    val previewCoinTickerDisplayData: Async<CoinTickerDisplayData> = Uninitialized,
+
 ) : MavericksState
 
 class ManageWidgetViewModel @AssistedInject constructor(
@@ -49,6 +53,7 @@ class ManageWidgetViewModel @AssistedInject constructor(
     private val watchWidgetHandler: WatchWidgetHandler,
     private val workManager: WorkManager,
     private val context: Context,
+    private val getDisplayData: GetDisplayData,
 ) : MavericksViewModel<ManageWidgetState>(initState) {
 
     private val getConfigJobs = mutableMapOf<Int, Job?>()
@@ -60,8 +65,21 @@ class ManageWidgetViewModel @AssistedInject constructor(
             idToJob.forEach { it.value?.cancel() }
             idToJob.clear()
         }
-        setState { ManageWidgetState() }
+        setState {
+            ManageWidgetState(
+                previewCoinTickerDisplayData = previewCoinTickerDisplayData
+            )
+        }
         loadWidgets()
+        loadPreviewCoinTickerDisplayData()
+    }
+
+    private fun loadPreviewCoinTickerDisplayData() {
+        suspend {
+            getDisplayData.invoke(CoinTickerConfig.DEFAULT_FOR_PREVIEW.asDataLoadParams())
+        }.execute(retainValue = ManageWidgetState::previewCoinTickerDisplayData) {
+            copy(previewCoinTickerDisplayData = it)
+        }
     }
 
     private fun loadWidgets() {

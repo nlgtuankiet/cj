@@ -2,7 +2,6 @@ package com.rainyseason.cj.ticker.preview
 
 import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.FragmentViewModelContext
@@ -27,7 +26,6 @@ import com.rainyseason.cj.ticker.CoinTickerDisplayData
 import com.rainyseason.cj.ticker.CoinTickerDisplayData.LoadParam
 import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.ticker.CoinTickerLayout
-import com.rainyseason.cj.ticker.CoinTickerProviderGraph
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.TickerWidgetFeature
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
@@ -164,9 +162,8 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             "bitcoin" to Backend.CoinGecko
         }
         val config = if (lastConfig == null) {
-            val componentName = appWidgetManager.getAppWidgetInfo(args.widgetId)?.provider
-                ?: ComponentName(context, CoinTickerProviderGraph::class.java)
-            val layout = CoinTickerLayout.fromComponentName(componentName.className)
+
+            val layout = CoinTickerLayout.fromWidgetId(context, args.widgetId)
             CoinTickerConfig(
                 widgetId = args.widgetId,
                 coinId = coinId,

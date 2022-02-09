@@ -87,6 +87,17 @@ data class CoinTickerConfig(
     val dex: String? = null,
 ) {
 
+    companion object {
+        val DEFAULT_FOR_PREVIEW = CoinTickerConfig(
+            widgetId = Int.MAX_VALUE,
+            coinId = "bitcoin",
+            backend = Backend.CoinGecko,
+            layout = CoinTickerLayout.Graph2x2,
+            currency = "usd",
+            showNotification = true,
+        )
+    }
+
     fun ensureValid(): CoinTickerConfig {
         return ensureClickAction()
             .ensureChangeInterval()

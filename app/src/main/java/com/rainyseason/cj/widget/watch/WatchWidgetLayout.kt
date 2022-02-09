@@ -1,5 +1,6 @@
 package com.rainyseason.cj.widget.watch
 
+import android.util.Size
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.model.WidgetLayout
 import com.squareup.moshi.JsonAdapter
@@ -13,6 +14,7 @@ enum class WatchWidgetLayout(
     val entryLimit: Int,
     override val providerName: String,
     val nameRes: Int,
+    val ratio: Size,
 ) : WidgetLayout {
     Watch4x2(
         id = "watch_4x2",
@@ -21,6 +23,7 @@ enum class WatchWidgetLayout(
         entryLimit = 3,
         providerName = WatchWidget4x2Provider::class.java.name,
         nameRes = R.string.watch_widget_4x2,
+        ratio = Size(4, 2)
     ),
     Watch4x4(
         id = "watch_4x4",
@@ -29,6 +32,7 @@ enum class WatchWidgetLayout(
         entryLimit = 6,
         providerName = WatchWidget4x4Provider::class.java.name,
         nameRes = R.string.watch_widget_4x4,
+        ratio = Size(4, 4)
     ),
     ;
 

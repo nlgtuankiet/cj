@@ -26,6 +26,12 @@ class TextView @JvmOverloads constructor(
         super.setTextAlignment(textAlignment)
     }
 
+    @ModelProp
+    @JvmOverloads
+    fun setTextSizeSp(value: Float = 14f) {
+        textSize = value
+    }
+
     @TextProp
     fun setContent(charSequence: CharSequence) {
         text = charSequence
