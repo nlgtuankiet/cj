@@ -7,7 +7,7 @@
 ✨ Add tutorial screen about how to add new widget.  
 
 ### 1.14.1 Release
-✨ Add sticky notification, now you can check coin price right on the lock screen!  
+✨ Add sticky notification (request by Charles Potts), now you can check coin price right on the lock screen!  
 🛠 Fix ticker widget sometimes reset to bitcoin when re-config  
 
 ### 1.13.3 Release
