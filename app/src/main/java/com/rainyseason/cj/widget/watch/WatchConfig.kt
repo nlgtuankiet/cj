@@ -67,6 +67,15 @@ data class WatchConfig(
 
     fun ensureValid(): WatchConfig {
         return ensureTheme()
+            .ensureInterval()
+    }
+
+    private fun ensureInterval(): WatchConfig {
+        return if (interval in SUPPORTED_INTERVAL) {
+            return this
+        } else {
+            copy(interval = TimeInterval.I_24H)
+        }
     }
 
     private fun ensureTheme(): WatchConfig {
@@ -105,5 +114,10 @@ data class WatchConfig(
 
     companion object {
         const val MIN_WIDGET_WIDTH = 330
+        val SUPPORTED_INTERVAL = setOf(
+            TimeInterval.I_24H,
+            TimeInterval.I_7D,
+            TimeInterval.I_30D,
+        )
     }
 }

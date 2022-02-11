@@ -10,8 +10,9 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.asArgs
+import com.rainyseason.cj.common.model.Coin
+import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.view.emptyView
-import com.rainyseason.cj.data.coingecko.CoinListEntry
 import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logClick
@@ -20,11 +21,10 @@ import com.rainyseason.cj.watch.view.WatchEntryViewModelBuilder
 import com.rainyseason.cj.watch.view.watchEditEntryView
 import com.rainyseason.cj.watch.view.watchEntrySeparatorView
 import com.rainyseason.cj.watch.view.watchEntryView
-import com.rainyseason.cj.watch.view.watchHeaderView
+import com.rainyseason.cj.widget.watch.WatchDisplayEntryLoadParam
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlin.math.max
 
 class WatchListController @AssistedInject constructor(
     @Assisted val viewModel: WatchListViewModel,
@@ -38,7 +38,6 @@ class WatchListController @AssistedInject constructor(
         val state = withState(viewModel) { it }
 
         buildWatchList(state)
-        buildSearchResult(state)
         buildEditList(state)
     }
 
@@ -47,25 +46,30 @@ class WatchListController @AssistedInject constructor(
             return BuildState.Next
         }
 
-        val watchList = state.watchList.invoke() ?: return BuildState.Next
+        val watchList = state.currentWatchlist ?: return BuildState.Next
+        val currency = state.userSetting.invoke()?.currencyCode ?: return BuildState.Next
 
-        watchList.forEachIndexed { _, coinId ->
-            val coinDetail = state.watchEntryDetail[coinId]?.invoke()
+        watchList.coins.forEachIndexed { _, coin: Coin ->
+            val loadParam = WatchDisplayEntryLoadParam(
+                coin,
+                currency,
+                changeInterval = TimeInterval.I_24H,
+            )
+            val displayData = state.watchDisplayData[loadParam]?.invoke()
             watchEditEntryView {
-                id(coinId)
-                coinId(coinId)
-                symbol(coinDetail?.symbol)
-                name(coinDetail?.name)
+                id("watch_entry_edit_${coin.hashCode()}_${state.selectedWatchlistId}")
+                coin(coin)
+                symbol(displayData?.symbol)
+                name(displayData?.name)
                 onDeleteClickListener { _ ->
                     tracker.logClick(
                         screenName = WatchListFragment.SCREEN_NAME,
                         target = "entry",
                         params = mapOf(
                             "action" to "delete",
-                            "coin_id" to coinId
-                        )
+                        ) + coin.getTrackingParams()
                     )
-                    viewModel.onRemoveClick(coinId)
+                    viewModel.onRemoveClick(coin, state.selectedWatchlistId)
                 }
                 onHandleTouch { model, _, _, _ ->
                     adapter.boundViewHolders.getHolderForModel(model)?.let {
@@ -78,140 +82,23 @@ class WatchListController @AssistedInject constructor(
         return BuildState.Next
     }
 
-    private fun buildSearchResult(state: WatchListState): BuildState {
-        if (state.isInEditMode) {
-            return BuildState.Next
-        }
-        val watchList = state.watchList.invoke() ?: return BuildState.Next
-        val watchListIds = watchList.toSet()
-        val coinMarket = state.coinMarket.invoke() ?: return BuildState.Next
-        val currencyCode = state.userSetting.invoke()?.currencyCode ?: return BuildState.Next
-        val coinList = state.coinList.invoke().orEmpty()
-
-        val keyword = state.keyword
-        if (keyword.isEmpty()) {
-            return BuildState.Next
-        }
-
-        watchHeaderView {
-            id("header_watch_list_symbol")
-            header(R.string.watch_list_symbol_header)
-        }
-
-        var shouldBuildSeparator = false
-
-        val coinMarketToRender = coinMarket
-            .filter { it.id !in watchListIds }
-            .filter {
-                it.name.contains(keyword, true) ||
-                    it.symbol.contains(keyword, true)
-            }
-
-        val coinMarketIds = coinMarket.map { it.id }.toSet()
-        val coinMarketToRenderIds = coinMarketToRender.map { it.id }.toSet()
-
-        coinMarketToRender.forEachIndexed { _, coinListEntry ->
-            if (shouldBuildSeparator) {
-                watchEntrySeparatorView {
-                    id("separator_result_${coinListEntry.id}")
-                }
-            }
-            if (!shouldBuildSeparator) {
-                shouldBuildSeparator = true
-            }
-
-            watchEntryView {
-                id(coinListEntry.id)
-                coinId(coinListEntry.id)
-                symbol(coinListEntry.symbol)
-                name(coinListEntry.name)
-                val priceModel = WatchEntryView.PriceModel(
-                    price = coinListEntry.currentPrice,
-                    changePercent = coinListEntry.priceChangePercentage24h,
-                    currency = currencyCode
-                )
-                price(priceModel)
-                graph(null)
-                setupOnClick(coinListEntry.id, coinListEntry.symbol)
-                onLongClickListener { view ->
-                    showPopup(view, coinListEntry.id)
-                    true
-                }
-            }
-        }
-
-        val coinListToRender = coinList
-            .filter { it.id !in watchListIds && it.id !in coinMarketToRenderIds }
-            .filter {
-                it.name.contains(keyword, true) ||
-                    it.symbol.contains(keyword, true)
-            }
-            .sortedWith(
-                compareByDescending<CoinListEntry> {
-                    max(calculateRatio(keyword, it.name), calculateRatio(keyword, it.symbol))
-                }.thenByDescending {
-                    coinMarketIds.contains(it.id)
-                }
-            )
-
-        coinListToRender.forEachIndexed { _, coinListEntry ->
-            if (shouldBuildSeparator) {
-                watchEntrySeparatorView {
-                    id("separator_result_${coinListEntry.id}")
-                }
-            }
-            if (!shouldBuildSeparator) {
-                shouldBuildSeparator = true
-            }
-
-            watchEntryView {
-                id(coinListEntry.id)
-                coinId(coinListEntry.id)
-                symbol(coinListEntry.symbol)
-                name(coinListEntry.name)
-                price(null)
-                graph(null)
-                setupOnClick(coinListEntry.id, coinListEntry.symbol)
-                onLongClickListener { view ->
-                    showPopup(view, coinListEntry.id)
-                    true
-                }
-            }
-        }
-
-        return BuildState.Next
-    }
-
-    private fun showPopup(view: View, coinId: String) {
+    private fun showPopup(view: View, coin: Coin, watchlistId: String) {
         val state = withState(viewModel) { it }
         if (state.isInEditMode) {
             return
         }
-        val inWatchList = coinId in state.watchList.invoke().orEmpty()
-        val action = if (inWatchList) {
-            "remove"
-        } else {
-            "add"
-        }
 
         view.createPopupMenuCenterEnd().apply {
-            if (inWatchList) {
-                inflate(R.menu.watch_list_watch_item)
-            } else {
-                inflate(R.menu.watch_list_search_result_item)
-            }
+            inflate(R.menu.watch_list_watch_item)
             setOnMenuItemClickListener { menu ->
                 tracker.logClick(
                     screenName = WatchListFragment.SCREEN_NAME,
                     target = "entry_popup",
                     params = mapOf(
-                        "action" to action
+                        "action" to "remove"
                     )
                 )
-                when (menu.itemId) {
-                    R.id.add -> viewModel.onAddClick(coinId)
-                    R.id.remove -> viewModel.onRemoveClick(coinId)
-                }
+                viewModel.onRemoveClick(coin, watchlistId)
                 true
             }
         }.show()
@@ -221,30 +108,20 @@ class WatchListController @AssistedInject constructor(
         return PopupMenu(context, this, Gravity.CENTER_VERTICAL or Gravity.END)
     }
 
-    private fun calculateRatio(keyword: String, value: String): Double {
-        if (value.contains(keyword, true)) {
-            return keyword.length.toDouble() / value.length
-        }
-        return 0.0
-    }
-
     private fun WatchEntryViewModelBuilder.setupOnClick(
-        coinId: String,
-        symbol: String? = null,
+        coin: Coin,
     ) {
         onClickListener { view ->
             view.requestFocus()
-            viewModel.onKeywordChange("")
             tracker.logClick(
                 screenName = WatchListFragment.SCREEN_NAME,
                 target = "entry",
                 params = mapOf(
                     "action" to "open_coin_detail",
-                    "coin_id" to coinId
-                )
+                ) + coin.getTrackingParams()
             )
             view.findNavController()
-                .navigate(R.id.detail_screen, CoinDetailArgs(coinId, symbol).asArgs())
+                .navigate(R.id.detail_screen, CoinDetailArgs(coin.id).asArgs())
         }
     }
 
@@ -252,69 +129,44 @@ class WatchListController @AssistedInject constructor(
         if (state.isInEditMode) {
             return BuildState.Next
         }
-        val userSetting = state.userSetting.invoke() ?: return BuildState.Next
-        val watchList = state.watchList.invoke() ?: return BuildState.Next
-        val currencyCode = userSetting.currencyCode
 
-        val keyword = state.keyword
+        val watchList = state.currentWatchlist ?: return BuildState.Next
+        val currency = state.userSetting.invoke()?.currencyCode ?: return BuildState.Next
 
-        if (state.keyword.isNotEmpty()) {
-            watchHeaderView {
-                id("header_watch_list")
-                header(R.string.watch_list_header)
-            }
-        }
-
-        val filteredWatchList = if (keyword.isNotBlank()) {
-            watchList
-                .filter { symbol ->
-                    val detail = state.watchEntryDetail[symbol]?.invoke()
-                    if (detail == null) {
-                        return@filter true
-                    } else {
-                        detail.name.contains(keyword, true) ||
-                            detail.symbol.contains(keyword, true)
-                    }
-                }
-        } else {
-            watchList
-        }
-
-        filteredWatchList.forEachIndexed { index, coinId ->
+        watchList.coins.forEachIndexed { index, coin: Coin ->
+            val loadParam = WatchDisplayEntryLoadParam(
+                coin,
+                currency,
+                changeInterval = TimeInterval.I_24H,
+            )
+            val displayData = state.watchDisplayData[loadParam]?.invoke()
             if (index != 0) {
                 watchEntrySeparatorView {
-                    id("watch_list_separator_$coinId")
+                    id("watch_entry_separator_${coin.hashCode()}_${state.selectedWatchlistId}")
                 }
             }
-
-            val coinDetail = state.watchEntryDetail[coinId]?.invoke()
-            val coinMarket = state.watchEntryMarket[coinId]?.invoke()
             watchEntryView {
-                id(coinId)
-                coinId(coinId)
-                symbol(coinDetail?.symbol)
-                name(coinDetail?.name)
-                val priceModel = if (coinDetail != null) {
+                id("watch_entry_${coin.hashCode()}_${state.selectedWatchlistId}")
+                symbol(displayData?.symbol ?: "")
+                name(displayData?.name ?: "")
+                val priceModel = if (displayData != null) {
                     WatchEntryView.PriceModel(
-                        price = coinMarket?.prices?.lastOrNull()?.get(1)
-                            ?: coinDetail.marketData.currentPrice[currencyCode] ?: 0.0,
-                        changePercent = coinDetail.marketData
-                            .priceChangePercentage24hInCurrency[currencyCode],
-                        currency = currencyCode
+                        price = displayData.price,
+                        changePercent = displayData.changePercent,
+                        currency = currency,
                     )
                 } else {
                     null
                 }
                 price(priceModel)
-                graph(coinMarket?.prices)
-                setupOnClick(coinId, coinDetail?.symbol)
+                graph(displayData?.graph ?: emptyList())
+                setupOnClick(coin)
                 onLongClickListener { view ->
-                    showPopup(view, coinId)
+                    showPopup(view, coin, state.selectedWatchlistId)
                     true
                 }
             }
         }
-
         return BuildState.Next
     }
 

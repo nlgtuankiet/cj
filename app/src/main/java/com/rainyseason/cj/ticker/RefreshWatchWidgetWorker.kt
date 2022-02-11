@@ -9,18 +9,18 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.WatchListRepository
-import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.getTrackingParams
 import com.rainyseason.cj.common.hasValidNetworkConnection
 import com.rainyseason.cj.common.isInBatteryOptimize
-import com.rainyseason.cj.common.model.asDayString
+import com.rainyseason.cj.common.model.Watchlist
 import com.rainyseason.cj.common.model.getWidgetIds
+import com.rainyseason.cj.common.usecase.GetWatchDisplayEntry
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
 import com.rainyseason.cj.widget.watch.WatchDisplayData
 import com.rainyseason.cj.widget.watch.WatchDisplayEntry
-import com.rainyseason.cj.widget.watch.WatchDisplayEntryContent
+import com.rainyseason.cj.widget.watch.WatchDisplayEntryLoadParam
 import com.rainyseason.cj.widget.watch.WatchWidgetHandler
 import com.rainyseason.cj.widget.watch.WatchWidgetLayout
 import com.rainyseason.cj.widget.watch.WatchWidgetRender
@@ -33,7 +33,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
 
 /**
  * Refresh
@@ -49,6 +48,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
     private val watchListRepository: WatchListRepository,
     private val tracker: Tracker,
     private val firebaseCrashlytics: FirebaseCrashlytics,
+    private val getWatchDisplayEntry: GetWatchDisplayEntry,
 ) : CoroutineWorker(appContext = appContext, params = params) {
 
     override suspend fun doWork(): Result {
@@ -138,7 +138,9 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
         }
 
         try {
-            val watchList = watchListRepository.getLegacyWatchlistCoinIds().first()
+            val watchList = watchListRepository.getWatchlistCollection()
+                .list.firstOrNull { it.id == Watchlist.DEFAULT_ID }
+                ?.coins.orEmpty()
                 .take(
                     if (config.fullSize) {
                         Int.MAX_VALUE
@@ -147,25 +149,21 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
                     }
                 )
             val entries = coroutineScope {
-                watchList.map { coinId ->
+                watchList.map { coin ->
                     async {
-                        val coinDetail = coinGeckoService.getCoinDetail(coinId)
-                        val coinMarket = coinGeckoService.getMarketChart(
-                            coinId,
-                            configCurrency,
-                            config.interval.asDayString()!!
-                        )
-                        val priceChart =
-                            coinMarket.prices.takeIf { it.size >= 2 }
-                        WatchDisplayEntry(
-                            coinId = coinId,
-                            content = WatchDisplayEntryContent(
-                                symbol = coinDetail.symbol,
-                                name = coinDetail.name,
-                                graph = priceChart,
-                                price = coinDetail.marketData.currentPrice[configCurrency] ?: 0.0,
-                                changePercent = priceChart?.changePercent()?.let { it * 100 }
+                        val data = getWatchDisplayEntry(
+                            WatchDisplayEntryLoadParam(
+                                coin = coin,
+                                currency = configCurrency,
+                                changeInterval = config.interval
                             )
+                        )
+                        WatchDisplayEntry(
+                            coinId = coin.id,
+                            backend = coin.backend,
+                            network = coin.network,
+                            dex = coin.dex,
+                            content = data
                         )
                     }
                 }

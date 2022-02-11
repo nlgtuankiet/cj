@@ -32,9 +32,6 @@ class GetDexScreenerDisplayData @Inject constructor(
         param: CoinTickerDisplayData.LoadParam
     ): CoinTickerDisplayData {
         val currency = param.currency
-        if (currency !in Backend.DexScreener.supportedCurrency.map { it.code }) {
-            error("Not supported currency: $currency")
-        }
         val network = param.network ?: error("Missing network")
         return coroutineScope {
             val to = System.currentTimeMillis()

@@ -26,9 +26,6 @@ class WatchEntryView @JvmOverloads constructor(
         .inflate(inflater, this, true)
     private val graphRenderer = coreComponent.graphRenderer
 
-    @set:ModelProp
-    var coinId: String = ""
-
     @ModelProp
     fun setSymbol(value: String?) {
         binding.symbol.text = value ?: ""

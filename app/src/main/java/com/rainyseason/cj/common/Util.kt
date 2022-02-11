@@ -57,6 +57,8 @@ import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.GlideRequest
 import com.rainyseason.cj.R
+import com.rainyseason.cj.coinselect.CoinSelectResult
+import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import kotlinx.coroutines.CoroutineScope
@@ -543,4 +545,8 @@ fun AppWidgetManager.isRequestPinAppWidgetSupportedCompat(): Boolean {
     } else {
         false
     }
+}
+
+fun CoinSelectResult.asCoin(): Coin {
+    return Coin(id = coinId, backend = backend, network = network, dex = dex)
 }

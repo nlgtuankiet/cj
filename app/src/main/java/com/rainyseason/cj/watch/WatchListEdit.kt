@@ -6,16 +6,18 @@ import com.airbnb.epoxy.EpoxyControllerAdapter
 import com.airbnb.epoxy.EpoxyTouchHelper
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.hapticFeedback
+import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.databinding.FragmentWatchListBinding
 import com.rainyseason.cj.tracking.logClick
 import com.rainyseason.cj.watch.view.WatchEditEntryViewModel_
+import timber.log.Timber
 
 fun WatchListFragment.setUpEdit(
     binding: FragmentWatchListBinding,
     viewModel: WatchListViewModel,
     controller: WatchListController,
 ) {
-    val editButton = binding.searchGroup.editButton
+    val editButton = binding.editButton
     val recyclerView = binding.contentRecyclerView
     val pullToRefreshLayout = binding.refreshLayout
 
@@ -23,9 +25,37 @@ fun WatchListFragment.setUpEdit(
         pullToRefreshLayout.isEnabled = !isInEditMode
     }
 
-    var moveFrom: Int? = null
+    var moveFrom: Coin? = null
     var moveTo: Int? = null
-    var mapping: Map<Int, String>? = null
+    var mapping: Map<Int, Coin>? = null
+
+    fun applyMapping() {
+        val newMapping = mutableMapOf<Int, Coin>()
+        val adapter = recyclerView.adapter as EpoxyControllerAdapter
+        adapter.copyOfModels.forEachIndexed { index, epoxyModel ->
+            val castModel = epoxyModel as? WatchEditEntryViewModel_
+            if (castModel != null) {
+                newMapping[index] = castModel.coin()
+            }
+        }
+        mapping = newMapping
+    }
+
+    fun mayBeMove() {
+        val fromCoin = moveFrom ?: return
+        val currentMapping = mapping ?: return
+        val toIndex = moveTo ?: return
+        val toCoin = currentMapping[toIndex] ?: return
+        Timber.d("move")
+        viewModel.drag(fromCoin, toCoin)
+        tracker.logClick(
+            screenName = WatchListFragment.SCREEN_NAME,
+            target = "entry",
+            params = mapOf(
+                "action" to "drag",
+            )
+        )
+    }
 
     val helper: ItemTouchHelper = EpoxyTouchHelper.initDragging(controller)
         .withRecyclerView(recyclerView)
@@ -37,39 +67,12 @@ fun WatchListFragment.setUpEdit(
                 itemView: View,
                 adapterPosition: Int
             ) {
-                moveFrom = adapterPosition
-                val newMapping = mutableMapOf<Int, String>()
-                val adapter = recyclerView.adapter as EpoxyControllerAdapter
-                val count = adapter.itemCount
-                repeat(count) { position ->
-                    val entryModel =
-                        adapter.getModelAtPosition(position) as? WatchEditEntryViewModel_
-                    if (entryModel != null) {
-                        newMapping[position] = entryModel.coinId()
-                    }
-                }
-                mapping = newMapping
+                applyMapping()
+                moveFrom = mapping?.get(adapterPosition)
                 itemView.hapticFeedback()
             }
 
             override fun onDragReleased(model: WatchEditEntryViewModel_, itemView: View) {
-                val currentMoveFrom = moveFrom
-                val currentMoveTo = moveTo
-                val currentMapping = mapping
-                if (currentMoveFrom != null && currentMoveTo != null && currentMapping != null) {
-                    val fromId = currentMapping[currentMoveFrom]
-                    val toId = currentMapping[currentMoveTo]
-                    if (fromId != null && toId != null) {
-                        viewModel.drag(fromId, toId)
-                        tracker.logClick(
-                            screenName = WatchListFragment.SCREEN_NAME,
-                            target = "entry",
-                            params = mapOf(
-                                "action" to "drag",
-                            )
-                        )
-                    }
-                }
                 moveFrom = null
                 moveTo = null
                 mapping = null
@@ -85,6 +88,7 @@ fun WatchListFragment.setUpEdit(
                     itemView.hapticFeedback()
                     moveTo = toPosition
                 }
+                mayBeMove()
             }
         })
     controller.touchHelper = helper
@@ -102,7 +106,6 @@ fun WatchListFragment.setUpEdit(
             viewModel.switchEditMode()
         }
         if (isInEditMode) {
-            binding.searchGroup.cancelSearch.performClick()
             helper.attachToRecyclerView(recyclerView)
         } else {
             helper.attachToRecyclerView(null)

@@ -43,13 +43,13 @@ class WatchWidgetRepository @Inject constructor(
     fun getConfigStream(widgetId: Int): Flow<WatchConfig> {
         return keyValueStore.getStringFlow(configKey(widgetId))
             .filterNotNull()
-            .map { configAdapter.fromJson(it)!! }
+            .map { configAdapter.fromJson(it)!!.ensureValid() }
             .distinctUntilChanged()
     }
 
     suspend fun getConfig(widgetId: Int): WatchConfig? {
         return keyValueStore.getString(configKey(widgetId))
-            ?.let { configAdapter.fromJson(it) }
+            ?.let { configAdapter.fromJson(it) }?.ensureValid()
     }
 
     suspend fun clearDisplayData(widgetId: Int) {

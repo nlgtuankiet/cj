@@ -10,6 +10,7 @@ import com.airbnb.epoxy.CallbackProp
 import com.airbnb.epoxy.ModelProp
 import com.airbnb.epoxy.ModelView
 import com.rainyseason.cj.common.inflater
+import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.databinding.ViewWatchEditEntryBinding
 
 @ModelView(autoLayout = ModelView.Size.MATCH_WIDTH_WRAP_HEIGHT)
@@ -21,7 +22,7 @@ class WatchEditEntryView @JvmOverloads constructor(
         .inflate(inflater, this, true)
 
     @set:ModelProp
-    var coinId: String = ""
+    lateinit var coin: Coin
 
     @ModelProp
     fun setSymbol(value: String?) {

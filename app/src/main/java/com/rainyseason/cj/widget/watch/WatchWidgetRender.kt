@@ -29,6 +29,7 @@ import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.dpToPxF
 import com.rainyseason.cj.common.getNonNullCurrencyInfo
 import com.rainyseason.cj.common.inflater
+import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.setBackgroundColor
 import com.rainyseason.cj.databinding.WidgetWatchBinding
 import com.rainyseason.cj.databinding.WidgetWatchEntryBinding
@@ -90,13 +91,14 @@ class WatchWidgetRender @Inject constructor(
         )
     }
 
-    private fun createFullSizeEntryView(
+    private fun createEntryView(
         params: WatchWidgetRenderParams,
         container: ViewGroup,
         height: Int,
-        data: WatchDisplayEntryContent?
+        entry: WatchDisplayEntry,
     ): View {
         val config = params.config
+        val data = entry.content
         val binding = WidgetWatchEntryBinding.inflate(container.inflater, container, false)
         binding.root.updateLayoutParams<ViewGroup.MarginLayoutParams> {
             this.height = height
@@ -127,19 +129,7 @@ class WatchWidgetRender @Inject constructor(
         }
 
         val price = data?.price
-        val priceContent = if (price != null) {
-            numberFormater.formatAmount(
-                price,
-                currencyCode = params.config.currency,
-                roundToMillion = config.roundToMillion,
-                numberOfDecimal = config.numberOfAmountDecimal,
-                hideOnLargeAmount = config.hideDecimalOnLargePrice,
-                showCurrencySymbol = config.showCurrencySymbol,
-                showThousandsSeparator = config.showThousandsSeparator
-            )
-        } else {
-            ""
-        }
+        val priceContent = getPriceContent(config, price, entry.coin)
 
         binding.price.text = priceContent
         binding.price.setTextColor(renderUtil.getTextPrimaryColor(theme))
@@ -213,7 +203,7 @@ class WatchWidgetRender @Inject constructor(
         val height = ((widgetHeight - totalSeparatorHeight) / entryLimit).toInt()
 
         renderData.entries.forEachIndexed { index, watchDisplayEntry ->
-            val view = createFullSizeEntryView(params, container, height, watchDisplayEntry.content)
+            val view = createEntryView(params, container, height, watchDisplayEntry)
             Timber.d("add iew with height $height")
             binding.listContainer.addView(view)
 
@@ -328,7 +318,7 @@ class WatchWidgetRender @Inject constructor(
 
         val pendingClickTemplate = when (config.clickAction) {
             WatchClickAction.OpenWatchlist -> {
-                val intent = Intent(context, MainActivity::class.java)
+                val intent = MainActivity.watchListIntent(context)
                 PendingIntent.getActivity(
                     context,
                     params.config.widgetId,
@@ -392,29 +382,34 @@ class WatchWidgetRender @Inject constructor(
         }
 
         val price = data?.price
-        val priceContent = if (price != null) {
-            numberFormater.formatAmount(
-                price,
-                currencyCode = config.currency,
-                roundToMillion = config.roundToMillion,
-                numberOfDecimal = config.numberOfAmountDecimal,
-                hideOnLargeAmount = config.hideDecimalOnLargePrice,
-                showCurrencySymbol = config.showCurrencySymbol,
-                showThousandsSeparator = config.showThousandsSeparator
-            )
-        } else {
-            ""
-        }
+        val priceContent = getPriceContent(config, price, entry.coin)
 
         remoteView.setTextViewText(R.id.price, priceContent)
         remoteView.setTextColor(R.id.price, renderUtil.getTextPrimaryColor(theme))
         val changePercentContent = formatChangePercent(data?.changePercent, config)
         remoteView.setTextViewText(R.id.change_percent, changePercentContent)
 
-        val intent = MainActivity.coinDetailIntent(context, entry.coinId)
-        remoteView.setOnClickFillInIntent(R.id.container, intent)
+        remoteView.setOnClickFillInIntent(R.id.container, Intent())
 
         return remoteView
+    }
+
+    private fun getPriceContent(config: WatchConfig, price: Double?, coin: Coin): String {
+        if (price == null) {
+            return ""
+        }
+        val backendSupportCurrency = coin.backend.supportedCurrency
+            .any { it.code == config.currency }
+        val showCurrencySymbol = config.showCurrencySymbol && backendSupportCurrency
+        return numberFormater.formatAmount(
+            price,
+            currencyCode = config.currency,
+            roundToMillion = config.roundToMillion,
+            numberOfDecimal = config.numberOfAmountDecimal,
+            hideOnLargeAmount = config.hideDecimalOnLargePrice,
+            showCurrencySymbol = showCurrencySymbol,
+            showThousandsSeparator = config.showThousandsSeparator
+        )
     }
 
     fun createFullSizeSeparatorView(config: WatchConfig): RemoteViews {

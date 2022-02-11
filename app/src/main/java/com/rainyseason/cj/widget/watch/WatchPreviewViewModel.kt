@@ -1,8 +1,10 @@
 package com.rainyseason.cj.widget.watch
 
+import android.annotation.SuppressLint
 import android.appwidget.AppWidgetManager
 import android.os.Parcelable
 import com.airbnb.mvrx.Async
+import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
@@ -10,47 +12,47 @@ import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.WatchListRepository
-import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.getWidgetId
 import com.rainyseason.cj.common.isOnboardDone
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
-import com.rainyseason.cj.common.model.asDayString
+import com.rainyseason.cj.common.model.Watchlist
+import com.rainyseason.cj.common.model.WatchlistCollection
 import com.rainyseason.cj.common.setOnboardDone
 import com.rainyseason.cj.common.update
+import com.rainyseason.cj.common.usecase.GetWatchDisplayEntry
 import com.rainyseason.cj.data.UserSetting
 import com.rainyseason.cj.data.UserSettingRepository
-import com.rainyseason.cj.data.coingecko.CoinDetailResponse
-import com.rainyseason.cj.data.coingecko.CoinGeckoService
-import com.rainyseason.cj.data.coingecko.MarketChartResponse
 import com.rainyseason.cj.data.database.kv.KeyValueStore
+import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import timber.log.Timber
+import java.util.Collections
 import java.util.concurrent.TimeUnit
 
 data class WatchPreviewState(
     val savedDisplayData: Async<WatchDisplayData> = Uninitialized,
     val savedConfig: Async<WatchConfig> = Uninitialized,
-    val watchlist: Async<List<String>> = Uninitialized,
     val userSetting: Async<UserSetting> = Uninitialized,
-    val coinDetail: Map<String, Async<CoinDetailResponse>> = emptyMap(),
-    val coinMarket: Map<String, Async<MarketChartResponse>> = emptyMap(),
+    val watchListCollection: Async<WatchlistCollection> = Uninitialized,
+    val watchDisplayData: Map<WatchDisplayEntryLoadParam, Async<WatchDisplayEntryContent>> =
+        emptyMap(),
     val previewScale: Double? = null,
     val scalePreview: Boolean = true,
     val showAdvanceSetting: Boolean = false,
+    val saved: Boolean = false,
 ) : MavericksState {
     val config: WatchConfig?
         get() = savedConfig.invoke()
@@ -71,31 +73,107 @@ class WatchPreviewViewModel @AssistedInject constructor(
     private val watchWidgetRepository: WatchWidgetRepository,
     private val watchListRepository: WatchListRepository,
     private val userSettingRepository: UserSettingRepository,
-    private val coinGeckoService: CoinGeckoService,
     private val appWidgetManager: AppWidgetManager,
     private val keyValueStore: KeyValueStore,
+    private val getWatchDisplayEntry: GetWatchDisplayEntry,
+    private val watchWidgetHandler: WatchWidgetHandler,
+    private val watchWidgetRender: WatchWidgetRender,
+    private val tracker: Tracker,
 ) : MavericksViewModel<WatchPreviewState>(initState) {
-    private var saved = false
 
-    private var loadCoinDetailJob: Job? = null
-    private val loadCoinDetailJobs = mutableMapOf<String, Job>()
-    private var loadEachEntryDataJob: Job? = null
-    private val loadCoinMarketJobs = mutableMapOf<String, Job>()
+    private val loadWatchEntryDataJob: MutableMap<WatchDisplayEntryLoadParam, Job> =
+        Collections.synchronizedMap(mutableMapOf())
+
+    private var watchlistCollection: Job? = null
+    private var loadWatchListEntriesJob: Job? = null
 
     private val _onBoardFeature = Channel<WatchOnboardFeature>()
     val onBoardFeature = _onBoardFeature.receiveAsFlow()
 
     init {
         loadDisplayData()
-        loadWatchList()
-        loadUserSetting()
-
-        onEach { state ->
-            maybeSaveDisplayData(state)
+        loadWatchlistEntry()
+        maybeSaveDisplayData()
+        viewModelScope.launch {
+            saveInitialConfig()
         }
-
-        reload()
         checkNextOnBoard()
+    }
+
+    private fun maybeSaveDisplayData() {
+        viewModelScope.launch {
+            stateFlow.mapNotNull { state ->
+                val config = state.config ?: return@mapNotNull null
+                val watchlist = state.watchListCollection
+                    .invoke()?.list?.firstOrNull { it.id == Watchlist.DEFAULT_ID }
+                    ?.coins?.take(config.layout.entryLimit)
+                    ?: return@mapNotNull null
+                val entries = watchlist.map { coin ->
+                    val params = WatchDisplayEntryLoadParam(
+                        coin = coin,
+                        currency = config.currency,
+                        changeInterval = config.interval,
+                    )
+                    val content = state.watchDisplayData[params]?.invoke()
+                    WatchDisplayEntry(
+                        coinId = coin.id,
+                        backend = coin.backend,
+                        network = coin.network,
+                        dex = coin.dex,
+                        content = content
+                    )
+                }
+                WatchDisplayData(
+                    entries = entries
+                )
+            }
+                .distinctUntilChanged()
+                .collect { data ->
+                    watchWidgetRepository.setDisplayData(args.widgetId, data)
+                }
+        }
+    }
+
+    private fun loadWatchlistEntry() {
+        watchlistCollection?.cancel()
+        watchlistCollection = watchListRepository.getWatchlistCollectionFlow()
+            .execute { copy(watchListCollection = it) }
+
+        loadWatchListEntriesJob?.cancel()
+        loadWatchListEntriesJob = onEach(
+            WatchPreviewState::watchListCollection,
+            WatchPreviewState::config,
+        ) { watchListCollection, config ->
+            config ?: return@onEach
+            val collection = watchListCollection.invoke() ?: return@onEach
+            val watchlist = collection.list.firstOrNull { it.id == Watchlist.DEFAULT_ID }
+                ?: return@onEach
+            watchlist.coins
+                .take(config.layout.entryLimit)
+                .forEach { coin ->
+                    val param = WatchDisplayEntryLoadParam(
+                        coin = coin,
+                        currency = config.currency,
+                        changeInterval = config.interval,
+                    )
+                    maybeLoadWatchEntry(param)
+                }
+        }
+    }
+
+    private fun maybeLoadWatchEntry(param: WatchDisplayEntryLoadParam) {
+        withState { state ->
+            val currentAsync = state.watchDisplayData[param]
+            if (currentAsync == null || currentAsync is Fail) {
+                Timber.d("load $param")
+                loadWatchEntryDataJob[param]?.cancel()
+                loadWatchEntryDataJob[param] = suspend {
+                    getWatchDisplayEntry.invoke(param)
+                }.execute {
+                    copy(watchDisplayData = watchDisplayData.update { put(param, it) })
+                }
+            }
+        }
     }
 
     private fun checkNextOnBoard() {
@@ -114,101 +192,6 @@ class WatchPreviewViewModel @AssistedInject constructor(
         }
     }
 
-    private fun reload() {
-        viewModelScope.launch {
-            saveInitialConfig()
-        }
-        loadEachEntryData()
-        loadCoinDetail()
-    }
-
-    private fun loadCoinDetail() {
-        loadCoinDetailJob?.cancel()
-        loadCoinDetailJob = onAsync(
-            WatchPreviewState::watchlist
-        ) { watchlist ->
-            loadCoinDetailJobs.values.forEach { it.cancel() }
-            setState { copy(coinDetail = emptyMap()) }
-            // TODO replace with widget type
-            watchlist.forEach { coinId ->
-                loadCoinDetailJobs[coinId] = suspend {
-                    coinGeckoService.getCoinDetail(coinId)
-                }.execute { copy(coinDetail = coinDetail.update { put(coinId, it) }) }
-            }
-        }
-    }
-
-    private fun loadUserSetting() {
-        userSettingRepository.getUserSettingFlow()
-            .execute { copy(userSetting = it) }
-    }
-
-    private fun loadEachEntryData() {
-        loadEachEntryDataJob?.cancel()
-        loadEachEntryDataJob = viewModelScope.launch {
-            stateFlow
-                .mapNotNull { state ->
-                    val userSetting = state.userSetting.invoke()
-                    val watchlist = state.watchlist.invoke()
-                    val config = state.config
-                    if (userSetting == null || watchlist == null || config == null) {
-                        null
-                    } else {
-                        Triple(userSetting.currencyCode, config.interval, watchlist)
-                    }
-                }
-                .distinctUntilChanged()
-                .collect { (currencyCode, interval, watchlist) ->
-                    loadCoinMarket(currencyCode, interval, watchlist)
-                }
-        }
-    }
-
-    private fun loadCoinMarket(
-        currencyCode: String,
-        interval: TimeInterval,
-        watchlist: List<String>
-    ) {
-        loadCoinMarketJobs.values.forEach { it.cancel() }
-        loadCoinMarketJobs.clear()
-        setState { copy(coinMarket = emptyMap()) }
-        watchlist.forEach { coinId ->
-            suspend {
-                coinGeckoService.getMarketChart(
-                    coinId,
-                    currencyCode,
-                    interval.asDayString()!!
-                )
-            }.execute {
-                copy(coinMarket = coinMarket.update { put(coinId, it) })
-            }
-        }
-    }
-
-    // TODO only save when something changed
-    private suspend fun maybeSaveDisplayData(state: WatchPreviewState) {
-        val watchlist = state.watchlist.invoke() ?: return
-        val currencyCode = state.userSetting.invoke()?.currencyCode ?: return
-        val entries = watchlist.map { coinId ->
-            val coinDetail = state.coinDetail[coinId]?.invoke()
-                ?: return@map WatchDisplayEntry(coinId, null)
-            val coinMarket = state.coinMarket[coinId]?.invoke()
-            val priceChart = coinMarket?.prices?.takeIf { it.size >= 2 }
-            WatchDisplayEntry(
-                coinId = coinId,
-                content = WatchDisplayEntryContent(
-                    symbol = coinDetail.symbol,
-                    name = coinDetail.name,
-                    graph = priceChart,
-                    price = coinDetail.marketData.currentPrice[currencyCode] ?: 0.0,
-                    changePercent = priceChart?.changePercent()?.let { it * 100 }
-                )
-            )
-        }
-        val data = WatchDisplayData(entries)
-        watchWidgetRepository.setDisplayData(args.widgetId, data)
-    }
-
     private fun getLayout(): WatchWidgetLayout {
         if (args.debugLayout != null) {
             return WatchWidgetLayout.values().first { it.id == args.debugLayout }
@@ -216,24 +199,6 @@ class WatchPreviewViewModel @AssistedInject constructor(
         val providerName = appWidgetManager.getAppWidgetInfo(args.widgetId)?.provider?.className
             ?: WatchWidgetLayout.Watch4x2.providerName
         return WatchWidgetLayout.fromProviderName(providerName)
-    }
-
-    @ExperimentalCoroutinesApi
-    private fun loadWatchList() {
-        stateFlow.mapNotNull {
-            it.config?.fullSize
-        }.flatMapLatest { fullSize ->
-            watchListRepository.getLegacyWatchlistCoinIds()
-                .map {
-                    it.take(
-                        if (fullSize) {
-                            Int.MAX_VALUE
-                        } else {
-                            getLayout().entryLimit
-                        }
-                    )
-                }
-        }.execute { copy(watchlist = it) }
     }
 
     fun switchScalePreview() {
@@ -244,6 +209,9 @@ class WatchPreviewViewModel @AssistedInject constructor(
         val userSetting = userSettingRepository.getUserSetting()
         val layout = getLayout()
         val previousConfig = watchWidgetRepository.getConfig(args.widgetId)
+        if (previousConfig != null) {
+            setState { copy(saved = true) }
+        }
         val config = previousConfig ?: WatchConfig(
             widgetId = args.widgetId,
             interval = TimeInterval.I_24H,
@@ -271,13 +239,32 @@ class WatchPreviewViewModel @AssistedInject constructor(
             .execute { copy(savedConfig = it) }
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onCleared() {
-        if (!saved) {
-            viewModelScope.launch(NonCancellable) {
-                watchWidgetRepository.clearDisplayData(args.widgetId)
+        withState { state ->
+            viewModelScope.launch {
+                if (state.saved) {
+                    Timber.d("Widget saved")
+                    val config = state.config
+                    val data = state.displayData
+                    if (config != null && data != null) {
+                        // TODO render widget
+                    }
+                    tracker.logKeyParamsEvent(
+                        key = "widget_save",
+                        params = config?.getTrackingParams().orEmpty(),
+                    )
+                    watchWidgetHandler.enqueueRefreshWidget(
+                        widgetId = args.widgetId,
+                        config = config
+                    )
+                } else {
+                    watchWidgetHandler.onWidgetDelete(args.widgetId)
+                    Timber.d("Cleared all data")
+                }
+                viewModelScope.cancel()
             }
         }
-        super.onCleared()
     }
 
     fun setRefreshInternal(interval: Long, unit: TimeUnit) {
@@ -351,7 +338,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
     }
 
     fun save() {
-        saved = true
+        setState { copy(saved = true) }
     }
 
     fun setClickAction(action: WatchClickAction) {

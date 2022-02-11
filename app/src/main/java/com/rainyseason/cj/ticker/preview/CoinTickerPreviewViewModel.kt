@@ -15,6 +15,7 @@ import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.CurrencyInfo
 import com.rainyseason.cj.common.isOnboardDone
 import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.setOnboardDone
@@ -348,14 +349,11 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         setState { copy(showAdvanceSetting = true) }
     }
 
-    fun setCoinId(
-        coinId: String,
-        backend: Backend,
-        network: String?,
-        dex: String?
+    fun setCoin(
+        coin: Coin,
     ) {
         updateConfig {
-            copy(coinId = coinId, backend = backend, network = network, dex = dex)
+            copy(coinId = coin.id, backend = coin.backend, network = coin.network, dex = coin.dex)
         }
     }
 

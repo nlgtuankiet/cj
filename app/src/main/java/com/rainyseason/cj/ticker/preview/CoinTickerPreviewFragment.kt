@@ -8,16 +8,16 @@ import android.os.Bundle
 import android.view.View
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
-import com.rainyseason.cj.coinselect.CoinSelectResult
+import com.rainyseason.cj.coinselect.observeCoinSelectResult
 import com.rainyseason.cj.common.CoinTickerPreviewTTI
 import com.rainyseason.cj.common.OnBoardParam
 import com.rainyseason.cj.common.TraceManager
+import com.rainyseason.cj.common.asCoin
 import com.rainyseason.cj.common.launchAndRepeatWithViewLifecycle
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.saveOrShowWarning
@@ -34,7 +34,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import timber.log.Timber
 import javax.inject.Inject
 
 @Module
@@ -95,21 +94,8 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
         binding.saveButton.setOnClickListener {
             save()
         }
-        findNavController().currentBackStackEntry?.savedStateHandle?.let { savedStateHandle ->
-            savedStateHandle.getLiveData<CoinSelectResult?>("result")
-                .observe(viewLifecycleOwner) { result: CoinSelectResult? ->
-                    Timber.d("result: $result")
-                    if (result == null) {
-                        return@observe
-                    }
-                    viewModel.setCoinId(
-                        coinId = result.coinId,
-                        backend = result.backend,
-                        network = result.network,
-                        dex = result.dex
-                    )
-                    savedStateHandle.set("result", null)
-                }
+        observeCoinSelectResult { result ->
+            viewModel.setCoin(result.asCoin())
         }
         viewModel.onEach(CoinTickerPreviewState::widgetSaved) { autoSaved ->
             binding.saveButton.setText(

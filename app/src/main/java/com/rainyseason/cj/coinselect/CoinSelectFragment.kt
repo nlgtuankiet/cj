@@ -22,6 +22,7 @@ import com.rainyseason.cj.common.CoinSelectTTI
 import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.launchAndRepeatWithViewLifecycle
 import com.rainyseason.cj.common.setTextIfDifferent
+import com.rainyseason.cj.common.setupSystemWindows
 import com.rainyseason.cj.common.showKeyboard
 import com.rainyseason.cj.databinding.CoinSelectFragmentBinding
 import dagger.Module
@@ -29,6 +30,7 @@ import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
+import timber.log.Timber
 import javax.inject.Inject
 
 @Module
@@ -135,6 +137,7 @@ class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksVie
         viewModel.onEach(CoinSelectState::backend) { backend ->
             onBackPressedCallback.isEnabled = !backend.isDefault
         }
+        setupSystemWindows()
     }
 
     override fun invalidate() {
@@ -143,5 +146,21 @@ class CoinSelectFragment : Fragment(R.layout.coin_select_fragment), MavericksVie
 
     companion object {
         const val SCREEN_NAME = "coin_select"
+    }
+}
+
+inline fun Fragment.observeCoinSelectResult(
+    crossinline action: (CoinSelectResult) -> Unit
+) {
+    findNavController().currentBackStackEntry?.savedStateHandle?.let { savedStateHandle ->
+        savedStateHandle.getLiveData<CoinSelectResult?>("result")
+            .observe(viewLifecycleOwner) { result: CoinSelectResult? ->
+                Timber.d("result: $result")
+                if (result == null) {
+                    return@observe
+                }
+                action.invoke(result)
+                savedStateHandle.set("result", null)
+            }
     }
 }

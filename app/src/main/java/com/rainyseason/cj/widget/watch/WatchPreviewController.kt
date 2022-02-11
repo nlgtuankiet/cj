@@ -12,7 +12,6 @@ import com.rainyseason.cj.common.RefreshIntervals
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.model.Theme
-import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.setCancelButton
 import com.rainyseason.cj.common.view.IntLabelFormater
 import com.rainyseason.cj.common.view.PercentLabelFormatrer
@@ -172,18 +171,7 @@ class WatchPreviewController @AssistedInject constructor(
 
     private fun buildChangePercentInterval(state: WatchPreviewState) {
         val config = state.config ?: return
-        val mapping = listOf(
-            TimeInterval.I_24H
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_24h,
-            TimeInterval.I_7D
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_7d,
-            TimeInterval.I_30D
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_30d,
-            TimeInterval.I_90D
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_90d,
-            TimeInterval.I_1Y
-                to R.string.coin_ticker_preview_setting_bottom_change_percent_interval_1y,
-        ).toMap()
+        val mapping = WatchConfig.SUPPORTED_INTERVAL.associateWith { it.titleRes }
 
         val interval = config.interval
 
@@ -192,17 +180,10 @@ class WatchPreviewController @AssistedInject constructor(
         settingTitleSummaryView {
             id("change_interval")
             title(R.string.coin_ticker_preview_setting_bottom_change_percent_internal_header)
-            summary(context.getString(mapping[interval]!!))
+            summary(interval.titleRes)
             onClickListener { _ ->
                 val currentState = withState(viewModel) { it }
                 val currentConfig = currentState.config!!
-                val options = listOf(
-                    TimeInterval.I_24H,
-                    TimeInterval.I_7D,
-                    TimeInterval.I_30D,
-                    TimeInterval.I_90D,
-                    TimeInterval.I_1Y,
-                )
                 val currentInterval = currentConfig.interval
                 AlertDialog.Builder(context)
                     .setTitle(
@@ -210,11 +191,12 @@ class WatchPreviewController @AssistedInject constructor(
                     )
                     .setCancelButton()
                     .setSingleChoiceItems(
-                        options.map { context.getString(mapping[it]!!) }.toTypedArray(),
-                        options.indexOfFirst { it == currentInterval }
+                        mapping.map { context.getString(it.value) }.toTypedArray(),
+                        mapping.toList().indexOfFirst { it.first == currentInterval }
                     ) { dialog, which ->
-                        val selectedInterval = options[which]
-                        viewModel.setPriceChangeInterval(selectedInterval)
+                        val selectedInterval = mapping.toList().getOrNull(which)
+                            ?: return@setSingleChoiceItems
+                        viewModel.setPriceChangeInterval(selectedInterval.first)
                         dialog.dismiss()
                     }
                     .show()

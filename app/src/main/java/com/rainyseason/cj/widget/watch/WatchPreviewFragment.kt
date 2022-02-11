@@ -1,6 +1,9 @@
 package com.rainyseason.cj.widget.watch
 
+import android.app.Activity
+import android.appwidget.AppWidgetManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
@@ -94,13 +97,16 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
         binding.saveButton.setOnClickListener {
             save()
         }
-        binding.saveButton.setText(
-            if ((requireActivity() as WatchWidgetSaver).widgetSaved()) {
-                R.string.coin_ticker_preview_auto_save_widget
-            } else {
-                R.string.coin_ticker_preview_save_widget
-            }
-        )
+
+        viewModel.onEach(WatchPreviewState::saved) { saved ->
+            binding.saveButton.setText(
+                if (saved) {
+                    R.string.coin_ticker_preview_auto_save_widget
+                } else {
+                    R.string.coin_ticker_preview_save_widget
+                }
+            )
+        }
         binding.backButton.setOnClickListener {
             requireActivity().onBackPressed()
         }
@@ -128,10 +134,11 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
     private fun save() {
         fun actualSave() {
             viewModel.save()
-            val state = withState(viewModel) { it }
-            val config = state.savedConfig.invoke() ?: return
-            val displayData = state.savedDisplayData.invoke() ?: return
-            (requireActivity() as WatchWidgetSaver).saveWidget(config, displayData)
+            val resultValue = Intent().apply {
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, viewModel.args.widgetId)
+            }
+            requireActivity().setResult(Activity.RESULT_OK, resultValue)
+            requireActivity().finish()
         }
 
         val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
@@ -143,13 +150,4 @@ class WatchPreviewFragment : Fragment(R.layout.watch_preview_fragment), Maverick
     override fun invalidate() {
         controller.requestModelBuild()
     }
-}
-
-interface WatchWidgetSaver {
-    fun saveWidget(
-        config: WatchConfig,
-        data: WatchDisplayData,
-    )
-
-    fun widgetSaved(): Boolean
 }
