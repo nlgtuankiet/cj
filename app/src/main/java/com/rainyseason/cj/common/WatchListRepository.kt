@@ -7,21 +7,25 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
-import com.rainyseason.cj.data.CommonRepository
+import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.common.model.Coin
+import com.rainyseason.cj.common.model.Watchlist
+import com.rainyseason.cj.common.model.WatchlistCollection
+import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.rainyseason.cj.widget.watch.WatchWidget4x2Provider
 import com.rainyseason.cj.widget.watch.WatchWidget4x4Provider
 import com.rainyseason.cj.widget.watch.WatchWidgetHandler
+import com.squareup.moshi.Moshi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -30,65 +34,145 @@ import javax.inject.Singleton
 
 @Singleton
 class WatchListRepository @Inject constructor(
-    private val commonRepository: CommonRepository,
-    private val appWidgetManager: AppWidgetManager,
     private val context: Context,
+    private val appWidgetManager: AppWidgetManager,
     private val watchWidgetHandler: WatchWidgetHandler,
+    private val keyValueStore: KeyValueStore,
+    private val moshi: Moshi,
 ) : LifecycleObserver {
 
-    private val scope = CoroutineScope(Dispatchers.IO + Job())
-
-    private val stateFlow: MutableStateFlow<List<String>> by lazy {
-        scope.launch {
-            commonRepository.watchListIdsFlow()
-                .onStart {
-                    if (!commonRepository.populateDefaultWatchlist()) {
-                        commonRepository.setWatchListIds(listOf("bitcoin", "ethereum", "dogecoin"))
-                        commonRepository.donePopulateDefaultWatchlist()
-                    }
-                }
-                .collect {
-                    stateFlow.value = it
-                }
-        }
-        MutableStateFlow(emptyList())
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    private val legacyPopulateDefaultWatchList = "populate_default_watchlist"
+    private val legacyWatchListIdsKey = "watchlist_ids"
+    private val watchlistCollectionKey = "watchlist_collection"
+    private val migrateToV2Job: Job = scope.launch {
+        migrateToV2()
     }
 
-    fun getWatchList(): Flow<List<String>> {
-        return stateFlow.asStateFlow()
-            .filter { commonRepository.populateDefaultWatchlist() }
+    private val watchlistCollectionAdapter = moshi.adapter(WatchlistCollection::class.java)
+
+    private suspend fun waitForMigrate() {
+        migrateToV2Job.join()
+    }
+
+    private suspend fun migrateToV2() {
+        val legacyIds = keyValueStore.getString(legacyWatchListIdsKey) ?: return
+        val ids = legacyIds.split(",").filter { key -> key.isNotBlank() }
+        val watchList = Watchlist(
+            id = Watchlist.DEFAULT_ID,
+            name = null,
+            coins = ids.map {
+                Coin(
+                    id = it,
+                    backend = Backend.CoinGecko
+                )
+            }
+        )
+        addOrReplaceWatchlist(
+            watchList,
+            false
+        )
+        keyValueStore.delete(legacyWatchListIdsKey)
+        keyValueStore.delete(legacyPopulateDefaultWatchList)
+    }
+
+    private suspend fun addOrReplaceWatchlist(
+        watchlist: Watchlist,
+        waitForMigration: Boolean = true,
+    ) {
+        if (waitForMigration) {
+            waitForMigrate()
+        }
+        val collection = getWatchlistCollection(waitForMigration = waitForMigration)
+        val list = collection.list.toMutableList()
+        val oldIndex = list.indexOfFirst { it.id == watchlist.id }
+        if (oldIndex != -1) {
+            list[oldIndex] = watchlist
+        } else {
+            list.add(watchlist)
+        }
+        val newCollection = collection.copy(list = list)
+        val newJson = watchlistCollectionAdapter.toJson(newCollection)
+        keyValueStore.setString(watchlistCollectionKey, newJson)
+    }
+
+    suspend fun getWatchlistCollection(
+        waitForMigration: Boolean = true,
+    ): WatchlistCollection {
+        if (waitForMigration) {
+            waitForMigrate()
+        }
+        val json = keyValueStore.getString(watchlistCollectionKey)
+        return decodeWatchlistCollection(json)
+    }
+
+    private fun decodeWatchlistCollection(json: String?): WatchlistCollection {
+        if (json.isNullOrBlank()) {
+            return WatchlistCollection.EMPTY
+        }
+        return watchlistCollectionAdapter.fromJson(json).notNull()
+    }
+
+    fun getWatchlistCollectionFlow(): Flow<WatchlistCollection> {
+        return keyValueStore.getStringFlow(watchlistCollectionKey)
+            .onStart { waitForMigrate() }
+            .map {
+                decodeWatchlistCollection(it)
+            }
             .distinctUntilChanged()
     }
 
-    suspend fun add(id: String) {
-        val currentState = stateFlow.value.toMutableList()
-        currentState.remove(id)
-        currentState.add(id)
-        commonRepository.setWatchListIds(currentState)
+    suspend fun addOrRemove(coin: Coin, watchlistId: String = Watchlist.DEFAULT_ID) {
+        waitForMigrate()
+        val watchList = findWatchlist(watchlistId) ?: return
+        val coins = watchList.coins.toMutableList()
+        val index = coins.indexOfFirst { it == coin }
+        if (index == -1) {
+            coins.add(coin)
+        } else {
+            coins.removeAt(index)
+        }
+        val newWatchlist = watchList.copy(coins = coins)
+        addOrReplaceWatchlist(newWatchlist)
     }
 
-    suspend fun remove(id: String) {
-        val currentState = stateFlow.value.toMutableList()
-        currentState.remove(id)
-        commonRepository.setWatchListIds(currentState)
+    private suspend fun findWatchlist(watchlistId: String): Watchlist? {
+        return getWatchlistCollection(waitForMigration = true).list
+            .firstOrNull { it.id == watchlistId } ?: if (watchlistId == Watchlist.DEFAULT_ID) {
+            Watchlist.DEFAULT_EMPTY
+        } else {
+            null
+        }
     }
 
-    suspend fun drag(fromId: String, toId: String) {
-        // btc eth dog
-        // ex: btc to dog
-        // step 1 remove btc
-        // step 2 insert btc to dog index
-        val currentList = stateFlow.value
+    fun getLegacyWatchlistCoinIds(): Flow<List<String>> {
+        return getWatchlistCollectionFlow()
+            .map {
+                it.list.firstOrNull { list -> list.id == Watchlist.DEFAULT_ID }?.coins.orEmpty()
+                    .map { coin -> coin.id }
+            }
+    }
 
-        val fromIndex = currentList.indexOf(fromId)
-        val toIndex = currentList.indexOf(toId)
-        val newList = currentList.toMutableList()
+    suspend fun remove(coin: Coin, watchlistId: String = Watchlist.DEFAULT_ID) {
+        waitForMigrate()
+        val watchList = getWatchlistCollection(waitForMigration = true).list
+            .firstOrNull { it.id == watchlistId } ?: return
+        val newCoins = watchList.coins.filter { it != coin }
+        val newWatchlist = watchList.copy(coins = newCoins)
+        addOrReplaceWatchlist(newWatchlist)
+    }
+
+    suspend fun drag(from: Coin, to: Coin, watchlistId: String = Watchlist.DEFAULT_ID) {
+        waitForMigrate()
+        val watchlist = findWatchlist(watchlistId) ?: return
+        val coins = watchlist.coins.toMutableList()
+        val fromIndex = coins.indexOf(from)
+        val toIndex = coins.indexOf(to)
         if (fromIndex != -1 && toIndex != -1) {
-            newList.remove(fromId)
-            newList.add(toIndex, fromId)
-            Timber.d("swap from $fromId to $toId current list: $currentList new list: $newList")
-            stateFlow.emit(newList.toList()) // instant reflex the change
-            commonRepository.setWatchListIds(newList.toList())
+            coins.remove(from)
+            coins.add(toIndex, from)
+            val newWatchlist = watchlist.copy(coins = coins)
+            addOrReplaceWatchlist(newWatchlist)
         }
     }
 
@@ -96,7 +180,7 @@ class WatchListRepository @Inject constructor(
 
     init {
         scope.launch(Dispatchers.Main) {
-            getWatchList()
+            getWatchlistCollectionFlow()
                 .drop(1)
                 .flowOn(Dispatchers.IO)
                 .collect {

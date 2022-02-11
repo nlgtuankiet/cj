@@ -138,7 +138,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
         }
 
         try {
-            val watchList = watchListRepository.getWatchList().first()
+            val watchList = watchListRepository.getLegacyWatchlistCoinIds().first()
                 .take(
                     if (config.fullSize) {
                         Int.MAX_VALUE

@@ -11,6 +11,7 @@ import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.getDrawableCompat
+import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.setupBottomNav
 import com.rainyseason.cj.common.setupSystemWindows
@@ -75,7 +76,7 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
         val loadingDrawable = requireContext()
             .getDrawableCompat(R.drawable.ic_baseline_hourglass_empty_24)
         viewModel.onEach(
-            CoinDetailState::watchList,
+            CoinDetailState::defaultWatchListCoins,
             CoinDetailState::addToWatchList,
         ) { watchList, addToWatchList ->
             if (!watchList.complete) {
@@ -87,7 +88,7 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
                 startIcon.alpha = 0.5f
                 startIcon.setOnClickListener { }
             }
-            if (watchList.invoke().orEmpty().contains(args.coinId)) {
+            if (watchList.invoke().orEmpty().contains(Coin(args.coinId))) {
                 button.setText(R.string.watch_list_menu_remove)
             } else {
                 button.setText(R.string.watch_list_menu_add)
@@ -107,7 +108,7 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
             }
 
             startIcon.alpha = if (addToWatchList is Loading) 0.5f else 1f
-            if (watchList.invoke().orEmpty().contains(args.coinId)) {
+            if (watchList.invoke().orEmpty().contains(Coin(args.coinId))) {
                 startIcon.setImageResource(R.drawable.ic_baseline_star_rate_24)
             } else {
                 startIcon.setImageResource(R.drawable.ic_baseline_star_outline_24)

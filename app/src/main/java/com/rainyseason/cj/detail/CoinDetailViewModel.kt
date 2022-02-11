@@ -11,6 +11,8 @@ import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.findApproxIndex
+import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.model.asDayString
 import com.rainyseason.cj.common.update
@@ -23,6 +25,7 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 private typealias State = CoinDetailState
@@ -35,7 +38,7 @@ data class CoinDetailState(
     val selectedLowHighInterval: TimeInterval = TimeInterval.I_24H,
     val lowHighPrice: Pair<Double, Double>? = null,
 
-    val watchList: Async<List<String>> = Uninitialized,
+    val defaultWatchListCoins: Async<List<Coin>> = Uninitialized,
     val addToWatchList: Async<Unit> = Uninitialized,
 
     val graphData: List<List<Double>> = emptyList(),
@@ -176,22 +179,24 @@ class CoinDetailViewModel @AssistedInject constructor(
         userSettingJob = userSettingRepository.getUserSettingFlow()
             .execute { copy(userSetting = it) }
 
-        watchListRepository.getWatchList()
-            .execute { copy(watchList = it) }
+        watchListRepository.getLegacyWatchlistCoinIds()
+            .map { it.map { id -> Coin(id) } }
+            .execute { copy(defaultWatchListCoins = it) }
     }
 
     fun onAddToWatchListClick() {
         withState { state ->
-            val watchList = state.watchList.invoke() ?: return@withState
             if (state.addToWatchList is Loading) {
                 return@withState
             }
+            val coinId = args.coinId
             suspend {
-                if (watchList.contains(args.coinId)) {
-                    watchListRepository.remove(args.coinId)
-                } else {
-                    watchListRepository.add(args.coinId)
-                }
+                watchListRepository.addOrRemove(
+                    Coin(
+                        id = coinId,
+                        backend = Backend.CoinGecko,
+                    ),
+                )
             }.execute { copy(addToWatchList = it) }
         }
     }

@@ -12,6 +12,7 @@ import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.WatchListRepository
+import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.realtimeFlowOf
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSetting
@@ -99,7 +100,7 @@ class WatchListViewModel @AssistedInject constructor(
             }
 
         watchListJob?.cancel()
-        watchListJob = watchListRepository.getWatchList()
+        watchListJob = watchListRepository.getLegacyWatchlistCoinIds()
             .execute {
                 copy(watchList = it)
             }
@@ -164,7 +165,7 @@ class WatchListViewModel @AssistedInject constructor(
 
     fun onRemoveClick(id: String) {
         viewModelScope.launch {
-            watchListRepository.remove(id)
+            watchListRepository.remove(Coin(id))
         }
     }
 
@@ -174,14 +175,9 @@ class WatchListViewModel @AssistedInject constructor(
                 if (state.addTasks[id] is Loading) {
                     return@withState
                 }
-
-                val watchList = state.watchList.invoke() ?: return@withState
                 suspend {
-                    if (watchList.contains(id)) {
-                        watchListRepository.remove(id)
-                    } else {
-                        watchListRepository.add(id)
-                    }
+                    val coin = Coin(id)
+                    watchListRepository.addOrRemove(coin)
                 }.execute { copy(addTasks = addTasks.update { put(id, it) }) }
             }
         }
@@ -213,7 +209,7 @@ class WatchListViewModel @AssistedInject constructor(
 
     fun drag(fromId: String, toId: String) {
         viewModelScope.launch {
-            watchListRepository.drag(fromId, toId)
+            watchListRepository.drag(Coin(fromId), Coin(toId))
         }
     }
 

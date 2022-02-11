@@ -223,7 +223,7 @@ class WatchPreviewViewModel @AssistedInject constructor(
         stateFlow.mapNotNull {
             it.config?.fullSize
         }.flatMapLatest { fullSize ->
-            watchListRepository.getWatchList()
+            watchListRepository.getLegacyWatchlistCoinIds()
                 .map {
                     it.take(
                         if (fullSize) {

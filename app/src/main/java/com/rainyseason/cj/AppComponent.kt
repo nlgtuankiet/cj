@@ -478,7 +478,14 @@ object AppProvides {
                 }
             }
             .build()
-        WorkManager.initialize(context, config)
+        try {
+            WorkManager.initialize(context, config)
+        } catch (ex: Exception) {
+            if (!BuildConfig.DEBUG) {
+                throw ex
+            }
+        }
+
         return WorkManager.getInstance(context)
     }
 

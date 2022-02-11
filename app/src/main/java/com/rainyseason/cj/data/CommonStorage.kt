@@ -25,8 +25,6 @@ class CommonRepository @Inject constructor(
     private val widgetsUsedKey = "widgets_used"
     private val userLikeAppKey = "user_like_app"
     private val lastDislikeKey = "last_dislike"
-    private val populateDefaultWatchList = "populate_default_watchlist"
-    private val watchListIds = "watchlist_ids"
     private val readReleaseNoteVersion = "release_note"
     private val appHashKey = "app_hash"
     private val doneShowAddWidgetTutorial = "done_show_add_widget_tutorial"
@@ -60,24 +58,6 @@ class CommonRepository @Inject constructor(
 
     suspend fun setReadReleaseNote() {
         keyValueStore.setString(readReleaseNoteVersion, BuildConfig.VERSION_NAME)
-    }
-
-    suspend fun populateDefaultWatchlist(): Boolean {
-        return keyValueStore.getBoolean(populateDefaultWatchList) ?: false
-    }
-
-    suspend fun donePopulateDefaultWatchlist() {
-        return keyValueStore.setBoolean(populateDefaultWatchList, true)
-    }
-
-    fun watchListIdsFlow(): Flow<List<String>> {
-        return keyValueStore.getStringFlow(watchListIds).map {
-            it.orEmpty().split(",").filter { key -> key.isNotBlank() }
-        }
-    }
-
-    suspend fun setWatchListIds(ids: List<String>) {
-        keyValueStore.setString(watchListIds, ids.joinToString(separator = ","))
     }
 
     suspend fun isUserLikeTheApp(): Boolean {
