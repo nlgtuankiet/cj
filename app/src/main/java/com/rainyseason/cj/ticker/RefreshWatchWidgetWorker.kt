@@ -2,12 +2,10 @@ package com.rainyseason.cj.ticker
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
-import android.widget.RemoteViews
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.BuildConfig
-import com.rainyseason.cj.R
 import com.rainyseason.cj.common.WatchListRepository
 import com.rainyseason.cj.common.getTrackingParams
 import com.rainyseason.cj.common.hasValidNetworkConnection
@@ -130,7 +128,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
                 data = oldDisplayData,
                 showLoading = true,
             )
-            updateWidget(widgetId, loadingParams)
+            render.render(widgetId, loadingParams)
         } else {
             firebaseCrashlytics.recordException(
                 IllegalStateException("missing display data ${config.layout}")
@@ -176,7 +174,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
                 showLoading = false,
                 isPreview = false
             )
-            updateWidget(widgetId, newParams)
+            render.render(widgetId, newParams)
         } catch (ex: Exception) {
             if (oldDisplayData != null) {
                 val oldParams = WatchWidgetRenderParams(
@@ -185,28 +183,9 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
                     showLoading = false,
                     isPreview = false
                 )
-                updateWidget(widgetId, oldParams)
+                render.render(widgetId, oldParams)
             }
             throw ex
-        }
-    }
-
-    private fun updateWidget(
-        widgetId: Int,
-        params: WatchWidgetRenderParams
-    ) {
-        val config = params.config
-        if (config.fullSize) {
-            val view = render.createFullSizeContainerView(params)
-            appWidgetManager.updateAppWidget(widgetId, view)
-            appWidgetManager.notifyAppWidgetViewDataChanged(widgetId, R.id.content)
-        } else {
-            val view = RemoteViews(appContext.packageName, config.layout.layout)
-            render.render(
-                remoteView = view,
-                inputParams = params,
-            )
-            appWidgetManager.updateAppWidget(widgetId, view)
         }
     }
 

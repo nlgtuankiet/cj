@@ -248,7 +248,13 @@ class WatchPreviewViewModel @AssistedInject constructor(
                     val config = state.config
                     val data = state.displayData
                     if (config != null && data != null) {
-                        // TODO render widget
+                        val params = WatchWidgetRenderParams(
+                            config = config,
+                            data = data,
+                            showLoading = false,
+                            isPreview = false,
+                        )
+                        watchWidgetRender.render(args.widgetId, params)
                     }
                     tracker.logKeyParamsEvent(
                         key = "widget_save",

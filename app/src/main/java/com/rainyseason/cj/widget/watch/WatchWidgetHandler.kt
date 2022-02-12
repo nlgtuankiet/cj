@@ -3,7 +3,6 @@ package com.rainyseason.cj.widget.watch
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.Intent
-import android.widget.RemoteViews
 import androidx.work.Constraints
 import androidx.work.Data
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -12,7 +11,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.await
 import com.rainyseason.cj.MainActivity
-import com.rainyseason.cj.R
 import com.rainyseason.cj.common.getWidgetId
 import com.rainyseason.cj.ticker.RefreshWatchWidgetWorker
 import javax.inject.Inject
@@ -84,15 +82,6 @@ class WatchWidgetHandler @Inject constructor(
             showLoading = false,
             isPreview = false,
         )
-        if (config.fullSize) {
-            val view = watchWidgetRender.createFullSizeContainerView(params)
-            appWidgetManager.updateAppWidget(widgetId, view)
-            appWidgetManager.notifyAppWidgetViewDataChanged(widgetId, R.id.content)
-        } else {
-
-            val view = RemoteViews(context.packageName, config.layout.layout)
-            watchWidgetRender.render(view, params)
-            appWidgetManager.updateAppWidget(widgetId, view)
-        }
+        watchWidgetRender.render(widgetId, params)
     }
 }

@@ -77,7 +77,7 @@ class WatchPreviewView @JvmOverloads constructor(
         //     height = widgetSize.height + context.dpToPx(12 * 2)
         // }
 
-        renderer.render(remoteView!!, params)
+        renderer.renderBitmap(remoteView!!, params)
     }
 
     fun setOnScaleClickListener(l: OnClickListener?) {

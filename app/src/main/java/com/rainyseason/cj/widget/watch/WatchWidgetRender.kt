@@ -422,6 +422,26 @@ class WatchWidgetRender @Inject constructor(
     }
 
     fun render(
+        widgetId: Int,
+        params: WatchWidgetRenderParams,
+    ) {
+        Timber.d("render widget $widgetId")
+        val config = params.config
+        if (config.fullSize) {
+            val view = createFullSizeContainerView(params)
+            appWidgetManager.updateAppWidget(widgetId, view)
+            appWidgetManager.notifyAppWidgetViewDataChanged(widgetId, R.id.content)
+        } else {
+            val view = RemoteViews(context.packageName, config.layout.layout)
+            renderBitmap(
+                remoteView = view,
+                inputParams = params,
+            )
+            appWidgetManager.updateAppWidget(widgetId, view)
+        }
+    }
+
+    fun renderBitmap(
         remoteView: RemoteViews,
         inputParams: WatchWidgetRenderParams
     ) {
