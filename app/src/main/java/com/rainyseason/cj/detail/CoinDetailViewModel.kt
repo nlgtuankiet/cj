@@ -14,6 +14,7 @@ import com.rainyseason.cj.common.findApproxIndex
 import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.model.TimeInterval
+import com.rainyseason.cj.common.model.Watchlist
 import com.rainyseason.cj.common.model.asDayString
 import com.rainyseason.cj.common.update
 import com.rainyseason.cj.data.UserSetting
@@ -107,7 +108,7 @@ class CoinDetailViewModel @AssistedInject constructor(
             loadGraphJobs[actualInterval]?.cancel()
             loadGraphJobs[actualInterval] = suspend {
                 coinGeckoService.getMarketChart(
-                    id = args.coinId,
+                    id = args.coin.id,
                     vsCurrency = code,
                     day = actualInterval.asDayString()!!
                 )
@@ -159,9 +160,20 @@ class CoinDetailViewModel @AssistedInject constructor(
      */
     private var onEachSelectedInterval: Job? = null
     private fun reload() {
+        watchListRepository.getWatchlistCollectionFlow()
+            .map { collection ->
+                collection.list.firstOrNull { watchlist -> watchlist.id == Watchlist.DEFAULT_ID }
+                    ?.coins.orEmpty()
+            }
+            .execute { copy(defaultWatchListCoins = it) }
+
+        if (args.coin.backend != Backend.CoinGecko) {
+            return
+        }
+
         coinDetailJob?.cancel()
         coinDetailJob = suspend {
-            coinGeckoService.getCoinDetail(args.coinId)
+            coinGeckoService.getCoinDetail(args.coin.id)
         }.execute { copy(coinDetailResponse = it) }
 
         viewModelScope.launch {
@@ -178,10 +190,6 @@ class CoinDetailViewModel @AssistedInject constructor(
         userSettingJob?.cancel()
         userSettingJob = userSettingRepository.getUserSettingFlow()
             .execute { copy(userSetting = it) }
-
-        watchListRepository.getLegacyWatchlistCoinIds()
-            .map { it.map { id -> Coin(id) } }
-            .execute { copy(defaultWatchListCoins = it) }
     }
 
     fun onAddToWatchListClick() {
@@ -189,14 +197,8 @@ class CoinDetailViewModel @AssistedInject constructor(
             if (state.addToWatchList is Loading) {
                 return@withState
             }
-            val coinId = args.coinId
             suspend {
-                watchListRepository.addOrRemove(
-                    Coin(
-                        id = coinId,
-                        backend = Backend.CoinGecko,
-                    ),
-                )
+                watchListRepository.addOrRemove(args.coin)
             }.execute { copy(addToWatchList = it) }
         }
     }

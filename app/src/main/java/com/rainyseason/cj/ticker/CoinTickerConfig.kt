@@ -3,6 +3,7 @@ package com.rainyseason.cj.ticker
 import androidx.core.os.BuildCompat
 import com.rainyseason.cj.common.CurrencyInfo
 import com.rainyseason.cj.common.model.Backend
+import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.squareup.moshi.Json
@@ -95,6 +96,15 @@ data class CoinTickerConfig(
             layout = CoinTickerLayout.Graph2x2,
             currency = "usd",
             showNotification = true,
+        )
+    }
+
+    fun getCoin(): Coin {
+        return Coin(
+            id = coinId,
+            backend = backend,
+            network = network,
+            dex = dex,
         )
     }
 

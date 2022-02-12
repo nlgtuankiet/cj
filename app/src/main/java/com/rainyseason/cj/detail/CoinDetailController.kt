@@ -114,7 +114,7 @@ class CoinDetailController @AssistedInject constructor(
             title("Statistics")
             onClickListener { view ->
                 val args = CoinStatArgs(
-                    coinId = args.coinId,
+                    coinId = args.coin.id,
                     symbol = state.coinDetailResponse.invoke()?.symbol
                 ).asArgs()
                 view.findNavController()

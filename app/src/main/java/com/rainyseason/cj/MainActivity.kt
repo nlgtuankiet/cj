@@ -23,6 +23,7 @@ import com.rainyseason.cj.common.ConfigManager
 import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.contact.ContactFragment
 import com.rainyseason.cj.common.home.AddWidgetTutorialFragment
+import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.notNull
 import com.rainyseason.cj.common.widgetId
 import com.rainyseason.cj.data.CommonRepository
@@ -126,6 +127,7 @@ class MainActivity : AppCompatActivity() {
         val screen = intent.extras?.getString(SCREEN_TO_OPEN_EXTRA)
         val coinId = intent.extras?.getString(COIN_ID_EXTRA)
             ?: intent.extras?.getString("coinId") // for dev
+        val coin = intent.extras?.getParcelable<Coin>("coin")
         val screenId = when (screen) {
             WatchListFragment.SCREEN_NAME -> R.id.watch_list_screen
             CoinDetailFragment.SCREEN_NAME -> R.id.detail_screen
@@ -159,10 +161,10 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(R.id.coin_select_screen)
             }
             R.id.detail_screen -> {
-                if (coinId != null) {
+                if (coin != null) {
                     navController.navigate(
                         R.id.detail_screen,
-                        CoinDetailArgs(coinId).asArgs()
+                        CoinDetailArgs(coin).asArgs()
                     )
                 }
             }
@@ -190,10 +192,10 @@ class MainActivity : AppCompatActivity() {
             }.maybeNewTask(context)
         }
 
-        fun coinDetailIntent(context: Context, coinId: String): Intent {
+        fun coinDetailIntent(context: Context, coin: Coin): Intent {
             return Intent(context, MainActivity::class.java).apply {
                 putExtra(SCREEN_TO_OPEN_EXTRA, CoinDetailFragment.SCREEN_NAME)
-                putExtra(COIN_ID_EXTRA, coinId)
+                putExtra(COIN_EXTRA, coin)
             }.maybeNewTask(context)
         }
 
@@ -212,5 +214,6 @@ class MainActivity : AppCompatActivity() {
 
         private const val SCREEN_TO_OPEN_EXTRA = "screen"
         private const val COIN_ID_EXTRA = "coin_id"
+        private const val COIN_EXTRA = "coin"
     }
 }

@@ -3,6 +3,7 @@ package com.rainyseason.cj.detail
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.airbnb.mvrx.Loading
@@ -11,7 +12,7 @@ import com.airbnb.mvrx.fragmentViewModel
 import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.getDrawableCompat
-import com.rainyseason.cj.common.model.Coin
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.setupBottomNav
 import com.rainyseason.cj.common.setupSystemWindows
@@ -50,6 +51,7 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
     private val controller: CoinDetailController by lazy {
         controllerFactory.create(viewModel, args)
     }
+    private var toast: Toast? = null
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -64,10 +66,23 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
         bindButton()
         tracker.logScreenEnter(
             SCREEN_NAME,
-            mapOf("coin_id" to args.coinId)
+            args.coin.getTrackingParams()
         )
         setupBottomNav()
         setupSystemWindows()
+        if (args.coin.backend != Backend.CoinGecko) {
+            toast = Toast.makeText(
+                requireContext(),
+                "Not supported for ${args.coin.backend.displayName} yet",
+                Toast.LENGTH_LONG
+            )
+            toast?.show()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        toast?.cancel()
     }
 
     private fun bindButton() {
@@ -88,7 +103,7 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
                 startIcon.alpha = 0.5f
                 startIcon.setOnClickListener { }
             }
-            if (watchList.invoke().orEmpty().contains(Coin(args.coinId))) {
+            if (watchList.invoke().orEmpty().contains(args.coin)) {
                 button.setText(R.string.watch_list_menu_remove)
             } else {
                 button.setText(R.string.watch_list_menu_add)
@@ -108,7 +123,7 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
             }
 
             startIcon.alpha = if (addToWatchList is Loading) 0.5f else 1f
-            if (watchList.invoke().orEmpty().contains(Coin(args.coinId))) {
+            if (watchList.invoke().orEmpty().contains(args.coin)) {
                 startIcon.setImageResource(R.drawable.ic_baseline_star_rate_24)
             } else {
                 startIcon.setImageResource(R.drawable.ic_baseline_star_outline_24)
@@ -134,7 +149,7 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
 
         viewModel.onEach(CoinDetailState::coinDetailResponse) { coinDetailResponse ->
             val response = coinDetailResponse.invoke()
-            binding.symbol.text = coinDetailResponse.invoke()?.symbol ?: args.symbol
+            binding.symbol.text = coinDetailResponse.invoke()?.symbol
 
             val rank = response?.marketCapRank
             binding.rank.text = rank?.let { "#$rank" } ?: ""

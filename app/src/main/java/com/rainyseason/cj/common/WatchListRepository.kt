@@ -145,14 +145,6 @@ class WatchListRepository @Inject constructor(
         }
     }
 
-    fun getLegacyWatchlistCoinIds(): Flow<List<String>> {
-        return getWatchlistCollectionFlow()
-            .map {
-                it.list.firstOrNull { list -> list.id == Watchlist.DEFAULT_ID }?.coins.orEmpty()
-                    .map { coin -> coin.id }
-            }
-    }
-
     suspend fun remove(coin: Coin, watchlistId: String = Watchlist.DEFAULT_ID) {
         waitForMigrate()
         val watchList = getWatchlistCollection(waitForMigration = true).list
