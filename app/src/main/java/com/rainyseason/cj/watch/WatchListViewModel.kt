@@ -3,13 +3,13 @@ package com.rainyseason.cj.watch
 import android.content.Context
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.Fail
-import com.airbnb.mvrx.FragmentViewModelContext
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.WatchListRepository
+import com.rainyseason.cj.common.fragment
 import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.model.Watchlist
@@ -48,6 +48,7 @@ data class WatchListState(
 @OptIn(FlowPreview::class)
 class WatchListViewModel @AssistedInject constructor(
     @Assisted state: WatchListState,
+    @Assisted args: WatchlistArgs,
     private val userSettingRepository: UserSettingRepository,
     private val watchListRepository: WatchListRepository,
     private val context: Context,
@@ -151,7 +152,7 @@ class WatchListViewModel @AssistedInject constructor(
 
     @AssistedFactory
     interface Factory {
-        fun create(state: WatchListState): WatchListViewModel
+        fun create(state: WatchListState, args: WatchlistArgs,): WatchListViewModel
     }
 
     companion object : MavericksViewModelFactory<WatchListViewModel, WatchListState> {
@@ -159,8 +160,8 @@ class WatchListViewModel @AssistedInject constructor(
             viewModelContext: ViewModelContext,
             state: WatchListState,
         ): WatchListViewModel {
-            return (viewModelContext as FragmentViewModelContext).fragment<WatchListFragment>()
-                .viewModelFatory.create(state)
+            val fragment = viewModelContext.fragment<WatchListFragment>()
+            return fragment.viewModelFatory.create(state, fragment.args)
         }
     }
 }

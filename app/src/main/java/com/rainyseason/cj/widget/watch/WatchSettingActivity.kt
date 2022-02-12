@@ -5,7 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.createGraph
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.fragment
 import com.rainyseason.cj.R
+import com.rainyseason.cj.appendAllMainScreen
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.ticker.getWidgetId
 import com.rainyseason.cj.tracking.Tracker
@@ -57,6 +61,17 @@ class WatchSettingActivity : AppCompatActivity() {
             return
         }
         setContentView(R.layout.activity_watch_setting)
+
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController = navHostFragment.navController
+        navController.graph = navController.createGraph(
+            R.id.watchlist_widget_preview_nav_graph,
+            R.id.watchlist_widget_preview_screen,
+        ) {
+            fragment<WatchPreviewFragment>(R.id.watchlist_widget_preview_screen)
+            appendAllMainScreen()
+        }
     }
 
     companion object {

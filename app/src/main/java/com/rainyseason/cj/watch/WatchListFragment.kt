@@ -3,6 +3,7 @@ package com.rainyseason.cj.watch
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import androidx.core.view.isGone
 import androidx.fragment.app.Fragment
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
@@ -34,6 +35,10 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
     @Inject
     lateinit var tracker: Tracker
 
+    val args: WatchlistArgs by lazy {
+        arguments?.getParcelable("args") ?: WatchlistArgs()
+    }
+
     val viewModel: WatchListViewModel by fragmentViewModel()
 
     val controller: WatchListController by lazy {
@@ -53,6 +58,9 @@ class WatchListFragment : Fragment(R.layout.fragment_watch_list), MavericksView 
         tracker.logScreenEnter(SCREEN_NAME)
         setupRefreshLayout(binding)
         setupBottomNav()
+        if (!args.showBottomNav) {
+            binding.bottomNav.isGone = true
+        }
         setupSystemWindows()
         setUpAdd(binding, viewModel)
     }

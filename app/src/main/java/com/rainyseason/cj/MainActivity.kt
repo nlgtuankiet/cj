@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.createGraph
 import androidx.navigation.fragment.FragmentNavigator
 import androidx.navigation.fragment.NavHostFragment
@@ -52,6 +53,22 @@ interface MainActivityModule {
     fun activity(): MainActivity
 }
 
+fun NavGraphBuilder.appendAllMainScreen() {
+    fragment<ChatHistoryFragment>(R.id.chat_history_screen)
+    fragment<ChatListFragment>(R.id.chat_list_screen)
+    fragment<ChatLoginFragment>(R.id.chat_login_screen)
+    fragment<ManageWidgetFragment>(R.id.manage_widgets_screen)
+    fragment<ContactFragment>(R.id.contact_screen)
+    fragment<WatchListFragment>(R.id.watch_list_screen)
+    fragment<CoinDetailFragment>(R.id.detail_screen)
+    fragment<ReleaseNoteFragment>(R.id.release_note_screen)
+    fragment<SettingFragment>(R.id.setting_screen)
+    fragment<CoinStatFragment>(R.id.coin_stat_screen)
+    fragment<CoinSelectFragment>(R.id.coin_select_screen)
+    fragment<CoinDetailAboutFragment>(R.id.detail_about_screen)
+    fragment<AddWidgetTutorialFragment>(R.id.add_widget_tutorial_screen)
+}
+
 class MainActivity : AppCompatActivity() {
 
     @Inject
@@ -85,19 +102,7 @@ class MainActivity : AppCompatActivity() {
             R.id.main_nav_graph,
             R.id.manage_widgets_screen,
         ) {
-            fragment<ChatHistoryFragment>(R.id.chat_history_screen)
-            fragment<ChatListFragment>(R.id.chat_list_screen)
-            fragment<ChatLoginFragment>(R.id.chat_login_screen)
-            fragment<ManageWidgetFragment>(R.id.manage_widgets_screen)
-            fragment<ContactFragment>(R.id.contact_screen)
-            fragment<WatchListFragment>(R.id.watch_list_screen)
-            fragment<CoinDetailFragment>(R.id.detail_screen)
-            fragment<ReleaseNoteFragment>(R.id.release_note_screen)
-            fragment<SettingFragment>(R.id.setting_screen)
-            fragment<CoinStatFragment>(R.id.coin_stat_screen)
-            fragment<CoinSelectFragment>(R.id.coin_select_screen)
-            fragment<CoinDetailAboutFragment>(R.id.detail_about_screen)
-            fragment<AddWidgetTutorialFragment>(R.id.add_widget_tutorial_screen)
+            appendAllMainScreen()
         }
         if (savedInstanceState == null) {
             navigateNewIntent(intent)

@@ -4,12 +4,13 @@ import android.content.Context
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.BuildCompat
+import androidx.navigation.findNavController
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.withState
-import com.rainyseason.cj.MainActivity
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.RefreshIntervals
 import com.rainyseason.cj.common.SUPPORTED_CURRENCY
+import com.rainyseason.cj.common.asArgs
 import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.setCancelButton
@@ -24,6 +25,7 @@ import com.rainyseason.cj.common.view.settingTitleSummaryView
 import com.rainyseason.cj.common.view.textView
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
+import com.rainyseason.cj.watch.WatchlistArgs
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -67,8 +69,9 @@ class WatchPreviewController @AssistedInject constructor(
             id("edit_watchlist")
             title(R.string.watch_edit_watch_list)
             summary(R.string.watch_edit_watch_list_summary)
-            onClickListener { _ ->
-                context.startActivity(MainActivity.watchListIntent(context))
+            onClickListener { view ->
+                val args = WatchlistArgs(showBottomNav = false)
+                view.findNavController().navigate(R.id.watch_list_screen, args.asArgs())
             }
         }
     }

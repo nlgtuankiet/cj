@@ -14,7 +14,6 @@ import com.rainyseason.cj.R
 import com.rainyseason.cj.common.getDrawableCompat
 import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.requireArgs
-import com.rainyseason.cj.common.setupBottomNav
 import com.rainyseason.cj.common.setupSystemWindows
 import com.rainyseason.cj.databinding.FragmentCoinDetailBinding
 import com.rainyseason.cj.tracking.Tracker
@@ -68,7 +67,6 @@ class CoinDetailFragment : Fragment(R.layout.fragment_coin_detail), MavericksVie
             SCREEN_NAME,
             args.coin.getTrackingParams()
         )
-        setupBottomNav()
         setupSystemWindows()
         if (args.coin.backend != Backend.CoinGecko) {
             toast = Toast.makeText(
