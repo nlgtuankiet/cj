@@ -7,6 +7,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.work.testing.WorkManagerTestInitHelper
 import com.rainyseason.cj.AppProvides
 import com.rainyseason.cj.CJApplication
+import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.model.Watchlist
 import com.rainyseason.cj.common.model.WatchlistCollection
@@ -209,5 +210,260 @@ class WatchListRepositoryTest {
         Assert.assertEquals(expectedCollection, collection)
         Assert.assertTrue(keyValueStore.getString("watch_list_ids") == null)
         Assert.assertTrue(keyValueStore.getBoolean("populate_default_watchlist") == null)
+    }
+
+    @Test
+    fun `add or remove to empty watchlist`() = runBlocking {
+        initWatchlistRepository()
+
+        val coinA = Coin(
+            id = "aaa",
+            backend = Backend.CoinGecko
+        )
+
+        val expectedCollection = WatchlistCollection(
+            list = listOf(
+                Watchlist(
+                    id = Watchlist.DEFAULT_ID,
+                    coins = listOf(coinA)
+                )
+            )
+        )
+        watchListRepository.addOrRemove(coinA)
+        val actualCollection = watchListRepository.getWatchlistCollection()
+
+        Assert.assertEquals(expectedCollection, actualCollection)
+    }
+
+    @Test
+    fun `add or remove to non exits watchlist`() = runBlocking {
+        initWatchlistRepository()
+
+        val coinA = Coin(
+            id = "aaa",
+            backend = Backend.CoinGecko
+        )
+
+        val expectedCollection = WatchlistCollection(
+            list = listOf(
+                Watchlist(
+                    id = "aaa",
+                    coins = listOf(coinA)
+                )
+            )
+        )
+        watchListRepository.addOrRemove(coinA, "aaa")
+        val actualCollection = watchListRepository.getWatchlistCollection()
+        Assert.assertEquals(expectedCollection, actualCollection)
+    }
+
+    @Test
+    fun `add or remove to main with add 3 coin`() = runBlocking {
+        initWatchlistRepository()
+
+        val coinA = Coin(
+            id = "aaa",
+            backend = Backend.CoinGecko
+        )
+        val coinB = Coin(
+            id = "bbb",
+            backend = Backend.Binance
+        )
+        val coinC = Coin(
+            id = "ccc",
+            backend = Backend.CoinMarketCap
+        )
+
+        val expectedCollection = WatchlistCollection(
+            list = listOf(
+                Watchlist(
+                    id = Watchlist.DEFAULT_ID,
+                    coins = listOf(coinA, coinB, coinC)
+                )
+            )
+        )
+        watchListRepository.addOrRemove(coinA)
+        watchListRepository.addOrRemove(coinB)
+        watchListRepository.addOrRemove(coinC)
+        val actualCollection = watchListRepository.getWatchlistCollection()
+        Assert.assertEquals(expectedCollection, actualCollection)
+    }
+
+    @Test
+    fun `add or remove to main with add 3 coin then remove middle`() = runBlocking {
+        initWatchlistRepository()
+
+        val coinA = Coin(
+            id = "aaa",
+            backend = Backend.CoinGecko
+        )
+        val coinB = Coin(
+            id = "bbb",
+            backend = Backend.Binance
+        )
+        val coinC = Coin(
+            id = "ccc",
+            backend = Backend.CoinMarketCap
+        )
+
+        var expectedCollection = WatchlistCollection(
+            list = listOf(
+                Watchlist(
+                    id = Watchlist.DEFAULT_ID,
+                    coins = listOf(coinA, coinC)
+                )
+            )
+        )
+        watchListRepository.addOrRemove(coinA)
+        watchListRepository.addOrRemove(coinB)
+        watchListRepository.addOrRemove(coinC)
+
+        // remove middle
+        watchListRepository.addOrRemove(coinB)
+        var actualCollection = watchListRepository.getWatchlistCollection()
+        Assert.assertEquals(expectedCollection, actualCollection)
+
+        // remove first
+        watchListRepository.addOrRemove(coinA)
+        expectedCollection = WatchlistCollection(
+            list = listOf(
+                Watchlist(
+                    id = Watchlist.DEFAULT_ID,
+                    coins = listOf(coinC)
+                )
+            )
+        )
+        actualCollection = watchListRepository.getWatchlistCollection()
+        Assert.assertEquals(expectedCollection, actualCollection)
+
+        // remove last
+        watchListRepository.addOrRemove(coinA)
+        watchListRepository.addOrRemove(coinA)
+
+        expectedCollection = WatchlistCollection(
+            list = listOf(
+                Watchlist(
+                    id = Watchlist.DEFAULT_ID,
+                    coins = listOf(coinC)
+                )
+            )
+        )
+        actualCollection = watchListRepository.getWatchlistCollection()
+        Assert.assertEquals(expectedCollection, actualCollection)
+    }
+
+    @Test
+    fun `drag first to middle`() = runBlocking {
+        initWatchlistRepository()
+
+        val coinA = Coin(
+            id = "aaa",
+            backend = Backend.CoinGecko
+        )
+        val coinB = Coin(
+            id = "bbb",
+            backend = Backend.Binance
+        )
+        val coinC = Coin(
+            id = "ccc",
+            backend = Backend.CoinMarketCap
+        )
+        val coinD = Coin(
+            id = "ddd",
+            backend = Backend.CoinMarketCap
+        )
+        watchListRepository.addOrRemove(coinA)
+        watchListRepository.addOrRemove(coinB)
+        watchListRepository.addOrRemove(coinC)
+        watchListRepository.addOrRemove(coinD)
+
+        watchListRepository.drag(coinA, coinC)
+
+        // drag first to middle
+        var expectedCollection = WatchlistCollection(
+            list = listOf(
+                Watchlist(
+                    id = Watchlist.DEFAULT_ID,
+                    coins = listOf(coinB, coinC, coinA, coinD)
+                )
+            )
+        )
+        Assert.assertEquals(expectedCollection, watchListRepository.getWatchlistCollection())
+
+        // first to last
+        watchListRepository.drag(coinB, coinD)
+        expectedCollection = WatchlistCollection(
+            list = listOf(
+                Watchlist(
+                    id = Watchlist.DEFAULT_ID,
+                    coins = listOf(coinC, coinA, coinD, coinB)
+                )
+            )
+        )
+        Assert.assertEquals(expectedCollection, watchListRepository.getWatchlistCollection())
+
+        // middle to first
+        watchListRepository.drag(coinD, coinC)
+        expectedCollection = WatchlistCollection(
+            list = listOf(
+                Watchlist(
+                    id = Watchlist.DEFAULT_ID,
+                    coins = listOf(coinD, coinC, coinA, coinB)
+                )
+            )
+        )
+        Assert.assertEquals(expectedCollection, watchListRepository.getWatchlistCollection())
+
+        // last to first
+        watchListRepository.drag(coinB, coinD)
+        expectedCollection = WatchlistCollection(
+            list = listOf(
+                Watchlist(
+                    id = Watchlist.DEFAULT_ID,
+                    coins = listOf(coinB, coinD, coinC, coinA)
+                )
+            )
+        )
+        Assert.assertEquals(expectedCollection, watchListRepository.getWatchlistCollection())
+    }
+
+    @Test
+    fun `remove work`() = runBlocking {
+        initWatchlistRepository()
+
+        val coinA = Coin(
+            id = "aaa",
+            backend = Backend.CoinGecko
+        )
+        val coinB = Coin(
+            id = "bbb",
+            backend = Backend.Binance
+        )
+        val coinC = Coin(
+            id = "ccc",
+            backend = Backend.CoinMarketCap
+        )
+        val coinD = Coin(
+            id = "ddd",
+            backend = Backend.CoinMarketCap
+        )
+        watchListRepository.addOrRemove(coinA)
+        watchListRepository.addOrRemove(coinB)
+        watchListRepository.addOrRemove(coinC)
+
+        watchListRepository.remove(coinB)
+
+        val expectedCollection = WatchlistCollection(
+            list = listOf(
+                Watchlist(
+                    id = Watchlist.DEFAULT_ID,
+                    coins = listOf(coinA, coinC)
+                )
+            )
+        )
+        Assert.assertEquals(expectedCollection, watchListRepository.getWatchlistCollection())
+
+        watchListRepository.remove(coinD)
+        Assert.assertEquals(expectedCollection, watchListRepository.getWatchlistCollection())
     }
 }

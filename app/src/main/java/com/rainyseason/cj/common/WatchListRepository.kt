@@ -122,9 +122,13 @@ class WatchListRepository @Inject constructor(
             .distinctUntilChanged()
     }
 
+    /**
+     * If [watchlistId] is not found then create a new one and add to it
+     */
     suspend fun addOrRemove(coin: Coin, watchlistId: String = Watchlist.DEFAULT_ID) {
         waitForMigrate()
-        val watchList = findWatchlist(watchlistId) ?: return
+        val watchList = findWatchlist(watchlistId)
+            ?: Watchlist(id = watchlistId, coins = emptyList())
         val coins = watchList.coins.toMutableList()
         val index = coins.indexOfFirst { it == coin }
         if (index == -1) {
