@@ -1,7 +1,9 @@
 package com.rainyseason.cj.watch
 
+import android.content.Context
 import android.view.Gravity
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -10,9 +12,11 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
 import com.rainyseason.cj.common.asArgs
+import com.rainyseason.cj.common.getColorCompat
 import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.view.emptyView
+import com.rainyseason.cj.common.view.textView
 import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logClick
@@ -29,6 +33,7 @@ import dagger.assisted.AssistedInject
 class WatchListController @AssistedInject constructor(
     @Assisted val viewModel: WatchListViewModel,
     private val tracker: Tracker,
+    private val context: Context,
 ) : AsyncEpoxyController() {
 
     var touchHelper: ItemTouchHelper? = null
@@ -39,6 +44,63 @@ class WatchListController @AssistedInject constructor(
 
         buildWatchList(state)
         buildEditList(state)
+        buildTopCoin(state)
+    }
+
+    private fun buildTopCoin(state: WatchListState): BuildState {
+        if (state.isInEditMode) {
+            return BuildState.Next
+        }
+
+        if (!state.watchlistFirstLoadDone) {
+            return BuildState.Next
+        }
+
+        val topCoin = state.topCoins.invoke() ?: return BuildState.Next
+        val setting = state.userSetting.invoke() ?: return BuildState.Next
+
+        textView {
+            id("top_coin_title")
+            content("Top coins")
+            textColor(context.getColorCompat(R.color.text_primary))
+            alignment(TextView.TEXT_ALIGNMENT_TEXT_START)
+            paddingHorizontal(16)
+            paddingVertical(16)
+            textSizeSp(24f)
+        }
+
+        topCoin.forEachIndexed { index, coin: Coin ->
+            val loadParam = WatchDisplayEntryLoadParam(
+                coin,
+                setting.currencyCode,
+                changeInterval = TimeInterval.I_24H,
+            )
+            val displayData = state.watchDisplayData[loadParam]?.invoke()
+            if (index != 0) {
+                watchEntrySeparatorView {
+                    id("top_coin_separator_${coin.hashCode()}_${state.selectedWatchlistId}")
+                }
+            }
+            watchEntryView {
+                id("top_coin_${coin.hashCode()}_${state.selectedWatchlistId}")
+                symbol(displayData?.symbol ?: "")
+                name(displayData?.name ?: "")
+                val priceModel = if (displayData != null) {
+                    WatchEntryView.PriceModel(
+                        price = displayData.price,
+                        changePercent = displayData.changePercent,
+                        currency = setting.currencyCode,
+                    )
+                } else {
+                    null
+                }
+                price(priceModel)
+                graph(displayData?.graph ?: emptyList())
+                setupOnClick(coin)
+            }
+        }
+
+        return BuildState.Next
     }
 
     private fun buildEditList(state: WatchListState): BuildState {
@@ -132,6 +194,18 @@ class WatchListController @AssistedInject constructor(
 
         val watchList = state.currentWatchlist ?: return BuildState.Next
         val currency = state.userSetting.invoke()?.currencyCode ?: return BuildState.Next
+
+        if (watchList.coins.isEmpty()) {
+            textView {
+                id("watchlist_empty")
+                content(R.string.watchlist_empty)
+                textColor(context.getColorCompat(R.color.text_secondary))
+                alignment(TextView.TEXT_ALIGNMENT_CENTER)
+                paddingHorizontal(16)
+                paddingVertical(16)
+                textSizeSp(18f)
+            }
+        }
 
         watchList.coins.forEachIndexed { index, coin: Coin ->
             val loadParam = WatchDisplayEntryLoadParam(

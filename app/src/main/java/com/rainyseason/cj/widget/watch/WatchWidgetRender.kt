@@ -14,8 +14,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.RemoteViews
+import android.widget.TextView
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
+import androidx.core.view.isGone
 import androidx.core.view.updateLayoutParams
 import com.rainyseason.cj.LocalRemoteViews
 import com.rainyseason.cj.MainActivity
@@ -165,6 +167,12 @@ class WatchWidgetRender @Inject constructor(
         }
     }
 
+    private fun bindEmptyTextView(textView: TextView, params: WatchWidgetRenderParams) {
+        val isEmpty = params.data.entries.isEmpty()
+        textView.isGone = !isEmpty
+        textView.setTextColor(renderUtil.getTextSecondaryColor(params.config.theme))
+    }
+
     private fun render4x2(
         container: FrameLayout,
         params: WatchWidgetRenderParams
@@ -179,6 +187,8 @@ class WatchWidgetRender @Inject constructor(
         binding.container.backgroundTintList = renderUtil.getBackgroundColor(theme)
             .asColorStateList()
         val widgetSize = getWidgetSize(params.config)
+
+        bindEmptyTextView(binding.emptyText, params)
 
         run {
             // constraint widget size
@@ -224,10 +234,20 @@ class WatchWidgetRender @Inject constructor(
         }
 
         val config = params.config
+        val isWatchlistEmpty = params.data.entries.isEmpty()
 
         @SuppressLint("UnspecifiedImmutableFlag")
-        val pendingIntent = when (config.clickAction) {
-            WatchClickAction.Refresh -> {
+        val pendingIntent = when {
+            isWatchlistEmpty || config.clickAction == WatchClickAction.OpenWatchlist -> {
+                val intent = MainActivity.watchListIntent(context)
+                PendingIntent.getActivity(
+                    context,
+                    params.config.widgetId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
+                )
+            }
+            config.clickAction == WatchClickAction.Refresh -> {
                 val intent = Intent()
                 intent.component = ComponentName(context, config.layout.providerName)
                 intent.action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
@@ -243,17 +263,11 @@ class WatchWidgetRender @Inject constructor(
                     PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
                 )
             }
-            WatchClickAction.OpenWatchlist -> {
-                val intent = MainActivity.watchListIntent(context)
-                PendingIntent.getActivity(
-                    context,
-                    params.config.widgetId,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
-                )
-            }
+            else -> null
         }
-        setOnClickPendingIntent(R.id.widget_container, pendingIntent)
+        if (pendingIntent != null) {
+            setOnClickPendingIntent(R.id.widget_container, pendingIntent)
+        }
     }
 
     private fun applyBackgroundTransparency(
@@ -307,6 +321,32 @@ class WatchWidgetRender @Inject constructor(
                 View.GONE
             }
         )
+
+        val isWatchlistEmpty = params.data.entries.isEmpty()
+        remoteView.setViewVisibility(
+            R.id.empty_text,
+            if (isWatchlistEmpty) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        )
+        remoteView.setTextColor(R.id.empty_text, renderUtil.getTextSecondaryColor(config.theme))
+
+        if (isWatchlistEmpty) {
+            val clickIntent = run {
+                val intent = MainActivity.watchListIntent(context)
+                PendingIntent.getActivity(
+                    context,
+                    params.config.widgetId,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT.addFlagMutable()
+                )
+            }
+            remoteView.setOnClickPendingIntent(R.id.container, clickIntent)
+            remoteView.setViewVisibility(R.id.content, View.GONE)
+        }
+
         val adapterIntent = Intent(context, WatchWidgetService::class.java).apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, config.widgetId)
             data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))

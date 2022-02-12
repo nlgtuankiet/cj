@@ -6,6 +6,7 @@ import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
+import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
 import com.rainyseason.cj.common.WatchListRepository
@@ -40,9 +41,30 @@ data class WatchListState(
     val watchDisplayData: Map<WatchDisplayEntryLoadParam, Async<WatchDisplayEntryContent>> =
         emptyMap(),
     val isInEditMode: Boolean = false,
+    val watchlistFirstLoadDone: Boolean = false,
+    val topCoins: Async<List<Coin>> = Uninitialized,
 ) : MavericksState {
     val currentWatchlist = watchListCollection.invoke()
         ?.list?.firstOrNull { it.id == selectedWatchlistId }
+
+    val isLoadWatchlistDone: Boolean
+        get() = isLoadWatchlistDoneInternal()
+
+    private fun isLoadWatchlistDoneInternal(): Boolean {
+        val setting = userSetting.invoke() ?: return false
+        val collection = watchListCollection.invoke() ?: return false
+        val watchlist = collection.list.firstOrNull { it.id == selectedWatchlistId }
+            ?: return false
+        val watchlistAsyncList = watchlist.coins.map { coin ->
+            val param = WatchDisplayEntryLoadParam(
+                coin = coin,
+                currency = setting.currencyCode,
+                changeInterval = TimeInterval.I_24H,
+            )
+            watchDisplayData[param]
+        }
+        return watchlistAsyncList.all { it is Success }
+    }
 }
 
 @OptIn(FlowPreview::class)
@@ -53,6 +75,7 @@ class WatchListViewModel @AssistedInject constructor(
     private val watchListRepository: WatchListRepository,
     private val context: Context,
     private val getWatchDisplayEntry: GetWatchDisplayEntry,
+    private val getTopCoins: GetTopCoins,
 ) : MavericksViewModel<WatchListState>(state) {
     private val loadWatchEntryDataJob: MutableMap<WatchDisplayEntryLoadParam, Job> =
         Collections.synchronizedMap(mutableMapOf())
@@ -69,7 +92,7 @@ class WatchListViewModel @AssistedInject constructor(
         loadWatchEntryDataJob.values.forEach { it.cancel() }
         loadWatchEntryDataJob.clear()
 
-        setState { copy(watchDisplayData = emptyMap()) }
+        setState { copy(watchDisplayData = emptyMap(), watchlistFirstLoadDone = false) }
 
         userSettingJob?.cancel()
         userSettingJob = userSettingRepository.getUserSettingFlow()
@@ -92,6 +115,52 @@ class WatchListViewModel @AssistedInject constructor(
             val watchlist = collection.list.firstOrNull { it.id == selectedWatchlistId }
                 ?: return@onEach
             watchlist.coins.forEach { coin ->
+                val param = WatchDisplayEntryLoadParam(
+                    coin = coin,
+                    currency = setting.currencyCode,
+                    changeInterval = TimeInterval.I_24H,
+                )
+                maybeLoadWatchEntry(param)
+            }
+        }
+
+        loadTop10Coins()
+        checkWatchlistFirstLoad()
+    }
+
+    private var onEachWatchlistDone: Job? = null
+    private fun checkWatchlistFirstLoad() {
+        onEachWatchlistDone?.cancel()
+        onEachWatchlistDone = onEach(State::isLoadWatchlistDone) { isLoadWatchlistDone ->
+            if (isLoadWatchlistDone) {
+                setState { copy(watchlistFirstLoadDone = true) }
+                onEachWatchlistDone?.cancel()
+            }
+        }
+    }
+
+    private var loadTopCoinJob: Job? = null
+    private var eachTopCoinJob: Job? = null
+    private fun loadTop10Coins() {
+        loadTopCoinJob?.cancel()
+        loadTopCoinJob = suspend {
+            getTopCoins()
+        }.execute { copy(topCoins = it) }
+
+        eachTopCoinJob?.cancel()
+        eachTopCoinJob = onEach(
+            State::userSetting,
+            State::watchlistFirstLoadDone,
+            State::topCoins,
+        ) { userSetting, watchlistFirstLoadDone, topCoins ->
+            if (!watchlistFirstLoadDone) {
+                return@onEach
+            }
+            // load top coin
+            Timber.d("start load top coin")
+            val setting = userSetting.invoke() ?: return@onEach
+            val coinList = topCoins.invoke() ?: return@onEach
+            coinList.forEach { coin ->
                 val param = WatchDisplayEntryLoadParam(
                     coin = coin,
                     currency = setting.currencyCode,

@@ -162,4 +162,6 @@
     <string name="widget_watch_onboard_full_size_description">When on, widget will expand to full size. Scrolling is also enabled.\n(Resize the widget after create to see the result)</string>
     <string name="widget_ticker_onboard_full_size_description">When on, widget will expand to full size.\n(This feature is highly experimental)</string>
     <string name="coin_ticker_config_added_widget">Widget created!\nCheck it out on your home screen!</string>
+    <string name="watchlist_empty">Your watchlist is empty!\nTouch the "+" button to add</string>
+    <string name="watchlist_widget_empty">Your watchlist is empty!</string>
 </resources>
