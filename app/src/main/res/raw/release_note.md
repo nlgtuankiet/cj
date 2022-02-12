@@ -1,3 +1,7 @@
+### 1.15.0 Release
+✨ Major change to Watchlist page  
+✨ Ability to add coins from other sources into watchlist (Binance, Coinbase)  
+
 ### 1.14.3 Release
 ✨ Add "Add widget shortcut" now you can add widget from the Manage Widget screen.  
 🛠 Fix can not load LUSE token on CoinGecko.  
