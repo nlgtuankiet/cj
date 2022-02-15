@@ -36,10 +36,11 @@ class WidgetPreviewView @JvmOverloads constructor(
     @ModelProp
     fun setIsLoading(isLoading: Boolean) {
         binding.progressBar.isGone = !isLoading
+        val content = binding.manageWidgetPreviewContainer
         if (isLoading) {
-            binding.content.setBackgroundResource(R.drawable.manage_widget_preview_background)
+            content.setBackgroundResource(R.drawable.manage_widget_preview_background)
         } else {
-            binding.content.background = null
+            content.background = null
         }
     }
 
@@ -67,6 +68,7 @@ class WidgetPreviewView @JvmOverloads constructor(
     @CallbackProp
     override fun setOnClickListener(l: OnClickListener?) {
         super.setOnClickListener(l)
+        binding.manageWidgetPreviewContainer.setOnClickListener(l)
         setOnLongClickListener(
             l?.let {
                 OnLongClickListener {

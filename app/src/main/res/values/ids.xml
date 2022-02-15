@@ -26,4 +26,6 @@
     <item name="haptic_feedback" type="id" />
 
     <item name="view_scope" type="id" />
+
+    <item name="manage_widget_preview_container" type="id" />
 </resources>

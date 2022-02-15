@@ -22,6 +22,7 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.graphics.drawable.IconCompat
+import androidx.core.os.BuildCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
@@ -183,6 +184,10 @@ class TickerWidgetRenderer @Inject constructor(
                     setSmallIcon(getSmallIcon(config))
                 }
 
+                if (!BuildCompat.isAtLeastS()) {
+                    setStyle(NotificationCompat.DecoratedCustomViewStyle())
+                }
+                // TODO find correct noti text color
                 setCustomBigContentView(largeView)
                 setCustomContentView(smallView)
                 if (clickIntent != null) {

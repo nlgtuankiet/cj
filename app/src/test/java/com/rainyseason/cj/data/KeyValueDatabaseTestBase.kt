@@ -1,7 +1,8 @@
-package com.rainyseason.cj
+package com.rainyseason.cj.data
 
 import androidx.room.Room
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
+import com.rainyseason.cj.CJApplication
 import com.rainyseason.cj.data.database.kv.KeyValueDao
 import com.rainyseason.cj.data.database.kv.KeyValueDatabase
 import org.junit.After
@@ -13,7 +14,7 @@ abstract class KeyValueDatabaseTestBase {
 
     @Before
     fun createDb() {
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val appContext = ApplicationProvider.getApplicationContext<CJApplication>()
         db = Room.inMemoryDatabaseBuilder(appContext, KeyValueDatabase::class.java)
             .build()
         dao = db.entryDao()

@@ -1,4 +1,4 @@
-package com.rainyseason.cj
+package com.rainyseason.cj.data
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.rainyseason.cj.data.database.kv.KeyValueEntry
@@ -95,10 +95,13 @@ class KeyValueDatabaseTest : KeyValueDatabaseTestBase() {
         )
         val expected = listOf(entry1, entry2)
         val countDownLatch = CountDownLatch(1)
+
+        val startFlowLatch = CountDownLatch(1)
         launch(Dispatchers.IO) {
             val actual = dao.selectFlow("string_key")
                 .filterNotNull()
                 .onEach {
+                    startFlowLatch.countDown()
                     println("debugflow onEach $it")
                 }
                 .take(2)
@@ -107,6 +110,7 @@ class KeyValueDatabaseTest : KeyValueDatabaseTestBase() {
             countDownLatch.countDown()
         }
         dao.insert(entry1)
+        startFlowLatch.await()
         dao.insert(entry2)
         countDownLatch.await()
     }
