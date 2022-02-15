@@ -45,11 +45,11 @@ class WatchListRepository @Inject constructor(
     private val legacyPopulateDefaultWatchList = "populate_default_watchlist"
     private val legacyWatchListIdsKey = "watchlist_ids"
     private val watchlistCollectionKey = "watchlist_collection"
+    private val watchlistCollectionAdapter = moshi.adapter(WatchlistCollection::class.java)
+    private var shouldRefreshWatchListWidgets = false
     private val migrateToV2Job: Job = scope.launch {
         migrateToV2()
     }
-
-    private val watchlistCollectionAdapter = moshi.adapter(WatchlistCollection::class.java)
 
     private suspend fun waitForMigrate() {
         migrateToV2Job.join()
@@ -171,8 +171,6 @@ class WatchListRepository @Inject constructor(
             addOrReplaceWatchlist(newWatchlist)
         }
     }
-
-    private var shouldRefreshWatchListWidgets = false
 
     init {
         scope.launch(Dispatchers.Main) {
