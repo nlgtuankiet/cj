@@ -1,3 +1,7 @@
+### 1.15.1 Release
+🛠 Fix crash when enter watchlist screen  
+🛠 Improve ticker notification UI on Android 11 and below  
+
 ### 1.15.0 Release
 ✨ Major change to Watchlist page  
 ✨ Ability to add coins from other sources into watchlist (Binance, Coinbase)  
