@@ -186,11 +186,6 @@
             android:exported="true">
         </activity>
 
-        <receiver
-            android:name=".widget.manage.RequestPinTickerWidgetReceiver"
-            android:exported="true">
-        </receiver>
-
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

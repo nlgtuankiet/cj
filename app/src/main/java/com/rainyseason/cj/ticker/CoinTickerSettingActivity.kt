@@ -7,7 +7,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.Display
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.createGraph
@@ -70,12 +69,14 @@ class CoinTickerSettingActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        setResult(RESULT_CANCELED)
         val widgetId = getWidgetId()
         if (widgetId == null) {
             finish()
             return
         }
+
+        val resultIntent = Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId)
+        setResult(RESULT_CANCELED, resultIntent)
         if (!BuildConfig.DEBUG) {
             lifecycleScope.launch {
                 val deleted = coinTickerHandler.checkWidgetDeleted(widgetId)
@@ -96,7 +97,12 @@ class CoinTickerSettingActivity :
             fragment<CoinSelectFragment>(R.id.coin_select_screen)
             fragment<CoinTickerPreviewFragment>(R.id.coin_ticker_preview_screen)
         }
-        val args = CoinTickerPreviewArgs(widgetId).asArgs()
+        Timber.d("Calling activity: $callingActivity")
+        val args = CoinTickerPreviewArgs(
+            widgetId = widgetId,
+            callingComponent = callingActivity,
+        ).asArgs()
+
         navController.setGraph(
             graph,
             args,
@@ -118,34 +124,20 @@ class CoinTickerSettingActivity :
         Timber.d("Screen size dp: ${dpWidth}x$dpHeight")
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        if (intent.extras?.getBoolean(SHOW_TOAST_EXTRA) == true) {
-            Toast.makeText(
-                this,
-                R.string.coin_ticker_config_added_widget,
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
     override fun androidInjector(): AndroidInjector<Any> {
         return androidInjector
     }
 
     companion object {
-        private const val SHOW_TOAST_EXTRA = "show_toast"
         fun starterIntent(
             context: Context,
             widgetId: Int,
-            showSuccessToast: Boolean = false,
         ): Intent {
             val intent = Intent(context, CoinTickerSettingActivity::class.java)
             intent.putExtra(
                 AppWidgetManager.EXTRA_APPWIDGET_ID,
                 widgetId,
             )
-            intent.putExtra(SHOW_TOAST_EXTRA, showSuccessToast)
             return intent
         }
     }

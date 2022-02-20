@@ -10,6 +10,7 @@ import com.rainyseason.cj.common.goBackground
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class CoinTickerProviderDefault : CoinTickerProvider()
 class CoinTickerProviderGraph : CoinTickerProvider()
@@ -62,6 +63,7 @@ abstract class CoinTickerProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray,
     ) {
+        Timber.d("onUpdate ${appWidgetIds.toList()}}")
         goBackground {
             appWidgetIds.forEach {
                 val deleted = coinTickerHandler.checkWidgetDeleted(it)
@@ -74,6 +76,7 @@ abstract class CoinTickerProvider : AppWidgetProvider() {
 
     override fun onDeleted(context: Context, appWidgetIds: IntArray) {
         super.onDeleted(context, appWidgetIds)
+        Timber.d("onDeleted ${appWidgetIds.toList()}}")
         goBackground {
             coroutineScope {
                 appWidgetIds.forEach {

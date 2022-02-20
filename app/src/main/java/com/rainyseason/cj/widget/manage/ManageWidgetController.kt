@@ -40,6 +40,7 @@ import com.rainyseason.cj.widget.watch.WatchWidgetRenderParams
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import timber.log.Timber
 
 class ManageWidgetController @AssistedInject constructor(
     @Assisted private val viewModel: ManageWidgetViewModel,
@@ -218,8 +219,7 @@ class ManageWidgetController @AssistedInject constructor(
             target = "create_widget_shortcut",
             params = mapOf("layout" to layout.id)
         )
-
-        val intent = Intent(context, RequestPinTickerWidgetReceiver::class.java)
+        val intent = Intent(view.context, CoinTickerSettingActivity::class.java)
         val componentName = ComponentName(context, layout.providerName)
         val bitmap = (view as? WidgetPreviewView)?.getPreviewBitmap()
         val extra = if (bitmap == null) {
@@ -228,10 +228,11 @@ class ManageWidgetController @AssistedInject constructor(
             val remoteView = tickerWidgetRenderer.createPreviewRemoteView(layout, bitmap)
             bundleOf(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW to remoteView)
         }
+        Timber.d("Request pin app widget ${layout.id}")
         appWidgetManager.requestPinAppWidget(
             componentName,
             extra,
-            PendingIntent.getBroadcast(
+            PendingIntent.getActivity(
                 context,
                 layout.id.hashCode(),
                 intent,

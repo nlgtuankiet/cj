@@ -154,7 +154,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
 
     private suspend fun saveInitialConfig() {
         val lastConfig = coinTickerRepository.getConfig(widgetId = args.widgetId)
-        if (lastConfig != null) {
+        if (lastConfig != null || args.callingComponent == null) {
             setState { copy(widgetSaved = true) }
         }
         val (coinId, backend) = if (lastConfig != null) {
@@ -321,9 +321,14 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                         )
                         tickerWidgetRenderer.render(inputParams = param)
                     }
+                    val componentPackage = args.callingComponent?.packageName
+
+                    val componentParams = componentPackage?.let {
+                        mapOf("calling_package" to it)
+                    } ?: emptyMap<String, Any?>()
                     tracker.logKeyParamsEvent(
                         key = "widget_save",
-                        params = config?.getTrackingParams().orEmpty(),
+                        params = config?.getTrackingParams().orEmpty() + componentParams,
                     )
                     coinTickerHandler.enqueueRefreshWidget(
                         widgetId = args.widgetId,
