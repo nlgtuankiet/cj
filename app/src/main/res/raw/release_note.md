@@ -1,3 +1,6 @@
+### 1.15.2 Release
+🛠 Improve create widget shortcut speed  
+
 ### 1.15.1 Release
 🛠 Fix crash when enter watchlist screen  
 🛠 Improve ticker notification UI on Android 11 and below  
