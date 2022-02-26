@@ -1,3 +1,5 @@
+import com.android.build.api.dsl.ProductFlavor
+
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
@@ -19,7 +21,7 @@ def getBooleanProp(name) {
     if (project.hasProperty(name)) {
         try {
             return Boolean.parseBoolean(project.property(name))
-        } catch(ignored) {
+        } catch (ignored) {
             return true
         }
     }
@@ -28,6 +30,11 @@ def getBooleanProp(name) {
 
 def localProperties = new Properties()
 localProperties.load(new FileInputStream(rootProject.file("local.properties")))
+ext.getLocalProp = { String name ->
+    def value = localProperties.get(name)
+    println "getLocalProp $name return $value"
+    return String.valueOf(value)
+}
 
 def isPlayStore = getBooleanProp("playstore")
 
@@ -81,11 +88,6 @@ android {
         println "Version name is $versionName"
         buildConfigField "boolean", "IS_PLAY_STORE", "$isPlayStore"
 
-        def oneSignalAppId = localProperties.get("onesignal.appid")
-        println "oneSignalAppId is $oneSignalAppId"
-        buildConfigField "String", "ONESIGNAL_APP_ID", "\"$oneSignalAppId\""
-
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         javaCompileOptions {
             annotationProcessorOptions {
@@ -122,6 +124,29 @@ android {
         }
     }
 
+    flavorDimensions.add("environment")
+
+    def configFlavorsConfig = { ProductFlavor flavor ->
+        def name = flavor.name
+        println "config flavor for $name"
+
+        def stringProp = { propName ->
+            return '"' + getLocalProp(propName) + '"'
+        }
+
+        flavor.dimension "environment"
+        flavor.buildConfigField "String", "ONESIGNAL_APP_ID", stringProp("onesignal.appid.$name")
+    }
+
+    productFlavors {
+        dev { flavor ->
+            flavor.applicationIdSuffix ".dev"
+            configFlavorsConfig(flavor)
+        }
+        prod { flavor ->
+            configFlavorsConfig(flavor)
+        }
+    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

@@ -15,5 +15,5 @@
 local.properties
 .idea
 fetchCoin/build
-app/google-services.json
+**/google-services.json
 buildSrc/build
