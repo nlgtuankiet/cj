@@ -40,7 +40,7 @@ class NotificationTest {
     }
 
     private fun String.asTextStartPattern(): Pattern {
-        return """^${this}.*$""".toRegex(RegexOption.IGNORE_CASE).toPattern()
+        return """^$this.*$""".toRegex(RegexOption.IGNORE_CASE).toPattern()
     }
 
     private fun String.asRegexPattern(): Pattern {
