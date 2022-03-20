@@ -22,6 +22,10 @@ interface SyncTracker {
     fun log(event: Event)
 }
 
+interface EventInterceptor {
+    suspend fun intercept(event: Event, process: suspend (Event) -> Unit)
+}
+
 class KeyParamsEvent(
     val key: String,
     val params: Map<String, Any?>,
@@ -30,9 +34,9 @@ class KeyParamsEvent(
 fun Tracker.logKeyParamsEvent(
     key: String,
     params: Map<String, Any?> = emptyMap(),
-) {
+): Job {
     val event = KeyParamsEvent(key, params)
-    log(event = event)
+    return log(event = event)
 }
 
 fun Tracker.logScreenEnter(
@@ -120,10 +124,26 @@ class AppTracker @Inject constructor(
         list.toList()
     }
 
+    private val interceptors: List<EventInterceptor> = emptyList()
+
     override fun log(event: Event): Job {
         return scope.launch {
+            intercept(event, 0)
+        }
+    }
+
+    /**
+     * Can handle up to about 100 interceptor, if we have more than 100 interceptor then we need to
+     * remove this recursion implementation with something else
+     */
+    private suspend fun intercept(event: Event, interceptorIndex: Int) {
+        if (interceptorIndex >= interceptors.size) {
             trackers.forEach { tracker ->
                 tracker.log(event)
+            }
+        } else {
+            interceptors[interceptorIndex].intercept(event) {
+                intercept(event, interceptorIndex + 1)
             }
         }
     }
