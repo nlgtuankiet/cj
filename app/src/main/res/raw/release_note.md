@@ -1,3 +1,8 @@
+### 1.15.3 Release
+✨ Integrate dedicated backend, prepare for price alert feature  
+🛠 Improve performance, now app use less network bandwidth  
+🛠 Fix crash in watchlist widget preview when using "none" currency  
+
 ### 1.15.2 Release
 🛠 Improve create widget shortcut speed  
 
