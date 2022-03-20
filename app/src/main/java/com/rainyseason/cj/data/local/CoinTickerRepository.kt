@@ -4,6 +4,7 @@ import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.CoinTickerDisplayData
+import com.rainyseason.cj.widget.WidgetRefreshEventInterceptor
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
@@ -15,6 +16,7 @@ class CoinTickerRepository @Inject constructor(
     moshi: Moshi,
     private val userSettingRepository: UserSettingRepository,
     private var keyValueStore: KeyValueStore,
+    private val widgetRefreshEventInterceptor: WidgetRefreshEventInterceptor,
 ) {
     private val displayAdapter = moshi.adapter(CoinTickerDisplayData::class.java)
     private val configAdapter = moshi.adapter(CoinTickerConfig::class.java)
@@ -23,6 +25,7 @@ class CoinTickerRepository @Inject constructor(
         keyValueStore.withTransaction {
             keyValueStore.delete(displayDataKey(widgetId))
             keyValueStore.delete(configKey(widgetId))
+            widgetRefreshEventInterceptor.deleteHash(widgetId)
         }
     }
 

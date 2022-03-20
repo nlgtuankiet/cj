@@ -3,6 +3,7 @@ package com.rainyseason.cj.tracking
 import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.rainyseason.cj.BuildConfig
+import com.rainyseason.cj.widget.WidgetRefreshEventInterceptor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -112,6 +113,7 @@ class DebugTracker @Inject constructor() : SyncTracker {
 class AppTracker @Inject constructor(
     private val firebaseTracker: FirebaseTracker,
     private val debugTracker: DebugTracker,
+    private val widgetRefreshEventInterceptor: WidgetRefreshEventInterceptor,
 ) : Tracker {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val trackers: List<SyncTracker> by lazy {
@@ -124,7 +126,9 @@ class AppTracker @Inject constructor(
         list.toList()
     }
 
-    private val interceptors: List<EventInterceptor> = emptyList()
+    private val interceptors: List<EventInterceptor> = listOf(
+        widgetRefreshEventInterceptor
+    )
 
     override fun log(event: Event): Job {
         return scope.launch {

@@ -6,6 +6,7 @@ import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
+import com.rainyseason.cj.tracking.EventParamKey
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.util.concurrent.TimeUnit
@@ -180,7 +181,7 @@ data class CoinTickerConfig(
 
     fun getTrackingParams(): Map<String, Any?> {
         return mapOf(
-            "widget_id" to widgetId,
+            EventParamKey.WIDGET_ID to widgetId,
             "coin_id" to coinId,
             "backend" to backend.id,
             "number_of_price_decimal" to numberOfAmountDecimal,
