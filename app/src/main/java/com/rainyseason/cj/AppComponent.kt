@@ -42,6 +42,8 @@ import com.rainyseason.cj.data.UrlLoggerInterceptor
 import com.rainyseason.cj.data.binance.BinanceService
 import com.rainyseason.cj.data.binance.BinanceServiceWrapper
 import com.rainyseason.cj.data.cmc.CmcService
+import com.rainyseason.cj.data.coc.CoinOmegaCoinInterceptor
+import com.rainyseason.cj.data.coc.CoinOmegaCoinService
 import com.rainyseason.cj.data.coinbase.CoinbaseService
 import com.rainyseason.cj.data.coinbase.CoinbaseServiceWrapper
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
@@ -323,6 +325,26 @@ object AppProvides {
             .create(CoinGeckoService::class.java)
 
         return CoinGeckoServiceWrapper(service)
+    }
+
+    @Provides
+    @Singleton
+    fun cocService(
+        moshi: Moshi,
+        clientProvider: Provider<OkHttpClient>,
+        coinOmegaCoinInterceptor: CoinOmegaCoinInterceptor,
+    ): CoinOmegaCoinService {
+        val client: OkHttpClient by lazy {
+            clientProvider.get().newBuilder()
+                .addInterceptor(coinOmegaCoinInterceptor)
+                .build()
+        }
+        return Retrofit.Builder()
+            .baseUrl(BuildConfig.COC_HOST)
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .callFactory { client.newCall(it) }
+            .build()
+            .create(CoinOmegaCoinService::class.java)
     }
 
     @Provides

@@ -30,9 +30,16 @@ def getBooleanProp(name) {
 
 def localProperties = new Properties()
 localProperties.load(new FileInputStream(rootProject.file("local.properties")))
-ext.getLocalProp = { String name ->
+
+// read from local.properties first
+ext.getStringProp = { String name ->
     def value = localProperties.get(name)
-    println "getLocalProp $name return $value"
+    if (value == null) {
+        if (project.hasProperty(name)) {
+            value = project.property(name)
+        }
+    }
+    println "getStringProp $name return $value"
     return String.valueOf(value)
 }
 
@@ -131,11 +138,13 @@ android {
         println "config flavor for $name"
 
         def stringProp = { propName ->
-            return '"' + getLocalProp(propName) + '"'
+            def prop = getStringProp(propName)
+            return '"' + prop + '"'
         }
 
         flavor.dimension "environment"
         flavor.buildConfigField "String", "ONESIGNAL_APP_ID", stringProp("onesignal.appid.$name")
+        flavor.buildConfigField "String", "COC_HOST", stringProp("coc.host.$name")
     }
 
     productFlavors {

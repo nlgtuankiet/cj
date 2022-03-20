@@ -25,6 +25,7 @@ import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
 import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.data.KeyValueDatabaseMigrator
+import com.rainyseason.cj.data.coc.CoinOmegaCoinInterceptor
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.DebugFlagProvider
 import com.rainyseason.cj.featureflag.MainFlagValueProvider
@@ -89,6 +90,9 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     @Inject
     lateinit var oneSignalInitializer: OneSignalInitializer
 
+    @Inject
+    lateinit var coinOmegaCoinInterceptorProvider: Provider<CoinOmegaCoinInterceptor>
+
     private lateinit var appComponent: AppComponent
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
@@ -142,6 +146,7 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
             }
         }
         oneSignalInitializer.invoke()
+        coinOmegaCoinInterceptorProvider.get() // register id token listener
     }
 
     private fun initDns() {

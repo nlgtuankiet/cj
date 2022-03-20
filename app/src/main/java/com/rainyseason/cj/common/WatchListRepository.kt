@@ -7,10 +7,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.google.firebase.auth.FirebaseAuth
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.model.Watchlist
 import com.rainyseason.cj.common.model.WatchlistCollection
+import com.rainyseason.cj.data.coc.CoinOmegaCoinService
 import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.rainyseason.cj.widget.watch.WatchWidget4x2Provider
 import com.rainyseason.cj.widget.watch.WatchWidget4x4Provider
@@ -20,6 +23,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -28,7 +33,9 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import timber.log.Timber
+import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,6 +45,8 @@ class WatchListRepository @Inject constructor(
     private val appWidgetManager: AppWidgetManager,
     private val watchWidgetHandler: WatchWidgetHandler,
     private val keyValueStore: KeyValueStore,
+    private val coinOmegaCoinService: CoinOmegaCoinService,
+    private val firebaseAuth: FirebaseAuth,
     private val moshi: Moshi,
 ) : LifecycleObserver {
 
@@ -47,6 +56,10 @@ class WatchListRepository @Inject constructor(
     private val watchlistCollectionKey = "watchlist_collection"
     private val watchlistCollectionAdapter = moshi.adapter(WatchlistCollection::class.java)
     private var shouldRefreshWatchListWidgets = false
+
+    private val backupTrigger = Channel<Unit>(1, BufferOverflow.DROP_OLDEST)
+    private val firstBackupDoneKey = "watchlist_first_backup_done"
+
     private val migrateToV2Job: Job = scope.launch {
         migrateToV2()
     }
@@ -94,6 +107,7 @@ class WatchListRepository @Inject constructor(
         val newCollection = collection.copy(list = list)
         val newJson = watchlistCollectionAdapter.toJson(newCollection)
         keyValueStore.setString(watchlistCollectionKey, newJson)
+        triggerWatchlistBackup()
     }
 
     suspend fun getWatchlistCollection(
@@ -181,6 +195,25 @@ class WatchListRepository @Inject constructor(
                     shouldRefreshWatchListWidgets = true
                 }
         }
+        scope.launch {
+            for (event in backupTrigger) {
+                try {
+                    backupWatchlist()
+                } catch (ex: Exception) {
+                    if (BuildConfig.DEBUG) {
+                        ex.printStackTrace()
+                    }
+                }
+            }
+        }
+
+        // check for first backup
+        scope.launch {
+            val firstBackupDone = keyValueStore.getBoolean(firstBackupDoneKey) ?: false
+            if (!firstBackupDone) {
+                triggerWatchlistBackup()
+            }
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
@@ -201,6 +234,26 @@ class WatchListRepository @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun triggerWatchlistBackup() {
+        backupTrigger.trySend(Unit)
+    }
+
+    private suspend fun backupWatchlist() {
+        Timber.d("Start backup watchlist")
+        ensureLogin()
+        val collection = getWatchlistCollection()
+        coinOmegaCoinService.backupWatchlist(collection)
+        keyValueStore.setBoolean(firstBackupDoneKey, true)
+        Timber.d("Backup watchlist done")
+    }
+
+    private suspend fun ensureLogin() {
+        if (firebaseAuth.currentUser != null) {
+            return
+        }
+        firebaseAuth.signInAnonymously().await()
     }
 
     init {
