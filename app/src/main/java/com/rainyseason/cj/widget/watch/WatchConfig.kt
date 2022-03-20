@@ -1,6 +1,7 @@
 package com.rainyseason.cj.widget.watch
 
 import androidx.core.os.BuildCompat
+import com.rainyseason.cj.common.CurrencyInfo
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.squareup.moshi.Json
@@ -68,6 +69,18 @@ data class WatchConfig(
     fun ensureValid(): WatchConfig {
         return ensureTheme()
             .ensureInterval()
+            .ensureCurrency()
+    }
+
+    /**
+     * TODO maybe we want to support NONE currency in the future
+     */
+    private fun ensureCurrency(): WatchConfig {
+        return if (currency == CurrencyInfo.NONE.code) {
+            copy(currency = CurrencyInfo.USD.code)
+        } else {
+            this
+        }
     }
 
     private fun ensureInterval(): WatchConfig {
