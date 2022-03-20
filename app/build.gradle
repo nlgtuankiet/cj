@@ -57,8 +57,6 @@ static def generateVersionCode() {
     return result.toInteger()
 }
 
-
-
 android {
     compileSdk 31
 
