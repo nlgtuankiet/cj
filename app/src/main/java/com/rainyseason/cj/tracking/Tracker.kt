@@ -5,6 +5,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.rainyseason.cj.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -14,6 +15,10 @@ import javax.inject.Singleton
 interface Event
 
 interface Tracker {
+    fun log(event: Event): Job
+}
+
+interface SyncTracker {
     fun log(event: Event)
 }
 
@@ -59,7 +64,8 @@ fun Tracker.logClick(
 @Singleton
 class FirebaseTracker @Inject constructor(
     private val firebaseAnalytics: FirebaseAnalytics,
-) : Tracker {
+) : SyncTracker {
+
     override fun log(event: Event) {
         when (event) {
             is KeyParamsEvent -> logKeyParamsEvent(event)
@@ -85,7 +91,7 @@ class FirebaseTracker @Inject constructor(
     }
 }
 
-class DebugTracker @Inject constructor() : Tracker {
+class DebugTracker @Inject constructor() : SyncTracker {
     override fun log(event: Event) {
         when (event) {
             is KeyParamsEvent -> logKeyParamsEvent(event)
@@ -104,8 +110,8 @@ class AppTracker @Inject constructor(
     private val debugTracker: DebugTracker,
 ) : Tracker {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val trackers: List<Tracker> by lazy {
-        val list = mutableListOf<Tracker>()
+    private val trackers: List<SyncTracker> by lazy {
+        val list = mutableListOf<SyncTracker>()
         list.add(firebaseTracker)
         if (BuildConfig.DEBUG) {
             list.add(debugTracker)
@@ -114,8 +120,8 @@ class AppTracker @Inject constructor(
         list.toList()
     }
 
-    override fun log(event: Event) {
-        scope.launch {
+    override fun log(event: Event): Job {
+        return scope.launch {
             trackers.forEach { tracker ->
                 tracker.log(event)
             }
