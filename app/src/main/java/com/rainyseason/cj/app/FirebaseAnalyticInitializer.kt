@@ -17,11 +17,11 @@ class FirebaseAnalyticInitializer @Inject constructor(
     private val scope: CoroutineScope,
     private val firebaseAnalyticsProvider: Provider<FirebaseAnalytics>,
     private val firebaseAuth: FirebaseAuth,
-) {
+) : Function0<Unit> {
     private val firebaseAnalytics: FirebaseAnalytics
         get() = firebaseAnalyticsProvider.get()
 
-    operator fun invoke() {
+    override operator fun invoke() {
         scope.launch {
             firebaseAnalyticsProvider.get() // init on background
             firebaseAuth.addAuthStateListener {

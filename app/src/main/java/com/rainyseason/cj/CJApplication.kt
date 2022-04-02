@@ -18,7 +18,6 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import com.rainyseason.cj.app.AmplitudeInitializer
 import com.rainyseason.cj.app.AppInitializer
 import com.rainyseason.cj.app.AppViewModel
-import com.rainyseason.cj.app.OneSignalInitializer
 import com.rainyseason.cj.common.AppDnsSelector
 import com.rainyseason.cj.common.ConfigManager
 import com.rainyseason.cj.common.CoreComponent
@@ -36,9 +35,7 @@ import com.rainyseason.cj.util.ExceptionLoggerTree
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -85,9 +82,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     lateinit var appViewModelProvider: Provider<AppViewModel>
 
     @Inject
-    lateinit var oneSignalInitializer: OneSignalInitializer
-
-    @Inject
     lateinit var amplitudeInitializer: AmplitudeInitializer
 
     @Inject
@@ -97,8 +91,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     lateinit var appInitializer: AppInitializer
 
     private lateinit var appComponent: AppComponent
-
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun onCreate() {
         super.onCreate()
@@ -146,7 +138,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
             }
         }
 
-        oneSignalInitializer.invoke()
         coinOmegaCoinInterceptorProvider.get() // register id token listener
         amplitudeInitializer.invoke()
         appInitializer.invoke()

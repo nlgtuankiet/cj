@@ -17,9 +17,9 @@ class OneSignalInitializer @Inject constructor(
     private val context: Context,
     private val firebaseAuth: FirebaseAuth,
     private val scope: CoroutineScope,
-) {
+) : Function0<Unit> {
 
-    operator fun invoke() {
+    override operator fun invoke() {
         scope.launch {
             if (DebugFlag.DISABLE_ONESIGNAL.isEnable) {
                 Timber.d("Disable one signal")
