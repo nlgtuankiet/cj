@@ -11,7 +11,6 @@ import androidx.core.content.getSystemService
 import androidx.room.Room
 import androidx.work.Configuration
 import androidx.work.WorkManager
-import com.amplitude.api.Amplitude
 import com.amplitude.api.AmplitudeClient
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
@@ -25,6 +24,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.ihsanbal.logging.Level
 import com.ihsanbal.logging.LoggingInterceptor
+import com.rainyseason.cj.app.AmplitudeInitializer
 import com.rainyseason.cj.app.FirebaseAnalyticInitializer
 import com.rainyseason.cj.chat.admin.ChatAdminActivityModule
 import com.rainyseason.cj.chat.history.ChatHistoryModule
@@ -293,20 +293,9 @@ object AppProvides {
     @Provides
     @Singleton
     fun amplitude(
-        context: Context,
-        clientProvider: Provider<OkHttpClient>,
-        firebaseAuth: FirebaseAuth,
+        amplitudeInitializer: AmplitudeInitializer
     ): AmplitudeClient {
-        checkNotMainThread()
-        val instance = Amplitude.getInstance()
-        instance.initialize(
-            context,
-            BuildConfig.AMPLITUDE_KEY,
-            firebaseAuth.currentUser?.uid,
-            null,
-            BuildConfig.DEBUG
-        ) { clientProvider.get().newCall(it) }
-        return instance
+        return amplitudeInitializer.initAndGetInstance()
     }
 
     @Provides

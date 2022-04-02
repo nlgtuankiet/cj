@@ -15,7 +15,6 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jakewharton.threetenabp.AndroidThreeTen
-import com.rainyseason.cj.app.AmplitudeInitializer
 import com.rainyseason.cj.app.AppInitializer
 import com.rainyseason.cj.app.AppViewModel
 import com.rainyseason.cj.common.AppDnsSelector
@@ -82,9 +81,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     lateinit var appViewModelProvider: Provider<AppViewModel>
 
     @Inject
-    lateinit var amplitudeInitializer: AmplitudeInitializer
-
-    @Inject
     lateinit var coinOmegaCoinInterceptorProvider: Provider<CoinOmegaCoinInterceptor>
 
     @Inject
@@ -139,7 +135,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         }
 
         coinOmegaCoinInterceptorProvider.get() // register id token listener
-        amplitudeInitializer.invoke()
         appInitializer.invoke()
     }
 
