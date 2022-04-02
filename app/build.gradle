@@ -143,6 +143,7 @@ android {
         flavor.dimension "environment"
         flavor.buildConfigField "String", "ONESIGNAL_APP_ID", stringProp("onesignal.appid.$name")
         flavor.buildConfigField "String", "COC_HOST", stringProp("coc.host.$name")
+        flavor.buildConfigField "String", "AMPLITUDE_KEY", stringProp("amplitude.key.$name")
     }
 
     productFlavors {
@@ -267,6 +268,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-process:2.3.1'
 
     implementation 'com.github.ihsanbal:LoggingInterceptor:3.1.0'
+
+    implementation 'com.amplitude:android-sdk:2.30.0'
 
     def room_version = "2.3.0"
     implementation "androidx.room:room-ktx:$room_version"

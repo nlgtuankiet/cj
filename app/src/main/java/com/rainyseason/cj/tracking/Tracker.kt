@@ -112,6 +112,7 @@ class DebugTracker @Inject constructor() : SyncTracker {
 @Singleton
 class AppTracker @Inject constructor(
     private val firebaseTracker: FirebaseTracker,
+    private val amplitudeTracker: AmplitudeTracker,
     private val debugTracker: DebugTracker,
     private val widgetRefreshEventInterceptor: WidgetRefreshEventInterceptor,
 ) : Tracker {
@@ -119,6 +120,7 @@ class AppTracker @Inject constructor(
     private val trackers: List<SyncTracker> by lazy {
         val list = mutableListOf<SyncTracker>()
         list.add(firebaseTracker)
+        list.add(amplitudeTracker)
         if (BuildConfig.DEBUG) {
             list.add(debugTracker)
         }

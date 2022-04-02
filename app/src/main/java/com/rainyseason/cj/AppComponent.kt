@@ -11,6 +11,8 @@ import androidx.core.content.getSystemService
 import androidx.room.Room
 import androidx.work.Configuration
 import androidx.work.WorkManager
+import com.amplitude.api.Amplitude
+import com.amplitude.api.AmplitudeClient
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -283,6 +285,25 @@ object AppProvides {
     fun provideBaseClient(builder: OkHttpClient.Builder): OkHttpClient {
         checkNotMainThread()
         return builder.build()
+    }
+
+    @Provides
+    @Singleton
+    fun amplitude(
+        context: Context,
+        clientProvider: Provider<OkHttpClient>,
+        firebaseAuth: FirebaseAuth,
+    ): AmplitudeClient {
+        checkNotMainThread()
+        val instance = Amplitude.getInstance()
+        instance.initialize(
+            context,
+            BuildConfig.AMPLITUDE_KEY,
+            firebaseAuth.currentUser?.uid,
+            null,
+            BuildConfig.DEBUG
+        ) { clientProvider.get().newCall(it) }
+        return instance
     }
 
     @Provides
