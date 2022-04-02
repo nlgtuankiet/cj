@@ -25,6 +25,7 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.ktx.remoteConfig
 import com.ihsanbal.logging.Level
 import com.ihsanbal.logging.LoggingInterceptor
+import com.rainyseason.cj.app.FirebaseAnalyticInitializer
 import com.rainyseason.cj.chat.admin.ChatAdminActivityModule
 import com.rainyseason.cj.chat.history.ChatHistoryModule
 import com.rainyseason.cj.chat.list.ChatListModule
@@ -243,8 +244,10 @@ object AppProvides {
 
     @Provides
     @Singleton
-    fun firebaseAnalytic(context: Context): FirebaseAnalytics {
-        return FirebaseAnalytics.getInstance(context)
+    fun firebaseAnalytic(
+        firebaseAnalyticInitializer: FirebaseAnalyticInitializer
+    ): FirebaseAnalytics {
+        return firebaseAnalyticInitializer.initAndGetInstance()
     }
 
     @Qualifier

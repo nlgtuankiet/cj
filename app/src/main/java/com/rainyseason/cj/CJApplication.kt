@@ -11,12 +11,12 @@ import com.airbnb.mvrx.Mavericks
 import com.airbnb.mvrx.MavericksViewModelConfigFactory
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.jakewharton.threetenabp.AndroidThreeTen
 import com.rainyseason.cj.app.AmplitudeInitializer
+import com.rainyseason.cj.app.AppInitializer
 import com.rainyseason.cj.app.AppViewModel
 import com.rainyseason.cj.app.OneSignalInitializer
 import com.rainyseason.cj.common.AppDnsSelector
@@ -39,7 +39,6 @@ import dagger.android.HasAndroidInjector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -68,9 +67,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
     lateinit var firebasePerformance: FirebasePerformance
 
     @Inject
-    lateinit var firebaseAnalytics: FirebaseAnalytics
-
-    @Inject
     lateinit var firebaseRemoteConfig: FirebaseRemoteConfig
 
     @Inject // inject for init
@@ -96,6 +92,9 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
 
     @Inject
     lateinit var coinOmegaCoinInterceptorProvider: Provider<CoinOmegaCoinInterceptor>
+
+    @Inject
+    lateinit var appInitializer: AppInitializer
 
     private lateinit var appComponent: AppComponent
 
@@ -123,11 +122,8 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
         } else {
             MainFlagValueProvider.setDelegate(remoteConfigFlagProvider)
         }
-        setAppHash()
         initDns()
         firebasePerformance.isPerformanceCollectionEnabled = BuildConfig.IS_PLAY_STORE
-
-        firebaseAnalytics.setAnalyticsCollectionEnabled(BuildConfig.IS_PLAY_STORE)
 
         Mavericks.initialize(
             context = this,
@@ -149,22 +145,16 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
                 deleteUnsentReports()
             }
         }
+
         oneSignalInitializer.invoke()
         coinOmegaCoinInterceptorProvider.get() // register id token listener
         amplitudeInitializer.invoke()
+        appInitializer.invoke()
     }
 
     private fun initDns() {
         // set mode before lookup
         appDnsSelector.get()
-    }
-
-    private fun setAppHash() {
-        scope.launch {
-            val appHash = commonRepository.get().getAppHash()
-            FirebaseCrashlytics.getInstance().setUserId(appHash)
-            firebaseAnalytics.setUserId(appHash)
-        }
     }
 
     private fun enqueueNoopWorker() {
