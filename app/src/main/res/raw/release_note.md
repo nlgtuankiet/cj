@@ -1,3 +1,6 @@
+### 2.0.1 Release  
+🛠 Performance improvement, now app startup is faster  
+
 ### 2.0.0 Release
 ✨ Integrate dedicated backend, prepare for price alert feature  
 🛠 Improve performance, now app use less network bandwidth  
