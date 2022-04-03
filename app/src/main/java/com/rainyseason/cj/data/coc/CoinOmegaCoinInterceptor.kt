@@ -2,6 +2,7 @@ package com.rainyseason.cj.data.coc
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.internal.IdTokenListener
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.internal.InternalTokenResult
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -16,6 +17,7 @@ import javax.inject.Singleton
 @Singleton
 class CoinOmegaCoinInterceptor @Inject constructor(
     firebaseAuth: FirebaseAuth,
+    private val firebaseCrashlytics: FirebaseCrashlytics,
 ) : Interceptor, IdTokenListener {
 
     private var token: String? = null
@@ -34,14 +36,18 @@ class CoinOmegaCoinInterceptor @Inject constructor(
         }
     }
 
+    class FirebaseTokenNotInitializedException : Exception()
+
     override fun intercept(chain: Interceptor.Chain): Response {
         val currentToken = token
         Timber.d("Intercept ${chain.request().url}, has token: ${currentToken != null}")
-        if (currentToken != null) {
+        if (!currentToken.isNullOrBlank()) {
             val newRequest = chain.request().newBuilder()
                 .header("Authorization", "Bearer $currentToken")
                 .build()
             return chain.proceed(newRequest)
+        } else {
+            firebaseCrashlytics.recordException(FirebaseTokenNotInitializedException())
         }
 
         return chain.proceed(chain.request())

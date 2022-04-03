@@ -8,7 +8,7 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.firebase.auth.FirebaseAuth
-import com.rainyseason.cj.BuildConfig
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.Coin
 import com.rainyseason.cj.common.model.Watchlist
@@ -35,7 +35,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
-import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,6 +46,7 @@ class WatchListRepository @Inject constructor(
     private val keyValueStore: KeyValueStore,
     private val coinOmegaCoinService: CoinOmegaCoinService,
     private val firebaseAuth: FirebaseAuth,
+    private val firebaseCrashlytics: FirebaseCrashlytics,
     private val moshi: Moshi,
 ) : LifecycleObserver {
 
@@ -186,6 +186,11 @@ class WatchListRepository @Inject constructor(
         }
     }
 
+    class BackupWatchlistException(
+        override val message: String?,
+        override val cause: Exception,
+    ) : Exception(message = message, cause = cause)
+
     init {
         scope.launch(Dispatchers.Main) {
             getWatchlistCollectionFlow()
@@ -200,9 +205,7 @@ class WatchListRepository @Inject constructor(
                 try {
                     backupWatchlist()
                 } catch (ex: Exception) {
-                    if (BuildConfig.DEBUG) {
-                        ex.printStackTrace()
-                    }
+                    firebaseCrashlytics.recordException(BackupWatchlistException(ex.message, ex))
                 }
             }
         }
