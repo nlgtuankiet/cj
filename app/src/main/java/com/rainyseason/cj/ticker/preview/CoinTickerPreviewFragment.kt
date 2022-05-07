@@ -29,6 +29,8 @@ import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.saveOrShowWarning
 import com.rainyseason.cj.common.show
 import com.rainyseason.cj.databinding.CoinTickerPreviewFragmentBinding
+import com.rainyseason.cj.featureflag.FeatureFlag
+import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
 import com.rainyseason.cj.tracking.Tracker
@@ -38,7 +40,6 @@ import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -178,6 +179,9 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
     }
 
     private fun showInAppReview() {
+        if (!FeatureFlag.REQUEST_INAPP_REVIEW.isEnable) {
+            return
+        }
         val context = requireContext()
         val activity = requireActivity()
         scope.launch(Dispatchers.IO) {

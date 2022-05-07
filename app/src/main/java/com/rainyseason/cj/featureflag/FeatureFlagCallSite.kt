@@ -98,6 +98,7 @@ object FeatureFlag {
     val DISABLE_V4_ONLY = FeatureKey("disable_ipv4_only")
     val SHOW_ADD_WIDGET_TUTORIAL = FeatureKey("show_add_widget_tutorial")
         .withDefault("false")
+    val REQUEST_INAPP_REVIEW = FeatureKey("request_inapp_review")
 }
 
 object DebugFlag {
