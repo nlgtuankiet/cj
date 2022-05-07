@@ -45,6 +45,7 @@ import com.rainyseason.cj.data.UrlLoggerInterceptor
 import com.rainyseason.cj.data.binance.BinanceService
 import com.rainyseason.cj.data.binance.BinanceServiceWrapper
 import com.rainyseason.cj.data.cmc.CmcService
+import com.rainyseason.cj.data.coc.CocAuthenticator
 import com.rainyseason.cj.data.coc.CoinOmegaCoinInterceptor
 import com.rainyseason.cj.data.coc.CoinOmegaCoinService
 import com.rainyseason.cj.data.coinbase.CoinbaseService
@@ -221,6 +222,7 @@ object AppProvides {
                     val logging = HttpLoggingInterceptor { message ->
                         Timber.tag("OkHttp").d(message)
                     }
+                    logging.level = HttpLoggingInterceptor.Level.HEADERS
                     builder.addInterceptor(logging.synchronized())
                 }
 
@@ -346,10 +348,12 @@ object AppProvides {
         moshi: Moshi,
         clientProvider: Provider<OkHttpClient>,
         coinOmegaCoinInterceptor: CoinOmegaCoinInterceptor,
+        cocAuthenticator: CocAuthenticator,
     ): CoinOmegaCoinService {
         val client: OkHttpClient by lazy {
             clientProvider.get().newBuilder()
                 .addInterceptor(coinOmegaCoinInterceptor)
+                .authenticator(cocAuthenticator)
                 .build()
         }
         return Retrofit.Builder()
