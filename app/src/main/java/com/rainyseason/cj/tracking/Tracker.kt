@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.widget.WidgetRefreshEventInterceptor
+import com.rainyseason.cj.widget.WidgetRefreshFakeAmountInterceptor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -28,7 +29,7 @@ interface EventInterceptor {
     suspend fun intercept(event: Event, process: suspend (Event) -> Unit)
 }
 
-class KeyParamsEvent(
+data class KeyParamsEvent(
     val key: String,
     val params: Map<String, Any?>,
 ) : Event
@@ -115,7 +116,8 @@ class AppTracker @Inject constructor(
     private val firebaseTracker: FirebaseTracker,
     private val amplitudeTracker: AmplitudeTracker,
     private val debugTracker: DebugTracker,
-    private val widgetRefreshEventInterceptor: WidgetRefreshEventInterceptor,
+    widgetRefreshFakeAmountInterceptor: WidgetRefreshFakeAmountInterceptor,
+    widgetRefreshEventInterceptor: WidgetRefreshEventInterceptor,
 ) : Tracker {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val trackers: List<SyncTracker> by lazy {
@@ -130,7 +132,8 @@ class AppTracker @Inject constructor(
     }
 
     private val interceptors: List<EventInterceptor> = listOf(
-        widgetRefreshEventInterceptor
+        widgetRefreshFakeAmountInterceptor,
+        widgetRefreshEventInterceptor,
     )
 
     override fun log(event: Event): Job {
@@ -149,8 +152,8 @@ class AppTracker @Inject constructor(
                 tracker.log(event)
             }
         } else {
-            interceptors[interceptorIndex].intercept(event) {
-                intercept(event, interceptorIndex + 1)
+            interceptors[interceptorIndex].intercept(event) { newEvent ->
+                intercept(newEvent, interceptorIndex + 1)
             }
         }
     }
