@@ -56,7 +56,7 @@ data class CoinTickerConfig(
     val showCurrencySymbol: Boolean = true,
 
     @Json(name = "currency")
-    val currency: String,
+    val currency: String = CurrencyInfo.USD.code,
 
     @Json(name = "round_to_million")
     val roundToMillion: Boolean = true,
@@ -77,10 +77,10 @@ data class CoinTickerConfig(
     val amount: Double? = 1.0,
 
     @Json(name = "full_size")
-    val fullSize: Boolean = false,
+    val fullSize: Boolean = true,
 
     @Json(name = "show_notification")
-    val showNotification: Boolean = false,
+    val showNotification: Boolean = true,
 
     @Json(name = "network")
     val network: String? = null,

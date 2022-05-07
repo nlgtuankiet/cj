@@ -170,16 +170,6 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
                 coinId = coinId,
                 layout = layout,
                 backend = backend,
-                numberOfAmountDecimal = 2,
-                numberOfChangePercentDecimal = 1,
-                refreshInterval = 1,
-                refreshIntervalUnit = TimeUnit.HOURS,
-                showThousandsSeparator = true,
-                showCurrencySymbol = true,
-                roundToMillion = true,
-                currency = CurrencyInfo.USD.code,
-                sizeAdjustment = 0,
-                showNotification = true,
             )
         } else {
             lastConfig.copy(
