@@ -186,11 +186,6 @@ class WatchListRepository @Inject constructor(
         }
     }
 
-    class BackupWatchlistException(
-        override val message: String?,
-        override val cause: Exception,
-    ) : Exception()
-
     init {
         scope.launch(Dispatchers.Main) {
             getWatchlistCollectionFlow()
@@ -266,3 +261,8 @@ class WatchListRepository @Inject constructor(
         }
     }
 }
+
+class BackupWatchlistException(
+    override val message: String?,
+    override val cause: Exception,
+) : Exception()
