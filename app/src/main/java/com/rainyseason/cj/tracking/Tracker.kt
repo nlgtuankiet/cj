@@ -11,6 +11,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import javax.inject.Provider
 import javax.inject.Singleton
 
 interface Event
@@ -68,7 +69,7 @@ fun Tracker.logClick(
 
 @Singleton
 class FirebaseTracker @Inject constructor(
-    private val firebaseAnalytics: FirebaseAnalytics,
+    private val firebaseAnalytics: Provider<FirebaseAnalytics>,
 ) : SyncTracker {
 
     override fun log(event: Event) {
@@ -92,7 +93,7 @@ class FirebaseTracker @Inject constructor(
                 }
             }
         }
-        firebaseAnalytics.logEvent(event.key, bundle)
+        firebaseAnalytics.get().logEvent(event.key, bundle)
     }
 }
 

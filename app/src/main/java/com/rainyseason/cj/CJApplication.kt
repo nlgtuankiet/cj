@@ -18,7 +18,6 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import com.rainyseason.cj.app.AppInitializer
 import com.rainyseason.cj.app.AppViewModel
 import com.rainyseason.cj.common.AppDnsSelector
-import com.rainyseason.cj.common.ConfigManager
 import com.rainyseason.cj.common.CoreComponent
 import com.rainyseason.cj.common.HasCoreComponent
 import com.rainyseason.cj.common.NoopWorker
@@ -64,9 +63,6 @@ class CJApplication : Application(), HasAndroidInjector, HasCoreComponent {
 
     @Inject
     lateinit var firebaseRemoteConfig: FirebaseRemoteConfig
-
-    @Inject // inject for init
-    lateinit var configManager: ConfigManager
 
     @Inject
     lateinit var appDnsSelector: Provider<AppDnsSelector>
