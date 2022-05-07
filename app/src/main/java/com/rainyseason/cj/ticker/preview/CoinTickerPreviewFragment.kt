@@ -38,6 +38,8 @@ import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
@@ -181,8 +183,12 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
         scope.launch(Dispatchers.IO) {
             try {
                 tracker.logKeyParamsEvent("request_inapp_review")
+                val waitJob = launch {
+                    delay(2000)
+                }
                 val reviewManager = ReviewManagerFactory.create(context)
                 val request = reviewManager.requestReview()
+                waitJob.join()
                 reviewManager.launchReview(activity, request)
             } catch (ex: Exception) {
                 context.coreComponent.firebaseCrashlytics.recordException(
