@@ -1,3 +1,9 @@
+### 2.0.3 Release
+✨ Add In-app review screen  
+🛠 Change some default widget config  
+🛠 Improve user privacy  
+🛠 Performance improvement  
+
 ### 2.0.1 Release  
 🛠 Performance improvement, now app startup is faster  
 
