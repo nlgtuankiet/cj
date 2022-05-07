@@ -12,7 +12,6 @@ import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.ViewModelContext
-import com.rainyseason.cj.common.CurrencyInfo
 import com.rainyseason.cj.common.isOnboardDone
 import com.rainyseason.cj.common.model.Backend
 import com.rainyseason.cj.common.model.Coin

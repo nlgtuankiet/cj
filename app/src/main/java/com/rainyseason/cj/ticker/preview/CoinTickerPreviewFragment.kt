@@ -12,12 +12,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.fragmentViewModel
 import com.airbnb.mvrx.withState
+import com.google.android.play.core.ktx.launchReview
+import com.google.android.play.core.ktx.requestReview
+import com.google.android.play.core.review.ReviewManagerFactory
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.coinselect.observeCoinSelectResult
 import com.rainyseason.cj.common.CoinTickerPreviewTTI
 import com.rainyseason.cj.common.OnBoardParam
 import com.rainyseason.cj.common.TraceManager
 import com.rainyseason.cj.common.asCoin
+import com.rainyseason.cj.common.coreComponent
+import com.rainyseason.cj.common.exception.FailInAppReviewException
 import com.rainyseason.cj.common.launchAndRepeatWithViewLifecycle
 import com.rainyseason.cj.common.requireArgs
 import com.rainyseason.cj.common.saveOrShowWarning
@@ -26,14 +32,17 @@ import com.rainyseason.cj.databinding.CoinTickerPreviewFragmentBinding
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
 import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 import dagger.android.support.AndroidSupportInjection
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Module
@@ -60,6 +69,9 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
 
     @Inject
     lateinit var appWidgetManager: AppWidgetManager
+
+    @Inject
+    lateinit var scope: CoroutineScope
 
     val args: CoinTickerPreviewArgs by lazy { requireArgs() }
 
@@ -163,6 +175,26 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
         traceManager.cancelTrace(CoinTickerPreviewTTI(viewModel.id))
     }
 
+    private fun showInAppReview() {
+        val context = requireContext()
+        val activity = requireActivity()
+        scope.launch(Dispatchers.IO) {
+            try {
+                tracker.logKeyParamsEvent("request_inapp_review")
+                val reviewManager = ReviewManagerFactory.create(context)
+                val request = reviewManager.requestReview()
+                reviewManager.launchReview(activity, request)
+            } catch (ex: Exception) {
+                context.coreComponent.firebaseCrashlytics.recordException(
+                    FailInAppReviewException(ex)
+                )
+                if (BuildConfig.DEBUG) {
+                    ex.printStackTrace()
+                }
+            }
+        }
+    }
+
     private fun save() {
         fun actualSave() {
             val config = withState(viewModel) { it.savedConfig.invoke() } ?: return
@@ -173,6 +205,9 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, config.widgetId)
             }
             activity.setResult(Activity.RESULT_OK, resultValue)
+            if (config.widgetId > 3) {
+                showInAppReview()
+            }
             activity.finish()
         }
 
