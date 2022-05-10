@@ -1,79 +1,85 @@
+### 2.0.4 Release
+
+🛠 Fix dexscreener widget not working
+
 ### 2.0.3 Release
+
 ✨ Add In-app review screen  
 🛠 Change some default widget config  
 🛠 Improve user privacy  
-🛠 Performance improvement  
+🛠 Performance improvement
 
-### 2.0.1 Release  
-🛠 Performance improvement, now app startup is faster  
+### 2.0.1 Release
+
+🛠 Performance improvement, now app startup is faster
 
 ### 2.0.0 Release
 ✨ Integrate dedicated backend, prepare for price alert feature  
 🛠 Improve performance, now app use less network bandwidth  
-🛠 Fix crash in watchlist widget preview when using "none" currency  
+🛠 Fix crash in watchlist widget preview when using "none" currency
 
 ### 1.15.2 Release
-🛠 Improve create widget shortcut speed  
+🛠 Improve create widget shortcut speed
 
 ### 1.15.1 Release
 🛠 Fix crash when enter watchlist screen  
-🛠 Improve ticker notification UI on Android 11 and below  
+🛠 Improve ticker notification UI on Android 11 and below
 
 ### 1.15.0 Release
 ✨ Major change to Watchlist page  
-✨ Ability to add coins from other sources into watchlist (Binance, Coinbase)  
+✨ Ability to add coins from other sources into watchlist (Binance, Coinbase)
 
 ### 1.14.3 Release
 ✨ Add "Add widget shortcut" now you can add widget from the Manage Widget screen.  
-🛠 Fix can not load LUSE token on CoinGecko.  
+🛠 Fix can not load LUSE token on CoinGecko.
 
 ### 1.14.2 Release
 ✨ Add support for DexScreener, now you can monitor trading pair from DexScreener.  
-✨ Add tutorial screen about how to add new widget.  
+✨ Add tutorial screen about how to add new widget.
 
 ### 1.14.1 Release
 ✨ Add sticky notification (request by Charles Potts), now you can check coin price right on the lock screen!  
-🛠 Fix ticker widget sometimes reset to bitcoin when re-config  
+🛠 Fix ticker widget sometimes reset to bitcoin when re-config
 
 ### 1.13.3 Release
 ✨ Add Luno exchange support  
 ✨ Support more change intervals (range from 30 days to 1 year)  
 ✨ Add how to add widget tutorial  
 ✨ Add transparency for full size watchlist widget in Android 12 and above  
-🛠 Fix "refresh widget action" not working in full size watchlist widget  
+🛠 Fix "refresh widget action" not working in full size watchlist widget
 
 ### 1.13.2 Release
 ✨ Add full-size ticker widget, now ticker widget can expand to full size  
-🛠 Fix widget not refresh after device restart or app update  
+🛠 Fix widget not refresh after device restart or app update
 
 ### 1.13.1 Release
 ✨ Add Material You theme (request from Sascha)  
 ✨ Add re-config widget button when tap and hold widget on home screen (Android 12 and above)  
-🛠 Fix multiple watchlist render issue  
+🛠 Fix multiple watchlist render issue
 
 ### 1.13.0 Release
 
 ✨ Add full size watchlist widget (request from Paolo Pellecchia)  
-🛠 Fix watchlist widget config reset bug when re-config the widget  
+🛠 Fix watchlist widget config reset bug when re-config the widget
 
 ### 1.12.1 Release
 
 ✨ Add onboarding UI (for coin select option)  
-🛠 Fix spelling error, thank Jaes Overley  
+🛠 Fix spelling error, thank Jaes Overley
 
 ### 1.12.0 Release
 
-✨ Add chat screen, now you can chat with us directly for feature requests and bug reports.  
+✨ Add chat screen, now you can chat with us directly for feature requests and bug reports.
 
 ### 1.11.0 Release
 
-✨ Add Manage widgets screen, now you can edit added widgets without deleting and create a new one.  
+✨ Add Manage widgets screen, now you can edit added widgets without deleting and create a new one.
 
 ### 1.10.5 Release
 
 ✨ Add Coinbase support, now you can add widgets that displays data from Coinbase  
 ✨ Add FTX support, now you can add widgets that displays data from FTX  
-✨ Add Kraken support, now you can add widgets that displays data from Kraken  
+✨ Add Kraken support, now you can add widgets that displays data from Kraken
 
 ### 1.10.4 Release
 
