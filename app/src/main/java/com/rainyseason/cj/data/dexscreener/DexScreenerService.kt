@@ -48,7 +48,7 @@ interface DexScreenerService {
     ): ResponseBody
 
     companion object {
-        const val BASE_URL = "https://io5.dexscreener.io/"
+        const val BASE_URL = "https://io.dexscreener.com/"
 
         fun getDetailBody(platform: String, coinId: String): RequestBody {
             return "40/u/ws/screener/pair/$platform/$coinId,".toRequestBody()
