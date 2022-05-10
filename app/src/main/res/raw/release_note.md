@@ -1,5 +1,6 @@
 ### 2.0.4 Release
 
+✨ Add help button in manage widget screen  
 🛠 Fix dexscreener widget not working
 
 ### 2.0.3 Release
