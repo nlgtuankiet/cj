@@ -23,6 +23,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+    <ImageView
+        android:background="?selectableItemBackground"
+        android:layout_marginEnd="12dp"
+        android:scaleType="center"
+        android:src="@drawable/ic_baseline_help_outline_24"
+        android:id="@+id/help_button"
+        app:layout_constraintBottom_toBottomOf="@id/toolbar"
+        app:layout_constraintTop_toTopOf="@id/toolbar"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="48dp"
+        android:layout_height="48dp"/>
+
 
     <com.airbnb.epoxy.EpoxyRecyclerView
         android:id="@+id/content"

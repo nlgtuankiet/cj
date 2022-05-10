@@ -31,8 +31,6 @@ import com.rainyseason.cj.data.CommonRepository
 import com.rainyseason.cj.detail.CoinDetailArgs
 import com.rainyseason.cj.detail.CoinDetailFragment
 import com.rainyseason.cj.detail.about.CoinDetailAboutFragment
-import com.rainyseason.cj.featureflag.FeatureFlag
-import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.setting.SettingFragment
 import com.rainyseason.cj.ticker.CoinTickerHandler
 import com.rainyseason.cj.watch.WatchListFragment
@@ -40,9 +38,7 @@ import com.rainyseason.cj.widget.manage.ManageWidgetFragment
 import dagger.Module
 import dagger.android.AndroidInjection
 import dagger.android.ContributesAndroidInjector
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -108,24 +104,6 @@ class MainActivity : AppCompatActivity() {
             navigateNewIntent(intent)
         }
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
-        maybeShowTutorial()
-    }
-
-    private fun maybeShowTutorial() {
-        lifecycleScope.launch {
-            configManager.awaitFirstFetch()
-            val isDoneShowAddWidgetTutorial = withContext(Dispatchers.IO) {
-                commonRepository.isDoneShowAddWidgetTutorial()
-            }
-            if (!isDoneShowAddWidgetTutorial) {
-                lifecycleScope.launchWhenResumed {
-                    if (FeatureFlag.SHOW_ADD_WIDGET_TUTORIAL.isEnable) {
-                        navController.navigate(R.id.add_widget_tutorial_screen)
-                    }
-                }
-            }
-        }
     }
 
     private fun navigateNewIntent(intent: Intent) {
