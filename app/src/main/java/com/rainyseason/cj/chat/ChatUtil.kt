@@ -5,6 +5,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.EventListener
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.QuerySnapshot
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.chat.history.MessageEntry
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -14,7 +15,11 @@ import kotlinx.coroutines.flow.callbackFlow
 import org.threeten.bp.Instant
 
 object ChatUtil {
-    const val ADMIN_UID = "uJIQWCKAsLMf3AlY1bTjVhmJlVM2"
+    val ADMIN_UID = if (BuildConfig.FLAVOR == "prod") {
+        "uJIQWCKAsLMf3AlY1bTjVhmJlVM2" // prod
+    } else {
+        "uaNW8OUnA7MWGIaYj0OsOXGp3F42" // dev
+    }
 
     val WELCOME_MESSAGE = MessageEntry(
         id = "welcome",

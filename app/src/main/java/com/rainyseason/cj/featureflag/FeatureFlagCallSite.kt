@@ -86,6 +86,9 @@ class RemoteConfigFlagProvider @Inject constructor(
     private val firebaseRemoteConfig: FirebaseRemoteConfig,
 ) : FlagValueProvider {
     override fun get(flagKey: FlagKey): String {
+        if (flagKey is DebugKey) {
+            return "false"
+        }
         return firebaseRemoteConfig.getString(flagKey.value).also {
             Timber.d("flag ${flagKey.value} return $it")
         }
@@ -115,7 +118,7 @@ object DebugFlag {
     val DEBUG_COIN_TICKER_CONFIG = DebugKey("debug_coin_ticker_config")
     val FORCE_ANDROID_BELOW_12 = DebugKey("debug_force_android_below_12")
         .withDefault("false")
-    val DISABLE_ONESIGNAL = DebugKey("debug_disable_one_signal").withDefault("true")
+    val DISABLE_ONESIGNAL_PROD = DebugKey("debug_disable_one_signal").withDefault("true")
     val FORCE_NOT_SUPPORT_WIDGET_PIN = DebugKey("force_not_support_widget_pin")
 }
 

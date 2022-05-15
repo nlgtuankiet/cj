@@ -5,12 +5,9 @@ import com.google.firebase.auth.FirebaseAuth
 import com.onesignal.OneSignal
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.common.isUserLoginFlow
-import com.rainyseason.cj.featureflag.DebugFlag
-import com.rainyseason.cj.featureflag.isEnable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class OneSignalInitializer @Inject constructor(
@@ -19,10 +16,19 @@ class OneSignalInitializer @Inject constructor(
     private val scope: CoroutineScope,
 ) : Function0<Unit> {
 
+    /**
+     * Enable
+     * prod release -> true
+     * prod debug   -> false
+     * dev          -> true
+     */
     override operator fun invoke() {
         scope.launch {
-            if (DebugFlag.DISABLE_ONESIGNAL.isEnable) {
-                Timber.d("Disable one signal")
+            val isDev = BuildConfig.FLAVOR == "dev"
+            val isRelease = !BuildConfig.DEBUG
+            val isEnable = isDev || isRelease
+
+            if (!isEnable) {
                 return@launch
             }
 
