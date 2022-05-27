@@ -38,7 +38,11 @@ data class CoinTickerConfig(
     val refreshIntervalUnit: TimeUnit = TimeUnit.HOURS,
 
     @Json(name = "theme")
-    val theme: Theme = Theme.Auto,
+    val theme: Theme = if (BuildCompat.isAtLeastS()) {
+        Theme.MaterialYou
+    } else {
+        Theme.Auto
+    },
 
     @Json(name = "show_thousands_separator")
     val showThousandsSeparator: Boolean = true,
