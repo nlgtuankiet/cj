@@ -96,14 +96,19 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         onEachDisplayDataJob?.cancel()
         onEachDisplayDataJob = onEach(CoinTickerPreviewState::savedDisplayData) { displayData ->
             if (displayData.invoke() != null) {
-                TickerWidgetFeature.values().forEach { feature ->
-                    val done = keyValueStore.isOnboardDone(feature.featureName)
-                    if (!done && feature.predicate.invoke()) {
-                        _onBoardFeature.send(feature)
-                        onEachDisplayDataJob?.cancel()
-                        return@forEach
+                TickerWidgetFeature.values()
+                    .filter {
+                        // temporary disable onboard how to select coin id
+                        it !in listOf(TickerWidgetFeature.CoinId)
                     }
-                }
+                    .forEach { feature ->
+                        val done = keyValueStore.isOnboardDone(feature.featureName)
+                        if (!done && feature.predicate.invoke()) {
+                            _onBoardFeature.send(feature)
+                            onEachDisplayDataJob?.cancel()
+                            return@forEach
+                        }
+                    }
             }
         }
     }
