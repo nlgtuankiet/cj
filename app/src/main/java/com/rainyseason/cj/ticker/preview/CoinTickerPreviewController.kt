@@ -337,8 +337,8 @@ class CoinTickerPreviewController(
         maybeBuildHorizontalSeparator(id = "full_size_separator")
         settingSwitchView {
             id(TickerWidgetFeature.FullSize.viewId)
-            title(R.string.watch_full_size)
-            checked(config.fullSize)
+            title(R.string.widget_config_maintain_aspect_ratio)
+            checked(config.maintainAspectRatio)
             onClickListener { _ ->
                 viewModel.toggleFullSize()
             }

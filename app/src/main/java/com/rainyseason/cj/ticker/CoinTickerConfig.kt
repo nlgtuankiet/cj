@@ -88,6 +88,7 @@ data class CoinTickerConfig(
     @Json(name = "dex")
     val dex: String? = null,
 ) {
+    val maintainAspectRatio: Boolean = !fullSize
 
     companion object {
         val DEFAULT_FOR_PREVIEW = CoinTickerConfig(
