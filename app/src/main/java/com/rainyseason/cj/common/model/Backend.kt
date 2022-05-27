@@ -20,6 +20,7 @@ enum class Backend(
     val isDefault: Boolean = false,
     val supportedTimeRange: Set<TimeInterval> = defaultTimeRanges,
     val canSearchProduct: Boolean = false,
+    val hasCoinUrl: Boolean = false,
     val supportedCurrency: List<CurrencyInfo> = listOf(CurrencyInfo.NONE),
 ) {
     CoinGecko(
@@ -38,6 +39,7 @@ enum class Backend(
             TimeInterval.I_1Y,
         ),
         supportedCurrency = SUPPORTED_CURRENCY_VALUES,
+        hasCoinUrl = true,
     ),
     Binance(
         id = "binance",
@@ -51,6 +53,7 @@ enum class Backend(
         iconUrl = "https://coinmarketcap.com/apple-touch-icon.png",
         isExchange = false,
         supportedCurrency = SUPPORTED_CURRENCY_VALUES,
+        hasCoinUrl = true,
     ),
     Coinbase(
         id = "coinbase",

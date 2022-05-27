@@ -26,6 +26,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.RemoteViews
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
@@ -165,6 +166,13 @@ fun Parcelable.asArgs(): Bundle {
 @ColorInt
 fun Context.getColorCompat(@ColorRes id: Int): Int {
     return ContextCompat.getColor(this, id)
+}
+
+@ColorInt
+fun Context.resolveColorAttr(@AttrRes id: Int): Int {
+    val typedValue = TypedValue()
+    theme.resolveAttribute(id, typedValue, true)
+    return typedValue.data
 }
 
 fun Context.getDrawableCompat(@DrawableRes id: Int): Drawable? {

@@ -5,6 +5,7 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.core.view.doOnPreDraw
 import androidx.navigation.findNavController
+import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.airbnb.epoxy.AsyncEpoxyController
 import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.withState
@@ -17,6 +18,7 @@ import com.rainyseason.cj.common.getUserErrorMessage
 import com.rainyseason.cj.common.inflater
 import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
+import com.rainyseason.cj.common.resolveColorAttr
 import com.rainyseason.cj.common.setCancelButton
 import com.rainyseason.cj.common.showKeyboard
 import com.rainyseason.cj.common.view.IntLabelFormater
@@ -92,9 +94,15 @@ class CoinTickerPreviewController(
         }
     }
 
+    private val circularProcess = CircularProgressDrawable(context).apply {
+        setStyle(CircularProgressDrawable.LARGE)
+        setColorSchemeColors(context.resolveColorAttr(R.attr.colorPrimary))
+        start()
+    }
+
     private fun buildCoinId(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-
+        val currentDisplayData = state.currentDisplayData
         val summary = if (config.backend.isExchange) {
             state.currentDisplayData?.symbol
         } else {
@@ -117,6 +125,12 @@ class CoinTickerPreviewController(
                 summary(R.string.loading)
             } else {
                 summary(summary)
+            }
+            if (config.backend.hasCoinUrl) {
+                imagePrimary(currentDisplayData?.iconUrl ?: circularProcess)
+                imageSecondary(config.backend.iconUrl)
+            } else {
+                imagePrimary(config.backend.iconUrl)
             }
             onClickListener { view ->
                 view.findNavController()
