@@ -80,7 +80,7 @@ data class CoinTickerConfig(
     val fullSize: Boolean = true,
 
     @Json(name = "show_notification")
-    val showNotification: Boolean = true,
+    val showNotification: Boolean = false,
 
     @Json(name = "network")
     val network: String? = null,
