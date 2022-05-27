@@ -34,7 +34,7 @@ enum class TickerWidgetFeature(
     FullSize(
         featureName = "widget_ticker_full_size",
         viewId = CoinTickerPreviewController.FULL_SIZE_ID,
-        titleRes = R.string.widget_watch_onboard_full_size_title,
-        descriptionRes = R.string.widget_ticker_onboard_full_size_description,
+        titleRes = R.string.widget_ticker_onboard_maintain_aspect_ratio_title,
+        descriptionRes = R.string.widget_ticker_onboard_maintain_aspect_ratio_description,
     ),
 }
