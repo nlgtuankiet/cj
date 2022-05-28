@@ -1,3 +1,11 @@
+### 2.1.0 Release
+
+✨ Add images to onboarding flow  
+🛠 Widget config now easier to understand  
+🛠 Disable sticky notification by default  
+🛠 Use "material you" theme by default (Android 12 and above)  
+🛠 Replace "full size" config with "maintain aspect ratio"  
+
 ### 2.0.4 Release
 
 ✨ Add help button in manage widget screen  
