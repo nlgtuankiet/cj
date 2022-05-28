@@ -19,6 +19,7 @@ import com.rainyseason.cj.common.coreComponent
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.inflateAndAdd
 import com.rainyseason.cj.common.viewScope
+import com.rainyseason.cj.ticker.CoinTickerLayout
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -74,12 +75,16 @@ class CoinTickerPreviewView @JvmOverloads constructor(
             params.config.layout.layout
         )
         val widgetSize = renderer.getWidgetSize(params.config)
+        val minWidgetSize = renderer.getWidgetSize(
+            params.config.copy(fullSize = false, layout = CoinTickerLayout.Graph2x2)
+        )
         container.updateLayoutParams<MarginLayoutParams> {
             height = widgetSize.height
             width = widgetSize.width
         }
         mainContainer.updateLayoutParams<MarginLayoutParams> {
             height = widgetSize.height + context.dpToPx(12 * 2)
+            height = height.coerceAtLeast(minWidgetSize.height + context.dpToPx(12 * 2))
         }
         renderJob?.cancel()
         renderJob = viewScope.launch {

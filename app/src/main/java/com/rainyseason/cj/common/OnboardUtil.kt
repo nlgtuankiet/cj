@@ -12,6 +12,7 @@ import com.airbnb.epoxy.EpoxyModel
 import com.airbnb.epoxy.EpoxyRecyclerView
 import com.airbnb.epoxy.IdUtils
 import com.airbnb.epoxy.OnModelBuildFinishedListener
+import com.bumptech.glide.Glide
 import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.rainyseason.cj.databinding.OnboardFeatureLayoutBinding
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +31,7 @@ class OnBoardParam(
     val onboardContainer: ViewGroup,
     val onBoardTitleRes: Int,
     val onBoardDescriptionRes: Int,
+    val onBoardImageRes: Int? = null,
     val onDoneListener: () -> Unit = {}
 )
 
@@ -138,6 +140,11 @@ private suspend fun showOnBoard(
     )
     focusBinding.title.setText(params.onBoardTitleRes)
     focusBinding.description.setText(params.onBoardDescriptionRes)
+    if (params.onBoardImageRes != null) {
+        Glide.with(focusBinding.image)
+            .load(params.onBoardImageRes)
+            .into(focusBinding.image)
+    }
     focusBinding.focusPoint.updateLayoutParams<ViewGroup.MarginLayoutParams> {
         height = focusHeight
         updateMargins(top = focusMarginTop)

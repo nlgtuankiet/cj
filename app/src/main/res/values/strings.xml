@@ -152,7 +152,7 @@
     <string name="coin_ticker_onboard_coin_select_title">Select your favorite coin!</string>
     <string name="coin_ticker_onboard_coin_select_description">Like Ethereum, Dogecoin\nOr trading pair from various exchange</string>
     <string name="coin_ticker_onboard_mu_theme_title">Select theme</string>
-    <string name="coin_ticker_onboard_mu_theme_description">Light/Dark/Material You</string>
+    <string name="coin_ticker_onboard_mu_theme_description">Material You / Light / Dark</string>
     <string name="empty" />
 
     <string name="coin_ticker_setting_noti_title">Sticky notification</string>

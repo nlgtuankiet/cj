@@ -164,6 +164,7 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
                     onboardContainer = binding.onboardContainer,
                     onBoardTitleRes = feature.titleRes,
                     onBoardDescriptionRes = feature.descriptionRes,
+                    onBoardImageRes = feature.imageRes,
                     onDoneListener = {
                         viewModel.onBoardFeatureDone(feature)
                     }

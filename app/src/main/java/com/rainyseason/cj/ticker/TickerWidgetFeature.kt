@@ -8,6 +8,7 @@ enum class TickerWidgetFeature(
     val viewId: String,
     val titleRes: Int,
     val descriptionRes: Int,
+    val imageRes: Int? = null,
     val predicate: () -> Boolean = { true },
 ) {
     CoinId(
@@ -21,6 +22,7 @@ enum class TickerWidgetFeature(
         viewId = CoinTickerPreviewController.THEME_ID,
         titleRes = R.string.coin_ticker_onboard_mu_theme_title,
         descriptionRes = R.string.coin_ticker_onboard_mu_theme_description,
+        imageRes = R.drawable.ticket_widget_onboard_theme,
         predicate = {
             androidx.core.os.BuildCompat.isAtLeastS()
         }
@@ -28,13 +30,15 @@ enum class TickerWidgetFeature(
     StickyNotification(
         featureName = "widget_ticker_notification",
         viewId = CoinTickerPreviewController.STICKY_NOTIFICATION,
-        titleRes = R.string.coin_ticker_onboard_noti_title,
-        descriptionRes = R.string.coin_ticker_onboard_noti_description,
+        titleRes = R.string.empty,
+        descriptionRes = R.string.empty,
+        imageRes = R.drawable.ticket_widget_onboard_notification,
     ),
     FullSize(
         featureName = "widget_ticker_full_size",
         viewId = CoinTickerPreviewController.FULL_SIZE_ID,
-        titleRes = R.string.widget_ticker_onboard_maintain_aspect_ratio_title,
-        descriptionRes = R.string.widget_ticker_onboard_maintain_aspect_ratio_description,
+        titleRes = R.string.empty,
+        descriptionRes = R.string.empty,
+        imageRes = R.drawable.ticket_widget_onboard_aspect_ratio_2
     ),
 }
