@@ -79,7 +79,7 @@ class CoinTickerSettingActivity :
         setResult(RESULT_CANCELED, resultIntent)
         if (!BuildConfig.DEBUG) {
             lifecycleScope.launch {
-                val deleted = coinTickerHandler.checkWidgetDeleted(widgetId)
+                val deleted = coinTickerHandler.cleanUpIfWidgetDeleted(widgetId)
                 if (deleted) {
                     finish()
                 }

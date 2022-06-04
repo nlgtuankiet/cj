@@ -9,7 +9,6 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.await
-import com.rainyseason.cj.common.model.getWidgetIds
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
@@ -55,15 +54,14 @@ class CoinTickerHandler @Inject constructor(
         return "refresh_$widgetId"
     }
 
-    suspend fun checkWidgetDeleted(widgetId: Int): Boolean {
-        val widgetIds = CoinTickerLayout.values().getWidgetIds(context)
-        if (widgetId in widgetIds) {
-            return false
+    suspend fun cleanUpIfWidgetDeleted(widgetId: Int): Boolean {
+        val isDeleted = coinTickerRepository.isWidgetDeleted(widgetId)
+        if (isDeleted) {
+            withContext(Dispatchers.IO) {
+                onDelete(widgetId)
+            }
         }
-        withContext(Dispatchers.IO) {
-            onDelete(widgetId)
-        }
-        return true
+        return isDeleted
     }
 
     suspend fun onDelete(widgetId: Int) {
@@ -83,7 +81,8 @@ class CoinTickerHandler @Inject constructor(
     }
 
     suspend fun rerender(widgetId: Int) {
-        val config = coinTickerRepository.getConfig(widgetId = widgetId) ?: return
+        val config = coinTickerRepository.getConfig(widgetId = widgetId, callSite = "render")
+            ?: return
         val displayData = coinTickerRepository.getDisplayData(widgetId = widgetId) ?: return
 
         val params = CoinTickerRenderParams(

@@ -43,7 +43,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         }
 
         // check if widget has been removed
-        val deleted = handler.checkWidgetDeleted(widgetId)
+        val deleted = handler.cleanUpIfWidgetDeleted(widgetId)
         if (deleted) {
             return Result.success()
         }
@@ -88,7 +88,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
     }
 
     private suspend fun updateWidget(widgetId: Int) {
-        val config = coinTickerRepository.getConfig(widgetId)
+        val config = coinTickerRepository.getConfig(widgetId, callSite = "update_widget")
         if (config == null) {
             handler.onDelete(widgetId)
             return

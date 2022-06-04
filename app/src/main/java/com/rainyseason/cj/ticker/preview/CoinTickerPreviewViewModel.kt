@@ -29,6 +29,7 @@ import com.rainyseason.cj.ticker.CoinTickerLayout
 import com.rainyseason.cj.ticker.CoinTickerRenderParams
 import com.rainyseason.cj.ticker.TickerWidgetFeature
 import com.rainyseason.cj.ticker.TickerWidgetRenderer
+import com.rainyseason.cj.ticker.usecase.CreateDefaultTickerWidgetConfig
 import com.rainyseason.cj.ticker.usecase.GetDisplayData
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
@@ -72,6 +73,7 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     private val coinTickerHandler: CoinTickerHandler,
     private val tracker: Tracker,
     private val appWidgetManager: AppWidgetManager,
+    private val createDefaultTickerWidgetConfig: CreateDefaultTickerWidgetConfig,
     private val context: Context,
 ) : MavericksViewModel<CoinTickerPreviewState>(initState) {
 
@@ -157,8 +159,11 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
     }
 
     private suspend fun saveInitialConfig() {
-        val lastConfig = coinTickerRepository.getConfig(widgetId = args.widgetId)
-        if (lastConfig != null || args.callingComponent == null) {
+        val lastConfig = coinTickerRepository.getConfig(
+            widgetId = args.widgetId,
+            returnDefaultConfigIfMissing = false
+        )
+        if (args.callingComponent == null) {
             setState { copy(widgetSaved = true) }
         }
         val (coinId, backend) = if (lastConfig != null) {
@@ -166,15 +171,11 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         } else {
             "bitcoin" to Backend.CoinGecko
         }
+        @Suppress("IfThenToElvis")
         val config = if (lastConfig == null) {
-
-            val layout = CoinTickerLayout.fromWidgetId(context, args.widgetId)
-            CoinTickerConfig(
-                widgetId = args.widgetId,
-                coinId = coinId,
-                layout = layout,
-                backend = backend,
-            )
+            createDefaultTickerWidgetConfig
+                .invoke(widgetId = args.widgetId)
+                .copy(coinId = coinId, backend = backend)
         } else {
             lastConfig.copy(
                 coinId = coinId,

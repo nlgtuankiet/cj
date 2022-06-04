@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity() {
     private fun checkWidgetId(intent: Intent?) {
         val widgetId = intent?.widgetId() ?: return
         lifecycleScope.launch {
-            coinTickerHandler.checkWidgetDeleted(widgetId)
+            coinTickerHandler.cleanUpIfWidgetDeleted(widgetId)
         }
     }
 

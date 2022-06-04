@@ -66,7 +66,7 @@ abstract class CoinTickerProvider : AppWidgetProvider() {
         Timber.d("onUpdate ${appWidgetIds.toList()}}")
         goBackground {
             appWidgetIds.forEach {
-                val deleted = coinTickerHandler.checkWidgetDeleted(it)
+                val deleted = coinTickerHandler.cleanUpIfWidgetDeleted(it)
                 if (!deleted) {
                     coinTickerHandler.enqueueRefreshWidget(it)
                 }
