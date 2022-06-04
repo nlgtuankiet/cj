@@ -1,3 +1,7 @@
+### 2.2.0 Release
+
+✨ Update widget even when its configuration is missing (after you clear app data)  
+
 ### 2.1.0 Release
 
 ✨ Add images to onboarding flow  
