@@ -1,3 +1,8 @@
+### 2.3.0 Release
+
+✨ add currency MXN - Mexican Peso  
+✨ add currency LKR - Sri Lankan Rupee
+
 ### 2.2.0 Release
 
 ✨ Update widget even when its configuration is missing (after you clear app data)  
