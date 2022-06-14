@@ -14,6 +14,7 @@ class GetCoinMarketCapDisplayData @Inject constructor(
     suspend operator fun invoke(param: CoinTickerDisplayData.LoadParam): CoinTickerDisplayData {
         return coroutineScope {
             val currencyId = currencyInfoOf(param.currency).cmcId
+                ?: throw IllegalArgumentException("currency not found")
             val quoteAsync = async {
                 cmcService.getQuote(id = param.coinId, convertId = currencyId)
             }

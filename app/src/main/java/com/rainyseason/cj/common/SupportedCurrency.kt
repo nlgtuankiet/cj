@@ -1,5 +1,7 @@
 package com.rainyseason.cj.common
 
+import android.icu.util.ULocale
+import android.os.Build
 import java.util.Locale
 
 @Suppress("unused", "SpellCheckingInspection")
@@ -57,7 +59,7 @@ data class CurrencyInfo(
     val code: String,
     val name: String,
     val locale: Locale,
-    val cmcId: String,
+    val cmcId: String?,
 ) {
 
     fun displayName(): String {
@@ -67,12 +69,13 @@ data class CurrencyInfo(
             "${code.uppercase()} • $name"
         }
     }
+
     companion object {
         val NONE = CurrencyInfo(
             code = "",
             name = "None",
             locale = Locale.US,
-            cmcId = ""
+            cmcId = null
         )
         val USD = CurrencyInfo(
             code = "usd",
@@ -91,7 +94,7 @@ fun getNonNullCurrencyInfo(code: String): CurrencyInfo {
     return SUPPORTED_CURRENCY[code] ?: CurrencyInfo.NONE
 }
 
-val SUPPORTED_CURRENCY = mapOf(
+val SUPPORTED_CURRENCY: Map<String, CurrencyInfo> = mapOf(
     "usd" to CurrencyInfo.USD,
     "idr" to CurrencyInfo(
         code = "idr",
@@ -251,6 +254,28 @@ val SUPPORTED_CURRENCY = mapOf(
         locale = Locale("hu", "HU"),
         cmcId = "2793",
     ),
-)
-
-val SUPPORTED_CURRENCY_VALUES = SUPPORTED_CURRENCY.values.sortedBy { it.code }
+    "huf" to CurrencyInfo(
+        code = "huf",
+        name = "Hungarian Forint",
+        locale = Locale("hu", "HU"),
+        cmcId = "2793",
+    ),
+    // added since 2.3
+    "mxn" to CurrencyInfo(
+        code = "mxn",
+        name = "Mexican Peso",
+        locale = Locale("es", "MX"),
+        cmcId = "2799",
+    ),
+) + if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+    mapOf(
+        "lkr" to CurrencyInfo(
+            code = "lkr",
+            name = "Sri Lankan Rupee",
+            locale = ULocale.forLanguageTag("si-LK").toLocale(),
+            cmcId = null,
+        )
+    )
+} else {
+    emptyMap()
+}

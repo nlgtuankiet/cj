@@ -1,7 +1,7 @@
 package com.rainyseason.cj.common.model
 
 import com.rainyseason.cj.common.CurrencyInfo
-import com.rainyseason.cj.common.SUPPORTED_CURRENCY_VALUES
+import com.rainyseason.cj.common.SUPPORTED_CURRENCY
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
@@ -38,7 +38,7 @@ enum class Backend(
             TimeInterval.I_180D,
             TimeInterval.I_1Y,
         ),
-        supportedCurrency = SUPPORTED_CURRENCY_VALUES,
+        supportedCurrency = SUPPORTED_CURRENCY.values.sortedBy { it.code },
         hasCoinUrl = true,
     ),
     Binance(
@@ -52,7 +52,11 @@ enum class Backend(
         displayName = "CoinMarketCap",
         iconUrl = "https://coinmarketcap.com/apple-touch-icon.png",
         isExchange = false,
-        supportedCurrency = SUPPORTED_CURRENCY_VALUES,
+        supportedCurrency = SUPPORTED_CURRENCY
+            .filter { it.value.cmcId != null }
+            .map { it.value }
+            .sortedBy { it.code }
+        ,
         hasCoinUrl = true,
     ),
     Coinbase(
