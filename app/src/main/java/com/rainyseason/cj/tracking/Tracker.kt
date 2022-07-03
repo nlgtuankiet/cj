@@ -14,6 +14,8 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 interface Event
 
@@ -74,9 +76,57 @@ class FirebaseTracker @Inject constructor(
 ) : SyncTracker {
 
     override fun log(event: Event) {
-        when (event) {
-            is KeyParamsEvent -> logKeyParamsEvent(event)
+        when {
+            isTickerRefreshEvent(event) -> logTickerWidgetRefresh(event)
+            event is KeyParamsEvent -> logKeyParamsEvent(event)
         }
+    }
+
+    private val ticketWidgetRefreshWhiteList = setOf(
+        EventParamKey.WIDGET_ID,
+        "coin_id",
+        "backend",
+        "refresh_interval_seconds",
+        "theme",
+        "change_interval",
+        "layout",
+        "click_action",
+        "show_currency_symbol",
+        "currency",
+        "round_to_million",
+        "background_transparency",
+        "hide_decimal_on_large_price",
+        "show_notification",
+        "full_size",
+        "amount",
+        "network",
+        "dex",
+        "reverse_pair",
+        "display_symbol",
+        "display_name",
+        "reverse_positive_color",
+        "calling_package",
+        "has_app_widget_sizes",
+    )
+    
+    /**
+     * Firebase Analytic has 25 event params limit so we need to pick and choose params
+     */
+    private fun logTickerWidgetRefresh(event: KeyParamsEvent) {
+        val newEvent = event.copy(
+            params = event.params.filter { it.key in ticketWidgetRefreshWhiteList }
+        )
+        logKeyParamsEvent(newEvent)
+    }
+    
+    @OptIn(ExperimentalContracts::class)
+    private fun isTickerRefreshEvent(event: Event): Boolean {
+        contract { 
+            returns(true) implies (event is KeyParamsEvent) 
+        }
+        return event is KeyParamsEvent
+            && (event.key == "widget_refresh" || event.key == "widget_save")
+            && event.params.containsKey("backend")
     }
 
     private fun logKeyParamsEvent(event: KeyParamsEvent) {
@@ -90,9 +140,12 @@ class FirebaseTracker @Inject constructor(
                 is Double -> bundle.putDouble(key, value)
                 is Float -> bundle.putFloat(key, value)
                 else -> if (value != null) {
-                    error("Unsupport $value for event ${event.key} -> $key")
+                    error("Unsupported $value for event ${event.key} -> $key")
                 }
             }
+        }
+        if (BuildConfig.DEBUG) {
+            Timber.d("Log ${event.key} ${event.params}")
         }
         firebaseAnalytics.get().logEvent(event.key, bundle)
     }

@@ -231,6 +231,10 @@ data class CoinTickerConfig(
             "amount" to amount,
             "network" to network,
             "dex" to dex,
+            "reverse_pair" to reversePair,
+            "display_symbol" to displaySymbol,
+            "display_name" to displayName,
+            "reverse_positive_color" to reversePositiveColor,
         )
     }
 
