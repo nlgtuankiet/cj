@@ -3,6 +3,7 @@ import com.google.gson.reflect.TypeToken
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import java.util.Locale
 
 data class Model(
     val name: String,
@@ -17,17 +18,17 @@ fun main(args: Array<String>) {
     val gson = Gson()
     val type = TypeToken.getParameterized(List::class.java, Model::class.java).type
     val responseModel = gson.fromJson<List<Model>>(response.body?.string() ?: "", type)
-    val printModels = responseModel.map { it.name }
+    val printModels: List<String> = responseModel.map { it.name }
         .filter { !it.contains(".") }
         .distinct()
 
     printModels.forEach {
-        println("- $it")
+        println("$it")
     }
 
     println("----")
 
-    printModels.take(20).forEach {
-        println("- ${it.toLowerCase()} widget")
+    printModels.take(25).forEach {
+        println(it.lowercase(Locale.getDefault()))
     }
 }
