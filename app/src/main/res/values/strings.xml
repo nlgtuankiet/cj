@@ -72,6 +72,8 @@
     <string name="error_rate_limit">Too many network response, please wait for a moment and try again!</string>
     <string name="error_unknown">Unknown error, please try again!</string>
     <string name="coin_ticker_preview_setting_show_battery_warning">Show battery optimization warning</string>
+    <string name="coin_ticker_preview_setting_reverse_pair">Reverse pair (ex: BTC/USD → USD/BTC)</string>
+    <string name="coin_ticker_preview_setting_reverse_positive_color">Reverse positive color</string>
 
 
     <string name="coin_ticker_preview_setting_size_adjustment">Size adjustment</string>
@@ -112,7 +114,9 @@
     <string name="watch_widget_4x4">Watchlist 4x4</string>
     <string name="watch_widget_full_size_transparency_warning">Transparency in \"full size\" mode is not supported in Android 11 and below.</string>
 
-    <string name="coin_ticker_preview_amount">Amount</string>
+    <string name="coin_ticker_preview_amount">Multiply value with</string>
+    <string name="coin_ticker_preview_display_symbol">Display symbol as</string>
+    <string name="coin_ticker_preview_display_name">Display name as</string>
     <string name="coin_preview_only">Preview only</string>
 
     <string name="watch_list_header">Watchlist</string>
@@ -149,6 +153,7 @@
     <string name="chat_login_title">Login anonymously</string>
     <string name="retry">Retry</string>
     <string name="ok">OK</string>
+    <string name="reset">Reset</string>
     <string name="coin_ticker_onboard_coin_select_title">Select your favorite coin!</string>
     <string name="coin_ticker_onboard_coin_select_description">Like Ethereum, Dogecoin\nOr trading pair from various exchange</string>
     <string name="coin_ticker_onboard_mu_theme_title">Select theme</string>

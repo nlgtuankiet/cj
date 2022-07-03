@@ -91,8 +91,30 @@ data class CoinTickerConfig(
 
     @Json(name = "dex")
     val dex: String? = null,
+
+    @Json(name = "reverse_pair")
+    val reversePair: Boolean = false,
+
+    @Json(name = "display_symbol")
+    val displaySymbol: String? = null,
+
+    @Json(name = "display_name")
+    val displayName: String? = null,
+
+    @Json(name = "reverse_positive_color")
+    val reversePositiveColor: Boolean = false
 ) {
     val maintainAspectRatio: Boolean = !fullSize
+
+    val amountOrDefault: Double
+        get() = amount ?: 1.0
+
+    val shouldShowCurrencySymbol: Boolean
+        get() = if (reversePair && !backend.isExchange) {
+            false
+        } else {
+            showCurrencySymbol
+        }
 
     companion object {
         val DEFAULT_FOR_PREVIEW = CoinTickerConfig(

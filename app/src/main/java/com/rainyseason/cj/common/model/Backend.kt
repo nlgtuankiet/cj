@@ -55,8 +55,7 @@ enum class Backend(
         supportedCurrency = SUPPORTED_CURRENCY
             .filter { it.value.cmcId != null }
             .map { it.value }
-            .sortedBy { it.code }
-        ,
+            .sortedBy { it.code },
         hasCoinUrl = true,
     ),
     Coinbase(

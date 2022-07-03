@@ -42,12 +42,4 @@ data class CoinTickerDisplayData(
         val network: String? = null,
         val dex: String? = null,
     )
-
-    fun getAmount(config: CoinTickerConfig): Double? {
-        return if (price == null) {
-            null
-        } else {
-            price * (config.amount ?: 1.0)
-        }
-    }
 }

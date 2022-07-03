@@ -19,7 +19,6 @@
         android:layout_width="match_parent"
 
         android:textAlignment="gravity"
-        android:textAllCaps="true"
         android:textColor="@color/white"
         app:autoSizeMinTextSize="1sp"
         app:autoSizeMaxTextSize="18sp"

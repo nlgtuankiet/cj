@@ -12,6 +12,7 @@ import com.airbnb.mvrx.withState
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.R
 import com.rainyseason.cj.common.BuildState
+import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.RefreshIntervals
 import com.rainyseason.cj.common.getNonNullCurrencyInfo
 import com.rainyseason.cj.common.getUserErrorMessage
@@ -20,6 +21,7 @@ import com.rainyseason.cj.common.model.Theme
 import com.rainyseason.cj.common.model.TimeInterval
 import com.rainyseason.cj.common.resolveColorAttr
 import com.rainyseason.cj.common.setCancelButton
+import com.rainyseason.cj.common.setResetButton
 import com.rainyseason.cj.common.showKeyboard
 import com.rainyseason.cj.common.view.IntLabelFormater
 import com.rainyseason.cj.common.view.PercentLabelFormatrer
@@ -34,12 +36,14 @@ import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.stringValue
 import com.rainyseason.cj.ticker.CoinTickerConfig
 import com.rainyseason.cj.ticker.TickerWidgetFeature
+import com.rainyseason.cj.ticker.TickerWidgetRenderer
 import com.rainyseason.cj.ticker.view.CoinTickerPreviewViewModel_
-import java.util.Locale
 
 class CoinTickerPreviewController(
     private val viewModel: CoinTickerPreviewViewModel,
     private val context: Context,
+    private val numberFormater: NumberFormater,
+    private val renderer: TickerWidgetRenderer
 ) : AsyncEpoxyController() {
 
     private var addSeparator = true
@@ -164,8 +168,117 @@ class CoinTickerPreviewController(
             id("setting_header_content")
             content(R.string.setting_content_title)
         }
-
+        buildReversePair(state)
         buildAmount(state)
+        buildDisplaySymbol(state)
+        buildDisplayName(state)
+        buildReversePositiveColor(state)
+    }
+
+    private fun buildReversePositiveColor(state: CoinTickerPreviewState) {
+        maybeBuildHorizontalSeparator(id = "reverse_positive_color_separator")
+        settingSwitchView {
+            id("reverse_positive_color")
+            title(R.string.coin_ticker_preview_setting_reverse_positive_color)
+            checked(state.config?.reversePositiveColor == true)
+            onClickListener { _ ->
+                viewModel.switchReversePositiveColor()
+            }
+        }
+    }
+
+    private fun buildDisplaySymbol(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        state.currentDisplayData
+        maybeBuildHorizontalSeparator(id = "display_symbol_separator")
+        val displaySymbol = renderer.getDisplaySymbol(config, state.currentDisplayData)
+        settingTitleSummaryView {
+            id("display_symbol_$displaySymbol")
+            title(R.string.coin_ticker_preview_display_symbol)
+            summary(displaySymbol)
+            onClickListener { view ->
+                val container = view.inflater
+                    .inflate(R.layout.dialog_text_input, null, false)
+                val editText = container.findViewById<EditText>(R.id.edit_text)
+                editText.showSoftInputOnFocus = true
+                if (state.currentDisplayData == null) {
+                    editText.setText("")
+                    editText.setSelection(0)
+                } else {
+                    editText.setText(displaySymbol)
+                    editText.setSelection(displaySymbol.length)
+                }
+                editText.doOnPreDraw {
+                    editText.requestFocus()
+                    editText.showKeyboard()
+                }
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_display_symbol)
+                    .setView(container)
+                    .setCancelButton()
+                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                        dialog.dismiss()
+                        viewModel.setDisplaySymbol(editText.text?.toString())
+                    }
+                    .setResetButton {
+                        viewModel.setDisplaySymbol(null)
+                    }
+                    .show()
+            }
+        }
+    }
+
+    private fun buildDisplayName(state: CoinTickerPreviewState) {
+        val config = state.config ?: return
+        state.currentDisplayData
+        maybeBuildHorizontalSeparator(id = "display_name_separator")
+        val displayName = renderer.getDisplayName(config, state.currentDisplayData)
+        settingTitleSummaryView {
+            id("display_name_$displayName")
+            title(R.string.coin_ticker_preview_display_symbol)
+            summary(displayName)
+            onClickListener { view ->
+                val container = view.inflater
+                    .inflate(R.layout.dialog_text_input, null, false)
+                val editText = container.findViewById<EditText>(R.id.edit_text)
+                editText.showSoftInputOnFocus = true
+                if (state.currentDisplayData == null) {
+                    editText.setText("")
+                    editText.setSelection(0)
+                } else {
+                    editText.setText(displayName)
+                    editText.setSelection(displayName.length)
+                }
+                editText.doOnPreDraw {
+                    editText.requestFocus()
+                    editText.showKeyboard()
+                }
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.coin_ticker_preview_display_name)
+                    .setView(container)
+                    .setCancelButton()
+                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                        dialog.dismiss()
+                        viewModel.setDisplayName(editText.text?.toString())
+                    }
+                    .setResetButton {
+                        viewModel.setDisplayName(null)
+                    }
+                    .show()
+            }
+        }
+    }
+
+    private fun buildReversePair(state: CoinTickerPreviewState) {
+        maybeBuildHorizontalSeparator(id = "reverse_pair_separator")
+        settingSwitchView {
+            id("reverse_pair")
+            title(R.string.coin_ticker_preview_setting_reverse_pair)
+            checked(state.config?.reversePair == true)
+            onClickListener { _ ->
+                viewModel.switchReversePair()
+            }
+        }
     }
 
     private fun buildChangePercentGroup(state: CoinTickerPreviewState) {
@@ -247,22 +360,27 @@ class CoinTickerPreviewController(
 
     private fun buildAmount(state: CoinTickerPreviewState) {
         val config = state.config ?: return
-        val displayData = state.savedDisplayData.invoke() ?: return
-        val amount = config.amount ?: 1.0
-
+        val displayAmount = numberFormater.formatAmount(
+            amount = config.amountOrDefault,
+            currencyCode = config.currency,
+            roundToMillion = false,
+            numberOfDecimal = 5,
+            hideOnLargeAmount = false,
+            showCurrencySymbol = false,
+            showThousandsSeparator = true
+        )
         maybeBuildHorizontalSeparator(id = "separator_amount")
         settingTitleSummaryView {
-            id("setting_amount")
+            id("setting_amount_$displayAmount")
             title(R.string.coin_ticker_preview_amount)
-            summary("$amount ${displayData.symbol.uppercase(Locale.getDefault())}")
+            summary(displayAmount)
             onClickListener { view ->
                 val container = view.inflater
                     .inflate(R.layout.dialog_number_input, null, false)
                 val editText = container.findViewById<EditText>(R.id.edit_text)
                 editText.showSoftInputOnFocus = true
-                val content = amount.toString()
-                editText.setText(content)
-                editText.setSelection(content.length)
+                editText.setText(displayAmount)
+                editText.setSelection(displayAmount.length)
                 editText.doOnPreDraw {
                     editText.requestFocus()
                     editText.showKeyboard()
@@ -274,6 +392,9 @@ class CoinTickerPreviewController(
                     .setPositiveButton(android.R.string.ok) { dialog, which ->
                         dialog.dismiss()
                         viewModel.setAmount(editText.text?.toString())
+                    }
+                    .setResetButton {
+                        viewModel.setAmount(null)
                     }
                     .show()
             }

@@ -23,6 +23,7 @@ class GraphRenderer @Inject constructor(
         inputWidth: Float,
         inputHeight: Float,
         data: List<List<Double>>,
+        isPositiveOverride: Boolean? = null
     ): Bitmap {
         // [0] timestamp
         // [1] price
@@ -36,7 +37,7 @@ class GraphRenderer @Inject constructor(
         if (data.size <= 2) {
             return bitmap
         }
-        val isPositive = data.first()[1] < data.last()[1]
+        val isPositive = isPositiveOverride ?: (data.first()[1] < data.last()[1])
         val canvas = Canvas(bitmap)
         val paint = Paint()
         paint.strokeWidth = context.dpToPxF(1.5f)

@@ -170,10 +170,14 @@ class WidgetRenderUtil @Inject constructor(
         )
     }
 
-    fun getChangePercentColor(theme: Theme, amount: Double): Int {
+    fun getChangePercentColor(
+        theme: Theme,
+        amount: Double = 1.0,
+        isPositiveOverride: Boolean? = null
+    ): Int {
         return selectPositive(
             theme,
-            amount > 0,
+            isPositiveOverride ?: (amount > 0),
             context.getColorCompat(R.color.green_700),
             context.getColorCompat(R.color.red_600),
             {

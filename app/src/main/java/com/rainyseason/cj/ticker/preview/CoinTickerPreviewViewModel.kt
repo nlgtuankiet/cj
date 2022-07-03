@@ -267,6 +267,14 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
             .execute { copy(savedConfig = it) }
     }
 
+    fun switchReversePositiveColor() {
+        updateConfig { copy(reversePositiveColor = !reversePositiveColor) }
+    }
+
+    fun switchReversePair() {
+        updateConfig { copy(reversePair = !reversePair) }
+    }
+
     fun switchShowBatteryWarning() {
         updateConfig { copy(showBatteryWarning = !showBatteryWarning) }
     }
@@ -341,6 +349,28 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         }
     }
 
+    fun setDisplayName(value: String?) {
+        val setValue = if (value == null || value.isEmpty()) {
+            null
+        } else {
+            value
+        }
+        updateConfig {
+            copy(displayName = setValue)
+        }
+    }
+
+    fun setDisplaySymbol(value: String?) {
+        val setValue = if (value == null || value.isEmpty()) {
+            null
+        } else {
+            value
+        }
+        updateConfig {
+            copy(displaySymbol = setValue)
+        }
+    }
+
     fun setAmount(value: String?) {
         updateConfig { copy(amount = value?.toDoubleOrNull() ?: 1.0) }
     }
@@ -353,7 +383,17 @@ class CoinTickerPreviewViewModel @AssistedInject constructor(
         coin: Coin,
     ) {
         updateConfig {
-            copy(coinId = coin.id, backend = coin.backend, network = coin.network, dex = coin.dex)
+            val defaultConfig = createDefaultTickerWidgetConfig(args.widgetId)
+            copy(
+                coinId = coin.id,
+                backend = coin.backend,
+                network = coin.network,
+                dex = coin.dex,
+                reversePair = defaultConfig.reversePair,
+                displaySymbol = defaultConfig.displaySymbol,
+                displayName = defaultConfig.displayName,
+                amount = defaultConfig.amount,
+            )
         }
     }
 

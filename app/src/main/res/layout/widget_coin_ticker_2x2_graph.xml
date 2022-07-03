@@ -9,7 +9,6 @@
     tools:layout_height="155dp"
     tools:layout_width="155dp">
 
-
     <com.google.android.material.textview.MaterialTextView
         android:layout_width="0dp"
         android:id="@+id/symbol"
@@ -17,7 +16,6 @@
         android:layout_marginStart="12dp"
         android:layout_marginTop="12dp"
         android:includeFontPadding="false"
-        android:textAllCaps="true"
         android:textColor="@color/gray_900"
         android:textSize="16sp"
         android:maxLines="1"

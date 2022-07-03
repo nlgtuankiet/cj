@@ -187,6 +187,14 @@ fun AlertDialog.Builder.setCancelButton(): AlertDialog.Builder {
     return this
 }
 
+fun AlertDialog.Builder.setResetButton(onButtonClick: () -> Unit): AlertDialog.Builder {
+    setNeutralButton(R.string.reset) { dialog, _ ->
+        dialog.dismiss()
+        onButtonClick.invoke()
+    }
+    return this
+}
+
 fun <K, V> Map<K, V>.update(block: MutableMap<K, V>.() -> Unit): Map<K, V> {
     val new = toMutableMap()
     block.invoke(new)

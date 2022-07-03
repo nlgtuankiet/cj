@@ -37,6 +37,7 @@ import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.WidgetRenderUtil
 import com.rainyseason.cj.common.addFlagMutable
 import com.rainyseason.cj.common.await
+import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getAppWidgetSizes
 import com.rainyseason.cj.common.getNonNullCurrencyInfo
@@ -96,7 +97,7 @@ class TickerWidgetRenderer @Inject constructor(
         return IconCompat.createWithResource(context, res)
     }
 
-    private suspend fun postNotification(
+    private fun postNotification(
         params: CoinTickerRenderParams
     ) {
         createNotificationChannel()
@@ -113,13 +114,13 @@ class TickerWidgetRenderer @Inject constructor(
             R.layout.widget_ticker_notification_small
         ).apply {
             val content = buildSpannedString {
-                append(displayData.symbol.uppercase())
+                append(getDisplaySymbol(config, params.data))
                 append(" • ")
                 append(formatAmount(params))
 
                 val color = renderUtil.getChangePercentColor(
                     theme = config.theme,
-                    amount = displayData.priceChangePercent ?: 0.0
+                    isPositiveOverride = getColorFactor(params)
                 )
                 color(color) {
                     append(" (")
@@ -142,10 +143,10 @@ class TickerWidgetRenderer @Inject constructor(
             R.layout.widget_ticker_notification_large
         ).apply {
             val content = buildSpannedString {
-                append(displayData.symbol.uppercase())
+                append(getDisplaySymbol(config, params.data))
                 val color = renderUtil.getChangePercentColor(
                     theme = config.theme,
-                    amount = displayData.priceChangePercent ?: 0.0
+                    isPositiveOverride = getColorFactor(params)
                 )
                 color(color) {
                     append(" (")
@@ -170,7 +171,8 @@ class TickerWidgetRenderer @Inject constructor(
                 theme = config.theme,
                 inputWidth = context.dpToPx(120).toFloat(),
                 inputHeight = context.dpToPx(40).toFloat(),
-                data = displayData.priceGraph.orEmpty()
+                data = getGraphData(config, displayData.priceGraph),
+                isPositiveOverride = getColorFactor(params)
             )
             setImageViewBitmap(R.id.graph, graph)
             if (clickIntent != null) {
@@ -283,23 +285,101 @@ class TickerWidgetRenderer @Inject constructor(
         val binding = WidgetCoinTicker1x1Coin360MiniBinding
             .inflate(context.inflater(), container, true)
         val config = params.config
-        val renderData = params.data
 
         container.mesureAndLayout(config)
 
         // bind container
         val backgroundRes = renderUtil.getBackgroundPositiveResource(
             theme = config.theme,
-            isPositive = (renderData.priceChangePercent ?: 0.0) > 0
+            isPositive = getColorFactor(params)
         )
         binding.container.setBackgroundResource(backgroundRes)
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
-        binding.symbol.text = renderData.symbol
+        binding.symbol.text = getDisplaySymbol(config, params.data)
 
         // bind amount
         binding.amount.text = formatAmount(params)
+    }
+
+    /**
+     * @return
+     *  true mean positive
+     *  false mean negative
+     */
+    private fun getColorFactor(params: CoinTickerRenderParams): Boolean {
+        var changePercent = getChangePercent(params) ?: 0.0
+        if (params.config.reversePositiveColor) {
+            changePercent *= -1.0
+        }
+        return changePercent > 0
+    }
+
+    private fun getChangePercent(params: CoinTickerRenderParams): Double? {
+        return if (params.config.reversePair) {
+            // need to recalculate change percent
+            params.data.priceChangePercent?.let { it * -1 }
+        } else {
+            params.data.priceChangePercent
+        }
+    }
+
+    fun getDisplayName(
+        config: CoinTickerConfig,
+        data: CoinTickerDisplayData?,
+    ): String {
+        if (data == null) {
+            return "⏳"
+        }
+
+        val displayName = config.displayName
+        if (displayName != null) {
+            return displayName
+        }
+
+        return if (config.backend.isExchange) {
+            config.backend.displayName
+        } else {
+            data.name
+        }
+    }
+
+    private val pairSeparatorRegex = """([-/])""".toRegex()
+
+    fun getDisplaySymbol(
+        config: CoinTickerConfig,
+        data: CoinTickerDisplayData?,
+    ): String {
+        if (data == null) {
+            return "⏳"
+        }
+
+        val displaySymbol = config.displaySymbol
+        if (displaySymbol != null) {
+            return displaySymbol
+        }
+
+        if (!config.reversePair) {
+            return data.symbol.uppercase()
+        }
+
+        // need to reverse pair
+        if (config.backend.isExchange) {
+            // exchange pairs usually in the form of AAA/BBB or AAA-BBB
+            // todo fix LUNO exchange is getting incorrect symbol
+            val group = pairSeparatorRegex.find(data.symbol)?.groups?.get(1)
+                ?: return "${data.symbol.uppercase()}\uD83E\uDD14?"
+            val separatorIndex = group.range.first
+            return buildString {
+                append(data.symbol.substring(separatorIndex + 1))
+                append(group.value)
+                append(data.symbol.substring(0, separatorIndex))
+            }.uppercase()
+        }
+
+        // case reverse pair and from price tracker
+        return "${data.symbol}/${config.currency}".uppercase()
     }
 
     private fun renderCoin360(
@@ -316,13 +396,13 @@ class TickerWidgetRenderer @Inject constructor(
         // bind container
         val backgroundRes = renderUtil.getBackgroundPositiveResource(
             theme = config.theme,
-            isPositive = (renderData.priceChangePercent ?: 0.0) > 0
+            isPositive = getColorFactor(params)
         )
         binding.container.setBackgroundResource(backgroundRes)
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
-        binding.symbol.text = renderData.symbol
+        binding.symbol.text = getDisplaySymbol(config, params.data)
 
         // bind change percent
         binding.changePercent.text = formatChange(params = params, withColor = false)
@@ -358,9 +438,9 @@ class TickerWidgetRenderer @Inject constructor(
 
         // bind symbol
         binding.symbol.text = if (config.backend.isExchange) {
-            renderData.name
+            getDisplayName(config, params.data)
         } else {
-            renderData.symbol.uppercase()
+            getDisplaySymbol(config, params.data)
         }
         binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
         binding.symbol.updateVertialFontMargin(updateTop = true)
@@ -375,9 +455,9 @@ class TickerWidgetRenderer @Inject constructor(
 
         // bind name
         binding.name.text = if (config.backend.isExchange) {
-            renderData.symbol
+            getDisplaySymbol(config, params.data)
         } else {
-            renderData.name
+            getDisplayName(config, params.data)
         }
         binding.name.setTextColor(renderUtil.getTextSecondaryColor(theme))
 
@@ -421,7 +501,7 @@ class TickerWidgetRenderer @Inject constructor(
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
-        binding.symbol.text = renderData.symbol
+        binding.symbol.text = getDisplaySymbol(config, params.data)
         binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
 
         // bind amount
@@ -497,7 +577,7 @@ class TickerWidgetRenderer @Inject constructor(
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
-        binding.symbol.text = renderData.symbol
+        binding.symbol.text = getDisplaySymbol(config, params.data)
         binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
         binding.symbol.updateVertialFontMargin(updateTop = true)
 
@@ -512,14 +592,33 @@ class TickerWidgetRenderer @Inject constructor(
         drawGraph(container, binding.graph, params)
     }
 
+    private fun getGraphData(
+        config: CoinTickerConfig,
+        data: List<List<Double>>?
+    ): List<List<Double>> {
+        if (data.isNullOrEmpty()) {
+            return emptyList()
+        }
+        var graphData = data
+        if (config.reversePair) {
+            graphData = graphData
+                .filter {
+                    it.getOrNull(1).let { price -> price != null && price != 0.0 }
+                }
+                .map {
+                    listOf(it[0], 1.0 / it[1])
+                }
+        }
+        return graphData
+    }
+
     private fun drawGraph(
         container: ViewGroup,
         imageView: ImageView,
         params: CoinTickerRenderParams,
     ) {
-        val data = params.data
         val config = params.config
-        val graphData = data.priceGraph.orEmpty()
+        val graphData = getGraphData(config, params.data.priceGraph)
         if (graphData.size >= 2) {
             container.mesureAndLayout(config)
             val width = imageView.measuredWidth.toFloat()
@@ -529,7 +628,8 @@ class TickerWidgetRenderer @Inject constructor(
                 theme = params.config.theme,
                 inputWidth = width,
                 inputHeight = height,
-                data = graphData
+                data = graphData,
+                isPositiveOverride = getColorFactor(params)
             )
             imageView.setImageBitmap(bitmap)
         }
@@ -552,7 +652,7 @@ class TickerWidgetRenderer @Inject constructor(
         applyBackgroundTransparency(binding.container, config)
 
         // bind symbol
-        binding.symbol.text = renderData.symbol
+        binding.symbol.text = getDisplaySymbol(config, params.data)
         binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
         binding.symbol.updateVertialFontMargin(updateTop = true)
 
@@ -566,7 +666,7 @@ class TickerWidgetRenderer @Inject constructor(
         binding.changePercent.updateVertialFontMargin(updateTop = true)
 
         // bind name
-        binding.name.text = renderData.name
+        binding.name.text = getDisplayName(config, params.data)
         binding.name.setTextColor(renderUtil.getTextSecondaryColor(theme))
 
         container.mesureAndLayout(config)
@@ -782,14 +882,15 @@ class TickerWidgetRenderer @Inject constructor(
         withColor: Boolean = true,
     ): CharSequence {
         val config = params.config
-        val data = params.data
 
-        @Suppress("UnnecessaryVariable")
-        val content = buildSpannedString {
-            val amount = data.priceChangePercent
+        return buildSpannedString {
+            val amount = getChangePercent(params)
 
             if (amount != null) {
-                val color = renderUtil.getChangePercentColor(config.theme, amount)
+                val color = renderUtil.getChangePercentColor(
+                    theme = config.theme,
+                    isPositiveOverride = getColorFactor(params)
+                )
                 val locate = getNonNullCurrencyInfo(config.currency).locale
                 val content = numberFormater.formatPercent(
                     amount = amount,
@@ -810,7 +911,6 @@ class TickerWidgetRenderer @Inject constructor(
                 }
             }
         }
-        return content
     }
 
     private fun formatAmount(
@@ -818,15 +918,18 @@ class TickerWidgetRenderer @Inject constructor(
     ): String {
         val config = params.config
         val data = params.data
-        val amount = data.getAmount(config)
-            ?: return context.getString(R.string.coin_preview_only)
+        var amount = data.price ?: return context.getString(R.string.coin_preview_only)
+        if (config.reversePair && amount != 0.0) {
+            amount = 1 / amount
+        }
+        amount *= (config.amount ?: 1.0)
         return numberFormater.formatAmount(
             amount = amount,
             roundToMillion = config.roundToMillion,
             currencyCode = config.currency,
             numberOfDecimal = config.numberOfAmountDecimal ?: 2,
             hideOnLargeAmount = config.hideDecimalOnLargePrice,
-            showCurrencySymbol = config.showCurrencySymbol,
+            showCurrencySymbol = config.shouldShowCurrencySymbol,
             showThousandsSeparator = config.showThousandsSeparator,
         )
     }

@@ -78,8 +78,14 @@ class CoinTickerPreviewFragment : Fragment(R.layout.coin_ticker_preview_fragment
 
     val args: CoinTickerPreviewArgs by lazy { requireArgs() }
 
+    // todo associate controller with view lifecycle
     private val controller: CoinTickerPreviewController by lazy {
-        CoinTickerPreviewController(viewModel, requireContext())
+        CoinTickerPreviewController(
+            viewModel = viewModel,
+            context = requireContext(),
+            numberFormater = requireContext().coreComponent.numberFormater,
+            renderer = requireContext().coreComponent.tickerWidgetRender
+        )
     }
 
     override fun onAttach(context: Context) {
