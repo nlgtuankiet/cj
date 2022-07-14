@@ -27,6 +27,7 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.LocalRemoteViews
@@ -54,6 +55,7 @@ import com.rainyseason.cj.databinding.WidgetCoinTicker2x2GraphBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
 import com.rainyseason.cj.tracking.Tracker
+import com.rainyseason.cj.tracking.logKeyParamsEvent
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -722,7 +724,7 @@ class TickerWidgetRenderer @Inject constructor(
     fun getWidgetSize(config: CoinTickerConfig): Size {
         val options = appWidgetManager.getAppWidgetOptions(config.widgetId)
         if (BuildConfig.DEBUG) {
-            val keyValue = options.keySet().map { it to options.get(it) }.toMap()
+            val keyValue = options.keySet().associateWith { options.get(it) }
             Timber.d("options: $keyValue}")
         }
 
@@ -754,10 +756,39 @@ class TickerWidgetRenderer @Inject constructor(
             .coerceAtLeast(context.dpToPx(145))
         val finalSize = if (config.layout.isNano) {
             val height = context.dpToPx(75) + context.dpToPx(config.sizeAdjustment)
-            val width = if (minWidth / minHeight >= 2) {
-                height * 2
-            } else {
-                height
+            val width = when {
+                minHeight == 0 -> {
+                    tracker.logKeyParamsEvent(
+                        "get_widget_size_exception",
+                        mapOf(
+                            "widget_id" to config.widgetId,
+                            "layout" to config.layout,
+                            "full_size" to config.fullSize,
+                            "size_adjustment" to config.sizeAdjustment,
+                            "OPTION_APPWIDGET_MIN_WIDTH"
+                                to options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH),
+                            "OPTION_APPWIDGET_MIN_HEIGHT"
+                                to options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT),
+                            "OPTION_APPWIDGET_MAX_WIDTH"
+                                to options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH),
+                            "OPTION_APPWIDGET_MAX_HEIGHT"
+                                to options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT),
+                        ) + if (BuildCompat.isAtLeastS()) {
+                            val sizeF = options.getAppWidgetSizes()?.firstOrNull()
+                            mapOf(
+                                "OPTION_APPWIDGET_SIZES_WIDTH" to sizeF?.width,
+                                "OPTION_APPWIDGET_SIZES_HEIGHT" to sizeF?.height
+                            )
+                        } else emptyMap()
+                    )
+                    height
+                }
+                minWidth / minHeight >= 2 -> {
+                    height * 2
+                }
+                else -> {
+                    height
+                }
             }
             Size(width, height)
         } else {
