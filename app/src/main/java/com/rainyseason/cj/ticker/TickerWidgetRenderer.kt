@@ -37,7 +37,6 @@ import com.rainyseason.cj.common.NumberFormater
 import com.rainyseason.cj.common.WidgetRenderUtil
 import com.rainyseason.cj.common.addFlagMutable
 import com.rainyseason.cj.common.await
-import com.rainyseason.cj.common.changePercent
 import com.rainyseason.cj.common.dpToPx
 import com.rainyseason.cj.common.getAppWidgetSizes
 import com.rainyseason.cj.common.getNonNullCurrencyInfo
@@ -443,12 +442,12 @@ class TickerWidgetRenderer @Inject constructor(
             getDisplaySymbol(config, params.data)
         }
         binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
-        binding.symbol.updateVertialFontMargin(updateTop = true)
+        binding.symbol.updateVerticalFontMargin(updateTop = true)
 
         // bind amount
         binding.amount.text = formatAmount(params)
         binding.amount.setTextColor(renderUtil.getTextPrimaryColor(theme))
-        binding.amount.updateVertialFontMargin(updateBottom = true)
+        binding.amount.updateVerticalFontMargin(updateBottom = true)
 
         // bind change percent
         binding.changePercent.text = formatChange(params)
@@ -511,8 +510,8 @@ class TickerWidgetRenderer @Inject constructor(
         // bind change percent
         binding.changePercent.text = formatChange(params)
 
-        binding.symbol.updateVertialFontMargin(updateTop = true)
-        binding.changePercent.updateVertialFontMargin(updateBottom = true)
+        binding.symbol.updateVerticalFontMargin(updateTop = true)
+        binding.changePercent.updateVerticalFontMargin(updateBottom = true)
     }
 
     private fun renderIconSmall(
@@ -579,7 +578,7 @@ class TickerWidgetRenderer @Inject constructor(
         // bind symbol
         binding.symbol.text = getDisplaySymbol(config, params.data)
         binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
-        binding.symbol.updateVertialFontMargin(updateTop = true)
+        binding.symbol.updateVerticalFontMargin(updateTop = true)
 
         // bind amount
         binding.amount.text = formatAmount(params)
@@ -587,7 +586,7 @@ class TickerWidgetRenderer @Inject constructor(
 
         // bind change percent
         binding.changePercent.text = formatChange(params)
-        binding.changePercent.updateVertialFontMargin(updateBottom = true)
+        binding.changePercent.updateVerticalFontMargin(updateBottom = true)
 
         drawGraph(container, binding.graph, params)
     }
@@ -654,16 +653,16 @@ class TickerWidgetRenderer @Inject constructor(
         // bind symbol
         binding.symbol.text = getDisplaySymbol(config, params.data)
         binding.symbol.setTextColor(renderUtil.getTextPrimaryColor(theme))
-        binding.symbol.updateVertialFontMargin(updateTop = true)
+        binding.symbol.updateVerticalFontMargin(updateTop = true)
 
         // bind amount
         binding.amount.text = formatAmount(params)
         binding.amount.setTextColor(renderUtil.getTextPrimaryColor(theme))
-        binding.amount.updateVertialFontMargin(updateBottom = true)
+        binding.amount.updateVerticalFontMargin(updateBottom = true)
 
         // bind change percent
         binding.changePercent.text = formatChange(params)
-        binding.changePercent.updateVertialFontMargin(updateTop = true)
+        binding.changePercent.updateVerticalFontMargin(updateTop = true)
 
         // bind name
         binding.name.text = getDisplayName(config, params.data)
@@ -777,20 +776,20 @@ class TickerWidgetRenderer @Inject constructor(
         return finalSize
     }
 
-    private fun TextView.updateVertialFontMargin(
+    private fun TextView.updateVerticalFontMargin(
         updateTop: Boolean = false,
         updateBottom: Boolean = false,
     ) {
-        val vertialPadding = verticalPadding()
+        val verticalPadding = verticalPadding()
         updateLayoutParams<ViewGroup.MarginLayoutParams> {
             updateMargins(
                 bottom = if (updateBottom) {
-                    context.dpToPx(12) - vertialPadding.bottom
+                    context.dpToPx(12) - verticalPadding.bottom
                 } else {
                     bottomMargin
                 },
                 top = if (updateTop) {
-                    context.dpToPx(12) - vertialPadding.top
+                    context.dpToPx(12) - verticalPadding.top
                 } else {
                     topMargin
                 }
