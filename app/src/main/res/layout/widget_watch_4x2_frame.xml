@@ -11,8 +11,7 @@
         android:layout_height="wrap_content" />
 
     <ProgressBar
+        style="@style/Theme.CryptoJet.WidgetProgressBar"
         android:id="@+id/progress_bar"
-        android:layout_gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_gravity="center" />
 </FrameLayout>

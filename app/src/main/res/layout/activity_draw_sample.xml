@@ -2,26 +2,16 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/black"
     android:layout_width="match_parent"
     android:id="@+id/parent"
     android:layout_height="match_parent">
 
-    <ScrollView
-        android:id="@+id/enable_cache"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:text="cache"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:ignore="HardcodedText" >
-        <LinearLayout
-            android:orientation="vertical"
-            android:id="@+id/content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-
-    </ScrollView>
+    <ProgressBar
+        style="@style/Theme.CryptoJet.WidgetProgressBar"
+        app:layout_constraintTop_toTopOf="@id/parent"
+        app:layout_constraintStart_toStartOf="@id/parent"
+        android:id="@+id/content" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
