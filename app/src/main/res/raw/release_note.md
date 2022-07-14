@@ -1,3 +1,8 @@
+### 2.5.0 Release
+✨ New loading icon  
+🛠 Switch common setting as default  
+🛠 Fix small crash when using "nano" layout  
+
 ### 2.4.0 Release  
 ✨ Add "reverse pair" option for ticker widget (ex: BTC/USD → USD/BTC) 
 
