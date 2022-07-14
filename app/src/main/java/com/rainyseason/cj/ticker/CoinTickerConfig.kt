@@ -35,7 +35,7 @@ data class CoinTickerConfig(
     val refreshInterval: Long = 1,
 
     @Json(name = "refresh_interval_unit")
-    val refreshIntervalUnit: TimeUnit = TimeUnit.HOURS,
+    val refreshIntervalUnit: TimeUnit = TimeUnit.MINUTES,
 
     @Json(name = "theme")
     val theme: Theme = if (BuildCompat.isAtLeastS()) {
@@ -54,7 +54,7 @@ data class CoinTickerConfig(
     val layout: CoinTickerLayout = CoinTickerLayout.Graph2x2,
 
     @Json(name = "click_action")
-    val clickAction: String = ClickAction.OPEN_COIN_DETAIL,
+    val clickAction: String = ClickAction.REFRESH,
 
     @Json(name = "show_currency_symbol")
     val showCurrencySymbol: Boolean = true,

@@ -17,10 +17,15 @@ fun Fragment.saveOrShowWarning(
     }
 }
 
+// temporarily disable because user want widget always up to date rather than save battery
+@Suppress("UNREACHABLE_CODE", "UNUSED_PARAMETER")
 fun Fragment.saveOrShowShortRefreshWarning(
     refreshInterval: Long,
     onSave: () -> Unit
 ) {
+    onSave()
+    return
+
     val context = requireContext()
     val tracker = context.coreComponent.tracker
     if (refreshInterval < TimeUnit.MINUTES.toMillis(15)) {
