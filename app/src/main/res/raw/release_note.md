@@ -1,7 +1,10 @@
+### 2.4.0 Release  
+✨ Add "reverse pair" option for ticker widget (ex: BTC/USD → USD/BTC) 
+
 ### 2.3.0 Release
 
-✨ add currency MXN - Mexican Peso  
-✨ add currency LKR - Sri Lankan Rupee
+✨ Add currency MXN - Mexican Peso  
+✨ Add currency LKR - Sri Lankan Rupee
 
 ### 2.2.0 Release
 
