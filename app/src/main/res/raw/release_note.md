@@ -1,10 +1,16 @@
+### 2.5.1 Release
+
+🛠 Fix crash when we can't determine widget size
+
 ### 2.5.0 Release
+
 ✨ New loading icon  
 🛠 Switch common setting as default  
-🛠 Fix small crash when using "nano" layout  
+🛠 Fix small crash when using "nano" layout
 
-### 2.4.0 Release  
-✨ Add "reverse pair" option for ticker widget (ex: BTC/USD → USD/BTC) 
+### 2.4.0 Release
+
+✨ Add "reverse pair" option for ticker widget (ex: BTC/USD → USD/BTC)
 
 ### 2.3.0 Release
 
@@ -13,7 +19,7 @@
 
 ### 2.2.0 Release
 
-✨ Update widget even when its configuration is missing (after you clear app data)  
+✨ Update widget even when its configuration is missing (after you clear app data)
 
 ### 2.1.0 Release
 
@@ -21,7 +27,7 @@
 🛠 Widget config now easier to understand  
 🛠 Disable sticky notification by default  
 🛠 Use "material you" theme by default (Android 12 and above)  
-🛠 Replace "full size" config with "maintain aspect ratio"  
+🛠 Replace "full size" config with "maintain aspect ratio"
 
 ### 2.0.4 Release
 

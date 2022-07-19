@@ -27,7 +27,6 @@ import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.view.updateLayoutParams
 import androidx.core.view.updateMargins
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.GlideApp
 import com.rainyseason.cj.LocalRemoteViews
@@ -762,7 +761,7 @@ class TickerWidgetRenderer @Inject constructor(
                         "get_widget_size_exception",
                         mapOf(
                             "widget_id" to config.widgetId,
-                            "layout" to config.layout,
+                            "layout" to config.layout.id,
                             "full_size" to config.fullSize,
                             "size_adjustment" to config.sizeAdjustment,
                             "OPTION_APPWIDGET_MIN_WIDTH"

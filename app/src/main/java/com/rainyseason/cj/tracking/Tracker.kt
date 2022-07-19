@@ -2,6 +2,7 @@ package com.rainyseason.cj.tracking
 
 import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.widget.WidgetRefreshEventInterceptor
 import com.rainyseason.cj.widget.WidgetRefreshFakeAmountInterceptor
@@ -73,6 +74,7 @@ fun Tracker.logClick(
 @Singleton
 class FirebaseTracker @Inject constructor(
     private val firebaseAnalytics: Provider<FirebaseAnalytics>,
+    private val firebaseCrashlytics: Provider<FirebaseCrashlytics>,
 ) : SyncTracker {
 
     override fun log(event: Event) {
@@ -108,7 +110,7 @@ class FirebaseTracker @Inject constructor(
         "calling_package",
         "has_app_widget_sizes",
     )
-    
+
     /**
      * Firebase Analytic has 25 event params limit so we need to pick and choose params
      */
@@ -118,11 +120,11 @@ class FirebaseTracker @Inject constructor(
         )
         logKeyParamsEvent(newEvent)
     }
-    
+
     @OptIn(ExperimentalContracts::class)
     private fun isTickerRefreshEvent(event: Event): Boolean {
-        contract { 
-            returns(true) implies (event is KeyParamsEvent) 
+        contract {
+            returns(true) implies (event is KeyParamsEvent)
         }
         return event is KeyParamsEvent
             && (event.key == "widget_refresh" || event.key == "widget_save")
@@ -139,9 +141,7 @@ class FirebaseTracker @Inject constructor(
                 is Boolean -> bundle.putBoolean(key, value)
                 is Double -> bundle.putDouble(key, value)
                 is Float -> bundle.putFloat(key, value)
-                else -> if (value != null) {
-                    error("Unsupported $value for event ${event.key} -> $key")
-                }
+                else -> recordUnknownParamType(firebaseCrashlytics, event, key)
             }
         }
         if (BuildConfig.DEBUG) {
