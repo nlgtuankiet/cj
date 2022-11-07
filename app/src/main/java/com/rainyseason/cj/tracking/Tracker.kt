@@ -4,7 +4,7 @@ import android.os.Bundle
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.BuildConfig
-import com.rainyseason.cj.widget.WidgetRefreshEventInterceptor
+import com.rainyseason.cj.widget.OncePerDayEventInterceptor
 import com.rainyseason.cj.widget.WidgetRefreshFakeAmountInterceptor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -126,9 +126,9 @@ class FirebaseTracker @Inject constructor(
         contract {
             returns(true) implies (event is KeyParamsEvent)
         }
-        return event is KeyParamsEvent
-            && (event.key == "widget_refresh" || event.key == "widget_save")
-            && event.params.containsKey("backend")
+        return event is KeyParamsEvent &&
+            (event.key == "widget_refresh" || event.key == "widget_save") &&
+            event.params.containsKey("backend")
     }
 
     private fun logKeyParamsEvent(event: KeyParamsEvent) {
@@ -170,7 +170,7 @@ class AppTracker @Inject constructor(
     private val amplitudeTracker: AmplitudeTracker,
     private val debugTracker: DebugTracker,
     widgetRefreshFakeAmountInterceptor: WidgetRefreshFakeAmountInterceptor,
-    widgetRefreshEventInterceptor: WidgetRefreshEventInterceptor,
+    oncePerDayEventInterceptor: OncePerDayEventInterceptor,
 ) : Tracker {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val trackers: List<SyncTracker> by lazy {
@@ -186,7 +186,7 @@ class AppTracker @Inject constructor(
 
     private val interceptors: List<EventInterceptor> = listOf(
         widgetRefreshFakeAmountInterceptor,
-        widgetRefreshEventInterceptor,
+        oncePerDayEventInterceptor,
     )
 
     override fun log(event: Event): Job {

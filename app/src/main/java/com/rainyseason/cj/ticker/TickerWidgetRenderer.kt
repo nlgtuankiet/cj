@@ -53,6 +53,8 @@ import com.rainyseason.cj.databinding.WidgetCoinTicker2x2DefaultBinding
 import com.rainyseason.cj.databinding.WidgetCoinTicker2x2GraphBinding
 import com.rainyseason.cj.featureflag.DebugFlag
 import com.rainyseason.cj.featureflag.isEnable
+import com.rainyseason.cj.tracking.EventName
+import com.rainyseason.cj.tracking.EventParamKey
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
 import timber.log.Timber
@@ -758,9 +760,9 @@ class TickerWidgetRenderer @Inject constructor(
             val width = when {
                 minHeight == 0 -> {
                     tracker.logKeyParamsEvent(
-                        "get_widget_size_exception",
+                        EventName.GET_WIDGET_SIZE_EXCEPTION,
                         mapOf(
-                            "widget_id" to config.widgetId,
+                            EventParamKey.WIDGET_ID to config.widgetId,
                             "layout" to config.layout.id,
                             "full_size" to config.fullSize,
                             "size_adjustment" to config.sizeAdjustment,

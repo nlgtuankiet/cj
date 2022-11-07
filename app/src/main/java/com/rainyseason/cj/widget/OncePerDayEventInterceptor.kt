@@ -1,5 +1,6 @@
 package com.rainyseason.cj.widget
 
+import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.data.database.kv.KeyValueStore
 import com.rainyseason.cj.tracking.Event
 import com.rainyseason.cj.tracking.EventInterceptor
@@ -11,10 +12,18 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Event in [eventKeysToInclude] will be tracked once per day or its parameter changed
+ */
 @Singleton
-class WidgetRefreshEventInterceptor @Inject constructor(
+class OncePerDayEventInterceptor @Inject constructor(
     private val keyValueStore: KeyValueStore,
 ) : EventInterceptor {
+
+    private val eventKeysToInclude = arrayOf(
+        EventName.WIDGET_REFRESH,
+        EventName.GET_WIDGET_SIZE_EXCEPTION,
+    )
 
     /**
      * Track event when any of these properties changed.
@@ -25,10 +34,19 @@ class WidgetRefreshEventInterceptor @Inject constructor(
     )
 
     override suspend fun intercept(event: Event, process: suspend (Event) -> Unit) {
-        if (event is KeyParamsEvent && event.key == EventName.WIDGET_REFRESH) {
-            val widgetId = event.params[EventParamKey.WIDGET_ID] as? Int ?: return
-            val cacheKey = hashKey(widgetId)
-            val previousHash = keyValueStore.getLong(cacheKey)
+        if (event is KeyParamsEvent && event.key in eventKeysToInclude) {
+            val widgetId = event.params[EventParamKey.WIDGET_ID] as? Int
+            if (BuildConfig.DEBUG && widgetId == null) {
+                throw IllegalStateException(
+                    "Event ${event.key} much have ${EventParamKey.WIDGET_ID} param"
+                )
+            }
+            if (widgetId == null) {
+                return
+            }
+
+            val hashKey = hashKey(event.key, widgetId)
+            val previousHash = keyValueStore.getLong(hashKey)
 
             val currentHash = HashData(
                 params = event.params,
@@ -36,11 +54,11 @@ class WidgetRefreshEventInterceptor @Inject constructor(
             ).hashCode().toLong()
 
             if (currentHash != previousHash) {
-                keyValueStore.setLong(cacheKey, currentHash)
+                keyValueStore.setLong(hashKey, currentHash)
                 process(event)
             } else {
                 Timber.d(
-                    "Skip track ${EventName.WIDGET_REFRESH} for " +
+                    "Skip track ${event.key} for " +
                         "widget_id: $widgetId, params: ${event.params}"
                 )
             }
@@ -50,11 +68,13 @@ class WidgetRefreshEventInterceptor @Inject constructor(
     }
 
     suspend fun deleteHash(widgetId: Int) {
-        val key = hashKey(widgetId)
-        keyValueStore.delete(key)
+        eventKeysToInclude.forEach { key ->
+            val hashKey = hashKey(key, widgetId)
+            keyValueStore.delete(hashKey)
+        }
     }
 
-    private fun hashKey(widgetId: Int): String {
-        return "refresh_widget_event_hash_$widgetId"
+    private fun hashKey(eventKey: String, widgetId: Int): String {
+        return "event_hash_${eventKey}_$widgetId"
     }
 }

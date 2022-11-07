@@ -10,7 +10,7 @@ import com.rainyseason.cj.ticker.CoinTickerLayout
 import com.rainyseason.cj.ticker.usecase.CreateDefaultTickerWidgetConfig
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
-import com.rainyseason.cj.widget.WidgetRefreshEventInterceptor
+import com.rainyseason.cj.widget.OncePerDayEventInterceptor
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
@@ -23,7 +23,7 @@ class CoinTickerRepository @Inject constructor(
     private val context: Context,
     private val userSettingRepository: UserSettingRepository,
     private var keyValueStore: KeyValueStore,
-    private val widgetRefreshEventInterceptor: WidgetRefreshEventInterceptor,
+    private val oncePerDayEventInterceptor: OncePerDayEventInterceptor,
     private val tracker: Tracker,
     private val getDefaultTickerWidgetConfig: CreateDefaultTickerWidgetConfig,
 ) {
@@ -34,7 +34,7 @@ class CoinTickerRepository @Inject constructor(
         keyValueStore.withTransaction {
             keyValueStore.delete(displayDataKey(widgetId))
             keyValueStore.delete(configKey(widgetId))
-            widgetRefreshEventInterceptor.deleteHash(widgetId)
+            oncePerDayEventInterceptor.deleteHash(widgetId)
         }
     }
 

@@ -1,0 +1,21 @@
+rclone mount "cloud:/" "/Users/yata/cloud" \
+    -vv \
+    --vfs-cache-mode full \
+    --vfs-cache-max-age 10m \
+    --vfs-write-back 5s \
+    --vfs-cache-poll-interval 1s \
+    --vfs-cache-max-size 64M \
+    --transfers 64 \
+    --checkers 64 \
+    --drive-pacer-min-sleep 10ms \
+    --drive-pacer-burst 999999 \
+    --cache-dir "$RCLONE_LOCAL_PATH/cache" \
+    --temp-dir "$RCLONE_LOCAL_PATH/tmp" \
+    --log-file "$RCLONE_LOCAL_PATH/rclone.log" \
+    --file-perms 777 \
+    --dir-perms 777 \
+    --allow-non-empty \
+    --allow-other \
+    --umask 000 \
+    --drive-use-trash=false \
+    --devname "cloud"

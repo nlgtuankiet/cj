@@ -2,7 +2,7 @@ package com.rainyseason.cj.widget.watch
 
 import com.rainyseason.cj.data.UserSettingRepository
 import com.rainyseason.cj.data.database.kv.KeyValueStore
-import com.rainyseason.cj.widget.WidgetRefreshEventInterceptor
+import com.rainyseason.cj.widget.OncePerDayEventInterceptor
 import com.squareup.moshi.Moshi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -17,7 +17,7 @@ class WatchWidgetRepository @Inject constructor(
     moshi: Moshi,
     private val keyValueStore: KeyValueStore,
     private val userSettingRepository: UserSettingRepository,
-    private val widgetRefreshEventInterceptor: WidgetRefreshEventInterceptor,
+    private val oncePerDayEventInterceptor: OncePerDayEventInterceptor,
 ) {
     private fun configKey(widgetId: Int): String {
         return "config_$widgetId"
@@ -86,7 +86,7 @@ class WatchWidgetRepository @Inject constructor(
         keyValueStore.withTransaction {
             keyValueStore.delete(configKey(widgetId))
             keyValueStore.delete(displayDataKey(widgetId))
-            widgetRefreshEventInterceptor.deleteHash(widgetId)
+            oncePerDayEventInterceptor.deleteHash(widgetId)
         }
     }
 }

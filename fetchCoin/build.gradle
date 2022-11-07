@@ -1,6 +1,8 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm'
     id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'java'
 }
 
 applicationDefaultJvmArgs = ["-Dkotlinx.coroutines.debug"]
