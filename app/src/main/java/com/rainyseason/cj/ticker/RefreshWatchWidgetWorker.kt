@@ -14,6 +14,7 @@ import com.rainyseason.cj.common.model.Watchlist
 import com.rainyseason.cj.common.model.getWidgetIds
 import com.rainyseason.cj.common.usecase.GetWatchDisplayEntry
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
+import com.rainyseason.cj.tracking.EventName
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
 import com.rainyseason.cj.widget.watch.WatchDisplayData
@@ -68,7 +69,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
 
         if (appContext.isInBatteryOptimize()) {
             tracker.logKeyParamsEvent(
-                "widget_refresh_fail",
+                EventName.WIDGET_REFRESH_FAIL,
                 mapOf(
                     "reason" to "in_battery_optimize"
                 )
@@ -78,7 +79,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
 
         if (!appContext.hasValidNetworkConnection()) {
             tracker.logKeyParamsEvent(
-                "widget_refresh_fail",
+                EventName.WIDGET_REFRESH_FAIL,
                 mapOf("reason" to "no_network")
             )
             return Result.success()
@@ -91,7 +92,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
                 throw ex
             } else {
                 tracker.logKeyParamsEvent(
-                    "widget_refresh_fail",
+                    EventName.WIDGET_REFRESH_FAIL,
                     mapOf(
                         "reason" to "unknown",
                         "message" to ex.message

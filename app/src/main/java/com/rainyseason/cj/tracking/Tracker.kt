@@ -1,8 +1,5 @@
 package com.rainyseason.cj.tracking
 
-import android.os.Bundle
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.rainyseason.cj.BuildConfig
 import com.rainyseason.cj.widget.OncePerDayEventInterceptor
 import com.rainyseason.cj.widget.WidgetRefreshFakeAmountInterceptor
@@ -11,12 +8,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
-import javax.inject.Provider
 import javax.inject.Singleton
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 interface Event
 
@@ -70,99 +63,6 @@ fun Tracker.logClick(
 }
 
 // call site
-
-@Singleton
-class FirebaseTracker @Inject constructor(
-    private val firebaseAnalytics: Provider<FirebaseAnalytics>,
-    private val firebaseCrashlytics: Provider<FirebaseCrashlytics>,
-) : SyncTracker {
-
-    override fun log(event: Event) {
-        when {
-            isTickerRefreshEvent(event) -> logTickerWidgetRefresh(event)
-            event is KeyParamsEvent -> logKeyParamsEvent(event)
-        }
-    }
-
-    private val ticketWidgetRefreshWhiteList = setOf(
-        EventParamKey.WIDGET_ID,
-        "coin_id",
-        "backend",
-        "refresh_interval_seconds",
-        "theme",
-        "change_interval",
-        "layout",
-        "click_action",
-        "show_currency_symbol",
-        "currency",
-        "round_to_million",
-        "background_transparency",
-        "hide_decimal_on_large_price",
-        "show_notification",
-        "full_size",
-        "amount",
-        "network",
-        "dex",
-        "reverse_pair",
-        "display_symbol",
-        "display_name",
-        "reverse_positive_color",
-        "calling_package",
-        "has_app_widget_sizes",
-    )
-
-    /**
-     * Firebase Analytic has 25 event params limit so we need to pick and choose params
-     */
-    private fun logTickerWidgetRefresh(event: KeyParamsEvent) {
-        val newEvent = event.copy(
-            params = event.params.filter { it.key in ticketWidgetRefreshWhiteList }
-        )
-        logKeyParamsEvent(newEvent)
-    }
-
-    @OptIn(ExperimentalContracts::class)
-    private fun isTickerRefreshEvent(event: Event): Boolean {
-        contract {
-            returns(true) implies (event is KeyParamsEvent)
-        }
-        return event is KeyParamsEvent &&
-            (event.key == "widget_refresh" || event.key == "widget_save") &&
-            event.params.containsKey("backend")
-    }
-
-    private fun logKeyParamsEvent(event: KeyParamsEvent) {
-        val bundle = Bundle()
-        event.params.forEach { (key, value) ->
-            when (value) {
-                is Int -> bundle.putInt(key, value)
-                is Long -> bundle.putLong(key, value)
-                is String -> bundle.putString(key, value)
-                is Boolean -> bundle.putBoolean(key, value)
-                is Double -> bundle.putDouble(key, value)
-                is Float -> bundle.putFloat(key, value)
-                else -> recordUnknownParamType(firebaseCrashlytics, event, key)
-            }
-        }
-        if (BuildConfig.DEBUG) {
-            Timber.d("Log ${event.key} ${event.params}")
-        }
-        firebaseAnalytics.get().logEvent(event.key, bundle)
-    }
-}
-
-class DebugTracker @Inject constructor() : SyncTracker {
-    override fun log(event: Event) {
-        when (event) {
-            is KeyParamsEvent -> logKeyParamsEvent(event)
-        }
-    }
-
-    private fun logKeyParamsEvent(event: KeyParamsEvent) {
-        val params = event.params.toList().sortedBy { it.first }
-        Timber.d("""Log "${event.key}" values $params""")
-    }
-}
 
 @Singleton
 class AppTracker @Inject constructor(

@@ -11,6 +11,7 @@ import com.rainyseason.cj.common.hasValidNetworkConnection
 import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.usecase.GetDisplayData
+import com.rainyseason.cj.tracking.EventName
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.assisted.Assisted
@@ -50,7 +51,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
 
         if (appContext.isInBatteryOptimize()) {
             tracker.logKeyParamsEvent(
-                "widget_refresh_fail",
+                EventName.WIDGET_REFRESH_FAIL,
                 mapOf("reason" to "in_battery_optimize")
             )
             return Result.success()
@@ -58,7 +59,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
 
         if (!appContext.hasValidNetworkConnection()) {
             tracker.logKeyParamsEvent(
-                "widget_refresh_fail",
+                EventName.WIDGET_REFRESH_FAIL,
                 mapOf("reason" to "no_network")
             )
             return Result.success()
@@ -71,7 +72,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
                 throw ex
             } else {
                 tracker.logKeyParamsEvent(
-                    "widget_refresh_fail",
+                    EventName.WIDGET_REFRESH_FAIL,
                     mapOf(
                         "reason" to "unknown",
                         "message" to ex.message

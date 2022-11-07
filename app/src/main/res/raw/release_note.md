@@ -1,3 +1,6 @@
+### 2.6.0 Release
+🛠 Remove half of tracking data, the app now consume less battery life
+
 ### 2.5.1 Release
 
 🛠 Fix crash when we can't determine widget size
