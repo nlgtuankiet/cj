@@ -1,9 +1,9 @@
 package com.rainyseason.cj.common
 
+import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.remoteconfig.BuildConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.rainyseason.cj.tracking.Tracker
-import com.rainyseason.cj.tracking.logKeyParamsEvent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -15,12 +15,16 @@ import javax.inject.Singleton
 @Singleton
 class ConfigManager @Inject constructor(
     private val firebaseRemoteConfig: FirebaseRemoteConfig,
+    private val firebasePerformance: FirebasePerformance,
     private val tracker: Tracker
 ) {
     private val listeners = mutableListOf<ConfigChangeListener>()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val firstFetchJob = scope.launch {
-        val startTime = System.currentTimeMillis()
+        val configTrace = firebasePerformance.newTrace("remote_config")
+        configTrace.start()
+
+        val fetchStartTime = System.currentTimeMillis()
         val fetchResult = runCatching {
             firebaseRemoteConfig.fetch(1).await()
         }.onFailure {
@@ -28,7 +32,7 @@ class ConfigManager @Inject constructor(
                 it.printStackTrace()
             }
         }
-
+        val fetchEndTime = System.currentTimeMillis()
         val activateResult = runCatching {
             firebaseRemoteConfig.activate().await()
             notifyListeners()
@@ -37,16 +41,13 @@ class ConfigManager @Inject constructor(
                 it.printStackTrace()
             }
         }
-        val endTime = System.currentTimeMillis()
-        val totalTime = endTime - startTime
-        tracker.logKeyParamsEvent(
-            "remote_config_stats",
-            mapOf(
-                "fetch_success" to fetchResult.isSuccess,
-                "activate_success" to activateResult.isSuccess,
-                "time" to totalTime
-            )
-        )
+        val activeEndTime = System.currentTimeMillis()
+        configTrace.putMetric("fetch", fetchEndTime - fetchStartTime)
+        configTrace.putMetric("active", activeEndTime - fetchEndTime)
+        configTrace.putMetric("fetch_active", activeEndTime - fetchStartTime)
+        configTrace.putAttribute("fetch_success", fetchResult.isSuccess.toString())
+        configTrace.putAttribute("activate_success", activateResult.isSuccess.toString())
+        configTrace.stop()
     }
 
     suspend fun awaitFirstFetch() {
