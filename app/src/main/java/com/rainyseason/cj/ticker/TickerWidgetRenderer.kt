@@ -759,29 +759,7 @@ class TickerWidgetRenderer @Inject constructor(
             val height = context.dpToPx(75) + context.dpToPx(config.sizeAdjustment)
             val width = when {
                 minHeight == 0 -> {
-                    tracker.logKeyParamsEvent(
-                        EventName.GET_WIDGET_SIZE_EXCEPTION,
-                        mapOf(
-                            EventParamKey.WIDGET_ID to config.widgetId,
-                            "layout" to config.layout.id,
-                            "full_size" to config.fullSize,
-                            "size_adjustment" to config.sizeAdjustment,
-                            "OPTION_APPWIDGET_MIN_WIDTH"
-                                to options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH),
-                            "OPTION_APPWIDGET_MIN_HEIGHT"
-                                to options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT),
-                            "OPTION_APPWIDGET_MAX_WIDTH"
-                                to options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH),
-                            "OPTION_APPWIDGET_MAX_HEIGHT"
-                                to options.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT),
-                        ) + if (BuildCompat.isAtLeastS()) {
-                            val sizeF = options.getAppWidgetSizes()?.firstOrNull()
-                            mapOf(
-                                "OPTION_APPWIDGET_SIZES_WIDTH" to sizeF?.width,
-                                "OPTION_APPWIDGET_SIZES_HEIGHT" to sizeF?.height
-                            )
-                        } else emptyMap()
-                    )
+                    // TODO log to crashlytic
                     height
                 }
                 minWidth / minHeight >= 2 -> {
