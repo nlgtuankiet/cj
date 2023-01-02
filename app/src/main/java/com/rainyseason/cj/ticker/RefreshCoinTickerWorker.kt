@@ -12,6 +12,7 @@ import com.rainyseason.cj.common.isInBatteryOptimize
 import com.rainyseason.cj.data.local.CoinTickerRepository
 import com.rainyseason.cj.ticker.usecase.GetDisplayData
 import com.rainyseason.cj.tracking.EventName
+import com.rainyseason.cj.tracking.EventParamKey
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
 import dagger.assisted.Assisted
@@ -52,7 +53,10 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         if (appContext.isInBatteryOptimize()) {
             tracker.logKeyParamsEvent(
                 EventName.WIDGET_REFRESH_FAIL,
-                mapOf("reason" to "in_battery_optimize")
+                mapOf(
+                    "reason" to "in_battery_optimize",
+                    EventParamKey.WIDGET_ID to widgetId,
+                )
             )
             return Result.success()
         }
@@ -60,7 +64,10 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
         if (!appContext.hasValidNetworkConnection()) {
             tracker.logKeyParamsEvent(
                 EventName.WIDGET_REFRESH_FAIL,
-                mapOf("reason" to "no_network")
+                mapOf(
+                    "reason" to "no_network",
+                    EventParamKey.WIDGET_ID to widgetId,
+                )
             )
             return Result.success()
         }
@@ -75,7 +82,7 @@ class RefreshCoinTickerWorker @AssistedInject constructor(
                     EventName.WIDGET_REFRESH_FAIL,
                     mapOf(
                         "reason" to "unknown",
-                        "message" to ex.message
+                        EventParamKey.WIDGET_ID to widgetId,
                     )
                 )
                 firebaseCrashlytics.recordException(ex)

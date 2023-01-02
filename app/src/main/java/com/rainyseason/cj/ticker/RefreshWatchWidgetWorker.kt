@@ -15,6 +15,7 @@ import com.rainyseason.cj.common.model.getWidgetIds
 import com.rainyseason.cj.common.usecase.GetWatchDisplayEntry
 import com.rainyseason.cj.data.coingecko.CoinGeckoService
 import com.rainyseason.cj.tracking.EventName
+import com.rainyseason.cj.tracking.EventParamKey
 import com.rainyseason.cj.tracking.Tracker
 import com.rainyseason.cj.tracking.logKeyParamsEvent
 import com.rainyseason.cj.widget.watch.WatchDisplayData
@@ -71,7 +72,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
             tracker.logKeyParamsEvent(
                 EventName.WIDGET_REFRESH_FAIL,
                 mapOf(
-                    "reason" to "in_battery_optimize"
+                    EventParamKey.WIDGET_ID to widgetId,
                 )
             )
             return Result.success()
@@ -80,7 +81,10 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
         if (!appContext.hasValidNetworkConnection()) {
             tracker.logKeyParamsEvent(
                 EventName.WIDGET_REFRESH_FAIL,
-                mapOf("reason" to "no_network")
+                mapOf(
+                    "reason" to "no_network",
+                    EventParamKey.WIDGET_ID to widgetId,
+                )
             )
             return Result.success()
         }
@@ -95,7 +99,7 @@ class RefreshWatchWidgetWorker @AssistedInject constructor(
                     EventName.WIDGET_REFRESH_FAIL,
                     mapOf(
                         "reason" to "unknown",
-                        "message" to ex.message
+                        EventParamKey.WIDGET_ID to widgetId,
                     )
                 )
                 firebaseCrashlytics.recordException(ex)

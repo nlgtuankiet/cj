@@ -22,7 +22,7 @@ class OncePerDayEventInterceptor @Inject constructor(
 
     private val eventKeysToInclude = arrayOf(
         EventName.WIDGET_REFRESH,
-        EventName.GET_WIDGET_SIZE_EXCEPTION,
+        EventName.WIDGET_REFRESH_FAIL,
     )
 
     /**
